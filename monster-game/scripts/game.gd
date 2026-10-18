@@ -85,6 +85,8 @@ var sprite_state = 0
 var sprite_npcs = false
 var sprite_clock = 0.0
 var sprite_paused = false
+# Only the fly uses this lightweight visual transition cache (keyed by member id).
+var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
 var lab_active = false
 var lab_count = 36
@@ -193,6 +195,7 @@ func change_screen(next: String) -> void :
 	queue_redraw()
 
 func start_run() -> void :
+	fly_visual_states.clear()
 	fly_panic_until = -1.0
 	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0
 	run_settled = false;run_report = {};data.active_souls = 0
@@ -853,7 +856,11 @@ func draw_run() -> void :
 					var angle = a + k * 0.38
 					bolt.append(centre + Vector2(cos(angle), sin(angle)) * (36 + (k % 2) * 15))
 				paint_target.draw_polyline(bolt, Color(0.65, 1, 0.96, sin(progress * PI) * 0.9), 2.4, true)
-		else: actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
+		else:
+			if kind == 3 and actor.fly_approved.has_assets():
+				paint_fly_smooth(member, foot, height, phase, state, blink, i)
+			else:
+				actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
 	for e in runner.entities:
 		if not e.taken and e.kind in ["civilian", "soldier", "police"] and e.state == "capture": draw_civilian(e)
 	effects.paint(paint_target, art, actor)
@@ -1098,6 +1105,49 @@ func capture_preview() -> void :
 	perform_action("resume"); await capture_frame(base + "-tablet.png")
 	print("HORDE_CAPTURE_OK: 40 real screens; close camera at 16:9, wide phone and 4:3 tablet, animated HUD/souls, power store/transformations, police, occupied/damaged/burning vehicles, chained terrain, tunnels/results/ritual")
 	get_tree().quit()
+
+# Crossfade the last actual fly frame into the next clip for 0.14 seconds.
+# Time for fall/push is measured from the state entry, not from the game
+# clock or vertical velocity; pushing therefore loops until the car is done.
+func paint_fly_smooth(member: Dictionary, foot: Vector2, height: float, phase: float, state: String, tint: Color, index: int) -> void:
+	var identity: int = int(member.id)
+	var landing: float = float(member.land_left)
+	var clip: String = HordeFlyApprovedSprite.animation_for(state, landing)
+	var old: Dictionary = fly_visual_states.get(identity, {})
+	var changed: bool = str(old.get("clip", "")) != clip
+	if changed:
+		old = {
+			"clip": clip,
+			"entered": runner.elapsed,
+			"from_state": str(old.get("state", "")),
+			"from_phase": float(old.get("phase", phase)),
+			"from_time": float(old.get("clock", runner.elapsed)),
+			"from_landing": float(old.get("landing", 0.0)),
+			"from_air_age": float(old.get("air_age", -1.0)),
+			"from_vy": float(old.get("vy", 0.0)),
+		}
+	var age: float = maxf(0.0, runner.elapsed - float(old.get("entered", runner.elapsed)))
+	var clock: float = age if state in ["fall", "push"] else runner.elapsed + index * 0.071
+	var blend: float = clampf(age / HordeFlyApprovedSprite.TRANSITION_SECONDS, 0.0, 1.0)
+	var previous_state: String = str(old.get("from_state", ""))
+	if not previous_state.is_empty() and blend < 1.0:
+		var faded: Color = Color(tint.r, tint.g, tint.b, tint.a * (1.0 - blend))
+		actor.paint(paint_target, 3, foot, height, float(old["from_phase"]), previous_state,
+			float(old["from_time"]), float(old["from_landing"]), faded, false, 1.0, true,
+			float(old["from_air_age"]), float(old["from_vy"]))
+	var opacity: float = blend if not previous_state.is_empty() else 1.0
+	var current_tint: Color = Color(tint.r, tint.g, tint.b, tint.a * opacity)
+	actor.paint(paint_target, 3, foot, height, phase, state, clock, landing,
+		current_tint, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
+	old["state"] = state
+	old["phase"] = phase
+	old["clock"] = clock
+	old["landing"] = landing
+	old["air_age"] = float(member.air_time)
+	old["vy"] = float(member.vy)
+	if fly_visual_states.size() > 192:
+		fly_visual_states.clear()
+	fly_visual_states[identity] = old
 
 func animation_state(member: Dictionary) -> String:
 	if member.falling: return "fall"
@@ -1681,7 +1731,13 @@ func draw_sprite_lab() -> void:
 			text("Sprites da civil feminina ainda nao carregados", Vector2(640, 355), 21, CORAL, false, true)
 	else:
 		var kind = [4, 6, 7, 8, 5][sprite_subject] if sprite_npcs else sprite_subject
-		actor.paint(paint_target, kind, foot, 300, sprite_clock * 1.4, states[sprite_state], sprite_clock)
+		var preview_state: String = str(states[sprite_state])
+		var preview_phase: float = sprite_clock * 1.4
+		if kind == 3 and preview_state in ["capture", "panic"]:
+			# Loop non-running previews; do not freeze on their final frames.
+			var preview_duration: float = 1.25 if preview_state == "capture" else 1.12
+			preview_phase = fposmod(sprite_clock, preview_duration) / (preview_duration * (0.88 if preview_state == "capture" else 1.0))
+		actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
 	button(Rect2(70, 580, 365, 54), "PRÓXIMO PERSONAGEM", "sprite_subject", Color("513c67"), -2, 20)
 	button(Rect2(457, 580, 365, 54), "PRÓXIMA ANIMAÇÃO", "sprite_state", Color("513c67"), -2, 20)
 	button(Rect2(844, 580, 365, 54), "CONTINUAR" if sprite_paused else "PAUSAR", "sprite_pause", Color("4c786a"), -2, 20)
