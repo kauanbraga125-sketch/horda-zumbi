@@ -3,7 +3,7 @@ name: Horda 0.8.13 — esqueleto com escala e pisada ajustadas
 on:
   workflow_dispatch:
   push:
-    branches: [feat/esqueleto-0813-base-estavel-limpa]
+    branches: [feat/esqueleto-0813-base-estavel-limpa, feat/garota-4-animacoes-esqueleto-idle-panic-0813]
     paths: ['monster-game/**', '.github/workflows/noite-da-horda-android.yml']
 
 permissions:
@@ -51,6 +51,29 @@ jobs:
               assert header[25]==6,(name,'not RGBA')
           print('ORIGINAL_ZOMBIE_PRESERVED; SKELETON_FOUR_ATLASES_VALID')
           PY
+
+      - name: Install supplemental civilian and skeleton animations
+        run: |
+          set -euo pipefail
+          if [ -s monster-game/novas_animacoes_v0813.zip ]; then
+            unzip -o -q monster-game/novas_animacoes_v0813.zip -d .
+            python3 - <<'PY'
+          import struct
+          from pathlib import Path
+          root=Path('monster-game/assets/art')
+          specs=[('civil-feminina-v0813',s,1536,1536) for s in ('idle','startle','run','capture')]
+          specs += [('esqueleto_aprovado',s,2304,864) for s in ('idle','panic')]
+          for folder,clip,w,h in specs:
+              p=root/folder/(clip+'.png')
+              raw=p.read_bytes()[:26]
+              assert raw[:8]==b'\\x89PNG\\r\\n\\x1a\\n', str(p)
+              assert struct.unpack('>II',raw[16:24])==(w,h), str(p)
+              assert raw[25]==6, str(p)
+          print('SIX_NEW_SPRITE_ATLASES_VALIDATED; ORIGINAL_ZOMBIE_UNTOUCHED')
+          PY
+          else
+            echo "Supplemental ZIP not yet uploaded; original sprites preserved."
+          fi
 
       - name: Require full corrected 0.8.13 source tree
         run: |
