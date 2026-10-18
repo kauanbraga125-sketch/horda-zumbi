@@ -3,7 +3,7 @@ name: Horda 0.8.13 — Mosca Mutante (teste)
 on:
   workflow_dispatch:
   push:
-    branches: [feat/mosca-aprovada-v0813]
+    branches: [feat/mosca-aprovada-v0813, feat/playtest-analytics-speed-dialogue-v0813]
     paths:
       - 'monster-game/assets/art/mosca_aprovada/*.png'
       - 'monster-game/scripts/**'
