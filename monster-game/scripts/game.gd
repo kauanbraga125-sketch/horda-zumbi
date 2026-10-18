@@ -379,8 +379,17 @@ func perform_action(action: String) -> void :
 			sprite_npcs = kind == "npcs";sprite_clock = 0;sprite_subject = 0;sprite_state = 0;change_screen("sprite_lab")
 		else: start_lab(kind)
 		return
-	if action == "sprite_subject": sprite_subject = (sprite_subject + 1) % (5 if sprite_npcs else 4);sprite_clock = 0;return
-	if action == "sprite_state": sprite_state = (sprite_state + 1) % 7;sprite_clock = 0;return
+	if action == "sprite_subject":
+		sprite_subject = (sprite_subject + 1) % (5 if sprite_npcs else 4)
+		sprite_state = 0
+		sprite_clock = 0.0
+		sprite_paused = false
+		return
+	if action == "sprite_state":
+		sprite_state = (sprite_state + 1) % sprite_lab_labels().size()
+		sprite_clock = 0.0
+		sprite_paused = false
+		return
 	if action == "sprite_pause": sprite_paused = not sprite_paused;return
 	if action == "back" and screen == "sprite_lab": change_screen("developer");return
 	if action == "lab_delay":
@@ -1591,9 +1600,15 @@ func draw_collision_guides() -> void:
 		elif e.kind in ["gap", "collapse"]:
 			paint_target.draw_rect(Rect2(e.x, e.y, e.width, 100), Color(1, 0.3, 0.2, 0.18), false, 2)
 
+func sprite_lab_labels() -> Array[String]:
+	# New female civilian has four complete animations, not seven old rig states.
+	if sprite_npcs and sprite_subject == 1:
+		return HordeCivilWomanSprite.LAB_LABELS
+	return ["idle", "run", "rise", "fall", "capture", "push", "panic"]
+
 func draw_sprite_lab() -> void:
 	var names = ["Civil de casaco azul", "Civil mulher", "Trabalhador", "Policial", "Soldado"] if sprite_npcs else ["Zumbi", "Esqueleto", "Mascarado", "Mosca Mutante"]
-	var states = ["idle", "run", "rise", "fall", "capture", "push", "panic"]
+	var states = sprite_lab_labels()
 	home_menu.label(self, "TESTE DE SPRITES", Vector2(70, 102), 38, GOLD, false, -1, true, 4)
 	text(names[sprite_subject] + "  •  " + states[sprite_state], Vector2(70, 146), 23, CREAM)
 	panel(Rect2(70, 180, 1140, 375), Color("20182f"), Color("785b83"))
@@ -1607,6 +1622,26 @@ func draw_sprite_lab() -> void:
 		var flipped = clip in ["parado_nervoso", "captura", "transicao_corrida_captura"] or (clip == "susto_inicio_fuga" and HordeCivilSprite.sample(clip, clock) < 6)
 		art.civil.paint(paint_target, {"state": "normal", "civil_clip": clip, "civil_time": clock, "civil_flip": flipped}, foot, 300)
 		text(clip + "  •  quadro " + str(HordeCivilSprite.sample(clip, clock) + 1), Vector2(640, 222), 18, GOLD, false, true)
+	elif sprite_npcs and sprite_subject == 1:
+		# The gameplay already uses HordeCivilWomanSprite. The lab must use it too.
+		var girl_clips: Array[String] = HordeCivilWomanSprite.LAB_CLIPS
+		var clip: String = girl_clips[clampi(sprite_state, 0, girl_clips.size() - 1)]
+		var spec: Dictionary = HordeCivilWomanSprite.CLIPS[clip]
+		var duration: float = float(spec["frames"]) / float(spec["fps"])
+		var rest: float = 0.55 if clip in ["startle", "capture"] else 0.0
+		var preview_age: float = minf(fposmod(sprite_clock, duration + rest), duration - 0.0001)
+		var preview_entity: Dictionary = {
+			"woman_clip": clip,
+			"woman_time": preview_age,
+			"woman_reverse": false,
+			"state": "capture" if clip == "capture" else "normal",
+			"capture_left": maxf(0.0, 0.62 - preview_age)
+		}
+		if art.woman.has_assets():
+			art.woman.paint(paint_target, preview_entity, foot, 300.0)
+			text("NOVA ARTE  •  quadro " + str(HordeCivilWomanSprite.sample(clip, preview_age) + 1) + " / " + str(spec["frames"]), Vector2(640, 222), 18, GOLD, false, true)
+		else:
+			text("Sprites da civil feminina ainda nao carregados", Vector2(640, 355), 21, CORAL, false, true)
 	else:
 		var kind = [4, 6, 7, 8, 5][sprite_subject] if sprite_npcs else sprite_subject
 		actor.paint(paint_target, kind, foot, 300, sprite_clock * 1.4, states[sprite_state], sprite_clock)
