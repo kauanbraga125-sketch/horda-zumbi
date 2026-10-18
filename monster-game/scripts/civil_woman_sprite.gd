@@ -5,6 +5,9 @@ extends RefCounted
 const ROOT = "res://assets/art/civil-feminina-v0813/"
 const TILE = Vector2(256, 256)
 const COLUMNS = 6
+# Labels and clip order shown ONLY for female civilian in developer NPC sprite lab.
+const LAB_CLIPS = ["idle", "startle", "run", "capture"]
+const LAB_LABELS = ["PARADA", "SUSTO", "CORRIDA", "QUEDA / CAPTURA"]
 const BODY_HEIGHT = 182.0
 const FOOT_Y = 244.0
 const CLIPS = {
