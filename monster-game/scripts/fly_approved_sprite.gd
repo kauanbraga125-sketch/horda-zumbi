@@ -5,7 +5,21 @@ extends RefCounted
 const ROOT: String = "res://assets/art/mosca_aprovada/"
 const CELL: Vector2 = Vector2(384, 288)
 const COLUMNS: int = 6
+# Idle/flight is the reference. Different painted bounds need different
+# denominators even though every atlas uses identical 384x288 cells.
 const BODY_HEIGHT: float = 188.0
+const RUN_PHASE_SPEED: float = 0.42
+const TRANSITION_SECONDS: float = 0.14
+const VISIBLE_HEIGHT = {
+	"voo": BODY_HEIGHT,
+	"corrida": 216.0,
+	"pouso": 236.0,
+	"captura": 209.0,
+	"push": 216.0,
+	"dano": 204.0,
+}
+const FALL_FPS: float = 16.0
+const PUSH_FPS: float = 18.0
 const ATLAS_INFO = {
 	"voo": ["voo.png", 36],
 	"corrida": ["corrida.png", 30],
@@ -50,12 +64,20 @@ static func frame_for(state: String, phase: float, time: float, landing: float, 
 		"run":
 			if landing > 0.0:
 				return clampi(18 + int((0.2 - landing) / 0.2 * 6.0), 18, 23)
-			return posmod(int(fposmod(phase, 1.0) * 30.0), 30)
+			return posmod(int(fposmod(phase * RUN_PHASE_SPEED, 1.0) * 30.0), 30)
 		"fall":
-			return clampi(int(clampf(vertical_speed / 260.0, 0.0, 1.0) * 17.0), 0, 17)
-		"capture", "push", "panic", "panic_run":
-			var limit := 15 if state in ["panic", "panic_run"] else 35
-			return clampi(int(clampf(phase, 0.0, 1.0) * float(limit)), 0, limit)
+			# Velocity alone froze the image at a constant falling speed.
+			# Animate all 18 descent frames; frames 18-23 play on landing.
+			return posmod(int(maxf(0.0, time) * FALL_FPS), 18)
+		"capture":
+			# A modest slowdown without altering the 0.62-second capture.
+			return clampi(int(clampf(phase * 0.88, 0.0, 1.0) * 35.0), 0, 35)
+		"push":
+			# Continuous looping throughout a physical vehicle push,
+			# independent of the short push_left timer at the bumper.
+			return posmod(int(maxf(0.0, time) * PUSH_FPS), 36)
+		"panic", "panic_run":
+			return clampi(int(clampf(phase, 0.0, 1.0) * 15.0), 0, 15)
 	return 0
 
 static func pivot_y(animation: String, frame: int) -> float:
@@ -68,7 +90,7 @@ func paint(canvas: Node2D, foot: Vector2, height: float, phase: float, state: St
 	if not textures.has(anim): return
 	var frame := frame_for(state, phase, time, landing, vertical_speed)
 	var region := Rect2(float(frame % COLUMNS) * CELL.x, float(int(frame / COLUMNS)) * CELL.y, CELL.x, CELL.y)
-	var scale := height / BODY_HEIGHT
+	var scale := height / float(VISIBLE_HEIGHT[anim])
 	var top_left := Vector2(-CELL.x * 0.5, -pivot_y(anim, frame)) * scale
 	var position := foot
 	if state in ["idle", "fly", "rise"]:
