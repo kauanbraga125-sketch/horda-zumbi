@@ -36,6 +36,7 @@ var ui_time = 0.0
 var buttons: Array[Dictionary] = []
 var jump_held = false
 var jump_touches: Dictionary = {}
+var fly_panic_until: float = -1.0
 var toast = ""
 var toast_left = 0.0
 var shake = 0.0
@@ -190,6 +191,7 @@ func change_screen(next: String) -> void :
 	queue_redraw()
 
 func start_run() -> void :
+	fly_panic_until = -1.0
 	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0
 	run_settled = false;run_report = {};data.active_souls = 0
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
@@ -286,6 +288,10 @@ func consume_run_events() -> void :
 					var rescued_count = int(e.get("rescued_count", MonsterCatalog.VEHICLES[object_kind].rescues))
 					show_toast("VEÍCULO VIRADO!" + (" +" + str(rescued_count) + " ALMAS CONVERTIDAS" if rescued_count > 0 else ""), 1.7)
 			"hit":
+				if int(e.kind) == 3 and str(e.get("cause", "")) not in ["fall", "camera"]:
+					fly_panic_until = runner.elapsed + 0.52
+					effects.spark(point - Vector2(0, 45), Color("ffb3a6"), 12)
+					effects.ring(point - Vector2(0, 45), Color("ffdfaa"))
 				sound.play("pit_fall" if str(e.get("cause", "")) == "fall" else "member_lost", -15)
 				if str(e.get("cause", "")) not in ["fall", "camera"]: sound.play("hit", -17)
 				shake = 5
@@ -803,6 +809,8 @@ func draw_run() -> void :
 		if state == "fly": foot.y += sin(runner.elapsed * 7 + i) * 3
 		var height = 112.0 * (1 + sin(member.arrival / 0.35 * PI) * 0.1) * (1.4 if runner.perk_kind == 2 and runner.perk_left > 0 and int(runner.power_levels.get("mask_size", 0)) > 0 else 1)
 		var phase = (0.62 - float(member.attack_left)) / 0.62 if state == "capture" else float(member.run_phase)
+		if kind == 3 and state == "push": phase = clampf((0.42 - float(member.push_left)) / 0.42, 0.0, 1.0)
+		if kind == 3 and state == "panic": phase = clampf(1.0 - (fly_panic_until - runner.elapsed) / 0.52, 0.0, 1.0)
 		if not member.falling:
 			var shadow_size = clampf(1 - (runner.ground_y(member.x) - member.y) / 420, 0.25, 1)
 			paint_target.draw_set_transform(Vector2(foot.x, float(member.get("surface_y", runner.ground_y(member.x))) + 4), 0, Vector2(23 * shadow_size, 4 * shadow_size))
@@ -810,6 +818,8 @@ func draw_run() -> void :
 			paint_target.draw_set_transform(Vector2.ZERO)
 			if runner.shields > 0: paint_target.draw_arc(foot - Vector2(0, 56), 62, 0, TAU, 32, Color(0.5, 0.9, 1, 0.4), 3, true)
 		var blink = Color(1, 1, 1, 0.45) if runner.hit_grace > 0 and int(ui_time * 14) % 2 == 0 else Color.WHITE
+		if kind == 3 and state == "panic":
+			blink = Color(1, 0.82, 0.86, 0.45 if int(ui_time * 17) % 2 == 0 else 1.0)
 		if runner.transform_left > 0:
 			var progress = 1 - runner.transform_left / runner.transform_duration
 			var blend = smoothstep(0.16 + i * 0.007, 0.84 + i * 0.006, progress)
@@ -1073,9 +1083,15 @@ func animation_state(member: Dictionary) -> String:
 	if member.falling: return "fall"
 	if member.attack_left > 0: return "capture"
 	if member.push_left > 0 and member.y >= runner.ground_y(member.x) - 12: return "push"
-	# Skeleton kind 1 panics briefly after a horde hit; do not alter other monsters.
+	# Original skeleton logic remains unchanged; fly panic applies only to the active fly.
+	if (int(member.get("kind", -1)) == 3 or (runner.perk_kind == 3 and runner.perk_left > 0)) and runner.elapsed < fly_panic_until and runner.transform_left <= 0.0:
+		return "panic"
 	if int(member.get("kind", -1)) == 1 and runner.hit_grace > 0.0 and runner.transform_left <= 0.0: return "panic"
-	if runner.perk_kind == 3 and runner.perk_left > 0: return "fly"
+	if runner.perk_kind == 3 and runner.perk_left > 0:
+		# Existing held-touch control descends the fly; running starts at ground contact.
+		if jump_held:
+			return "run" if member.y >= runner.ground_y(member.x) - 9.0 else "fall"
+		return "fly"
 	if member.get("roof_id", -1) >= 0 and absf(float(member.vy)) < 0.1: return "run"
 	if member.y < runner.ground_y(member.x) - 4: return "rise" if member.vy < 0 else "fall"
 	return "run"

@@ -57,7 +57,7 @@ func explosion(pos: Vector2) -> void :
 
 func death(kind: int, pos: Vector2) -> void :
 	if deaths.size() >= 24: deaths.pop_front()
-	deaths.append({"kind": kind, "pos": Vector2(pos.x, HordeRun.FLOOR), "life": 0.85, "duration": 0.85})
+	deaths.append({"kind": kind, "pos": pos if kind == 3 else Vector2(pos.x, HordeRun.FLOOR), "life": 0.85, "duration": 0.85})
 	if kind == 1:
 		for index in [0, 1, 2, 3, 4, 5, 6, 7, 5, 6, 7]:
 			var p = add("bone", pos + Vector2(randf_range(-12, 12), randf_range(-45, 18)), Vector2(randf_range(-140, 140), randf_range(-250, -70)), Color.WHITE, 35 if index == 0 else 20, 0.8, 850)
@@ -66,10 +66,8 @@ func death(kind: int, pos: Vector2) -> void :
 		var p = add("mask", pos - Vector2(0, 28), Vector2(80, -180), Color.WHITE, 43, 0.8, 700)
 		for i in range(14): add("dust", pos + Vector2(0, -30), Vector2(randf_range(-60, 60), randf_range(-80, -20)), Color("ae8bca"), randf_range(8, 16), 0.55)
 	elif kind == 3:
-		add("fly", pos - Vector2(0, 20), Vector2(60, -70), Color.WHITE, 48, 0.8, 450)
-		for i in range(4):
-			var wing = add("wing", pos, Vector2(randf_range(-100, 100), randf_range(-130, -50)), Color(0.85, 0.75, 1, 0.9), 30, 0.75, 320)
-			wing.spin = 12
+		spark(pos - Vector2(0, 34), Color("ffca9b"), 16)
+		ring(pos - Vector2(0, 34), Color("ee7eaa"))
 	else: dust(Vector2(pos.x, HordeRun.FLOOR), 12, 1.2)
 
 func ghost(kind: int, foot: Vector2, phase: float, state: String, landing: float) -> void :
@@ -106,6 +104,12 @@ func draw_trails(canvas: Node2D, actor: HordeActor, time: float) -> void :
 
 func paint(canvas: Node2D, art: HordeArt, actor: HordeActor = null) -> void :
 	for d in deaths:
+		if d.kind == 3 and actor != null:
+			var damage_progress: float = 1.0 - float(d.life) / float(d.duration)
+			var fade: float = minf(1.0, float(d.life) / 0.25)
+			var color := Color(1.0, 0.9, 0.92, fade * (0.52 if int(damage_progress * 17) % 2 == 0 else 1.0))
+			actor.paint(canvas, 3, d.pos - Vector2(0, sin(damage_progress * PI) * 14), 112.0, damage_progress, "panic", damage_progress, 0.0, color)
+			continue
 		if d.kind != 0: continue
 		var t = 1 - d.life / d.duration
 		var point = d.pos + Vector2(0, maxf(0, t - 0.63) * 140)

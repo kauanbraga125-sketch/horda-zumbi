@@ -7,11 +7,13 @@ var facing = 1.0
 var basis_angle = 0.0
 var zombie: HordeZombieSprite
 var skeleton_approved: HordeSkeletonApprovedSprite
+var fly_approved: HordeFlyApprovedSprite
 
 func _init(source: HordeArt) -> void :
 	art = source
 	zombie = HordeZombieSprite.new()
 	skeleton_approved = HordeSkeletonApprovedSprite.new()
+	fly_approved = HordeFlyApprovedSprite.new()
 
 # One route function governs ALL actor draws (gameplay, menu, previews).
 # This is also exercised by tests to prevent swapping rig 0 and rig 1 again.
@@ -20,6 +22,8 @@ func renderer_for(kind: int, state: String, landing: float) -> String:
 		return "zombie_original"
 	if kind == 1 and skeleton_approved.has_state(state, landing):
 		return "skeleton_approved"
+	if kind == 3 and fly_approved.has_assets():
+		return "fly_approved"
 	return "original_rig"
 
 static func stride_foot(phase: float) -> Vector2:
@@ -75,6 +79,9 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 		return
 	if render_route == "skeleton_approved":
 		skeleton_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
+		return
+	if render_route == "fly_approved":
+		fly_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
 		return
 	facing = -1.0 if reverse else 1.0
 	var scale = height / 112.0

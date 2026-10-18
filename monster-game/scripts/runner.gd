@@ -955,7 +955,7 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 		if not entity.contacts.has(m.id):
 			if m.y >= entity.y - 12: entity.contacts[m.id] = member_force();entity.state = "pushing"
 			events.append({"type": "contact", "x": edge, "y": entity.y - 30, "count": entity.contacts.size(), "need": need})
-		m.push_left = 0.15
+		m.push_left = 0.42 if perk_kind == 3 and perk_left > 0 else 0.15
 		m.x = minf(m.x, edge - 18)
 	# Damage after iteration: removing an array element while traversing members
 	# could make another member inherit the wrong collision index.
