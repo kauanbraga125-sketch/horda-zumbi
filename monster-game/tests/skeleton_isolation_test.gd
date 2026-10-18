@@ -54,6 +54,18 @@ func check_routes() -> void:
 	check(HordeFlyApprovedSprite.VISIBLE_HEIGHT["corrida"] > HordeFlyApprovedSprite.BODY_HEIGHT, "Fly run scale was not normalized to idle")
 	check(HordeFlyApprovedSprite.VISIBLE_HEIGHT["pouso"] > HordeFlyApprovedSprite.VISIBLE_HEIGHT["corrida"], "Fly fall scale was not normalized")
 	check(HordeFlyApprovedSprite.TRANSITION_SECONDS > 0.0 and HordeFlyApprovedSprite.TRANSITION_SECONDS <= 0.2, "Fly sprite changes must crossfade quickly")
+	# All fly sheets share the same game-side color-grading contract,
+	# without editing approved PNGs or changing the other actor renderers.
+	for clip in HordeFlyApprovedSprite.ATLAS_INFO:
+		var grade: Color = HordeFlyApprovedSprite.palette_grade_for(clip)
+		check(grade.a == 1.0, "Fly palette correction must preserve sprite opacity: " + str(clip))
+		check(grade.r >= 0.95 and grade.r <= 1.10, "Fly red correction is too strong: " + str(clip))
+		check(grade.g >= 0.98 and grade.g <= 1.20, "Fly green correction is too strong: " + str(clip))
+		check(grade.b >= 0.98 and grade.b <= 1.18, "Fly blue correction is too strong: " + str(clip))
+	check(HordeFlyApprovedSprite.transition_duration("voo", "pouso") > HordeFlyApprovedSprite.TRANSITION_SECONDS,
+		"Fly-to-fall needs a longer color crossfade")
+	check(HordeFlyApprovedSprite.transition_duration("pouso", "voo") == HordeFlyApprovedSprite.AIR_TRANSITION_SECONDS,
+		"Fall-to-fly should be as smooth as fly-to-fall")
 	# New optional clips route to sheets only after the supplemental ZIP is imported.
 	for extra in ["idle", "panic"]:
 		var installed: bool = actor.skeleton_approved.atlases.has(extra)
