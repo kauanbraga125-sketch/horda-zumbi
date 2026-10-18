@@ -57,6 +57,7 @@ jobs:
           set -euo pipefail
           if [ -s monster-game/novas_animacoes_v0813.zip ]; then
             unzip -o -q monster-game/novas_animacoes_v0813.zip -d .
+            echo 'Uploaded animations extracted; checking six RGBA atlases.'
             python3 - <<'PY'
           import struct
           from pathlib import Path
@@ -66,7 +67,7 @@ jobs:
           for folder,clip,w,h in specs:
               p=root/folder/(clip+'.png')
               raw=p.read_bytes()[:26]
-              assert raw[:8]==b'\\x89PNG\\r\\n\\x1a\\n', str(p)
+              assert raw[:8]==bytes([137,80,78,71,13,10,26,10]), str(p)
               assert struct.unpack('>II',raw[16:24])==(w,h), str(p)
               assert raw[25]==6, str(p)
           print('SIX_NEW_SPRITE_ATLASES_VALIDATED; ORIGINAL_ZOMBIE_UNTOUCHED')
