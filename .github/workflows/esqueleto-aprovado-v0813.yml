@@ -1,4 +1,4 @@
-name: Noite da Horda — Sprites NOVOS v0.8.13 (instala separado)
+name: Noite da Horda — Esqueleto CORRIGIDO 0.8.13
 
 on:
   workflow_dispatch:
@@ -6,6 +6,9 @@ on:
     branches: [feat/esqueleto-aprovado-v0813]
     paths:
       - 'monster-game/sprites_aprovados.zip'
+      - 'monster-game/scripts/actor.gd'
+      - 'monster-game/scripts/skeleton_sprite.gd'
+      - 'monster-game/tests/skeleton_mapping_test.gd'
       - '.github/workflows/esqueleto-aprovado-v0813.yml'
 
 permissions:
@@ -31,13 +34,19 @@ jobs:
         run: |
           set -euo pipefail
           test -s monster-game/sprites_aprovados.zip || { echo "::error::Upload sprites_aprovados.zip to monster-game/ on this branch"; exit 1; }
-          unzip -o -q monster-game/sprites_aprovados.zip -d .
+          # Never overwrite the original zombie animation controller from this old ZIP.
+          unzip -o -q monster-game/sprites_aprovados.zip -d . -x 'monster-game/scripts/zombie_sprite.gd'
           for f in corrida.png pulo_pouso.png quebrar_veiculos.png captura.png; do
             test -s "monster-game/assets/art/esqueleto_aprovado/$f" || { echo "::error::Missing approved sprite $f"; exit 1; }
           done
-          grep -q 'SHEET_ROOT = "res://assets/art/esqueleto_aprovado/"' monster-game/scripts/zombie_sprite.gd
-          grep -q 'const CAPTURE_COUNT = 35' monster-game/scripts/zombie_sprite.gd
-          echo "Validated new sprite controller with 35-frame capture"
+          grep -q 'class_name HordeZombieSprite' monster-game/scripts/zombie_sprite.gd
+          if grep -q 'SHEET_ROOT = "res://assets/art/esqueleto_aprovado/"' monster-game/scripts/zombie_sprite.gd; then
+            echo "::error::Zombie controller was accidentally replaced by skeleton assets"; exit 1
+          fi
+          grep -q 'class_name HordeSkeletonSprite' monster-game/scripts/skeleton_sprite.gd
+          grep -q 'const CAPTURE_COUNT = 35' monster-game/scripts/skeleton_sprite.gd
+          grep -q 'if kind == 1 and skeleton.has_state(state, landing)' monster-game/scripts/actor.gd
+          echo "Validated: zombie=kind0 original, skeleton=kind1 approved (35-frame capture)"
           echo "Approved sprite pack applied to v0.8.13 project"
 
       - name: Require full corrected 0.8.13 source tree
@@ -107,6 +116,9 @@ jobs:
           timeout 120 godot --headless --path monster-game --script res://tests/ci_smoke.gd 2>&1 | tee monster-game/build/test.log
           grep -q 'HORDE_CI_SMOKE_OK' monster-game/build/test.log
           if grep -E 'SCRIPT ERROR|HORDE_CI_SMOKE_FAIL|HORDE_VEHICLE_SURVIVORS_FAIL|HORDE_0813_FAIL' monster-game/build/test.log; then exit 1; fi
+          timeout 120 godot --headless --path monster-game --script res://tests/skeleton_mapping_test.gd 2>&1 | tee monster-game/build/skeleton-test.log
+          grep -q 'HORDE_SKELETON_MAPPING_OK' monster-game/build/skeleton-test.log
+          if grep -E 'SCRIPT ERROR|HORDE_SKELETON_MAPPING_FAIL' monster-game/build/skeleton-test.log; then exit 1; fi
 
       - name: Prepare separate testing app and development signature
         run: |
@@ -121,12 +133,12 @@ jobs:
           p=Path('monster-game/export_presets.cfg')
           s=p.read_text()
           assert 'package/unique_name="com.kauan.noitedahorda"' in s
-          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.spritesnovos0813"')
-          s=s.replace('package/name="Noite da Horda"', 'package/name="Horda Sprites NOVOS 0813"')
+          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.esqueletocorrigido0813"')
+          s=s.replace('package/name="Noite da Horda"', 'package/name="Horda Esqueleto Corrigido"')
           p.write_text(s)
           project = Path('monster-game/project.godot')
           project_text = project.read_text()
-          project_text = project_text.replace('config/name="Noite da Horda"', 'config/name="Horda Sprites NOVOS 0813"')
+          project_text = project_text.replace('config/name="Noite da Horda"', 'config/name="Horda Esqueleto Corrigido"')
           project.write_text(project_text)
           PY
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/horda-0813-testing.keystore" >> "$GITHUB_ENV"
@@ -136,19 +148,19 @@ jobs:
       - name: Export APK and validate package
         run: |
           set -euo pipefail
-          godot --headless --path monster-game --export-debug Android build/NoiteDaHorda-v0.8.13-SPRITES-NOVOS.apk 2>&1 | tee monster-game/build/export.log
-          test -s monster-game/build/NoiteDaHorda-v0.8.13-SPRITES-NOVOS.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/NoiteDaHorda-v0.8.13-SPRITES-NOVOS.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/NoiteDaHorda-v0.8.13-SPRITES-NOVOS.apk > monster-game/build/apk-info.txt
-          grep -q "package: name='com.kauan.noitedahorda.spritesnovos0813'" monster-game/build/apk-info.txt
-          sha256sum monster-game/build/NoiteDaHorda-v0.8.13-SPRITES-NOVOS.apk > monster-game/build/SHA256SUMS.txt
+          godot --headless --path monster-game --export-debug Android build/NoiteDaHorda-v0.8.13-ESQUELETO-CORRIGIDO.apk 2>&1 | tee monster-game/build/export.log
+          test -s monster-game/build/NoiteDaHorda-v0.8.13-ESQUELETO-CORRIGIDO.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/NoiteDaHorda-v0.8.13-ESQUELETO-CORRIGIDO.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/NoiteDaHorda-v0.8.13-ESQUELETO-CORRIGIDO.apk > monster-game/build/apk-info.txt
+          grep -q "package: name='com.kauan.noitedahorda.esqueletocorrigido0813'" monster-game/build/apk-info.txt
+          sha256sum monster-game/build/NoiteDaHorda-v0.8.13-ESQUELETO-CORRIGIDO.apk > monster-game/build/SHA256SUMS.txt
           echo 'Android v0.8.13 testing APK generated and verified'
 
       - name: Upload APK for testing
         uses: actions/upload-artifact@v4
         with:
-          name: NoiteDaHorda-v0.8.13-sprites-NOVOS-separado
-          path: monster-game/build/NoiteDaHorda-v0.8.13-SPRITES-NOVOS.apk
+          name: NoiteDaHorda-v0.8.13-ESQUELETO-CORRIGIDO
+          path: monster-game/build/NoiteDaHorda-v0.8.13-ESQUELETO-CORRIGIDO.apk
           if-no-files-found: error
           retention-days: 30
 
