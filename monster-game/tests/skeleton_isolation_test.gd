@@ -32,6 +32,19 @@ func check_routes() -> void:
 			var spec: Dictionary = HordeSkeletonApprovedSprite.SHEETS[clip]
 			var expected = Vector2(2304, ceil(float(spec["frames"]) / 6.0) * 288.0)
 			check(atlas.get_size() == expected, "Invalid skeleton atlas size: " + str(clip))
+	# Regression checks for the problems found on the in-game sprite testing screen.
+	check(HordeSkeletonApprovedSprite.RUN_PHASE_SPEED <= 0.5, "Skeleton running is too fast")
+	check(HordeSkeletonApprovedSprite.frame_for("run", 1.0, 1.0, 0.0, -1.0, 0.0) < 20, "Run cycle still rushes through 36 frames")
+	check(HordeSkeletonApprovedSprite.RUN_FEET.size() == 36, "Running foot anchors must cover every frame")
+	check(HordeSkeletonApprovedSprite.JUMP_FEET.size() == 30, "Jump foot anchors must cover every frame")
+	for i in range(36):
+		check(HordeSkeletonApprovedSprite.foot_anchor_for("run", i) == float(HordeSkeletonApprovedSprite.RUN_FEET[i]), "Running foot floats on frame " + str(i))
+	check(HordeSkeletonApprovedSprite.foot_anchor_for("jump", 0) == 238.0, "Jump first frame is not grounded")
+	check(HordeSkeletonApprovedSprite.foot_anchor_for("jump", 24, true) == 224.0, "Jump landing is not grounded")
+	check(HordeSkeletonApprovedSprite.foot_anchor_for("push", 0) == 278.0, "Push foot alignment changed")
+	check(HordeSkeletonApprovedSprite.foot_anchor_for("capture", 0) == 276.0, "Capture foot alignment changed")
+	check(float(HordeSkeletonApprovedSprite.SHEETS["push"]["visible_height"]) > 195.0, "Push sprite still oversized")
+	check(float(HordeSkeletonApprovedSprite.SHEETS["capture"]["visible_height"]) > 270.0, "Capture sprite still oversized")
 	check(HordeSkeletonApprovedSprite.SHEETS["capture"]["frames"] == 35, "Capture frame count mismatch")
 	check(HordeSkeletonApprovedSprite.frame_for("capture", 0.0, 999.0, 0.0, 0.0, 0.0) < 35, "Capture reached nonexistent frame")
 	if failures.is_empty():
