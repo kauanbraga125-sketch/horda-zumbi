@@ -85,6 +85,8 @@ var sprite_state = 0
 var sprite_npcs = false
 var sprite_clock = 0.0
 var sprite_paused = false
+var sprite_preview_from_state: String = ""
+var sprite_preview_from_clock: float = 0.0
 # Only the fly uses this lightweight visual transition cache (keyed by member id).
 var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
@@ -390,16 +392,21 @@ func perform_action(action: String) -> void :
 	if action.begins_with("lab_kind_"):
 		var kind = action.trim_prefix("lab_kind_")
 		if kind in ["sprites", "npcs"]:
-			sprite_npcs = kind == "npcs";sprite_clock = 0;sprite_subject = 0;sprite_state = 0;change_screen("sprite_lab")
+			sprite_npcs = kind == "npcs";sprite_clock = 0;sprite_subject = 0;sprite_state = 0
+			sprite_preview_from_state = ""
+			change_screen("sprite_lab")
 		else: start_lab(kind)
 		return
 	if action == "sprite_subject":
 		sprite_subject = (sprite_subject + 1) % (5 if sprite_npcs else 4)
+		sprite_preview_from_state = ""
 		sprite_state = 0
 		sprite_clock = 0.0
 		sprite_paused = false
 		return
 	if action == "sprite_state":
+		sprite_preview_from_state = str(sprite_lab_labels()[sprite_state]) if not sprite_npcs and sprite_subject == 3 else ""
+		sprite_preview_from_clock = sprite_clock
 		sprite_state = (sprite_state + 1) % sprite_lab_labels().size()
 		sprite_clock = 0.0
 		sprite_paused = false
@@ -1128,12 +1135,16 @@ func paint_fly_smooth(member: Dictionary, foot: Vector2, height: float, phase: f
 		}
 	var age: float = maxf(0.0, runner.elapsed - float(old.get("entered", runner.elapsed)))
 	var clock: float = age if state in ["fall", "push"] else runner.elapsed + index * 0.071
-	var blend: float = clampf(age / HordeFlyApprovedSprite.TRANSITION_SECONDS, 0.0, 1.0)
 	var previous_state: String = str(old.get("from_state", ""))
+	var from_clip: String = HordeFlyApprovedSprite.animation_for(previous_state, float(old.get("from_landing", 0.0)))
+	var duration: float = HordeFlyApprovedSprite.transition_duration(from_clip, clip)
+	var blend: float = smoothstep(0.0, duration, age)
 	if not previous_state.is_empty() and blend < 1.0:
-		var faded: Color = Color(tint.r, tint.g, tint.b, tint.a * (1.0 - blend))
+		# Draw the last old pose at full opacity, then blend the new pose
+		# over it. Fading BOTH layers against the dark background caused
+		# a visible dark flash (50% + 50% alpha does not equal 100%).
 		actor.paint(paint_target, 3, foot, height, float(old["from_phase"]), previous_state,
-			float(old["from_time"]), float(old["from_landing"]), faded, false, 1.0, true,
+			float(old["from_time"]), float(old["from_landing"]), tint, false, 1.0, true,
 			float(old["from_air_age"]), float(old["from_vy"]))
 	var opacity: float = blend if not previous_state.is_empty() else 1.0
 	var current_tint: Color = Color(tint.r, tint.g, tint.b, tint.a * opacity)
@@ -1737,7 +1748,18 @@ func draw_sprite_lab() -> void:
 			# Loop non-running previews; do not freeze on their final frames.
 			var preview_duration: float = 1.25 if preview_state == "capture" else 1.12
 			preview_phase = fposmod(sprite_clock, preview_duration) / (preview_duration * (0.88 if preview_state == "capture" else 1.0))
-		actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
+		if kind == 3 and not sprite_preview_from_state.is_empty():
+			var from_clip: String = HordeFlyApprovedSprite.animation_for(sprite_preview_from_state, 0.0)
+			var to_clip: String = HordeFlyApprovedSprite.animation_for(preview_state, 0.0)
+			var duration: float = HordeFlyApprovedSprite.transition_duration(from_clip, to_clip)
+			var blend: float = smoothstep(0.0, duration, sprite_clock)
+			if blend < 1.0:
+				actor.paint(paint_target, kind, foot, 300, sprite_preview_from_clock * 1.4, sprite_preview_from_state, sprite_preview_from_clock)
+				actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock, 0.0, Color(1.0, 1.0, 1.0, blend))
+			else:
+				actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
+		else:
+			actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
 	button(Rect2(70, 580, 365, 54), "PRÓXIMO PERSONAGEM", "sprite_subject", Color("513c67"), -2, 20)
 	button(Rect2(457, 580, 365, 54), "PRÓXIMA ANIMAÇÃO", "sprite_state", Color("513c67"), -2, 20)
 	button(Rect2(844, 580, 365, 54), "CONTINUAR" if sprite_paused else "PAUSAR", "sprite_pause", Color("4c786a"), -2, 20)
