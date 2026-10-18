@@ -44,7 +44,28 @@ func check_routes() -> void:
 		if sheet != null:
 			check(sheet.get_size() == expect_size, "Wrong fly atlas geometry: " + name)
 	check(HordeFlyApprovedSprite.frame_for("panic", 1.0, 0.0, 0.0, 0.0) == 15, "Damage last frame missing")
-	check(HordeFlyApprovedSprite.frame_for("push", 1.0, 0.0, 0.0, 0.0) == 35, "Push last frame missing")
+	check(HordeFlyApprovedSprite.RUN_PHASE_SPEED < 0.5, "Fly running still too fast")
+	check(HordeFlyApprovedSprite.frame_for("run", 1.0, 0.0, 0.0, 0.0) < 20, "Fly run must use slower phase")
+	check(HordeFlyApprovedSprite.frame_for("fall", 0.0, 0.0, 0.0, 240.0) == 0, "Fly fall must start on initial descent frame")
+	check(HordeFlyApprovedSprite.frame_for("fall", 0.0, 0.5, 0.0, 240.0) == 8, "Fly fall must advance at constant velocity")
+	check(HordeFlyApprovedSprite.frame_for("push", 0.0, 0.0, 0.0, 0.0) == 0, "Fly push must begin with its first frame")
+	check(HordeFlyApprovedSprite.frame_for("push", 0.0, 1.999, 0.0, 0.0) == 35, "Fly push must play all 36 frames")
+	check(HordeFlyApprovedSprite.frame_for("push", 0.0, 2.0, 0.0, 0.0) == 0, "Fly push must loop without freezing")
+	check(HordeFlyApprovedSprite.VISIBLE_HEIGHT["corrida"] > HordeFlyApprovedSprite.BODY_HEIGHT, "Fly run scale was not normalized to idle")
+	check(HordeFlyApprovedSprite.VISIBLE_HEIGHT["pouso"] > HordeFlyApprovedSprite.VISIBLE_HEIGHT["corrida"], "Fly fall scale was not normalized")
+	check(HordeFlyApprovedSprite.TRANSITION_SECONDS > 0.0 and HordeFlyApprovedSprite.TRANSITION_SECONDS <= 0.2, "Fly sprite changes must crossfade quickly")
+	# All fly sheets share the same game-side color-grading contract,
+	# without editing approved PNGs or changing the other actor renderers.
+	for clip in HordeFlyApprovedSprite.ATLAS_INFO:
+		var grade: Color = HordeFlyApprovedSprite.palette_grade_for(clip)
+		check(grade.a == 1.0, "Fly palette correction must preserve sprite opacity: " + str(clip))
+		check(grade.r >= 0.95 and grade.r <= 1.10, "Fly red correction is too strong: " + str(clip))
+		check(grade.g >= 0.98 and grade.g <= 1.20, "Fly green correction is too strong: " + str(clip))
+		check(grade.b >= 0.98 and grade.b <= 1.18, "Fly blue correction is too strong: " + str(clip))
+	check(HordeFlyApprovedSprite.transition_duration("voo", "pouso") > HordeFlyApprovedSprite.TRANSITION_SECONDS,
+		"Fly-to-fall needs a longer color crossfade")
+	check(HordeFlyApprovedSprite.transition_duration("pouso", "voo") == HordeFlyApprovedSprite.AIR_TRANSITION_SECONDS,
+		"Fall-to-fly should be as smooth as fly-to-fall")
 	# New optional clips route to sheets only after the supplemental ZIP is imported.
 	for extra in ["idle", "panic"]:
 		var installed: bool = actor.skeleton_approved.atlases.has(extra)

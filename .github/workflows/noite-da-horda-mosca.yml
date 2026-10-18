@@ -1,9 +1,11 @@
-name: Horda 0.8.13 — Mosca Mutante (teste)
+name: Horda 0.8.13 — Playtest Completo (mosca + melhorias)
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: [feat/mosca-aprovada-v0813]
+  push:
+    branches: [feat/mosca-aprovada-v0813, feat/playtest-analytics-speed-dialogue-v0813]
     paths:
       - 'monster-game/assets/art/mosca_aprovada/*.png'
       - 'monster-game/scripts/**'
@@ -14,8 +16,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: noite-da-horda-0813-mosca
-  cancel-in-progress: false
+  group: noite-da-horda-0813-${{ github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   build-android-test:
@@ -183,12 +185,12 @@ jobs:
           p=Path('monster-game/export_presets.cfg')
           s=p.read_text()
           assert 'package/unique_name="com.kauan.noitedahorda"' in s
-          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.mosca0813"')
-          s=s.replace('package/name="Noite da Horda"', 'package/name="Horda Mosca Atualizada"')
+          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.playtest0813"')
+          s=s.replace('package/name="Noite da Horda"', 'package/name="Horda Playtest Completa"')
           p.write_text(s)
           project=Path('monster-game/project.godot')
           project_text=project.read_text()
-          project_text=project_text.replace('config/name="Noite da Horda"', 'config/name="Horda Mosca Atualizada"')
+          project_text=project_text.replace('config/name="Noite da Horda"', 'config/name="Horda Playtest Completa"')
           project.write_text(project_text)
           PY
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/horda-0813-testing.keystore" >> "$GITHUB_ENV"
@@ -198,19 +200,19 @@ jobs:
       - name: Export APK and validate package
         run: |
           set -euo pipefail
-          godot --headless --path monster-game --export-debug Android build/Horda-0813-Mosca-Atualizada.apk 2>&1 | tee monster-game/build/export.log
-          test -s monster-game/build/Horda-0813-Mosca-Atualizada.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/Horda-0813-Mosca-Atualizada.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/Horda-0813-Mosca-Atualizada.apk > monster-game/build/apk-info.txt
-          grep -q "package: name='com.kauan.noitedahorda.mosca0813'" monster-game/build/apk-info.txt
-          sha256sum monster-game/build/Horda-0813-Mosca-Atualizada.apk > monster-game/build/SHA256SUMS.txt
+          godot --headless --path monster-game --export-debug Android build/Horda-0813-Playtest-Completa.apk 2>&1 | tee monster-game/build/export.log
+          test -s monster-game/build/Horda-0813-Playtest-Completa.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/Horda-0813-Playtest-Completa.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/Horda-0813-Playtest-Completa.apk > monster-game/build/apk-info.txt
+          grep -q "package: name='com.kauan.noitedahorda.playtest0813'" monster-game/build/apk-info.txt
+          sha256sum monster-game/build/Horda-0813-Playtest-Completa.apk > monster-game/build/SHA256SUMS.txt
           echo 'Android v0.8.13 testing APK generated and verified'
 
       - name: Upload APK for testing
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-0813-Mosca-Atualizada
-          path: monster-game/build/Horda-0813-Mosca-Atualizada.apk
+          name: Horda-0813-Playtest-Completa
+          path: monster-game/build/Horda-0813-Playtest-Completa.apk
           if-no-files-found: error
           retention-days: 30
 

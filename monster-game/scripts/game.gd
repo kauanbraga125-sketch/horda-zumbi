@@ -10,6 +10,9 @@ const CAMERA_BASE_ZOOM = 1.32 / 0.95
 const CAMERA_TRANSFORM_ZOOM = 1.42 / 0.95
 const CAMERA_ANCHOR = Vector2(360, 610)
 const CAMERA_MIN_ZOOM = 0.90 / 0.95
+# Rider crop is drawn separately from the motorcycle atlas; place its
+# visible hips on the saddle rather than anchoring the full transparent cell.
+const MOTORCYCLE_RIDER_SEAT_OFFSET = Vector2(9.0, -18.0)
 
 var art = HordeArt.new()
 var actor = HordeActor.new(art)
@@ -69,6 +72,7 @@ var market_clip: Control
 var market_canvas: Node2D
 var views = HordeViews.new()
 var gameplay_ui = HordeGameplayUI.new()
+var analytics = HordeAnalytics.new()
 var pages = HordePages.new()
 var credits_from = "help"
 var result_full_flash = 0.0
@@ -84,6 +88,10 @@ var sprite_state = 0
 var sprite_npcs = false
 var sprite_clock = 0.0
 var sprite_paused = false
+var sprite_preview_from_state: String = ""
+var sprite_preview_from_clock: float = 0.0
+# Only the fly uses this lightweight visual transition cache (keyed by member id).
+var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
 var lab_active = false
 var lab_count = 36
@@ -160,6 +168,7 @@ func _process(dt: float) -> void :
 func _physics_process(dt: float) -> void :
 	if screen != "run" or capture_freeze: return
 	runner.advance(dt, jump_held)
+	if not lab_active: analytics.sample(runner)
 	consume_run_events()
 	check_challenges()
 	last_save += dt
@@ -191,11 +200,13 @@ func change_screen(next: String) -> void :
 	queue_redraw()
 
 func start_run() -> void :
+	fly_visual_states.clear()
 	fly_panic_until = -1.0
 	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0
 	run_settled = false;run_report = {};data.active_souls = 0
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
 	runner.tutorial_enabled = not bool(data.tutorial_complete) and int(data.runs) == 0
+	if not lab_active and not test_mode and not capture_mode: analytics.begin_run(runner, data.levels)
 	data.tutorial_complete = true
 	save_game()
 	effects.clear();ui_effects.clear()
@@ -210,6 +221,7 @@ func start_run() -> void :
 
 func consume_run_events() -> void :
 	for e in runner.drain_events():
+		if not lab_active and not test_mode and not capture_mode: analytics.record_event(runner, e)
 		var point = Vector2(float(e.get("x", HordeRun.ANCHOR)), float(e.get("y", HordeRun.FLOOR)))
 		match e.type:
 			"coin":
@@ -320,6 +332,7 @@ func finish_run() -> void :
 		if end_delay < 0: end_delay = 1.0;sound.play("finish")
 		return
 	if run_settled or end_delay >= 0 or screen not in ["run", "pause"]: return
+	if not test_mode and not capture_mode: analytics.end_run(runner)
 	data.best = maxi(int(data.best), runner.distance())
 	data.runs += 1
 	run_settled = true
@@ -382,16 +395,21 @@ func perform_action(action: String) -> void :
 	if action.begins_with("lab_kind_"):
 		var kind = action.trim_prefix("lab_kind_")
 		if kind in ["sprites", "npcs"]:
-			sprite_npcs = kind == "npcs";sprite_clock = 0;sprite_subject = 0;sprite_state = 0;change_screen("sprite_lab")
+			sprite_npcs = kind == "npcs";sprite_clock = 0;sprite_subject = 0;sprite_state = 0
+			sprite_preview_from_state = ""
+			change_screen("sprite_lab")
 		else: start_lab(kind)
 		return
 	if action == "sprite_subject":
 		sprite_subject = (sprite_subject + 1) % (5 if sprite_npcs else 4)
+		sprite_preview_from_state = ""
 		sprite_state = 0
 		sprite_clock = 0.0
 		sprite_paused = false
 		return
 	if action == "sprite_state":
+		sprite_preview_from_state = str(sprite_lab_labels()[sprite_state]) if not sprite_npcs and sprite_subject == 3 else ""
+		sprite_preview_from_clock = sprite_clock
 		sprite_state = (sprite_state + 1) % sprite_lab_labels().size()
 		sprite_clock = 0.0
 		sprite_paused = false
@@ -479,13 +497,25 @@ func perform_action(action: String) -> void :
 		"settings":
 			settings_from = "pause" if screen in ["run", "pause"] else screen
 			change_screen("settings")
+		"analytics_open": change_screen("analytics")
+		"analytics_back": change_screen("settings")
+		"analytics_copy_last":
+			DisplayServer.clipboard_set(analytics.export_report(1))
+			show_toast("RELATÓRIO DA ÚLTIMA PARTIDA COPIADO!", 3.0)
+		"analytics_copy_20":
+			DisplayServer.clipboard_set(analytics.export_report(20))
+			show_toast("ATÉ 20 PARTIDAS COPIADAS!", 3.0)
 		"retry":
-			if screen in ["run", "pause"] and not runner.dead: runner.finish();consume_run_events()
+			if screen in ["run", "pause"] and not runner.dead:
+				analytics.end_override = "abandoned"
+				runner.finish();consume_run_events()
 			end_delay = -1;start_run()
 		"home":
-			if screen in ["run", "pause"] and not runner.dead: runner.finish();consume_run_events();end_delay = -1
+			if screen in ["run", "pause"] and not runner.dead:
+				analytics.end_override = "abandoned"
+				runner.finish();consume_run_events();end_delay = -1
 			change_screen("home")
-		"back": change_screen("settings" if screen == "backup" else (settings_from if screen == "settings" else (credits_from if screen == "credits" else (previous_page if screen == "market" else "home"))))
+		"back": change_screen("settings" if screen in ["backup", "analytics"] else (settings_from if screen == "settings" else (credits_from if screen == "credits" else (previous_page if screen == "market" else "home"))))
 		"pause": if screen == "run": change_screen("pause")
 		"resume": if screen == "pause": change_screen("run")
 		"audio":
@@ -670,6 +700,7 @@ func _draw() -> void :
 		"market": market.paint(self)
 		"collection": draw_collection()
 		"settings": draw_settings()
+		"analytics": analytics.paint(self)
 		"backup": draw_backup()
 		"developer": draw_developer()
 		"sprite_lab": draw_sprite_lab()
@@ -835,7 +866,11 @@ func draw_run() -> void :
 					var angle = a + k * 0.38
 					bolt.append(centre + Vector2(cos(angle), sin(angle)) * (36 + (k % 2) * 15))
 				paint_target.draw_polyline(bolt, Color(0.65, 1, 0.96, sin(progress * PI) * 0.9), 2.4, true)
-		else: actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
+		else:
+			if kind == 3 and actor.fly_approved.has_assets():
+				paint_fly_smooth(member, foot, height, phase, state, blink, i)
+			else:
+				actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
 	for e in runner.entities:
 		if not e.taken and e.kind in ["civilian", "soldier", "police"] and e.state == "capture": draw_civilian(e)
 	effects.paint(paint_target, art, actor)
@@ -938,13 +973,15 @@ func save_game(path: String = SAVE_PATH) -> bool:
 
 func _notification(what: int) -> void :
 	if what == NOTIFICATION_APPLICATION_PAUSED and is_instance_valid(sound):
+		analytics.flush()
 		if screen == "run": change_screen("pause")
 		save_game()
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_instance_valid(sound):
 		if screen == "run": perform_action("pause")
 		elif screen == "pause": perform_action("resume")
 		elif screen != "home": perform_action("back")
-	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_instance_valid(sound): save_game()
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_instance_valid(sound):
+		analytics.flush();save_game()
 
 func run_tests() -> void :
 	var suite = load("res://tests/self_test.gd").new()
@@ -1079,6 +1116,53 @@ func capture_preview() -> void :
 	print("HORDE_CAPTURE_OK: 40 real screens; close camera at 16:9, wide phone and 4:3 tablet, animated HUD/souls, power store/transformations, police, occupied/damaged/burning vehicles, chained terrain, tunnels/results/ritual")
 	get_tree().quit()
 
+# Crossfade the last actual fly frame into the next clip for 0.14 seconds.
+# Time for fall/push is measured from the state entry, not from the game
+# clock or vertical velocity; pushing therefore loops until the car is done.
+func paint_fly_smooth(member: Dictionary, foot: Vector2, height: float, phase: float, state: String, tint: Color, index: int) -> void:
+	var identity: int = int(member.id)
+	var landing: float = float(member.land_left)
+	var clip: String = HordeFlyApprovedSprite.animation_for(state, landing)
+	var old: Dictionary = fly_visual_states.get(identity, {})
+	var changed: bool = str(old.get("clip", "")) != clip
+	if changed:
+		old = {
+			"clip": clip,
+			"entered": runner.elapsed,
+			"from_state": str(old.get("state", "")),
+			"from_phase": float(old.get("phase", phase)),
+			"from_time": float(old.get("clock", runner.elapsed)),
+			"from_landing": float(old.get("landing", 0.0)),
+			"from_air_age": float(old.get("air_age", -1.0)),
+			"from_vy": float(old.get("vy", 0.0)),
+		}
+	var age: float = maxf(0.0, runner.elapsed - float(old.get("entered", runner.elapsed)))
+	var clock: float = age if state in ["fall", "push"] else runner.elapsed + index * 0.071
+	var previous_state: String = str(old.get("from_state", ""))
+	var from_clip: String = HordeFlyApprovedSprite.animation_for(previous_state, float(old.get("from_landing", 0.0)))
+	var duration: float = HordeFlyApprovedSprite.transition_duration(from_clip, clip)
+	var blend: float = smoothstep(0.0, duration, age)
+	if not previous_state.is_empty() and blend < 1.0:
+		# Draw the last old pose at full opacity, then blend the new pose
+		# over it. Fading BOTH layers against the dark background caused
+		# a visible dark flash (50% + 50% alpha does not equal 100%).
+		actor.paint(paint_target, 3, foot, height, float(old["from_phase"]), previous_state,
+			float(old["from_time"]), float(old["from_landing"]), tint, false, 1.0, true,
+			float(old["from_air_age"]), float(old["from_vy"]))
+	var opacity: float = blend if not previous_state.is_empty() else 1.0
+	var current_tint: Color = Color(tint.r, tint.g, tint.b, tint.a * opacity)
+	actor.paint(paint_target, 3, foot, height, phase, state, clock, landing,
+		current_tint, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
+	old["state"] = state
+	old["phase"] = phase
+	old["clock"] = clock
+	old["landing"] = landing
+	old["air_age"] = float(member.air_time)
+	old["vy"] = float(member.vy)
+	if fly_visual_states.size() > 192:
+		fly_visual_states.clear()
+	fly_visual_states[identity] = old
+
 func animation_state(member: Dictionary) -> String:
 	if member.falling: return "fall"
 	if member.attack_left > 0: return "capture"
@@ -1194,7 +1278,13 @@ func draw_vehicle(entity: Dictionary) -> void :
 	if entity.kind == "moto" and not entity.passengers.is_empty():
 		var pose = posmod(int(ui_time * 4 + entity.bob), 4)
 		var rider = art.passenger_frames[8 + pose]
-		paint_target.draw_set_transform(point + Vector2(15, -53).rotated(angle) * float(entity.scale), angle)
+		# The rider atlas contains padding around a crouched body; aligning
+		# its cell rectangle made the visible pelvis float above the saddle.
+		# Calibrated against both v0.8.13 phone screenshots: pelvis contacts
+		# seat, arms reach the bar, boots rest near the engine/front fairing.
+		# The anchor is in local motorcycle coordinates: translate it with
+		# the bike's rotation and sprite scale, not with a screen-space offset.
+		paint_target.draw_set_transform(point + MOTORCYCLE_RIDER_SEAT_OFFSET.rotated(angle) * float(entity.scale), angle)
 		paint_target.draw_texture_rect(rider, Rect2(Vector2(-65, -80) * float(entity.scale), Vector2(130, 130) * float(entity.scale)), false)
 		paint_target.draw_set_transform(Vector2.ZERO)
 	elif entity.kind != "moto":
@@ -1527,7 +1617,8 @@ func draw_settings() -> void :
 		draw_circle(Vector2(bar.position.x + bar.size.x * float(data.audio_levels[channel]), bar.get_center().y), 14, GOLD)
 		buttons.append({"rect": Rect2(394, y + 22, 527, 73), "action": "mix_slider_" + channel})
 	button(Rect2(69, 642, 245, 57), "VOLTAR", "back", Color("513c67"), -2, 23)
-	button(Rect2(340, 642, 500, 57), "DESENVOLVEDOR TESTE", "developer", Color("4c786a"), -2, 23)
+	button(Rect2(330, 642, 256, 57), "DESENVOLVEDOR", "developer", Color("4c786a"), -2, 19)
+	button(Rect2(602, 642, 252, 57), "DIÁRIO DE PARTIDAS", "analytics_open", Color("427a72"), -2, 17)
 	if not data.audio: button(Rect2(878, 642, 258, 57), "ATIVAR SOM", "audio", Color("4c786a"), -2, 23)
 
 func draw_backup() -> void:
@@ -1660,7 +1751,24 @@ func draw_sprite_lab() -> void:
 			text("Sprites da civil feminina ainda nao carregados", Vector2(640, 355), 21, CORAL, false, true)
 	else:
 		var kind = [4, 6, 7, 8, 5][sprite_subject] if sprite_npcs else sprite_subject
-		actor.paint(paint_target, kind, foot, 300, sprite_clock * 1.4, states[sprite_state], sprite_clock)
+		var preview_state: String = str(states[sprite_state])
+		var preview_phase: float = sprite_clock * 1.4
+		if kind == 3 and preview_state in ["capture", "panic"]:
+			# Loop non-running previews; do not freeze on their final frames.
+			var preview_duration: float = 1.25 if preview_state == "capture" else 1.12
+			preview_phase = fposmod(sprite_clock, preview_duration) / (preview_duration * (0.88 if preview_state == "capture" else 1.0))
+		if kind == 3 and not sprite_preview_from_state.is_empty():
+			var from_clip: String = HordeFlyApprovedSprite.animation_for(sprite_preview_from_state, 0.0)
+			var to_clip: String = HordeFlyApprovedSprite.animation_for(preview_state, 0.0)
+			var duration: float = HordeFlyApprovedSprite.transition_duration(from_clip, to_clip)
+			var blend: float = smoothstep(0.0, duration, sprite_clock)
+			if blend < 1.0:
+				actor.paint(paint_target, kind, foot, 300, sprite_preview_from_clock * 1.4, sprite_preview_from_state, sprite_preview_from_clock)
+				actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock, 0.0, Color(1.0, 1.0, 1.0, blend))
+			else:
+				actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
+		else:
+			actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
 	button(Rect2(70, 580, 365, 54), "PRÓXIMO PERSONAGEM", "sprite_subject", Color("513c67"), -2, 20)
 	button(Rect2(457, 580, 365, 54), "PRÓXIMA ANIMAÇÃO", "sprite_state", Color("513c67"), -2, 20)
 	button(Rect2(844, 580, 365, 54), "CONTINUAR" if sprite_paused else "PAUSAR", "sprite_pause", Color("4c786a"), -2, 20)
