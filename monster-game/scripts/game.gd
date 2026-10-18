@@ -1242,6 +1242,8 @@ func draw_civilian(entity: Dictionary) -> void :
 	# Draw new sheets ONLY for female variant 1; never override blue civilian / worker.
 	if entity.kind == "civilian" and int(entity.variant) == 1 and art.woman.has_assets():
 		art.woman.paint(paint_target, entity, Vector2(entity.x, entity.y), 104.0)
+		if entity.state == "normal" and float(entity.get("speech_left", 0.0)) > 0.0 and float(entity.x) > HordeRun.ANCHOR + 50:
+			draw_speech(entity, float(entity.y) - 124.0)
 		return
 	if entity.get("civil_key", "") == "civil_casaco_azul_nerd":
 		art.civil.paint(paint_target, entity, Vector2(entity.x, entity.y), 112.0)
