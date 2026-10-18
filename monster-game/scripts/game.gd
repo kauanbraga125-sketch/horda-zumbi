@@ -1600,7 +1600,7 @@ func draw_collision_guides() -> void:
 		elif e.kind in ["gap", "collapse"]:
 			paint_target.draw_rect(Rect2(e.x, e.y, e.width, 100), Color(1, 0.3, 0.2, 0.18), false, 2)
 
-func sprite_lab_labels() -> Array[String]:
+func sprite_lab_labels() -> Array:
 	# New female civilian has four complete animations, not seven old rig states.
 	if sprite_npcs and sprite_subject == 1:
 		return HordeCivilWomanSprite.LAB_LABELS
@@ -1624,7 +1624,7 @@ func draw_sprite_lab() -> void:
 		text(clip + "  •  quadro " + str(HordeCivilSprite.sample(clip, clock) + 1), Vector2(640, 222), 18, GOLD, false, true)
 	elif sprite_npcs and sprite_subject == 1:
 		# The gameplay already uses HordeCivilWomanSprite. The lab must use it too.
-		var girl_clips: Array[String] = HordeCivilWomanSprite.LAB_CLIPS
+		var girl_clips: Array = HordeCivilWomanSprite.LAB_CLIPS
 		var clip: String = girl_clips[clampi(sprite_state, 0, girl_clips.size() - 1)]
 		var spec: Dictionary = HordeCivilWomanSprite.CLIPS[clip]
 		var duration: float = float(spec["frames"]) / float(spec["fps"])
