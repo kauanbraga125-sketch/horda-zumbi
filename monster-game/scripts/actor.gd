@@ -6,10 +6,12 @@ var art: HordeArt
 var facing = 1.0
 var basis_angle = 0.0
 var zombie: HordeZombieSprite
+var skeleton: HordeSkeletonSprite
 
 func _init(source: HordeArt) -> void :
 	art = source
 	zombie = HordeZombieSprite.new()
+	skeleton = HordeSkeletonSprite.new()
 
 static func stride_foot(phase: float) -> Vector2:
 	var t = fposmod(phase, 1.0)
@@ -59,7 +61,12 @@ func arm(canvas: Node2D, kind: int, shoulder: Vector2, swing: float, tint: Color
 func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String = "run", time: float = 0, landing: float = 0, tint: Color = Color.WHITE, reverse: bool = false, pose_mix: float = 1.0, show_prop: bool = true, air_age: float = -1, vertical_speed: float = 0) -> void :
 	kind = clampi(kind, 0, art.rigs.size() - 1)
 	if kind == 0:
+		# Preserve the original zombie's animations and artwork.
 		zombie.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
+		return
+	if kind == 1 and skeleton.has_state(state, landing):
+		# ONLY the skeleton uses the approved four sprite sheets.
+		skeleton.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
 		return
 	facing = -1.0 if reverse else 1.0
 	var scale = height / 112.0
