@@ -3,6 +3,7 @@ extends SceneTree
 # Guard against the exact regression reported by the player:
 # Zumbi (kind 0) MUST use original HordeZombieSprite.
 # Esqueleto (kind 1) MUST use approved sprite sheets only during active actions.
+# Mosca (kind 3) MUST use the six approved animation atlases, without affecting other monsters.
 var failures: Array[String] = []
 
 func check(condition: bool, message: String) -> void:
@@ -17,13 +18,33 @@ func check_routes() -> void:
 	var actor = HordeActor.new(HordeArt.new())
 	check(actor.zombie is HordeZombieSprite, "Zumbi no longer uses original renderer")
 	check(actor.skeleton_approved is HordeSkeletonApprovedSprite, "Skeleton renderer not initialized")
+	check(actor.fly_approved is HordeFlyApprovedSprite, "Fly renderer not initialized")
+	check(actor.fly_approved.has_assets(), "Fly atlases missing, empty or wrong geometry")
 	for state in ["run", "rise", "fly", "fall", "push", "capture"]:
 		check(actor.renderer_for(0, state, 0.0) == "zombie_original", "Zumbi action changed: " + state)
 		check(actor.renderer_for(1, state, 0.0) == "skeleton_approved", "Skeleton action not replaced: " + state)
 		check(actor.renderer_for(2, state, 0.0) == "original_rig", "Mascarado affected: " + state)
-		check(actor.renderer_for(3, state, 0.0) == "original_rig", "Mosca affected: " + state)
+		check(actor.renderer_for(3, state, 0.0) == "fly_approved", "Fly approved sheet not selected: " + state)
 	check(actor.renderer_for(0, "run", 0.11) == "zombie_original", "Zumbi landing altered")
 	check(actor.renderer_for(1, "run", 0.11) == "skeleton_approved", "Skeleton landing not replaced")
+	check(actor.renderer_for(3, "idle", 0.0) == "fly_approved", "Fly idle sheet not selected")
+	check(actor.renderer_for(3, "panic", 0.0) == "fly_approved", "Fly damage sheet not selected")
+	check(actor.renderer_for(3, "run", 0.11) == "fly_approved", "Fly landing sheet not selected")
+	check(HordeFlyApprovedSprite.animation_for("run", 0.0) == "corrida", "Fly run clip invalid")
+	check(HordeFlyApprovedSprite.animation_for("run", 0.11) == "pouso", "Fly landing clip invalid")
+	check(HordeFlyApprovedSprite.animation_for("fly", 0.0) == "voo", "Fly aerial clip invalid")
+	check(HordeFlyApprovedSprite.animation_for("capture", 0.0) == "captura", "Fly capture clip invalid")
+	check(HordeFlyApprovedSprite.animation_for("push", 0.0) == "push", "Fly vehicle clip invalid")
+	check(HordeFlyApprovedSprite.animation_for("panic", 0.0) == "dano", "Fly damage clip invalid")
+	for name in HordeFlyApprovedSprite.ATLAS_INFO:
+		var sheet: Texture2D = actor.fly_approved.textures.get(name) as Texture2D
+		var frames: int = int(HordeFlyApprovedSprite.ATLAS_INFO[name][1])
+		var expect_size: Vector2 = Vector2(2304.0, ceilf(float(frames) / 6.0) * 288.0)
+		check(sheet != null, "Missing fly animation: " + name)
+		if sheet != null:
+			check(sheet.get_size() == expect_size, "Wrong fly atlas geometry: " + name)
+	check(HordeFlyApprovedSprite.frame_for("panic", 1.0, 0.0, 0.0, 0.0) == 15, "Damage last frame missing")
+	check(HordeFlyApprovedSprite.frame_for("push", 1.0, 0.0, 0.0, 0.0) == 35, "Push last frame missing")
 	# New optional clips route to sheets only after the supplemental ZIP is imported.
 	for extra in ["idle", "panic"]:
 		var installed: bool = actor.skeleton_approved.atlases.has(extra)

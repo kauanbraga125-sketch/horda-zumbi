@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches: [feat/mosca-aprovada-v0813]
-    paths: ['monster-game/assets/art/mosca_aprovada/*.png']
+    paths:
+      - 'monster-game/assets/art/mosca_aprovada/*.png'
+      - 'monster-game/scripts/**'
+      - 'monster-game/tests/**'
+      - '.github/workflows/noite-da-horda-mosca.yml'
 
 permissions:
   contents: read
