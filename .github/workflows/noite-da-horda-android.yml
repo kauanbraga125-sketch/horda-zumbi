@@ -1,4 +1,4 @@
-name: Horda 0.8.13 — APK testes com 9.999.999 moedas
+name: Horda 0.8.13 — teste dinheiro e pulo proporcional
 
 on:
   workflow_dispatch:
@@ -60,7 +60,8 @@ jobs:
           test -s monster-game/tests/vehicle_survivors_test.gd
           test -s monster-game/assets/art/creatures.png
           test -s monster-game/assets/art/terrain-v089.png
-          grep -q 'data.wallet = 9999999' monster-game/scripts/game.gd || { echo "::error::Test money patch missing"; exit 1; }
+          grep -q 'data.wallet = 9999999' monster-game/scripts/game.gd
+          grep -q '"jump": {"file": "pulo_pouso.png", "frames": 30, "visible_height": 157.0, "center_x": 166.0}' monster-game/scripts/skeleton_approved_sprite.gd || { echo "::error::Test money patch missing"; exit 1; }
           echo 'v0.8.13 source markers verified; test wallet 9,999,999 detected'
 
       - name: Set up JDK 17
@@ -137,12 +138,12 @@ jobs:
           p=Path('monster-game/export_presets.cfg')
           s=p.read_text()
           assert 'package/unique_name="com.kauan.noitedahorda"' in s
-          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.dinheiroteste0813"')
-          s=s.replace('package/name="Noite da Horda"', 'package/name="Horda Teste 9 Milhoes"')
+          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.puloajustado0813"')
+          s=s.replace('package/name="Noite da Horda"', 'package/name="Horda Teste Pulo Ajustado"')
           p.write_text(s)
           project=Path('monster-game/project.godot')
           project_text=project.read_text()
-          project_text=project_text.replace('config/name="Noite da Horda"', 'config/name="Horda Teste 9 Milhoes"')
+          project_text=project_text.replace('config/name="Noite da Horda"', 'config/name="Horda Teste Pulo Ajustado"')
           project.write_text(project_text)
           PY
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/horda-0813-testing.keystore" >> "$GITHUB_ENV"
@@ -152,19 +153,19 @@ jobs:
       - name: Export APK and validate package
         run: |
           set -euo pipefail
-          godot --headless --path monster-game --export-debug Android build/Horda-0813-9Milhoes.apk 2>&1 | tee monster-game/build/export.log
-          test -s monster-game/build/Horda-0813-9Milhoes.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/Horda-0813-9Milhoes.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/Horda-0813-9Milhoes.apk > monster-game/build/apk-info.txt
-          grep -q "package: name='com.kauan.noitedahorda.dinheiroteste0813'" monster-game/build/apk-info.txt
-          sha256sum monster-game/build/Horda-0813-9Milhoes.apk > monster-game/build/SHA256SUMS.txt
+          godot --headless --path monster-game --export-debug Android build/Horda-0813-Pulo-Ajustado.apk 2>&1 | tee monster-game/build/export.log
+          test -s monster-game/build/Horda-0813-Pulo-Ajustado.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/Horda-0813-Pulo-Ajustado.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/Horda-0813-Pulo-Ajustado.apk > monster-game/build/apk-info.txt
+          grep -q "package: name='com.kauan.noitedahorda.puloajustado0813'" monster-game/build/apk-info.txt
+          sha256sum monster-game/build/Horda-0813-Pulo-Ajustado.apk > monster-game/build/SHA256SUMS.txt
           echo 'Android v0.8.13 testing APK generated and verified'
 
       - name: Upload APK for testing
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-0813-9Milhoes
-          path: monster-game/build/Horda-0813-9Milhoes.apk
+          name: Horda-0813-Pulo-Ajustado
+          path: monster-game/build/Horda-0813-Pulo-Ajustado.apk
           if-no-files-found: error
           retention-days: 30
 
