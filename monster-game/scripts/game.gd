@@ -1275,7 +1275,10 @@ func draw_vehicle(entity: Dictionary) -> void :
 	if entity.kind == "moto" and not entity.passengers.is_empty():
 		var pose = posmod(int(ui_time * 4 + entity.bob), 4)
 		var rider = art.passenger_frames[8 + pose]
-		paint_target.draw_set_transform(point + Vector2(15, -53).rotated(angle) * float(entity.scale), angle)
+		# Seat alignment: the old -53 anchor made the rider visibly float.
+		# Lower by 16 local pixels; rotate/scale with the motorcycle so it
+		# remains seated while the vehicle tilts. Visual change only.
+		paint_target.draw_set_transform(point + Vector2(15, -37).rotated(angle) * float(entity.scale), angle)
 		paint_target.draw_texture_rect(rider, Rect2(Vector2(-65, -80) * float(entity.scale), Vector2(130, 130) * float(entity.scale)), false)
 		paint_target.draw_set_transform(Vector2.ZERO)
 	elif entity.kind != "moto":
