@@ -45,7 +45,7 @@ jobs:
           for name,rows in [('corrida',6),('pulo_pouso',5),('quebrar_veiculos',6),('captura',6)]:
               p=Path('monster-game/assets/art/esqueleto_aprovado')/(name+'.png')
               header=p.read_bytes()[:26]
-              assert header[:8]==b'\\x89PNG\\r\\n\\x1a\\n', name
+              assert header[:8]==b'\x89PNG\r\n\x1a\n', name
               w,h=struct.unpack('>II',header[16:24])
               assert (w,h)==(2304,rows*288),(name,w,h)
               assert header[25]==6,(name,'not RGBA')
