@@ -226,6 +226,25 @@ func dialogue(g) -> void:
 	var rect = Rect2(405, g.full_rect().position.y + 107, 711, 74)
 	g.home_menu.slab(g, rect, Color("241a32"), Color("b99362"), 12, 2)
 	var rig = clampi(int(g.runner.speech_npc), 0, g.art.rigs.size() - 1)
-	var portrait = g.art.civil.portrait if rig == 4 else g.art.rigs[rig][0]
-	g.paint_target.draw_texture_rect(portrait, Rect2(rect.position + Vector2(8, 8), Vector2(62, 56)), false)
+	var destination := Rect2(rect.position + Vector2(8, 8), Vector2(62, 56))
+	var speech_age: float = maxf(0.0, HordeBalance.SPEECH_DURATION - g.runner.speech_left)
+	if rig == 4 and g.art.civil.frames.has("susto_inicio_fuga"):
+		# First the blue civilian reacts, then his nervous idle loops.
+		var clip := "susto_inicio_fuga" if speech_age < 1.0 else "parado_nervoso"
+		var age: float = speech_age if speech_age < 1.0 else speech_age - 1.0
+		var frame: int = HordeCivilSprite.sample(clip, age)
+		var tile: AtlasTexture = g.art.civil.frames[clip][frame]
+		var crop := Rect2(tile.region.position + Vector2(180, 38), Vector2(340, 292))
+		g.paint_target.draw_texture_rect_region(tile.atlas, destination, crop)
+	elif rig == 6 and g.art.woman.atlases.has("startle"):
+		# Only the upper body / face, never an obsolete rig portrait.
+		var clip := "startle" if speech_age < 1.0 else "idle"
+		var age: float = speech_age if speech_age < 1.0 else speech_age - 1.0
+		var frame: int = HordeCivilWomanSprite.sample(clip, age)
+		var source: Texture2D = g.art.woman.atlases[clip]
+		var crop := Rect2(Vector2(float(frame % 6) * 256.0 + 50.0, float(int(frame / 6)) * 256.0 + 12.0), Vector2(156, 156))
+		g.paint_target.draw_texture_rect_region(source, destination, crop)
+	else:
+		var portrait = g.art.civil.portrait if rig == 4 else g.art.rigs[rig][0]
+		g.paint_target.draw_texture_rect(portrait, destination, false)
 	g.wrapped(g.runner.speech_text, rect.position + Vector2(84, 30), 605, 21, g.CREAM, 2)

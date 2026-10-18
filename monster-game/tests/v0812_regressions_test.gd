@@ -20,7 +20,12 @@ func isolated(count: int) -> HordeRun:
 func run_checks() -> void:
 	var stage_zero: float = HordeDirector.stage_speed(0)
 	expect(is_equal_approx(stage_zero, 305.0), "Tunnel progression preserves initial speed")
-	expect(is_equal_approx(HordeDirector.stage_speed(2) - stage_zero, 1.2 * (1.10 * 22.0)), "Speed gained through tunnels increased by 20 percent")
+	# The old 20% incremental formula was intentionally replaced in this playtest.
+	expect(is_equal_approx(HordeDirector.stage_speed(2), stage_zero * pow(1.07, 2)), "Speed compounds by 7 percent across early tunnels")
+	expect(HordeDirector.stage_speed(7) > HordeDirector.stage_speed(3) * 1.30, "Tunnel 7 is noticeably faster than tunnel 3")
+	expect(is_equal_approx(HordeDirector.stage_speed(16), stage_zero * pow(1.07, 16)), "Seven-percent progression lasts through tunnel 16")
+	expect(HordeDirector.stage_speed(30) > HordeDirector.stage_speed(16), "Long survival still increases the speed")
+	expect(HordeDirector.stage_speed(60) <= 1350.0, "Distant base-speed safety cap is preserved")
 	var masked := isolated(16)
 	masked.perk_kind = 2;masked.perk_left = 10.0
 	expect(masked.member_force() == 2, "Mask gives two effective force units per survivor")

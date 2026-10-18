@@ -915,8 +915,9 @@ func complete_capture(entity: Dictionary) -> void :
 	# The capture VFX stays on the civilian; the new member joins the formation
 	# immediately, with no hovering or 0.35-second spawn bounce.
 	var join_x := slot_x(members.size())
-	var join_floor := member_floor({"x": join_x, "y": -100000.0})
-	add_member(kind, false, Vector2(join_x, float(join_floor.y)))
+	# Recruits rescued from vehicles must start at road height, NOT a roof.
+	# Using a virtual y far above the world incorrectly selected the plane roof.
+	add_member(kind, false, Vector2(join_x, ground_y(join_x)))
 	if not members.is_empty():
 		members[-1].arrival = 0.0
 		members[-1].reform_hold_until = elapsed

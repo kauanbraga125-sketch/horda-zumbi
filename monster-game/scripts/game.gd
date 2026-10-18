@@ -69,6 +69,7 @@ var market_clip: Control
 var market_canvas: Node2D
 var views = HordeViews.new()
 var gameplay_ui = HordeGameplayUI.new()
+var analytics = HordeAnalytics.new()
 var pages = HordePages.new()
 var credits_from = "help"
 var result_full_flash = 0.0
@@ -160,6 +161,7 @@ func _process(dt: float) -> void :
 func _physics_process(dt: float) -> void :
 	if screen != "run" or capture_freeze: return
 	runner.advance(dt, jump_held)
+	if not lab_active: analytics.sample(runner)
 	consume_run_events()
 	check_challenges()
 	last_save += dt
@@ -196,6 +198,7 @@ func start_run() -> void :
 	run_settled = false;run_report = {};data.active_souls = 0
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
 	runner.tutorial_enabled = not bool(data.tutorial_complete) and int(data.runs) == 0
+	if not lab_active and not test_mode and not capture_mode: analytics.begin_run(runner, data.levels)
 	data.tutorial_complete = true
 	save_game()
 	effects.clear();ui_effects.clear()
@@ -210,6 +213,7 @@ func start_run() -> void :
 
 func consume_run_events() -> void :
 	for e in runner.drain_events():
+		if not lab_active and not test_mode and not capture_mode: analytics.record_event(runner, e)
 		var point = Vector2(float(e.get("x", HordeRun.ANCHOR)), float(e.get("y", HordeRun.FLOOR)))
 		match e.type:
 			"coin":
@@ -320,6 +324,7 @@ func finish_run() -> void :
 		if end_delay < 0: end_delay = 1.0;sound.play("finish")
 		return
 	if run_settled or end_delay >= 0 or screen not in ["run", "pause"]: return
+	if not test_mode and not capture_mode: analytics.end_run(runner)
 	data.best = maxi(int(data.best), runner.distance())
 	data.runs += 1
 	run_settled = true
@@ -479,13 +484,25 @@ func perform_action(action: String) -> void :
 		"settings":
 			settings_from = "pause" if screen in ["run", "pause"] else screen
 			change_screen("settings")
+		"analytics_open": change_screen("analytics")
+		"analytics_back": change_screen("settings")
+		"analytics_copy_last":
+			DisplayServer.clipboard_set(analytics.export_report(1))
+			show_toast("RELATÓRIO DA ÚLTIMA PARTIDA COPIADO!", 3.0)
+		"analytics_copy_20":
+			DisplayServer.clipboard_set(analytics.export_report(20))
+			show_toast("ATÉ 20 PARTIDAS COPIADAS!", 3.0)
 		"retry":
-			if screen in ["run", "pause"] and not runner.dead: runner.finish();consume_run_events()
+			if screen in ["run", "pause"] and not runner.dead:
+				analytics.end_override = "abandoned"
+				runner.finish();consume_run_events()
 			end_delay = -1;start_run()
 		"home":
-			if screen in ["run", "pause"] and not runner.dead: runner.finish();consume_run_events();end_delay = -1
+			if screen in ["run", "pause"] and not runner.dead:
+				analytics.end_override = "abandoned"
+				runner.finish();consume_run_events();end_delay = -1
 			change_screen("home")
-		"back": change_screen("settings" if screen == "backup" else (settings_from if screen == "settings" else (credits_from if screen == "credits" else (previous_page if screen == "market" else "home"))))
+		"back": change_screen("settings" if screen in ["backup", "analytics"] else (settings_from if screen == "settings" else (credits_from if screen == "credits" else (previous_page if screen == "market" else "home"))))
 		"pause": if screen == "run": change_screen("pause")
 		"resume": if screen == "pause": change_screen("run")
 		"audio":
@@ -670,6 +687,7 @@ func _draw() -> void :
 		"market": market.paint(self)
 		"collection": draw_collection()
 		"settings": draw_settings()
+		"analytics": analytics.paint(self)
 		"backup": draw_backup()
 		"developer": draw_developer()
 		"sprite_lab": draw_sprite_lab()
@@ -938,13 +956,15 @@ func save_game(path: String = SAVE_PATH) -> bool:
 
 func _notification(what: int) -> void :
 	if what == NOTIFICATION_APPLICATION_PAUSED and is_instance_valid(sound):
+		analytics.flush()
 		if screen == "run": change_screen("pause")
 		save_game()
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_instance_valid(sound):
 		if screen == "run": perform_action("pause")
 		elif screen == "pause": perform_action("resume")
 		elif screen != "home": perform_action("back")
-	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_instance_valid(sound): save_game()
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_instance_valid(sound):
+		analytics.flush();save_game()
 
 func run_tests() -> void :
 	var suite = load("res://tests/self_test.gd").new()
@@ -1527,7 +1547,8 @@ func draw_settings() -> void :
 		draw_circle(Vector2(bar.position.x + bar.size.x * float(data.audio_levels[channel]), bar.get_center().y), 14, GOLD)
 		buttons.append({"rect": Rect2(394, y + 22, 527, 73), "action": "mix_slider_" + channel})
 	button(Rect2(69, 642, 245, 57), "VOLTAR", "back", Color("513c67"), -2, 23)
-	button(Rect2(340, 642, 500, 57), "DESENVOLVEDOR TESTE", "developer", Color("4c786a"), -2, 23)
+	button(Rect2(330, 642, 256, 57), "DESENVOLVEDOR", "developer", Color("4c786a"), -2, 19)
+	button(Rect2(602, 642, 252, 57), "DIÁRIO DE PARTIDAS", "analytics_open", Color("427a72"), -2, 17)
 	if not data.audio: button(Rect2(878, 642, 258, 57), "ATIVAR SOM", "audio", Color("4c786a"), -2, 23)
 
 func draw_backup() -> void:

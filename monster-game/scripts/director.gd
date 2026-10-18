@@ -2,8 +2,12 @@ class_name HordeDirector
 extends RefCounted
 
 static func stage_speed(stage: int) -> float:
-	# Increase the *existing increment* by 20% without boosting starting speed.
-	return 305 + 1.32 * (mini(stage, 5) * 11 + clampi(stage - 5, 0, 5) * 17 + 235 * (1.0 - exp(-maxi(0, stage - 10) / 14.0)))
+	# A perceptible progression through viable stages, with a distant safety cap.
+	# Each increase is compound, applied to the preceding base speed.
+	var early: int = mini(maxi(stage, 0), 16)
+	var middle: int = clampi(stage - 16, 0, 12)
+	var late: int = maxi(stage - 28, 0)
+	return minf(1350.0, 305.0 * pow(1.07, early) * pow(1.025, middle) * pow(1.008, late))
 
 static func profile(_world_px: float, count: int, pressure: float, recovery: float, stage: int = 0) -> Dictionary:
 	var progress = clampf(float(stage) / 14.0, 0, 1)
