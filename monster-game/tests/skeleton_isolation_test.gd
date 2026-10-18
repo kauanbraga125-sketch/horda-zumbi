@@ -44,7 +44,16 @@ func check_routes() -> void:
 		if sheet != null:
 			check(sheet.get_size() == expect_size, "Wrong fly atlas geometry: " + name)
 	check(HordeFlyApprovedSprite.frame_for("panic", 1.0, 0.0, 0.0, 0.0) == 15, "Damage last frame missing")
-	check(HordeFlyApprovedSprite.frame_for("push", 1.0, 0.0, 0.0, 0.0) == 35, "Push last frame missing")
+	check(HordeFlyApprovedSprite.RUN_PHASE_SPEED < 0.5, "Fly running still too fast")
+	check(HordeFlyApprovedSprite.frame_for("run", 1.0, 0.0, 0.0, 0.0) < 20, "Fly run must use slower phase")
+	check(HordeFlyApprovedSprite.frame_for("fall", 0.0, 0.0, 0.0, 240.0) == 0, "Fly fall must start on initial descent frame")
+	check(HordeFlyApprovedSprite.frame_for("fall", 0.0, 0.5, 0.0, 240.0) == 8, "Fly fall must advance at constant velocity")
+	check(HordeFlyApprovedSprite.frame_for("push", 0.0, 0.0, 0.0, 0.0) == 0, "Fly push must begin with its first frame")
+	check(HordeFlyApprovedSprite.frame_for("push", 0.0, 1.999, 0.0, 0.0) == 35, "Fly push must play all 36 frames")
+	check(HordeFlyApprovedSprite.frame_for("push", 0.0, 2.0, 0.0, 0.0) == 0, "Fly push must loop without freezing")
+	check(HordeFlyApprovedSprite.VISIBLE_HEIGHT["corrida"] > HordeFlyApprovedSprite.BODY_HEIGHT, "Fly run scale was not normalized to idle")
+	check(HordeFlyApprovedSprite.VISIBLE_HEIGHT["pouso"] > HordeFlyApprovedSprite.VISIBLE_HEIGHT["corrida"], "Fly fall scale was not normalized")
+	check(HordeFlyApprovedSprite.TRANSITION_SECONDS > 0.0 and HordeFlyApprovedSprite.TRANSITION_SECONDS <= 0.2, "Fly sprite changes must crossfade quickly")
 	# New optional clips route to sheets only after the supplemental ZIP is imported.
 	for extra in ["idle", "panic"]:
 		var installed: bool = actor.skeleton_approved.atlases.has(extra)
