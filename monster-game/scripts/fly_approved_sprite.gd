@@ -10,6 +10,19 @@ const COLUMNS: int = 6
 const BODY_HEIGHT: float = 188.0
 const RUN_PHASE_SPEED: float = 0.42
 const TRANSITION_SECONDS: float = 0.14
+const AIR_TRANSITION_SECONDS: float = 0.24
+# Soft, fly-only palette compensation measured against the approved idle
+# reference. Original PNGs remain byte-for-byte unchanged.
+# Preserve white wings and warm orange eyes: correct gently instead of
+# applying a global hue shift to the entire game scene.
+const PALETTE_GRADES = {
+	"voo": Color(0.99, 1.0, 1.0, 1.0),
+	"corrida": Color(1.05, 1.18, 1.12, 1.0),
+	"pouso": Color(0.97, 1.16, 1.13, 1.0),
+	"captura": Color(0.99, 1.06, 1.06, 1.0),
+	"push": Color(0.99, 1.06, 1.02, 1.0),
+	"dano": Color(1.00, 1.07, 1.07, 1.0),
+}
 const VISIBLE_HEIGHT = {
 	"voo": BODY_HEIGHT,
 	"corrida": 216.0,
@@ -80,6 +93,16 @@ static func frame_for(state: String, phase: float, time: float, landing: float, 
 			return clampi(int(clampf(phase, 0.0, 1.0) * 15.0), 0, 15)
 	return 0
 
+static func palette_grade_for(animation: String) -> Color:
+	return PALETTE_GRADES.get(animation, Color.WHITE)
+
+static func transition_duration(from_clip: String, to_clip: String) -> float:
+	# Flight <-> descent needs longer blending because the painted lighting
+	# and wing silhouettes differ between these two source sheets.
+	if (from_clip == "voo" and to_clip == "pouso") or (from_clip == "pouso" and to_clip == "voo"):
+		return AIR_TRANSITION_SECONDS
+	return TRANSITION_SECONDS
+
 static func pivot_y(animation: String, frame: int) -> float:
 	if animation == "voo": return 242.0
 	if animation == "pouso": return 244.0 + roundi(14.0 * float(frame) / 23.0)
@@ -98,5 +121,7 @@ func paint(canvas: Node2D, foot: Vector2, height: float, phase: float, state: St
 	elif state in ["panic", "panic_run"]:
 		position.x += sin(time * 47.0) * 2.0
 	canvas.draw_set_transform(position, 0.0, Vector2(-1.0 if reverse else 1.0, 1.0))
-	canvas.draw_texture_rect_region(textures[anim], Rect2(top_left, CELL * scale), region, tint)
+	# Apply identical correction in gameplay and in the sprite lab.
+	# Preserve the caller's hit-flash and transition alpha.
+	canvas.draw_texture_rect_region(textures[anim], Rect2(top_left, CELL * scale), region, tint * palette_grade_for(anim))
 	canvas.draw_set_transform(Vector2.ZERO)
