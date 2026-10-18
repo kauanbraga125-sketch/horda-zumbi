@@ -13,6 +13,15 @@ func _init(source: HordeArt) -> void :
 	zombie = HordeZombieSprite.new()
 	skeleton_approved = HordeSkeletonApprovedSprite.new()
 
+# One route function governs ALL actor draws (gameplay, menu, previews).
+# This is also exercised by tests to prevent swapping rig 0 and rig 1 again.
+func renderer_for(kind: int, state: String, landing: float) -> String:
+	if kind == 0:
+		return "zombie_original"
+	if kind == 1 and skeleton_approved.has_state(state, landing):
+		return "skeleton_approved"
+	return "original_rig"
+
 static func stride_foot(phase: float) -> Vector2:
 	var t = fposmod(phase, 1.0)
 	if t < 0.58: return Vector2(25 - 50 * t / 0.58, -4)
@@ -60,12 +69,11 @@ func arm(canvas: Node2D, kind: int, shoulder: Vector2, swing: float, tint: Color
 
 func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String = "run", time: float = 0, landing: float = 0, tint: Color = Color.WHITE, reverse: bool = false, pose_mix: float = 1.0, show_prop: bool = true, air_age: float = -1, vertical_speed: float = 0) -> void :
 	kind = clampi(kind, 0, art.rigs.size() - 1)
-	if kind == 0:
-		# Keep the original zombie animation pipeline 100% unchanged.
+	var render_route: String = renderer_for(kind, state, landing)
+	if render_route == "zombie_original":
 		zombie.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
 		return
-	if kind == 1 and skeleton_approved.has_state(state, landing):
-		# Approved image sheets belong only to the skeleton.
+	if render_route == "skeleton_approved":
 		skeleton_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
 		return
 	facing = -1.0 if reverse else 1.0
