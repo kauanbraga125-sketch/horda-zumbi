@@ -1,16 +1,16 @@
-name: Noite da Horda Android — teste v0.8.13
+name: Horda 0.8.13 ESTAVEL — somente esqueleto (limpo)
 
 on:
   workflow_dispatch:
   push:
-    branches: [build/noite-da-horda-v0813]
-    paths: ['monster-game/**']
+    branches: [feat/esqueleto-0813-base-estavel-limpa]
+    paths: ['monster-game/**', '.github/workflows/noite-da-horda-android.yml']
 
 permissions:
   contents: read
 
 concurrency:
-  group: noite-da-horda-v0813
+  group: noite-da-horda-0813-esqueleto-limpo
   cancel-in-progress: false
 
 jobs:
@@ -24,6 +24,33 @@ jobs:
     steps:
       - name: Checkout selected branch
         uses: actions/checkout@v4
+
+      - name: Extract approved images ONLY (never overwrite any zombie code)
+        run: |
+          set -euo pipefail
+          test -s monster-game/sprites_aprovados.zip
+          mkdir -p monster-game/assets/art/esqueleto_aprovado
+          for sprite in corrida pulo_pouso quebrar_veiculos captura; do
+            unzip -p monster-game/sprites_aprovados.zip "monster-game/assets/art/esqueleto_aprovado/$sprite.png" > "monster-game/assets/art/esqueleto_aprovado/$sprite.png"
+            test -s "monster-game/assets/art/esqueleto_aprovado/$sprite.png"
+          done
+          # The original stable 0.8.13 zombie source must remain BYTE-FOR-BYTE identical.
+          test "$(git hash-object monster-game/scripts/zombie_sprite.gd)" = "ed17fe2e70d1094022555af764e886474db128ea"
+          test "$(git hash-object monster-game/scripts/zombie_stride.gd)" = "bbe26c1870667c4bcc9d937d3fa0cd87f7815a81"
+          grep -q 'if kind == 0:' monster-game/scripts/actor.gd
+          grep -q 'if kind == 1 and skeleton_approved.has_state' monster-game/scripts/actor.gd
+          python3 - <<'PY'
+          import struct
+          from pathlib import Path
+          for name,rows in [('corrida',6),('pulo_pouso',5),('quebrar_veiculos',6),('captura',6)]:
+              p=Path('monster-game/assets/art/esqueleto_aprovado')/(name+'.png')
+              header=p.read_bytes()[:26]
+              assert header[:8]==b'\x89PNG\r\n\x1a\n', name
+              w,h=struct.unpack('>II',header[16:24])
+              assert (w,h)==(2304,rows*288),(name,w,h)
+              assert header[25]==6,(name,'not RGBA')
+          print('ORIGINAL_ZOMBIE_PRESERVED; SKELETON_FOUR_ATLASES_VALID')
+          PY
 
       - name: Require full corrected 0.8.13 source tree
         run: |
@@ -92,6 +119,9 @@ jobs:
           timeout 120 godot --headless --path monster-game --script res://tests/ci_smoke.gd 2>&1 | tee monster-game/build/test.log
           grep -q 'HORDE_CI_SMOKE_OK' monster-game/build/test.log
           if grep -E 'SCRIPT ERROR|HORDE_CI_SMOKE_FAIL|HORDE_VEHICLE_SURVIVORS_FAIL|HORDE_0813_FAIL' monster-game/build/test.log; then exit 1; fi
+          timeout 120 godot --headless --path monster-game --script res://tests/skeleton_isolation_test.gd 2>&1 | tee monster-game/build/skeleton-test.log
+          grep -q 'HORDE_SKELETON_ISOLATION_OK' monster-game/build/skeleton-test.log
+          if grep -E 'SCRIPT ERROR|HORDE_SKELETON_ISOLATION_FAIL' monster-game/build/skeleton-test.log; then exit 1; fi
 
       - name: Prepare separate testing app and development signature
         run: |
@@ -106,9 +136,13 @@ jobs:
           p=Path('monster-game/export_presets.cfg')
           s=p.read_text()
           assert 'package/unique_name="com.kauan.noitedahorda"' in s
-          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.teste0813"')
-          s=s.replace('package/name="Noite da Horda"', 'package/name="Noite da Horda Teste 0813"')
+          s=s.replace('package/unique_name="com.kauan.noitedahorda"', 'package/unique_name="com.kauan.noitedahorda.esqueletolimpo0813"')
+          s=s.replace('package/name="Noite da Horda"', 'package/name="Horda Esqueleto 0813 LIMPO"')
           p.write_text(s)
+          project=Path('monster-game/project.godot')
+          project_text=project.read_text()
+          project_text=project_text.replace('config/name="Noite da Horda"', 'config/name="Horda Esqueleto 0813 LIMPO"')
+          project.write_text(project_text)
           PY
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/horda-0813-testing.keystore" >> "$GITHUB_ENV"
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
@@ -117,19 +151,19 @@ jobs:
       - name: Export APK and validate package
         run: |
           set -euo pipefail
-          godot --headless --path monster-game --export-debug Android build/NoiteDaHorda-v0.8.13-teste.apk 2>&1 | tee monster-game/build/export.log
-          test -s monster-game/build/NoiteDaHorda-v0.8.13-teste.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/NoiteDaHorda-v0.8.13-teste.apk
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/NoiteDaHorda-v0.8.13-teste.apk > monster-game/build/apk-info.txt
-          grep -q "package: name='com.kauan.noitedahorda.teste0813'" monster-game/build/apk-info.txt
-          sha256sum monster-game/build/NoiteDaHorda-v0.8.13-teste.apk > monster-game/build/SHA256SUMS.txt
+          godot --headless --path monster-game --export-debug Android build/Horda-0813-Esqueleto-Limpo.apk 2>&1 | tee monster-game/build/export.log
+          test -s monster-game/build/Horda-0813-Esqueleto-Limpo.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose monster-game/build/Horda-0813-Esqueleto-Limpo.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging monster-game/build/Horda-0813-Esqueleto-Limpo.apk > monster-game/build/apk-info.txt
+          grep -q "package: name='com.kauan.noitedahorda.esqueletolimpo0813'" monster-game/build/apk-info.txt
+          sha256sum monster-game/build/Horda-0813-Esqueleto-Limpo.apk > monster-game/build/SHA256SUMS.txt
           echo 'Android v0.8.13 testing APK generated and verified'
 
       - name: Upload APK for testing
         uses: actions/upload-artifact@v4
         with:
-          name: NoiteDaHorda-v0.8.13-teste
-          path: monster-game/build/NoiteDaHorda-v0.8.13-teste.apk
+          name: Horda-0813-Esqueleto-Limpo
+          path: monster-game/build/Horda-0813-Esqueleto-Limpo.apk
           if-no-files-found: error
           retention-days: 30
 
