@@ -1064,6 +1064,8 @@ func animation_state(member: Dictionary) -> String:
 	if member.falling: return "fall"
 	if member.attack_left > 0: return "capture"
 	if member.push_left > 0 and member.y >= runner.ground_y(member.x) - 12: return "push"
+	# Skeleton kind 1 panics briefly after a horde hit; do not alter other monsters.
+	if int(member.get("kind", -1)) == 1 and runner.hit_grace > 0.0 and runner.transform_left <= 0.0: return "panic"
 	if runner.perk_kind == 3 and runner.perk_left > 0: return "fly"
 	if member.get("roof_id", -1) >= 0 and absf(float(member.vy)) < 0.1: return "run"
 	if member.y < runner.ground_y(member.x) - 4: return "rise" if member.vy < 0 else "fall"
