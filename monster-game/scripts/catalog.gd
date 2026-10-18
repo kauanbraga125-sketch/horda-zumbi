@@ -18,7 +18,7 @@ const VEHICLES = {
 	"tank": {"name": "TANQUE", "need": 12, "icon": 4, "height": 184.0, "width": 370.0, "collision": 130.0, "reward": 12, "rescues": 3, "rescue_min": 2, "reverse": false, "windows": []},
 	"plane": {"name": "AVIÃO", "need": 16, "icon": 5, "height": 324.0, "width": 680.0, "roof": 233.0, "collision": 160.0, "reward": 18, "rescues": 7, "rescue_min": 6, "reverse": false, "windows": [Vector2(-0.179, -0.046), Vector2(-0.109, -0.046), Vector2(-0.044, -0.046), Vector2(0.017, -0.046), Vector2(0.075, -0.046), Vector2(0.13, -0.046)], "window_size": Vector2(0.031, 0.074)}
 }
-const CIVILIANS = [{"rig": 4, "key": "civil_casaco_azul_nerd", "height": 112.0}, {"rig": 6, "height": 104.0}, {"rig": 7, "height": 110.0}]
+const CIVILIANS = [{"rig": 4, "key": "civil_casaco_azul_nerd", "height": 112.0}, {"rig": 6, "key": "civil_mulher_nova", "height": 104.0}, {"rig": 7, "height": 110.0}]
 
 const MONSTERS = [
 	{"name": "Zumbi", "tag": "A horda começa aqui", "description": "Sua primeira criatura. Capture civis para aumentar a horda e coletar almas.", "color": Color("93e1be")},

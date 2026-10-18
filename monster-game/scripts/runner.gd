@@ -219,6 +219,10 @@ func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, widt
 	if kind == "civilian":
 		entity.variant = clampi(variant, 0, 2);entity.vx = rng.randf_range(-55, 90)
 		entity.pose = ["run", "hop", "panic"][rng.randi_range(0, 2)]
+		if int(entity.variant) == 1:
+			entity.woman_clip = "idle";entity.woman_time = rng.randf_range(0.0, 1.0)
+			entity.flee_speed = rng.randf_range(70.0, 98.0)
+			entity.vx = 0.0;entity.pose = "idle"
 		if MonsterCatalog.CIVILIANS[entity.variant].get("key", "") == "civil_casaco_azul_nerd":
 			entity.civil_key = "civil_casaco_azul_nerd";entity.civil_clip = "parado_nervoso";entity.civil_time = rng.randf_range(0, 3.2)
 			entity.civil_flip = true;entity.civil_previous_flip = true;entity.civil_turn_left = 0.0
@@ -853,6 +857,8 @@ func member_by_id(id: int) -> Dictionary:
 func begin_capture(entity: Dictionary, member: Dictionary) -> void :
 	if dead or member.falling or entity.state != "normal": return
 	entity.state = "capture";entity.capture_left = 0.62;entity.capturer = member.id
+	if entity.has("woman_clip"):
+		entity.woman_clip = "capture";entity.woman_time = 0.0
 	if entity.get("civil_key", "") == "civil_casaco_azul_nerd":
 		entity.civil_capture_transition = entity.civil_clip == "corrida" and HordeCivilSprite.sample("corrida", entity.civil_time) <= 2
 		civil_turn(entity, true)
@@ -872,6 +878,8 @@ func update_civilians(dt: float) -> void :
 			var m = member_by_id(int(e.capturer))
 			if m.is_empty():
 				e.state = "normal";e.pose = "panic";e.vy = -120
+				if e.has("woman_clip"):
+					e.woman_clip = "run";e.woman_time = 0.0;e.vx = float(e.flee_speed)
 				if e.has("civil_key"): e.civil_clip = "corrida";e.civil_time = 0.0;civil_turn(e, false)
 				continue
 			e.x = m.x + e.capture_offset.x;e.y = m.y + e.capture_offset.y
@@ -881,6 +889,10 @@ func update_civilians(dt: float) -> void :
 		elif e.kind in ["civilian", "police"]:
 			if e.has("civil_key"):
 				update_blue_civil(e, dt)
+				e.y = ground_y(e.x)
+				continue
+			if e.kind == "civilian" and e.has("woman_clip"):
+				update_woman_civil(e, dt)
 				e.y = ground_y(e.x)
 				continue
 			protect_civilian_path(e)
@@ -1078,6 +1090,23 @@ func update_power_warnings() -> void:
 static func civil_turn(e: Dictionary, flipped: bool) -> void:
 	if bool(e.get("civil_flip", true)) == flipped: return
 	e.civil_previous_flip = e.get("civil_flip", true);e.civil_flip = flipped;e.civil_turn_left = 0.09
+
+func update_woman_civil(e: Dictionary, dt: float) -> void:
+	e.woman_time = float(e.woman_time) + dt
+	var clip: String = str(e.woman_clip)
+	if clip == "idle":
+		var lead: int = leader_index()
+		if lead >= 0 and float(members[lead].x) < float(e.x) and float(e.x) - float(members[lead].x) < maxf(392.0, speed * 1.6):
+			e.woman_clip = "startle";e.woman_time = 0.0;e.pose = "panic"
+	elif clip == "startle":
+		if float(e.woman_time) >= 0.36:
+			e.vx = move_toward(float(e.vx), float(e.flee_speed), dt * 380.0)
+		if float(e.woman_time) >= 1.0:
+			e.woman_clip = "run";e.woman_time = 0.0;e.pose = "run"
+	else:
+		e.vx = move_toward(float(e.vx), float(e.flee_speed), dt * 380.0)
+	if not civilian_floor_safe(float(e.x) + float(e.vx) * 0.4, 42.0):
+		e.x -= maxf(0.0, float(e.vx)) * dt;e.vx = 0.0
 
 func update_blue_civil(e: Dictionary, dt: float) -> void:
 	e.civil_time += dt;e.civil_turn_left = maxf(0, float(e.civil_turn_left) - dt)

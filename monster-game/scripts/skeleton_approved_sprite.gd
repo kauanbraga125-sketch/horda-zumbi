@@ -16,6 +16,8 @@ const SHEETS = {
 	"jump": {"file": "pulo_pouso.png", "frames": 30, "visible_height": 176.0, "center_x": 185.0},
 	"push": {"file": "quebrar_veiculos.png", "frames": 36, "visible_height": 205.0, "center_x": 185.0},
 	"capture": {"file": "captura.png", "frames": 35, "visible_height": 280.0, "center_x": 192.0},
+	"idle": {"file": "idle.png", "frames": 15, "visible_height": 181.0, "center_x": 192.0},
+	"panic": {"file": "panic.png", "frames": 15, "visible_height": 181.0, "center_x": 192.0},
 }
 
 var atlases: Dictionary = {}
@@ -23,6 +25,8 @@ var atlases: Dictionary = {}
 func _init() -> void:
 	for name in SHEETS:
 		var path: String = ROOT + str(SHEETS[name]["file"])
+		if name in ["idle", "panic"] and not ResourceLoader.exists(path):
+			continue
 		assert(ResourceLoader.exists(path), "Missing approved skeleton sprite sheet: " + path)
 		atlases[name] = load(path) as Texture2D
 		assert(atlases[name] != null, "Unable to load approved skeleton sprite sheet: " + path)
@@ -31,6 +35,8 @@ func _init() -> void:
 
 static func clip_for(state: String, landing: float) -> String:
 	match state:
+		"idle", "panic":
+			return state
 		"run":
 			return "jump" if landing > 0.0 else "run"
 		"rise", "fly", "fall":
@@ -47,6 +53,10 @@ func has_state(state: String, landing: float) -> bool:
 
 static func frame_for(state: String, phase: float, time: float, landing: float, air_age: float, vertical_speed: float) -> int:
 	match state:
+		"idle":
+			return posmod(int(time * 8.0), 15)
+		"panic":
+			return posmod(int(time * 14.0), 15)
 		"run":
 			if landing > 0.0:
 				return clampi(24 + int((0.2 - landing) / 0.2 * 6), 24, 29)
@@ -67,6 +77,8 @@ static func frame_for(state: String, phase: float, time: float, landing: float, 
 
 static func foot_anchor_for(clip: String, index: int, landing: bool = false) -> float:
 	match clip:
+		"idle", "panic":
+			return 244.0
 		"run":
 			return float(RUN_FEET[clampi(index, 0, RUN_FEET.size() - 1)])
 		"jump":

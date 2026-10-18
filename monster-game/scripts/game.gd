@@ -1239,6 +1239,10 @@ func draw_fuse(point: Vector2, time: float) -> void :
 		paint_target.draw_circle(point + Vector2(sin(time * 7 + i) * 11 * age, - age * 33), 1.7 * (1 - age), Color(1, 0.81, 0.3, 0.8 * (1 - age)))
 
 func draw_civilian(entity: Dictionary) -> void :
+	# Draw new sheets ONLY for female variant 1; never override blue civilian / worker.
+	if entity.kind == "civilian" and int(entity.variant) == 1 and art.woman.has_assets():
+		art.woman.paint(paint_target, entity, Vector2(entity.x, entity.y), 104.0)
+		return
 	if entity.get("civil_key", "") == "civil_casaco_azul_nerd":
 		art.civil.paint(paint_target, entity, Vector2(entity.x, entity.y), 112.0)
 		return

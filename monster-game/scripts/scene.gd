@@ -107,6 +107,8 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 			if p.x > left and p.x < right:
 				if int(p.variant) == 0:
 					art.civil.paint(canvas, {"state": "normal", "civil_clip": "corrida", "civil_time": time + p.phase, "civil_flip": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))
+				elif int(p.variant) == 1 and art.woman.has_assets():
+					art.woman.paint(canvas, {"woman_clip": "run", "woman_time": time + p.phase, "woman_reverse": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))
 				else: actor.paint(canvas, int(MonsterCatalog.CIVILIANS[int(p.variant)].rig), Vector2(p.x, p.y - absf(sin(time * 3 + p.variant)) * 6), 66, p.phase, "panic_run", time, 0, Color(0.78, 0.76, 0.85, 0.86), p.reverse)
 
 		if crash_age >= 0:
