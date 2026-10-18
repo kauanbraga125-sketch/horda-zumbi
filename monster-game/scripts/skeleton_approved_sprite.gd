@@ -4,6 +4,8 @@ extends RefCounted
 # EXCLUSIVE to rig 1 (Esqueleto). Do not use this class for zombie (rig 0).
 # Atlas data is from the four approved transparent sheets.
 # Real RGBA bounds measured from approved 384x288 cells. No image edits.
+# Head widths: run ≈ 60px, jump ≈ 52px; jump divisor 157 equalizes apparent head size.
+# Head horizontal position: (245-178)/181 ≈ (224-166)/157 for continuous alignment.
 # 36-frame running sequence is deliberately slowed, without skipping frames.
 const RUN_PHASE_SPEED = 0.40
 const RUN_FEET = [240, 242, 245, 249, 245, 242, 248, 252, 249, 249, 241, 249, 248, 249, 249, 243, 246, 255, 246, 247, 241, 247, 248, 249, 234, 235, 241, 241, 242, 241, 232, 238, 239, 238, 236, 230]
@@ -13,7 +15,7 @@ const TILE_SIZE = Vector2(384, 288)
 const COLUMNS = 6
 const SHEETS = {
 	"run": {"file": "corrida.png", "frames": 36, "visible_height": 181.0, "center_x": 178.0},
-	"jump": {"file": "pulo_pouso.png", "frames": 30, "visible_height": 176.0, "center_x": 185.0},
+	"jump": {"file": "pulo_pouso.png", "frames": 30, "visible_height": 157.0, "center_x": 166.0},
 	"push": {"file": "quebrar_veiculos.png", "frames": 36, "visible_height": 205.0, "center_x": 185.0},
 	"capture": {"file": "captura.png", "frames": 35, "visible_height": 280.0, "center_x": 192.0},
 }
