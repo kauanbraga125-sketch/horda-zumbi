@@ -24,14 +24,27 @@ func check_routes() -> void:
 		check(actor.renderer_for(3, state, 0.0) == "original_rig", "Mosca affected: " + state)
 	check(actor.renderer_for(0, "run", 0.11) == "zombie_original", "Zumbi landing altered")
 	check(actor.renderer_for(1, "run", 0.11) == "skeleton_approved", "Skeleton landing not replaced")
-	check(actor.renderer_for(1, "idle", 0.0) == "original_rig", "Skeleton idle must preserve original rig")
+	# New optional clips route to sheets only after the supplemental ZIP is imported.
+	for extra in ["idle", "panic"]:
+		var installed: bool = actor.skeleton_approved.atlases.has(extra)
+		var route: String = "skeleton_approved" if installed else "original_rig"
+		check(actor.renderer_for(1, extra, 0.0) == route, "Skeleton optional route invalid: " + extra)
 	for clip in HordeSkeletonApprovedSprite.SHEETS:
 		var atlas: Texture2D = actor.skeleton_approved.atlases.get(clip) as Texture2D
-		check(atlas != null, "Missing skeleton clip: " + str(clip))
+		if clip not in ["idle", "panic"]:
+			check(atlas != null, "Missing mandatory skeleton clip: " + str(clip))
 		if atlas != null:
 			var spec: Dictionary = HordeSkeletonApprovedSprite.SHEETS[clip]
 			var expected = Vector2(2304, ceil(float(spec["frames"]) / 6.0) * 288.0)
 			check(atlas.get_size() == expected, "Invalid skeleton atlas size: " + str(clip))
+	# Woman must never replace another civilian when optional sheets are absent.
+	var woman := HordeCivilWomanSprite.new()
+	if woman.has_assets():
+		for clip in HordeCivilWomanSprite.CLIPS:
+			var texture: Texture2D = woman.atlases.get(clip) as Texture2D
+			check(texture != null, "Missing civilian female clip: " + str(clip))
+			if texture != null:
+				check(texture.get_size() == Vector2(1536, 1536), "Wrong female tile geometry: " + str(clip))
 	# Regression checks for the problems found on the in-game sprite testing screen.
 	check(HordeSkeletonApprovedSprite.RUN_PHASE_SPEED <= 0.5, "Skeleton running is too fast")
 	check(HordeSkeletonApprovedSprite.frame_for("run", 1.0, 1.0, 0.0, -1.0, 0.0) < 20, "Run cycle still rushes through 36 frames")
