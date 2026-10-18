@@ -45,6 +45,14 @@ func check_routes() -> void:
 	check(HordeSkeletonApprovedSprite.foot_anchor_for("capture", 0) == 276.0, "Capture foot alignment changed")
 	check(float(HordeSkeletonApprovedSprite.SHEETS["push"]["visible_height"]) > 195.0, "Push sprite still oversized")
 	check(float(HordeSkeletonApprovedSprite.SHEETS["capture"]["visible_height"]) > 270.0, "Capture sprite still oversized")
+	# Visual size correspondence using measured widths of the approved skulls.
+	# At the same requested character height, the skull must not shrink on takeoff.
+	var run_skull: float = 60.0 / float(HordeSkeletonApprovedSprite.SHEETS["run"]["visible_height"])
+	var jump_skull: float = 52.0 / float(HordeSkeletonApprovedSprite.SHEETS["jump"]["visible_height"])
+	check(absf(jump_skull / run_skull - 1.0) < 0.03, "Jump skull size differs from running skull size")
+	var run_head_offset: float = (245.0 - float(HordeSkeletonApprovedSprite.SHEETS["run"]["center_x"])) / float(HordeSkeletonApprovedSprite.SHEETS["run"]["visible_height"])
+	var jump_head_offset: float = (224.0 - float(HordeSkeletonApprovedSprite.SHEETS["jump"]["center_x"])) / float(HordeSkeletonApprovedSprite.SHEETS["jump"]["visible_height"])
+	check(absf(run_head_offset - jump_head_offset) < 0.03, "Jump skull shifts horizontally at the transition")
 	check(HordeSkeletonApprovedSprite.SHEETS["capture"]["frames"] == 35, "Capture frame count mismatch")
 	check(HordeSkeletonApprovedSprite.frame_for("capture", 0.0, 999.0, 0.0, 0.0, 0.0) < 35, "Capture reached nonexistent frame")
 	if failures.is_empty():
