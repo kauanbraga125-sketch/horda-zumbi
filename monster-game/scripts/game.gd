@@ -10,6 +10,9 @@ const CAMERA_BASE_ZOOM = 1.32 / 0.95
 const CAMERA_TRANSFORM_ZOOM = 1.42 / 0.95
 const CAMERA_ANCHOR = Vector2(360, 610)
 const CAMERA_MIN_ZOOM = 0.90 / 0.95
+# Rider crop is drawn separately from the motorcycle atlas; place its
+# visible hips on the saddle rather than anchoring the full transparent cell.
+const MOTORCYCLE_RIDER_SEAT_OFFSET = Vector2(9.0, -18.0)
 
 var art = HordeArt.new()
 var actor = HordeActor.new(art)
@@ -1281,8 +1284,7 @@ func draw_vehicle(entity: Dictionary) -> void :
 		# seat, arms reach the bar, boots rest near the engine/front fairing.
 		# The anchor is in local motorcycle coordinates: translate it with
 		# the bike's rotation and sprite scale, not with a screen-space offset.
-		const RIDER_SEAT_OFFSET := Vector2(9.0, -18.0)
-		paint_target.draw_set_transform(point + RIDER_SEAT_OFFSET.rotated(angle) * float(entity.scale), angle)
+		paint_target.draw_set_transform(point + MOTORCYCLE_RIDER_SEAT_OFFSET.rotated(angle) * float(entity.scale), angle)
 		paint_target.draw_texture_rect(rider, Rect2(Vector2(-65, -80) * float(entity.scale), Vector2(130, 130) * float(entity.scale)), false)
 		paint_target.draw_set_transform(Vector2.ZERO)
 	elif entity.kind != "moto":
