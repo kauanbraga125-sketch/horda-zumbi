@@ -110,7 +110,12 @@ func _ready() -> void :
 	reward_rng.randomize()
 	test_mode = "--self-test" in OS.get_cmdline_user_args()
 	capture_mode = "--sprite-preview" in OS.get_cmdline_user_args() or "--rig-preview" in OS.get_cmdline_user_args() or "--v7-preview" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--motion-preview" in OS.get_cmdline_user_args() or "--menu-preview" in OS.get_cmdline_user_args()
-	if not test_mode and not capture_mode: data = read_save()
+	if not test_mode and not capture_mode:
+		# SOMENTE NESTE APK DE TESTES: saldo para testar loja/monstros.
+		# Não altera o projeto estável; recarrega 9.999.999 a cada abertura.
+		data = read_save()
+		data.wallet = 9999999
+		save_game()
 	sound = HordeSound.new()
 	add_child(sound)
 	sound.set_mix(data.audio_levels)
