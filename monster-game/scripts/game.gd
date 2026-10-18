@@ -1275,10 +1275,14 @@ func draw_vehicle(entity: Dictionary) -> void :
 	if entity.kind == "moto" and not entity.passengers.is_empty():
 		var pose = posmod(int(ui_time * 4 + entity.bob), 4)
 		var rider = art.passenger_frames[8 + pose]
-		# Seat alignment: the old -53 anchor made the rider visibly float.
-		# Lower by 16 local pixels; rotate/scale with the motorcycle so it
-		# remains seated while the vehicle tilts. Visual change only.
-		paint_target.draw_set_transform(point + Vector2(15, -37).rotated(angle) * float(entity.scale), angle)
+		# The rider atlas contains padding around a crouched body; aligning
+		# its cell rectangle made the visible pelvis float above the saddle.
+		# Calibrated against both v0.8.13 phone screenshots: pelvis contacts
+		# seat, arms reach the bar, boots rest near the engine/front fairing.
+		# The anchor is in local motorcycle coordinates: translate it with
+		# the bike's rotation and sprite scale, not with a screen-space offset.
+		const RIDER_SEAT_OFFSET := Vector2(9.0, -18.0)
+		paint_target.draw_set_transform(point + RIDER_SEAT_OFFSET.rotated(angle) * float(entity.scale), angle)
 		paint_target.draw_texture_rect(rider, Rect2(Vector2(-65, -80) * float(entity.scale), Vector2(130, 130) * float(entity.scale)), false)
 		paint_target.draw_set_transform(Vector2.ZERO)
 	elif entity.kind != "moto":
