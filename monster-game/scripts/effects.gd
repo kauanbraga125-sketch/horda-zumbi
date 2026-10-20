@@ -57,7 +57,8 @@ func explosion(pos: Vector2) -> void :
 
 func death(kind: int, pos: Vector2) -> void :
 	if deaths.size() >= 24: deaths.pop_front()
-	deaths.append({"kind": kind, "pos": Vector2(pos.x, HordeRun.FLOOR), "life": 0.85, "duration": 0.85})
+	var duration: float = HordeFlyApprovedSprite.DAMAGE_SECONDS + 0.16 if kind == 3 else 0.85
+	deaths.append({"kind": kind, "pos": pos if kind == 3 else Vector2(pos.x, HordeRun.FLOOR), "life": duration, "duration": duration})
 	if kind == 1:
 		for index in [0, 1, 2, 3, 4, 5, 6, 7, 5, 6, 7]:
 			var p = add("bone", pos + Vector2(randf_range(-12, 12), randf_range(-45, 18)), Vector2(randf_range(-140, 140), randf_range(-250, -70)), Color.WHITE, 35 if index == 0 else 20, 0.8, 850)
@@ -66,10 +67,10 @@ func death(kind: int, pos: Vector2) -> void :
 		var p = add("mask", pos - Vector2(0, 28), Vector2(80, -180), Color.WHITE, 43, 0.8, 700)
 		for i in range(14): add("dust", pos + Vector2(0, -30), Vector2(randf_range(-60, 60), randf_range(-80, -20)), Color("ae8bca"), randf_range(8, 16), 0.55)
 	elif kind == 3:
-		add("fly", pos - Vector2(0, 20), Vector2(60, -70), Color.WHITE, 48, 0.8, 450)
-		for i in range(4):
-			var wing = add("wing", pos, Vector2(randf_range(-100, 100), randf_range(-130, -50)), Color(0.85, 0.75, 1, 0.9), 30, 0.75, 320)
-			wing.spin = 12
+		var centre: = pos - Vector2(0, 60)
+		for i in range(7):
+			add("spark", centre, Vector2(randf_range(-95, 95), randf_range(-100, 50)), Color("ffd4b8"), randf_range(1.8, 3.0), 0.19, 130)
+		add("ring", centre, Vector2.ZERO, Color("f5a3a6"), 10, 0.2)
 	else: dust(Vector2(pos.x, HordeRun.FLOOR), 12, 1.2)
 
 func ghost(kind: int, foot: Vector2, phase: float, state: String, landing: float) -> void :
@@ -106,6 +107,13 @@ func draw_trails(canvas: Node2D, actor: HordeActor, time: float) -> void :
 
 func paint(canvas: Node2D, art: HordeArt, actor: HordeActor = null) -> void :
 	for d in deaths:
+		if d.kind == 3 and actor != null:
+			var age: float = float(d.duration) - float(d.life)
+			var damage_progress: float = clampf(age / HordeFlyApprovedSprite.DAMAGE_SECONDS, 0.0, 1.0)
+			var fade: float = smoothstep(0.0, 0.16, float(d.life))
+			var recoil: = Vector2( - sin(damage_progress * PI) * 8, - sin(damage_progress * PI) * 10)
+			actor.paint(canvas, 3, d.pos + recoil, 112.0, damage_progress, "panic", age, 0.0, Color(1.0, 1.0, 1.0, fade))
+			continue
 		if d.kind != 0: continue
 		var t = 1 - d.life / d.duration
 		var point = d.pos + Vector2(0, maxf(0, t - 0.63) * 140)

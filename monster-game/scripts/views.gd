@@ -22,7 +22,7 @@ func mission_icon(g, mission: Dictionary, point: Vector2, height: float) -> void
 	elif mission.stat in ["souls", "recruits"]: g.animated_soul(point, height, g.ui_time)
 	else: g.item_sprite(1, point, height)
 
-func missions(g) -> void:
+func missions(g) -> void :
 	g.pages.missions(g)
 
 func pause(g) -> void :
@@ -70,5 +70,5 @@ func results(g) -> void :
 	g.button(Rect2(337, 639, 344, 59), "MELHORIAS", "shop", Color("715090"), -2, 24)
 	g.button(Rect2(705, 632, 505, 66), "▶  DE NOVO", "play", Color("c58a35"), -2, 29)
 
-func collection(g) -> void:
+func collection(g) -> void :
 	g.pages.collection(g)

@@ -20,7 +20,7 @@ static func pattern_weights(run, p: Dictionary) -> Dictionary:
 		var spec = MonsterCatalog.VEHICLES[kind]
 		if run.remaining_soul_slots() < int(spec.rescues): weights[kind] = 0.0
 		if run.active_count() < int(spec.need) + 2 and not HordeBalance.vehicle_jumpable(spec, maxf(305, run.speed), int(run.levels.get("jump", 0))): weights[kind] = 0.0
-		if run.active_count() < int(spec.need) and kind in ["tank", "plane", "truck", "bus"]: weights[kind] *= 0.90
+		if run.active_count() < int(spec.need) and kind in ["tank", "plane", "truck", "bus"]: weights[kind] *= 0.9
 	return damp_history(run, weights)
 
 static func weighted(run, weights: Dictionary) -> String:
@@ -55,7 +55,7 @@ static func draw_pattern(run, _index: int, _advanced: bool) -> String:
 	if not run.developer_kind.is_empty(): return developer_pattern(run)
 	var p = HordeDirector.profile(run.world_px, run.active_count(), run.pressure, run.recovery_left, run.tunnel_number())
 	var planned = maxf(run.world_px + HordeRun.ANCHOR, run.next_pattern_world + HordeRun.ANCHOR)
-	# Prevent long droughts of the two large encounters once the horde can flip them.
+
 	for kind in ["tank", "plane"]:
 		var wait = (22.0 if kind == "tank" else 30.0) if run.active_count() >= 36 else (26.0 if kind == "tank" else 36.0)
 		if run.remaining_soul_slots() >= int(MonsterCatalog.VEHICLES[kind].rescues) and run.active_count() >= int(MonsterCatalog.VEHICLES[kind].need) + 2 and planned - float(run.vehicle_drought.get(kind, 0)) >= maxf(305, run.cruise_speed) * wait:
@@ -75,8 +75,8 @@ static func draw_pattern(run, _index: int, _advanced: bool) -> String:
 		choices.erase("mixed");choices.erase("gap_chain");choices.erase("convoy")
 	if run.active_count() < 8: choices.erase("convoy")
 	if planned < run.next_helicopter_world: choices.erase("convoy")
-	# A horde of 36 must actually meet a combined challenge soon, not merely
-	# have a tiny chance to roll one among many growth encounters.
+
+
 	if run.active_count() >= 36 and run.recovery_left <= 0 and planned - run.last_heavy_challenge > maxf(305, run.cruise_speed) * 16:
 		return weighted(run, damp_history(run, {"mixed": 4.0, "combined": 5.0, "collapse_chain": 3.0, "traffic_sequence": 3.0, "gap_chain": 4.0, "convoy": 2.0 if planned >= run.next_helicopter_world else 0.0}))
 	var kind = weighted(run, damp_history(run, choices))
@@ -99,8 +99,8 @@ static func placement(run, desired: float, before: float, after: float, speed: f
 			excluded.append(Vector2(float(tunnel.entry) + HordeRun.ANCHOR - 600, float(tunnel.entry) + HordeRun.ANCHOR + float(tunnel.length) + 900))
 		for e in run.entities:
 			if not e.taken and e.kind in ["crystal", "mask", "shield", "boost"]:
-				excluded.append(Vector2(run.world_px + e.x - speed * 0.70, run.world_px + e.x + speed * 0.70))
-		excluded.sort_custom(func(a, b): return a.x < b.x)
+				excluded.append(Vector2(run.world_px + e.x - speed * 0.7, run.world_px + e.x + speed * 0.7))
+		excluded.sort_custom( func(a, b): return a.x < b.x)
 		for interval in excluded:
 			if at - before < interval.y and at + after > interval.x: at = interval.y + before + margin
 		if at + after <= float(segment.end) - margin and run.safe_world_position(at - before) and run.safe_world_position(at + after): return at
@@ -112,9 +112,9 @@ static func gap_seconds(run, p: Dictionary) -> float:
 	return run.course_rng.randf_range(bounds.x, bounds.y)
 
 static func clearance_window(hold: float, height: float, level: int) -> Vector2:
-	var window = Vector2(INF, -INF)
+	var window = Vector2(INF, - INF)
 	for point in HordeBalance.jump_profile(hold, 1.0 / 120, level).samples:
-		if -point.y >= height: window.x = minf(window.x, point.x);window.y = maxf(window.y, point.x)
+		if - point.y >= height: window.x = minf(window.x, point.x);window.y = maxf(window.y, point.x)
 	return window
 
 static func bomb_launch(centre: float, hold: float, speed: float, level: int, height: float = 88.0) -> float:
@@ -150,7 +150,7 @@ static func sequence_plan(run, kind: String, at: float, speed: float, p: Diction
 	var ground = run.terrain.floor_at(at)
 	var level = int(run.levels.get("jump", 0))
 	var cursor = at
-	var ready = -INF
+	var ready = - INF
 	var end = at
 	var recovery = lerpf(0.16, 0.08, clampf(run.pressure, 0, 1))
 	if kind in ["gap", "gap_chain", "collapse", "collapse_chain"]:
@@ -164,11 +164,11 @@ static func sequence_plan(run, kind: String, at: float, speed: float, p: Diction
 			var hold = HordeBalance.MAX_HOLD
 			for choice in [0.04, 0.18, 0.36, HordeBalance.MAX_HOLD]:
 				if seconds > 0.72: break
-				if float(HordeBalance.jump_profile(choice, 1.0 / 120, level).time) >= seconds + 0.30: hold = choice;break
+				if float(HordeBalance.jump_profile(choice, 1.0 / 120, level).time) >= seconds + 0.3: hold = choice;break
 			if narrow_chain:
-				hold = ([0.85, 0.42, 0.72, 0.55][posmod(i + run.developer_iteration, 4)] if kind == "collapse_chain" else (0.65 if i % 2 == 0 else 0.80))
+				hold = ([0.85, 0.42, 0.72, 0.55][posmod(i + run.developer_iteration, 4)] if kind == "collapse_chain" else (0.65 if i % 2 == 0 else 0.8))
 				seconds = float(HordeBalance.jump_profile(hold, 1.0 / 120, level).time) - (0.18 if i == 0 else 0.08) - 0.08
-			var approach = (0.18 if i == 0 else 0.08) if narrow_chain else 0.20
+			var approach = (0.18 if i == 0 else 0.08) if narrow_chain else 0.2
 			cursor = maxf(cursor, ready + speed * approach)
 			parts.append({"kind": "collapse" if kind in ["collapse", "collapse_chain"] else "gap", "x": cursor, "y": ground, "width": speed * seconds, "vx": 0.0})
 			var launch = cursor - speed * approach
@@ -200,8 +200,8 @@ static func sequence_plan(run, kind: String, at: float, speed: float, p: Diction
 				commands.append({"x": launch, "hold": hold})
 				end = launch + speed * float(HordeBalance.jump_profile(hold, 1.0 / 120, level).time)
 			if kind == "mixed":
-				# Short jumps fit below a matching upper row. Longer clusters get
-				# their upper row in the landing lane, requiring jump/run/jump.
+
+
 				var upper_x = cursor if hold <= 0.25 else end + speed * 0.18
 				var upper_count = mini(4, count + (i % 2))
 				var upper_height = maxf(285, float(HordeBalance.jump_profile(hold, 1.0 / 120, level).height) + 147) if hold <= 0.25 else 285.0
@@ -213,17 +213,17 @@ static func sequence_plan(run, kind: String, at: float, speed: float, p: Diction
 	if not commands.is_empty(): start = minf(start, float(commands[0].x) - speed * 0.2)
 	return {"parts": parts, "commands": commands, "start": start, "end": end + speed * 0.14}
 
-static func fill_breathing(run, start: float, finish: float, speed: float, index: int) -> void:
+static func fill_breathing(run, start: float, finish: float, speed: float, index: int) -> void :
 	if not run.developer_kind.is_empty(): return
 	var at = maxf(start, maxf(run.spawn_left() + 60, run.last_coin_group + speed * 3.2))
 	while at + 400 < finish:
 		run.fund_coins(at + 400, speed)
-		# Planned content only: no repair spawns inside the visible camera.
+
 		if run.reward_rng.randf() < HordeTuning.COIN_CHANCE and run.safe_reward_position(at): create_formation(run, at, speed, index)
 		at += speed * 3.25
 
-static func maintain_rhythm(_run) -> void:
-	# The course cursor now fills the road off camera. Never inject visible coins.
+static func maintain_rhythm(_run) -> void :
+
 	pass
 
 static func build(run, absolute: float, index: int) -> float:
@@ -251,8 +251,8 @@ static func build(run, absolute: float, index: int) -> float:
 		desired = maxf(desired, run.last_course_obstacle + launch_lead + reaction * 0.12)
 	var at = placement(run, desired, before, after, reaction)
 	if plan.has("traffic_velocity") and not is_inf(at):
-		# Reserve the whole off-camera sweep. Cars are already moving when
-		# they enter the camera; their encounter coordinates remain unchanged.
+
+
 		for attempt in range(4):
 			var pre_time = maxf(0, (float(plan.start) + at - absolute - HordeRun.ANCHOR - run.world_px) / speed)
 			var swept_after = after + absf(float(plan.traffic_velocity)) * pre_time
@@ -265,7 +265,7 @@ static func build(run, absolute: float, index: int) -> float:
 		return absolute + reaction * 2.5
 	if at > absolute + reaction * HordeTuning.MAX_QUIET_SECONDS: fill_breathing(run, absolute, at - before, reaction, index)
 	var ground = run.terrain.floor_at(at)
-	var finish = at + half + speed * 0.50
+	var finish = at + half + speed * 0.5
 	var commands: Array[Dictionary] = []
 	if sequence:
 		var delta = at - absolute
@@ -329,7 +329,7 @@ static func build(run, absolute: float, index: int) -> float:
 		for command in commands:
 			if float(command.x) - run.last_coin_group < reaction * HordeBalance.GROUP_SECONDS.x: continue
 			if run.coin_credit < 3: break
-			if run.coin_credit >= 10 or run.reward_rng.randf() < 0.80: create_jump_trail(run, command, speed, index)
+			if run.coin_credit >= 10 or run.reward_rng.randf() < 0.8: create_jump_trail(run, command, speed, index)
 		var bases: Array[float] = [at - half - 540, finish + speed * 0.15]
 		var scan = at + speed * 0.8
 		while scan < finish and bases.size() < 12:
@@ -370,10 +370,10 @@ static func reserve_hazard_path(run, entity: Dictionary, absolute: float, speed:
 			return true
 		if HordeBalance.vehicle_jumpable(MonsterCatalog.VEHICLES[entity.kind], speed, int(run.levels.get("jump", 0))):
 			entity.path_checked = true;entity.path_mode = "roof";return true
-	var start = absolute - box.size.x * 0.5 - speed * 0.80
-	var finish = absolute + box.size.x * 0.5 + speed * 0.80
+	var start = absolute - box.size.x * 0.5 - speed * 0.8
+	var finish = absolute + box.size.x * 0.5 + speed * 0.8
 	var duration = (finish - start) / speed
-	# A complete encounter includes the approach and the recovery after landing.
+
 	for hold in [-1.0, 0.04, HordeBalance.MAX_HOLD]:
 		var profile = HordeBalance.jump_profile(maxf(0, hold), 1.0 / 120, int(run.levels.get("jump", 0)))
 		for offset in ([0.0] if hold < 0 else [-0.22, -0.11, 0.0, 0.11, 0.22]):
@@ -394,7 +394,7 @@ static func reserve_hazard_path(run, entity: Dictionary, absolute: float, speed:
 
 static func coin_clear(run, point: Vector2, other_coins: bool = true) -> bool:
 	var radius = HordeBalance.COIN_CLEARANCE
-	# The actual visual radius, bob, terrain and exclusion margins share world coordinates.
+
 	for x in [point.x - radius, point.x, point.x + radius]:
 		if point.y + radius >= run.terrain.floor_at(x) - 3: return false
 	if run.terrain.near_edge(point.x, radius + 10): return false
@@ -407,7 +407,7 @@ static func coin_clear(run, point: Vector2, other_coins: bool = true) -> bool:
 			continue
 		var box = hazard_rect(run, e)
 		if box.size == Vector2.ZERO: continue
-		# Moving hazards reserve the corridor they will sweep, including future projectile motion.
+
 		if absf(travel_velocity(e)) > 0: box = box.merge(hazard_rect(run, e, 6.0))
 		if box.grow(radius + 8).has_point(point): return false
 	return true
@@ -415,7 +415,7 @@ static func coin_clear(run, point: Vector2, other_coins: bool = true) -> bool:
 static func path_clear(run, samples: Array[Vector2], launch: float, speed: float, ground: float) -> bool:
 	if samples.is_empty(): return false
 	var duration = samples[-1].x
-	var min_y = ground;var max_y = ground
+	var min_y = ground; var max_y = ground
 	for sample in samples:
 		min_y = minf(min_y, ground + sample.y);max_y = maxf(max_y, ground + sample.y)
 	var body_bounds = Rect2(launch - 20, min_y - 108, duration * speed + 40, max_y - min_y + 116)
@@ -438,7 +438,7 @@ static func path_clear(run, samples: Array[Vector2], launch: float, speed: float
 		if absf(foot - run.terrain.floor_at(x)) < 0.2:
 			for gap in gaps:
 				if x > run.world_px + gap.x and x < run.world_px + gap.x + gap.width: return false
-		var vy = (sample.y - previous.y) / maxf(0.000001, sample.x - previous.x)
+		var vy = (sample.y - previous.y) / maxf(1e-06, sample.x - previous.x)
 		var member = {"x": x, "y": foot, "vy": vy};previous = sample
 		for e in hazards:
 			var velocity = travel_velocity(e)
@@ -519,7 +519,7 @@ static func create_formation(run, launch: float, speed: float, index: int, force
 			for sample in witness: distance = minf(distance, point.distance_to(sample))
 			if distance > HordeBalance.COIN_PATH_RADIUS or not coin_clear(run, point): valid = false;break
 		if valid and mode in [0, 6]:
-			# A running witness must also be clear, not merely its individual coin positions.
+
 			var running: Array[Vector2] = []
 			for point in witness: running.append(Vector2((point.x - launch) / speed, 0))
 			valid = path_clear(run, running, launch, speed, ground)
@@ -561,7 +561,7 @@ static func create_reachable_grid(run, launch: float, speed: float, index: int, 
 		var reached = false
 		for hold in [0.04, 0.18, 0.42, HordeBalance.MAX_HOLD]:
 			var profile = HordeBalance.jump_profile(hold, 1.0 / 120, int(run.levels.get("jump", 0)))
-			for fraction in [0.25, 0.40, 0.55, 0.70, 0.85]:
+			for fraction in [0.25, 0.4, 0.55, 0.7, 0.85]:
 				var start = point.x - speed * float(profile.time) * fraction
 				if not run.terrain.safe_span(start - 30, start + speed * float(profile.time) + 30, 35): continue
 				var nearest = INF

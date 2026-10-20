@@ -107,6 +107,8 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 			if p.x > left and p.x < right:
 				if int(p.variant) == 0:
 					art.civil.paint(canvas, {"state": "normal", "civil_clip": "corrida", "civil_time": time + p.phase, "civil_flip": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))
+				elif int(p.variant) == 1 and art.woman.has_assets():
+					art.woman.paint(canvas, {"woman_clip": "run", "woman_time": time + p.phase, "woman_reverse": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))
 				else: actor.paint(canvas, int(MonsterCatalog.CIVILIANS[int(p.variant)].rig), Vector2(p.x, p.y - absf(sin(time * 3 + p.variant)) * 6), 66, p.phase, "panic_run", time, 0, Color(0.78, 0.76, 0.85, 0.86), p.reverse)
 
 		if crash_age >= 0:
@@ -173,7 +175,7 @@ func paint(canvas: Node2D, run: HordeRun, time: float) -> void :
 				if x > left + 15 and x < right - 15:
 					canvas.draw_circle(Vector2(x, 300), 80, Color(1, 0.58, 0.22, 0.025 + 0.015 * sin(time * 9 + i)))
 					canvas.draw_circle(Vector2(x + sin(time * 2 + i) * 13, 280 + fposmod(time * 26 + i * 40, 80)), 2, Color(1, 0.76, 0.38, 0.35))
-			# Existing tunnel texture plus dynamic lanterns: no new assets.
+
 			for i in range(5):
 				var lantern_x: float = fposmod(i * 382 - run.world_px * 0.82, 1910) - 85
 				if lantern_x <= left + 40 or lantern_x >= right - 40: continue

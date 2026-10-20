@@ -9,12 +9,12 @@ var misses = 0
 var last_opportunity = 0.0
 var opportunities: Array[float] = []
 
-func reset(seed_value: int) -> void:
-	rng.seed = seed_value ^ 0x4B1D45
+func reset(seed_value: int) -> void :
+	rng.seed = seed_value ^ 4922693
 	misses = 0;last_opportunity = 0;opportunities.clear()
 	reschedule(0, 305)
 
-func reschedule(at: float, speed: float) -> void:
+func reschedule(at: float, speed: float) -> void :
 	var interval = HordeTuning.tunnel_interval(speed)
 	eligible_at = at + interval * rng.randf_range(HordeTuning.BONUS_COOLDOWN.x, HordeTuning.BONUS_COOLDOWN.y)
 	deadline = at + interval * rng.randf_range(HordeTuning.BONUS_DEADLINE.x, HordeTuning.BONUS_DEADLINE.y)
@@ -32,7 +32,7 @@ func safe(run, absolute: float) -> bool:
 	if not run.safe_world_position(absolute): return false
 	if not run.terrain.safe_span(absolute - speed * 0.65, absolute + speed * 0.65, 80): return false
 	var ground = run.terrain.floor_at(absolute)
-	var lane = Rect2(absolute - speed * 0.50, ground - 145, speed, 145)
+	var lane = Rect2(absolute - speed * 0.5, ground - 145, speed, 145)
 	for e in run.entities:
 		if e.taken: continue
 		var x = run.world_px + float(e.x)
@@ -42,14 +42,14 @@ func safe(run, absolute: float) -> bool:
 		if box.size != Vector2.ZERO and box.grow(60).intersects(lane): return false
 	return true
 
-func tick(run) -> void:
+func tick(run) -> void :
 	var lead_world = run.world_px + HordeRun.ANCHOR
 	if lead_world < next_window or active(run): return
 	var speed = maxf(305, run.cruise_speed)
 	next_window = lead_world + speed * HordeTuning.BONUS_WINDOW_SECONDS
 	var desired = maxf(eligible_at, run.spawn_left() + 90)
 	var forced = desired + speed * 3.0 >= deadline
-	if not forced and rng.randf() >= minf(0.90, HordeTuning.BONUS_INITIAL_CHANCE + misses * HordeTuning.BONUS_CHANCE_STEP):
+	if not forced and rng.randf() >= minf(0.9, HordeTuning.BONUS_INITIAL_CHANCE + misses * HordeTuning.BONUS_CHANCE_STEP):
 		misses += 1;return
 	for step in range(16):
 		var at = desired + step * 90.0
@@ -67,5 +67,5 @@ func tick(run) -> void:
 	misses += 1
 	if forced: next_window = lead_world + speed * 0.5
 
-func collected(run) -> void:
+func collected(run) -> void :
 	reschedule(run.world_px + HordeRun.ANCHOR, maxf(305, run.cruise_speed))

@@ -1,0 +1,53 @@
+{
+  "version": "0.10.2",
+  "source": "Grimórios, túmulos e mãos zumbis.png",
+  "creation": "Integrated image generator",
+  "preparation": "Isolated alpha components; neighboring components excluded; original pixel colors retained.",
+  "assets": [
+    {
+      "asset": "book_open.png",
+      "source_box": [
+        7,
+        754,
+        803,
+        1228
+      ]
+    },
+    {
+      "asset": "book_cover.png",
+      "source_box": [
+        25,
+        54,
+        648,
+        716
+      ]
+    },
+    {
+      "asset": "cemetery.png",
+      "source_box": [
+        594,
+        238,
+        1247,
+        661
+      ]
+    },
+    {
+      "asset": "hand_open.png",
+      "source_box": [
+        786,
+        755,
+        1029,
+        1210
+      ]
+    },
+    {
+      "asset": "hand_grasp.png",
+      "source_box": [
+        1027,
+        799,
+        1245,
+        1211
+      ]
+    }
+  ]
+}

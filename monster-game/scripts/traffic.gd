@@ -1,8 +1,8 @@
 class_name HordeTraffic
 extends RefCounted
 
-# Build in relative coordinates, then map inputs back to the road. Every car
-# travels at its full speed from its off-camera creation, not a proximity trigger.
+
+
 static func plan(run, kind: String, at: float, speed: float, p: Dictionary) -> Dictionary:
 	var variation = posmod(run.developer_iteration - 1, 8) if not run.developer_kind.is_empty() else run.course_rng.randi_range(0, 7)
 	for attempt in range(4):
@@ -11,7 +11,7 @@ static func plan(run, kind: String, at: float, speed: float, p: Dictionary) -> D
 	return compose(run, kind, at, speed, p, variation, 0.25)
 
 static func compose(run, kind: String, at: float, speed: float, p: Dictionary, variation: int, extra_recovery: float) -> Dictionary:
-	var velocity = -clampf(speed * (0.52 + (variation % 3) * 0.045), 165, 340)
+	var velocity = - clampf(speed * (0.52 + (variation % 3) * 0.045), 165, 340)
 	var closing = speed - velocity
 	var start = at - speed * 1.35
 	var ground = run.terrain.floor_at(at)
@@ -20,7 +20,7 @@ static func compose(run, kind: String, at: float, speed: float, p: Dictionary, v
 	var parts: Array[Dictionary] = []
 	var commands: Array[Dictionary] = []
 	var cursor = at
-	var ready = -INF
+	var ready = - INF
 	var end = start
 	var geometry = HordeBalance.vehicle_geometry(MonsterCatalog.VEHICLES.car)
 	for i in range(count):
@@ -28,7 +28,7 @@ static func compose(run, kind: String, at: float, speed: float, p: Dictionary, v
 		var pair = not low_heli and variation % 4 == 2 and i == 1
 		var hold = 0.72 if low_heli else (HordeBalance.MAX_HOLD if pair else [0.12, 0.18, 0.25, 0.15][(variation + i) % 4])
 		var pair_pitch = float(geometry.width) + 34
-		var offset = -90.0 if low_heli else -float(geometry.width) * 0.5 + (pair_pitch * 0.5 if pair else 0)
+		var offset = -90.0 if low_heli else - float(geometry.width) * 0.5 + (pair_pitch * 0.5 if pair else 0)
 		var window = HordeCourse.clearance_window(hold, 162 if low_heli else 106, level)
 		var launch = cursor + offset - closing * (window.x + window.y) * 0.5
 		var shift = maxf(0, ready - launch)
@@ -41,15 +41,15 @@ static func compose(run, kind: String, at: float, speed: float, p: Dictionary, v
 				part.merge(geometry);parts.append(part)
 		commands.append({"x": launch, "hold": hold})
 		end = launch + closing * float(HordeBalance.jump_profile(hold, 1.0 / 120, level).time)
-		# Roof contact is a real landing. Reserve enough road to descend from
-		# the last roof, without fitting the entire horde into that landing.
+
+
 		var roof_exit = cursor + (114 if low_heli else float(geometry.width) * 0.42 + (pair_pitch if pair else 0))
 		end = maxf(end, roof_exit + closing * (0.48 if low_heli else 0.28))
 		ready = end + closing * (lerpf(0.12, 0.055, clampf(run.pressure, 0, 1)) + extra_recovery)
 		if kind == "convoy" and not low_heli:
 			if variation >= 4:
-				# A high helicopter overlaps the back of the car: a controlled
-				# short jump clears the car; holding too long meets the aircraft.
+
+
 				var high_x = cursor + 150 + (pair_pitch if pair else 0)
 				var height = float(HordeBalance.jump_profile(hold, 1.0 / 120, level).height) + 155
 				parts.append({"kind": "helicopter", "x": high_x, "y": ground - height, "width": 256.0, "vx": 0.0, "moving_traffic": true})

@@ -1,0 +1,150 @@
+{
+  "chapters": [
+    [
+      {
+        "id": "zombie",
+        "name": "Zumbi",
+        "tag": "O primeiro a chegar. O último a descansar.",
+        "art": "zombie",
+        "kind": 0,
+        "group": "monster",
+        "lore": "Veio de uma terra de mortos que andam e xerifes sem férias. Cansou de esperar a temporada seguinte.",
+        "hint": "Há pegadas verdes entre os pedaços de papel.",
+        "ability": "Capture civis para aumentar a horda."
+      },
+      {
+        "id": "skeleton",
+        "name": "Esqueleto",
+        "tag": "Você morreu. Ele também. Várias vezes.",
+        "art": "skeleton",
+        "kind": 1,
+        "group": "monster",
+        "lore": "Saiu de um reino de fogueiras e chefes impossíveis. Perdeu a carne no tutorial, mas guardou o capuz.",
+        "hint": "Um brilho azul observa pelas frestas da página.",
+        "ability": "Um novo visual para os recrutas da horda."
+      }
+    ],
+    [
+      {
+        "id": "masked",
+        "name": "Mascarado",
+        "tag": "O acampamento fechou. Ele continuou.",
+        "art": "masked",
+        "kind": 2,
+        "group": "power",
+        "lore": "Veio de um acampamento à beira do lago. Todos evitam marcar reunião com ele numa sexta-feira.",
+        "hint": "Uma lasca de máscara ficou presa no pergaminho.",
+        "ability": "Poder temporário: força e proteção."
+      },
+      {
+        "id": "fly",
+        "name": "Mosca Mutante",
+        "tag": "O teletransporte tinha um pequeno defeito.",
+        "art": "fly",
+        "kind": 3,
+        "group": "power",
+        "lore": "Entrou sozinho na cabine. Era o que dizia o relatório. Saiu com asas e alergia a inseticida.",
+        "hint": "O papel vibra com um zumbido vindo do outro lado.",
+        "ability": "Solte para subir. Segure para descer."
+      }
+    ],
+    [
+      {
+        "id": "relic_tooth",
+        "name": "Dente Infectado",
+        "tag": "Tudo começou com uma mordida.",
+        "art": "relics",
+        "cell": 0,
+        "group": "relic",
+        "index": 0,
+        "lore": "O primeiro dente da primeira noite. A gosma ainda não secou; a maldição procura outro dono.",
+        "hint": "Uma mancha verde atravessa a fibra do papel.",
+        "ability": "Uma das quatro relíquias do pacto."
+      },
+      {
+        "id": "relic_mask",
+        "name": "Máscara Rachada",
+        "tag": "Nem toda história termina nos créditos.",
+        "art": "relics",
+        "cell": 1,
+        "group": "relic",
+        "index": 1,
+        "lore": "Veio de um acampamento vazio. A rachadura cresce quando alguém promete a última continuação.",
+        "hint": "O contorno de uma máscara aparece sob a poeira.",
+        "ability": "Uma das quatro relíquias do pacto."
+      },
+      {
+        "id": "relic_skull",
+        "name": "Crânio Maldito",
+        "tag": "Ele lembra de todas as suas vidas.",
+        "art": "relics",
+        "cell": 2,
+        "group": "relic",
+        "index": 2,
+        "lore": "Guarda as memórias de quem virou cinzas e voltou. À noite, seus olhos procuram uma fogueira.",
+        "hint": "Duas pequenas luzes atravessam o rasgo.",
+        "ability": "Uma das quatro relíquias do pacto."
+      },
+      {
+        "id": "relic_heart",
+        "name": "Coração da Horda",
+        "tag": "Um só pulso. Muitos passos.",
+        "art": "relics",
+        "cell": 3,
+        "group": "relic",
+        "index": 3,
+        "lore": "Ninguém sabe de quem era. Agora bate por toda a horda e desperta o pacto deste livro.",
+        "hint": "O pergaminho se move no ritmo de um coração.",
+        "ability": "Uma das quatro relíquias do pacto."
+      }
+    ],
+    [
+      {
+        "id": "seal_bronze",
+        "name": "Selo de Bronze",
+        "tag": "A noite já conhece o seu nome.",
+        "art": "prestige",
+        "cell": 0,
+        "group": "seal",
+        "index": 0,
+        "lore": "Uma primeira mordida virou uma longa jornada. As marcas do bronze registram cada frasco completo.",
+        "hint": "Um reflexo de bronze se esconde entre os pedaços.",
+        "ability": "Um marco permanente na sua coleção."
+      },
+      {
+        "id": "seal_silver",
+        "name": "Selo de Prata",
+        "tag": "A lenda insiste em voltar.",
+        "art": "prestige",
+        "cell": 1,
+        "group": "seal",
+        "index": 1,
+        "lore": "Para quem já caiu, se levantou e continuou correndo. A prata brilha até quando a lua desaparece.",
+        "hint": "Dois ossos cruzados surgem por um instante.",
+        "ability": "Um marco permanente na sua coleção."
+      },
+      {
+        "id": "seal_gold",
+        "name": "Selo de Ouro",
+        "tag": "Até a madrugada abre caminho.",
+        "art": "prestige",
+        "cell": 2,
+        "group": "seal",
+        "index": 2,
+        "lore": "O crânio alado reconhece as maiores hordas. Uma conquista que o próprio livro não esquece.",
+        "hint": "As bordas do papel guardam um brilho dourado.",
+        "ability": "Um marco permanente na sua coleção."
+      },
+      {
+        "id": "pact",
+        "name": "Seu Pacto",
+        "tag": "Uma assinatura para atravessar as eras.",
+        "art": "cover",
+        "group": "pact",
+        "lore": "As relíquias despertaram o livro. Deixe seu nome e sua marca: esta história também é sua.",
+        "hint": "Faltam relíquias para que esta página desperte.",
+        "ability": "Reúna as quatro relíquias e alcance o nível 75."
+      }
+    ]
+  ]
+}

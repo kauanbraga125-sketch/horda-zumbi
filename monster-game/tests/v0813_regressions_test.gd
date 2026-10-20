@@ -40,15 +40,15 @@ func run_checks() -> void:
 	var soldier := gunners.add_entity("soldier", HordeRun.ANCHOR + 580.0)
 	var seen: Dictionary = {}
 	var vy_by_mode: Dictionary = {}
-	for j in range(6):
-		soldier.timer = 0.0
+	for j in range(480):
+		# Updated soldier uses independent timed animation cycles.
 		gunners.update_enemies(1.0 / 60.0)
 		for bullet in gunners.entities:
 			if bullet.kind == "bullet":
 				seen[str(bullet.get("shot_mode", ""))] = true
 				vy_by_mode[str(bullet.get("shot_mode", ""))] = float(bullet.vy)
-	expect(seen.has("low") and seen.has("high") and seen.has("tracking"), "Soldiers cycle through three modes")
-	expect(float(vy_by_mode.get("low", 0.0)) > 0, "Low bullet angles toward feet")
+	expect(seen.has("rocket") and seen.has("high") and seen.has("tracking"), "Soldiers cycle through three modes")
+	expect(float(vy_by_mode.get("rocket", 0.0)) > 0, "Low bullet angles toward feet")
 	expect(float(vy_by_mode.get("high", 0.0)) < 0, "High bullet angles above standing runner")
 
 	var fly := isolated(1)

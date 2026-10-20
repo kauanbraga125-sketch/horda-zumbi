@@ -12,9 +12,9 @@ var sprites: Array[Sprite2D] = []
 var materials: Array[ShaderMaterial] = []
 var face: AtlasTexture
 var events = [
-	{"start": 4.9, "end": 8.9, "enter": 0.95, "exit": 1.3, "lean": -1.7, "tilt": -1.15},
-	{"start": 9.9, "end": 13.9, "enter": 0.95, "exit": 1.3, "lean": 2.0, "tilt": 0.9},
-	{"start": 14.8, "end": 19.2, "enter": 1.2, "exit": 1.45, "lean": 0.7, "tilt": -1.7},
+	{"start": 4.9, "end": 8.9, "enter": 0.95, "exit": 1.3, "lean": -1.7, "tilt": -1.15}, 
+	{"start": 9.9, "end": 13.9, "enter": 0.95, "exit": 1.3, "lean": 2.0, "tilt": 0.9}, 
+	{"start": 14.8, "end": 19.2, "enter": 1.2, "exit": 1.45, "lean": 0.7, "tilt": -1.7}, 
 	{"start": 20.8, "end": 25.4, "enter": 1.15, "exit": 1.6, "lean": 3.0, "tilt": 1.65}
 ]
 
@@ -72,8 +72,8 @@ func state(time: float) -> Dictionary:
 	var frame = t * float(data.fps)
 	var a = int(data.frames[int(floor(frame)) % data.frames.size()])
 	var b = int(data.frames[(int(floor(frame)) + 1) % data.frames.size()])
-	return {"a": a, "b": b, "mix": 0.0 if a == b else fposmod(frame, 1.0),
-		"translation": Vector2(1.7 * wave + lean, 1.25 * (cos(t * TAU / 4.0) - 1.0)),
+	return {"a": a, "b": b, "mix": 0.0 if a == b else fposmod(frame, 1.0), 
+		"translation": Vector2(1.7 * wave + lean, 1.25 * (cos(t * TAU / 4.0) - 1.0)), 
 		"angle": deg_to_rad(0.36 * wave + tilt)}
 
 func paint(index: int, foot: Vector2, height: float, time: float) -> void :

@@ -27,6 +27,9 @@ var fire_frames: Array[AtlasTexture] = []
 var damaged_vehicles: Array[AtlasTexture] = []
 var wreck_vehicles: Array[AtlasTexture] = []
 var civil = HordeCivilSprite.new()
+var woman = HordeCivilWomanSprite.new()
+var worker = HordeWorkerSprite.new()
+var police_sprite = HordePoliceSprite.new()
 var terrain_parts: Texture2D = preload("res://assets/art/terrain-v089.png")
 var passenger_frames: Array[AtlasTexture] = []
 

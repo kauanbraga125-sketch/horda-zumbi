@@ -33,7 +33,7 @@ var mobile_slots = 0
 var helicopter_draws = 0
 var sequence_rejections = 0
 var next_rhythm_world = 0.0
-# Camera coordinates include the widest framing allowed during a jump.
+
 var view_left = 0.0
 var view_right = 1600.0
 var planning_right = 1600.0
@@ -126,15 +126,22 @@ var wave_started: Dictionary = {}
 var last_coin_group = -100000.0
 var coin_groups: Array[Dictionary] = []
 var recent_phrases: Array[String] = []
+var soldier = HordeSoldier.new()
+var run_items: Dictionary = {}
+var rare_pending = false
+var opening_power = -1
+var eyes_collected = 0
+var loss_causes: Dictionary = {}
 
 func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Array = [0, 1], collection: Array = [0], powers: Array = [3], power_upgrades: Dictionary = {}) -> void :
+	run_items.clear();rare_pending = false;opening_power = -1;eyes_collected = 0;loss_causes.clear()
 	levels = upgrades.duplicate(true)
 	owned = collection.duplicate();power_owned = powers.duplicate();power_levels = power_upgrades.duplicate(true)
 	route.assign([0, 1])
 	for area in areas:
 		if int(area) in [2, 3] and int(area) not in route: route.append(int(area))
 	run_seed = seed_value if seed_value else Time.get_ticks_usec()
-	rng.seed = run_seed;course_rng.seed = run_seed ^ 0x38743A;reward_rng.seed = run_seed ^ 0x54CA31
+	rng.seed = run_seed;course_rng.seed = run_seed ^ 3699770;reward_rng.seed = run_seed ^ 5556785
 	bonus_director.reset(run_seed)
 	course_history.clear();generation_trace.clear();next_challenge_level = 0;next_helicopter_world = 0
 	mobile_slots = 0;helicopter_draws = 0;sequence_rejections = 0;next_rhythm_world = 0
@@ -164,8 +171,8 @@ func slot_x(index: int) -> float:
 	var columns = 10 if members.size() > 24 else 8
 	var spacing = 26.0 if columns == 10 else 35.0
 	var desired: float = ANCHOR - float(index % columns) * spacing - float(int(index / columns)) * (17.0 if columns == 10 else 15.0)
-	# Even at 96 runners, the formation itself must not push survivors fully
-	# outside the camera. Genuine stragglers can still be lost by camera culling.
+
+
 	return maxf(view_left - 35.0, desired)
 
 func member_depth(index: int) -> float:
@@ -194,7 +201,7 @@ func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(
 		coins += 2;events.append({"type": "coin", "amount": 2, "x": ANCHOR, "y": FLOOR - 70})
 		return
 	var index = members.size()
-	members.append({"id": next_member_id, "kind": clampi(kind, 0, 3), "x": slot_x(index) if is_inf(spawn.x) else spawn.x, "y": ground_y(slot_x(index)) if is_inf(spawn.y) else minf(FLOOR, spawn.y), "vy": 0.0, "jump_delay": -1.0, "jump_at": -1.0,
+	members.append({"id": next_member_id, "kind": clampi(kind, 0, 3), "x": slot_x(index) if is_inf(spawn.x) else spawn.x, "y": ground_y(slot_x(index)) if is_inf(spawn.y) else minf(FLOOR, spawn.y), "vy": 0.0, "jump_delay": -1.0, "jump_at": -1.0, 
 		"landed_at": -1.0, "last_jump_at": -1.0, "air_jumps": 0, "coyote": 0.1, "land_left": 0.0, "glide_left": 0.0, "arrival": 0.35, "step_phase": -1, "falling": false, "attack_left": 0.0, "push_left": 0.0, "run_phase": index * 0.11, "air_pose": 0.0, "jump_ground_only": false, "jump_queue": [], "wave_id": -1, "air_time": 0.0, "roof_id": -1, "reform_hold_until": 0.0, "jump_gravity_scale": 1.0})
 	cached_active = -1
 	next_member_id += 1;max_horde = maxi(max_horde, active_count())
@@ -219,6 +226,13 @@ func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, widt
 	if kind == "civilian":
 		entity.variant = clampi(variant, 0, 2);entity.vx = rng.randf_range(-55, 90)
 		entity.pose = ["run", "hop", "panic"][rng.randi_range(0, 2)]
+		if int(entity.variant) == 2:
+			entity.worker_clip = "desastrado";entity.worker_time = fposmod(float(entity.bob), 3.84)
+			entity.vx = 0.0;entity.pose = "idle"
+		if int(entity.variant) == 1:
+			entity.woman_clip = "idle";entity.woman_time = rng.randf_range(0.0, 1.0)
+			entity.flee_speed = rng.randf_range(70.0, 98.0)
+			entity.vx = 0.0;entity.pose = "idle"
 		if MonsterCatalog.CIVILIANS[entity.variant].get("key", "") == "civil_casaco_azul_nerd":
 			entity.civil_key = "civil_casaco_azul_nerd";entity.civil_clip = "parado_nervoso";entity.civil_time = rng.randf_range(0, 3.2)
 			entity.civil_flip = true;entity.civil_previous_flip = true;entity.civil_turn_left = 0.0
@@ -226,7 +240,7 @@ func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, widt
 	if MonsterCatalog.VEHICLES.has(kind):
 		var spec = MonsterCatalog.VEHICLES[kind]
 		entity.merge(HordeBalance.vehicle_geometry(spec, maxf(305, speed)), true)
-		# All vehicles use only their original artwork and their fixed catalog requirement.
+
 		entity.required_count = int(spec.need);entity.reinforced = false
 		var passenger_count = 0
 		if variant == -89: entity.rushing = true;entity.variant = 0
@@ -246,10 +260,10 @@ func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, widt
 	if not HordeCourse.hazard_rect(self, entity).size == Vector2.ZERO: invalidate_coins()
 	return entity
 
-func coin_arc(base: float, _count: int = 7, _height: float = 125, _spacing: float = 72) -> void:
+func coin_arc(base: float, _count: int = 7, _height: float = 125, _spacing: float = 72) -> void :
 	HordeCourse.create_formation(self, world_px + base, maxf(305, speed), pattern_index)
 
-func fund_coins(through: float, road_speed: float) -> void:
+func fund_coins(through: float, road_speed: float) -> void :
 	if through <= coin_budget_to: return
 	coin_credit = minf(HordeTuning.COIN_CREDIT_LIMIT, coin_credit + (through - coin_budget_to) / maxf(305, road_speed) * HordeTuning.COINS_PER_ROAD_SECOND)
 	coin_budget_to = through
@@ -266,7 +280,7 @@ func generation_horizon() -> float:
 func member_floor(m: Dictionary) -> Dictionary:
 	var result = {"y": ground_y(m.x), "solid": has_floor(m.x), "roof": -1}
 	for e in physics_surfaces:
-		# Keep the horizontal roof for a brief transition after a flip.
+
 		if e.taken and elapsed > float(e.get("roof_hold_until", -1.0)): continue
 		var body = HordeBalance.surface(e)
 		var roof = body.position.y
@@ -276,18 +290,18 @@ func member_floor(m: Dictionary) -> Dictionary:
 	return result
 
 func reform_x(m: Dictionary, target: float, dt: float) -> float:
-	# Physics positions are independent during a jump and after landing.
+
 	if float(m.get("reform_hold_until", 0.0)) > elapsed: return float(m.x)
 	if float(m.y) < float(m.get("surface_y", ground_y(float(m.x)))) - 4.0: return float(m.x)
-	var candidate := move_toward(float(m.x), target, dt * HordeTuning.REFORM_WALK_SPEED)
+	var candidate: = move_toward(float(m.x), target, dt * HordeTuning.REFORM_WALK_SPEED)
 	for e in entities:
 		if e.taken or not MonsterCatalog.VEHICLES.has(e.kind): continue
-		# Most vehicles are nowhere near this member's tiny per-frame motion.
+
 		if absf(float(e.x) - float(m.x)) > float(e.width) * 0.5 + 90.0: continue
-		var roof := float(e.y) - float(e.roof)
+		var roof: = float(e.y) - float(e.roof)
 		if float(m.y) <= roof + 14: continue
-		var edge := float(e.x) - float(e.width) * 0.5 - 21.0
-		var end := float(e.x) + float(e.width) * 0.5 + 12.0
+		var edge: = float(e.x) - float(e.width) * 0.5 - 21.0
+		var end: = float(e.x) + float(e.width) * 0.5 + 12.0
 		if maxf(float(m.x), candidate) >= edge and minf(float(m.x), candidate) <= end:
 			if candidate < float(m.x) and float(m.x) >= end: candidate = maxf(candidate, end)
 			elif candidate > float(m.x) and float(m.x) <= edge: candidate = minf(candidate, edge)
@@ -300,7 +314,7 @@ func reform_x(m: Dictionary, target: float, dt: float) -> float:
 			return float(m.x)
 	return candidate
 
-func start_developer(kind: String, count: int, stage: int, seed_value: int = 0) -> void:
+func start_developer(kind: String, count: int, stage: int, seed_value: int = 0) -> void :
 	start({}, seed_value)
 	developer_kind = kind;developer_stage = stage;developer_iteration = 0
 	entities.clear();physics_surfaces.clear();physics_gaps.clear();events.clear();tunnels.clear();course_history.clear();generation_trace.clear()
@@ -310,7 +324,7 @@ func start_developer(kind: String, count: int, stage: int, seed_value: int = 0) 
 	while members.size() < count: add_member(0, false)
 	pressure = HordeDirector.profile(0, count, 0, 0, stage).pressure_target
 
-func update_collapses(dt: float) -> void:
+func update_collapses(dt: float) -> void :
 	for e in entities:
 		if e.kind != "collapse" or e.taken or e.get("collapsed", false): continue
 		if not e.get("armed", false) and e.x - ANCHOR <= speed * HordeTuning.COLLAPSE_WARNING_SECONDS:
@@ -324,7 +338,7 @@ func update_collapses(dt: float) -> void:
 func ground_y(x: float) -> float:
 	return terrain.floor_at(world_px + x)
 
-func invalidate_coins() -> void:
+func invalidate_coins() -> void :
 	for e in entities:
 		if e.kind == "coin" and not e.taken and e.x > maxf(view_right, planning_right) + 80 and not HordeCourse.coin_clear(self, Vector2(world_px + e.x, e.y), false):
 			e.taken = true
@@ -367,13 +381,13 @@ func safe_reward_position(x: float) -> bool:
 			if absf(x - edge) < 180: return false
 	return true
 
-func record_chunk(kind: String, start_world: float, end_world: float, commands: Array[Dictionary] = []) -> void:
+func record_chunk(kind: String, start_world: float, end_world: float, commands: Array[Dictionary] = []) -> void :
 	course_history.append(kind)
 	while course_history.size() > HordeTuning.HISTORY_LENGTH: course_history.pop_front()
 	generation_trace.append({"seed": run_seed, "chunk": pattern_index, "kind": kind, "tunnel": tunnel_number(), "speed": snappedf(speed, 0.01), "horde": active_count(), "pressure": snappedf(pressure, 0.01), "start": start_world, "end": end_world, "commands": commands.duplicate(true)})
 	while generation_trace.size() > HordeTuning.TRACE_LENGTH: generation_trace.pop_front()
 
-func save_generation_trace() -> void:
+func save_generation_trace() -> void :
 	var file = FileAccess.open("user://last_run_generation.json", FileAccess.WRITE)
 	if file: file.store_string(JSON.stringify({"version": "0.8.10", "seed": run_seed, "tunnel": tunnel_number(), "world": world_px, "chunks": generation_trace}, "  "))
 
@@ -407,7 +421,7 @@ func grounded_strength() -> int:
 		if not m.falling and m.y >= ground_y(m.x) - 12 and m.y <= ground_y(m.x) + 2 and has_floor(m.x): count += 1
 	return count
 
-func jump() -> void:
+func jump() -> void :
 	HordeJump.request(self)
 
 func release_jump() -> void :
@@ -427,7 +441,7 @@ func grant_perk(kind: int) -> void :
 func activate_perk(kind: int) -> void :
 	perk_kind = kind
 	power_warning_tick = 4
-	perk_left = HordeTuning.BASE_POWER_SECONDS + int(levels.get("perk",0))*2 + int(power_levels.get("fly_time" if kind==3 else "mask_time",0))*3
+	perk_left = (15.0 if run_items.has("bonus_time") else 0.0) + HordeTuning.BASE_POWER_SECONDS + int(levels.get("perk", 0)) * 2 + int(power_levels.get("fly_time" if kind == 3 else "mask_time", 0)) * 3
 	revive_charges = 1 if kind == 2 and int(power_levels.get("mask_revive", 0)) > 0 else 0
 	if kind == 2 and int(power_levels.get("mask_shield", 0)) > 0: shields = maxi(shields, 3)
 	if kind == 3:
@@ -462,9 +476,10 @@ func register_loss() -> void :
 
 func remove_member(index: int, cause: String) -> void :
 	if index < 0 or index >= members.size(): return
+	loss_causes[cause] = int(loss_causes.get(cause, 0)) + 1
 	var old = members[index]
 	var shown = int(old.get("death_kind", old.kind)) if old.falling else (perk_kind if perk_left > 0 else int(old.kind))
-	events.append({"type": "hit", "x": old.x, "y": minf(old.y - 45, FLOOR - 30), "kind": shown, "cause": cause})
+	events.append({"type": "hit", "x": old.x, "y": minf(old.y - 45, FLOOR - 30), "foot_x": member_x(index), "foot_y": float(old.y) - member_depth(index), "kind": shown, "cause": cause})
 	members.remove_at(index);cached_active = -1
 	clean_air = false;register_loss()
 	if members.is_empty(): finish()
@@ -510,34 +525,11 @@ func update_enemies(dt: float) -> void :
 			e.warned = true;events.append({"type": "car_warning", "x": e.x, "y": FLOOR - 90})
 		if e.kind == "helicopter" and not e.warned and e.x > ANCHOR and e.x - ANCHOR < (speed - e.vx) * 2.7 + 180:
 			e.warned = true;events.append({"type": "air_warning", "x": e.x, "y": e.y - 125})
-		if e.kind == "soldier" and e.x > ANCHOR + 180 and e.x < maxf(planning_right + 500, speed * 5.5):
-			if not e.has("shot_mode"):
-				e.shot_mode = ["low", "high", "tracking"][posmod(shot_serial + int(e.id), 3)]
-			var bullet_speed: float = clampf(speed * 0.95, 330.0, 650.0)
-			var flight: float = maxf(0.22, (float(e.x) - 56.0 - ANCHOR) / (speed + bullet_speed))
-			# Low shots reach the feet (jump); high shots pass above running
-			# characters (stay down); tracking shots steer briefly, then commit.
-			var target_y: float = ground_y(ANCHOR) - (20.0 if e.shot_mode == "low" else 154.0)
-			if e.shot_mode == "tracking":
-				var lead: int = leader_index()
-				target_y = float(members[lead].y) - 50.0 if lead >= 0 else ground_y(ANCHOR) - 60.0
-			var bullet_vy: float = clampf((target_y - (float(e.y) - 64.0)) / flight, -260.0, 260.0)
-			e.aim_dy = bullet_vy * 120.0 / (speed + bullet_speed)
-			e.timer -= dt
-			if e.timer <= 0:
-				e.timer = float(p.bullet_period);e.flash = 0.16;shots += 1
-				pending.append({"x": e.x - 56, "y": e.y - 64, "vy": bullet_vy, "speed": bullet_speed, "mode": e.shot_mode})
-				shot_serial += 1;e.erase("shot_mode")
-				events.append({"type": "shot", "x": e.x - 56, "y": e.y - 64})
-	for bullet in pending:
-		var entity = add_entity("bullet", bullet.x, bullet.y, 0, 18)
-		entity.vy = bullet.vy;entity.vx = -float(bullet.speed)
-		entity.shot_mode = str(bullet.mode)
-		entity.homing_left = 0.45 if bullet.mode == "tracking" else 0.0
-		invalidate_coins()
+		if e.kind == "soldier": soldier.update(self, e, dt)
 
 func advance(dt: float, jump_held: bool = false) -> void :
 	if dead: return
+	update_meta_run()
 	cached_active = -1
 	if not jump_held: release_jump()
 	elapsed += dt;voice_cooldown = maxf(0, voice_cooldown - dt)
@@ -596,15 +588,10 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	for entity in entities:
 		if entity.kind == "bullet":
 			entity.previous_x = entity.x;entity.previous_y = entity.y
-			if str(entity.get("shot_mode", "")) == "tracking" and float(entity.get("homing_left", 0.0)) > 0.0 and float(entity.x) > ANCHOR + 125.0:
-				var aim: int = leader_index()
-				if aim >= 0:
-					var remaining: float = maxf(0.18, (float(entity.x) - ANCHOR) / maxf(1.0, speed - float(entity.vx)))
-					var desired_vy: float = clampf((float(members[aim].y) - 52.0 - float(entity.y)) / remaining, -235.0, 235.0)
-					entity.vy = move_toward(float(entity.vy), desired_vy, dt * 470.0)
-				entity.homing_left = maxf(0.0, float(entity.homing_left) - dt)
-		entity.x += (-speed + float(entity.vx)) * dt
+
+		entity.x += ( - speed + float(entity.vx)) * dt
 		if entity.kind == "bullet": entity.y += float(entity.vy) * dt
+	update_projectile_impacts()
 	update_civilians(dt)
 	update_enemies(dt)
 	update_collapses(dt)
@@ -624,7 +611,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		m.run_phase += dt * cadence
 		m.attack_left = maxf(0, m.attack_left - dt);m.push_left = maxf(0, m.push_left - dt)
 		m.land_left = maxf(0, m.land_left - dt);m.arrival = maxf(0, m.arrival - dt);m.glide_left = maxf(0, m.glide_left - dt)
-		# A rising edge is a real wall. Never snap a grounded member onto the top.
+
 		if not m.falling:
 			for j in range(1, terrain.segments.size()):
 				var segment = terrain.segments[j]
@@ -648,9 +635,9 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		var flying = not m.falling and perk_kind == 3 and perk_left > 0
 		if flying:
 
-			# Roof detection must change the target, not teleport the flyer. The
-			# absolute flight envelope uses the ground, while safe descending can
-			# land on an existing roof.
+
+
+
 			var flight_ground: float = ground_y(float(m.x))
 			var target_y: float = floor_y if jump_held else minf(flight_ground, floor_y) - 175.0
 			var target_vy: float = clampf((target_y - float(m.y)) * 4.0, -220.0, 260.0)
@@ -663,14 +650,14 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				m.reform_hold_until = elapsed + HordeTuning.LANDING_RECOVERY_SECONDS
 				m.land_left = 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == 0})
 		else:
-			# One touch controls the whole horde. A late follower receives only
-			# the remaining held input, not a replay of the leader's long jump.
-			var follow_through = float(wave_durations.get(int(m.wave_id), 0)) * 0.70
+
+
+			var follow_through = float(wave_durations.get(int(m.wave_id), 0)) * 0.7
 			var hold_for = HordeBalance.MAX_HOLD if jump_held else maxf(HordeTuning.MIN_TAP_HOLD, follow_through)
 			var held = not m.falling and bool(m.get("hold_open", false)) and float(m.air_time) < hold_for
 			var hold_step = minf(dt, maxf(0, hold_for - float(m.air_time))) if held else 0.0
 			if hold_step > 0: HordeBalance.integrate(m, hold_step, true)
-			if dt - hold_step > 0.000001: HordeBalance.integrate(m, dt - hold_step, false)
+			if dt - hold_step > 1e-06: HordeBalance.integrate(m, dt - hold_step, false)
 			if not m.falling and m.glide_left > 0 and not floor_here and m.y > FLOOR - 60:
 				m.y = FLOOR - 60;m.vy = 0.0
 
@@ -680,7 +667,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				if m.vy > 250:
 					m.land_left = 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == 0})
 					if i == 0 and clean_air: clean_jumps += 1;clean_air = false
-				m.landed_at = elapsed - dt + dt * clampf((floor_y - previous_y) / maxf(0.00001, float(m.y) - previous_y), 0, 1) if not was_grounded else float(m.get("landed_at", -1))
+				m.landed_at = elapsed - dt + dt * clampf((floor_y - previous_y) / maxf(1e-05, float(m.y) - previous_y), 0, 1) if not was_grounded else float(m.get("landed_at", -1))
 				m.y = floor_y;m.vy = 0;m.air_jumps = 0
 			if boost_protected() and not m.falling and m.y > floor_y: m.y = floor_y;m.vy = 0.0
 			if m.y > FLOOR + 12:
@@ -706,6 +693,10 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		if lead < 0: break
 		var body = members[lead]
 		var centre = Vector2(body.x, body.y - 48)
+		if e.kind == "eye":
+			if centre.distance_to(Vector2(e.x, e.y)) < 54:
+				e.taken = true;eyes_collected += 1;events.append({"type": "eye", "x": e.x, "y": e.y})
+			continue
 		if e.kind == "coin":
 			var radius = 54.0 + int(levels.get("magnet", 0)) * 65.0 + (30 if boost_left > 0 else 0)
 			if centre.distance_to(Vector2(e.x, e.y)) < radius:
@@ -740,6 +731,12 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			if m.falling: continue
 			var overlapping = HordeBalance.projectile_swept_hit(e, m) if e.kind == "bullet" else HordeBalance.hazard_hits(e, m)
 			if not overlapping: continue
+			if e.kind == "bomb" and run_items.has("coin_bombs"):
+				if not e.has("gold_roll"): e.gold_roll = reward_rng.randf() < 0.25
+				if e.gold_roll:
+					e.taken = true;coins += 12;events.append({"type": "coin", "amount": 12, "x": e.x, "y": e.y - 40});break
+			if e.kind == "bullet" and str(e.get("shot_mode", "")) == "rocket":
+				soldier.explode(self, e);break
 			if ((perk_kind == 2 and perk_left > 0) or boost_protected()) and e.kind in ["crate", "spikes", "bomb", "air_bomb", "bullet"]:
 				e.taken = true
 				events.append({"type": "smash", "object": e.kind, "x": e.x, "y": e.y - 35 if e.y == FLOOR else e.y})
@@ -772,7 +769,7 @@ func current_tunnel() -> Dictionary:
 		if world_px < float(t.entry) + float(t.length): return t
 	return {}
 
-func ensure_tunnels(through: float) -> void:
+func ensure_tunnels(through: float) -> void :
 	if not developer_kind.is_empty(): return
 	if tunnels.is_empty(): schedule_tunnel(1, HordeTuning.TUNNEL_DISTANCE)
 	while float(tunnels[-1].entry) + float(tunnels[-1].length) < through:
@@ -785,7 +782,7 @@ func update_tunnels() -> void :
 	if not developer_kind.is_empty(): return
 	ensure_tunnels(world_px + 45000)
 	for t in tunnels:
-		# Create tunnel rewards while still off screen, never popping them in view.
+
 		if not bool(t.get("rewards_spawned", false)) and world_px >= float(t.entry) - 1800.0:
 			t.rewards_spawned = true
 			spawn_tunnel_rewards(t)
@@ -798,19 +795,19 @@ func update_tunnels() -> void :
 			events.append({"type": "tunnel_exit", "number": completed_tunnels, "area": area()})
 			break
 
-func spawn_tunnel_rewards(t: Dictionary) -> void:
+func spawn_tunnel_rewards(t: Dictionary) -> void :
 	if not developer_kind.is_empty(): return
 	var length: float = float(t.length)
 	var start: float = ANCHOR + float(t.entry) - world_px
 	var floor_y: float = ground_y(start + 320.0)
-	# These coins deliberately break up empty safe tunnels. All graphics are
-	# existing coins and no collisions are generated in their path.
+
+
 	for lane in range(3):
 		var x_base: float = start + length * (0.18 + float(lane) * 0.24)
 		for i in range(4):
 			var cx: float = x_base + float(i) * 52.0
 			add_entity("coin", cx, floor_y - 60.0 - (15.0 if i in [1, 2] else 0.0))
-	# Replenish larger hordes with proportionate, but capped, civilian groups.
+
 	var recruits: int = mini(6, 2 + int(active_count() / 12))
 	var allowed: int = mini(recruits, remaining_soul_slots())
 	var group: int = 3000000 + int(t.number) * 100
@@ -819,9 +816,9 @@ func spawn_tunnel_rewards(t: Dictionary) -> void:
 		var at: float = civil_x + float(i) * 80.0
 		var person: Dictionary = add_entity("civilian", at, ground_y(at), reward_rng.randi_range(0, 2))
 		person.group = group
-	# Rare ordinary car if the horde can actually turn it; no fake armored
-	# variant, and no car in a tiny player's first tunnel.
-	if active_count() >= 8 and remaining_soul_slots() >= 2 and reward_rng.randf() < 0.20:
+
+
+	if active_count() >= 8 and remaining_soul_slots() >= 2 and reward_rng.randf() < 0.2:
 		var car_x: float = start + length * 0.77
 		add_entity("car", car_x, ground_y(car_x))
 
@@ -852,13 +849,21 @@ func member_by_id(id: int) -> Dictionary:
 
 func begin_capture(entity: Dictionary, member: Dictionary) -> void :
 	if dead or member.falling or entity.state != "normal": return
-	entity.state = "capture";entity.capture_left = 0.62;entity.capturer = member.id
+	var capture_kind: int = perk_kind if perk_left > 0 else int(member.kind)
+	var duration: float = HordeFlyApprovedSprite.CAPTURE_SECONDS if capture_kind == 3 else 0.62
+	if entity.kind == "soldier" and capture_kind != 3: duration = 0.82
+	entity.state = "capture";entity.capture_left = duration;entity.capture_duration = duration;entity.capturer = member.id
+	if entity.kind == "soldier": entity.vx = 0.0;entity.weapon_t = 0.0;entity.flash = 0.0
+	if entity.has("woman_clip"):
+		entity.woman_clip = "capture";entity.woman_time = 0.0
 	if entity.get("civil_key", "") == "civil_casaco_azul_nerd":
 		entity.civil_capture_transition = entity.civil_clip == "corrida" and HordeCivilSprite.sample("corrida", entity.civil_time) <= 2
 		civil_turn(entity, true)
-	entity.capture_kind = perk_kind if perk_left > 0 else int(member.kind)
+	entity.capture_kind = capture_kind
 	entity.capture_offset = Vector2(32 + int(entity.id) % 3 * 9, -6)
-	member.attack_left = 0.62
+	member.attack_left = duration
+	member.attack_duration = duration
+	member.attack_kind = capture_kind
 	events.append({"type": "capture", "kind": entity.capture_kind, "x": entity.x, "y": entity.y - 50})
 
 func update_civilians(dt: float) -> void :
@@ -872,15 +877,26 @@ func update_civilians(dt: float) -> void :
 			var m = member_by_id(int(e.capturer))
 			if m.is_empty():
 				e.state = "normal";e.pose = "panic";e.vy = -120
+				if e.has("woman_clip"):
+					e.woman_clip = "run";e.woman_time = 0.0;e.vx = float(e.flee_speed)
 				if e.has("civil_key"): e.civil_clip = "corrida";e.civil_time = 0.0;civil_turn(e, false)
 				continue
 			e.x = m.x + e.capture_offset.x;e.y = m.y + e.capture_offset.y
+			if e.has("worker_time"): e.worker_time += dt
 			if e.has("civil_key"): e.civil_turn_left = maxf(0, float(e.civil_turn_left) - dt)
 			e.capture_left -= dt
 			if e.capture_left <= 0 and active_count() > 0 and not dead: complete_capture(e)
 		elif e.kind in ["civilian", "police"]:
+			if e.has("worker_clip"):
+				update_worker_civil(e, dt)
+				e.y = ground_y(e.x)
+				continue
 			if e.has("civil_key"):
 				update_blue_civil(e, dt)
+				e.y = ground_y(e.x)
+				continue
+			if e.kind == "civilian" and e.has("woman_clip"):
+				update_woman_civil(e, dt)
 				e.y = ground_y(e.x)
 				continue
 			protect_civilian_path(e)
@@ -900,15 +916,16 @@ func complete_capture(entity: Dictionary) -> void :
 		var count = int(group_captures.get(entity.group, 0)) + 1;group_captures[entity.group] = count
 		if count == 3: groups += 1
 	var kind = recruit_kind()
-	# The capture VFX stays on the civilian; the new member joins the formation
-	# immediately, with no hovering or 0.35-second spawn bounce.
-	var join_x := slot_x(members.size())
-	var join_floor := member_floor({"x": join_x, "y": -100000.0})
-	add_member(kind, false, Vector2(join_x, float(join_floor.y)))
+
+
+	var join_x: = slot_x(members.size())
+
+
+	add_member(kind, false, Vector2(join_x, ground_y(join_x)))
 	if not members.is_empty():
 		members[-1].arrival = 0.0
 		members[-1].reform_hold_until = elapsed
-	events.append({"type": "soul", "kind": kind, "x": entity.x, "y": entity.y - 58, "soldier": entity.kind in ["soldier", "police"]})
+	events.append({"type": "soul", "kind": kind, "x": entity.x, "y": entity.y - 58, "soldier": entity.kind in ["soldier", "police"], "from_vehicle": entity.get("from_vehicle", false)})
 
 func update_vehicle(entity: Dictionary, dt: float) -> void :
 	if entity.x - entity.width * 0.5 > ANCHOR + 80 or entity.x + entity.width * 0.5 < -150: return
@@ -924,29 +941,35 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 		if not m.falling: alive[m.id] = true
 	for id in entity.contacts.keys():
 		var member = member_by_id(int(id))
-		if not alive.has(id) or member.is_empty() or member.y < entity.y - 12 or absf(float(member.x) - (float(entity.x) - float(entity.width) * 0.5 - 18)) > 70: entity.contacts.erase(id)
+		if not alive.has(id) or member.is_empty():
+			entity.contacts.erase(id);continue
+		var member_kind: int = perk_kind if perk_left > 0 else int(member.kind)
+		var reach: float = HordeFlyApprovedSprite.push_reach() if member_kind == 3 else 18.0
+		if member.y < entity.y - 12 or absf(float(member.x) - (float(entity.x) - float(entity.width) * 0.5 - reach)) > 70: entity.contacts.erase(id)
 	var edge = float(entity.x) - float(entity.width) * 0.5
 	var right_edge = float(entity.x) + float(entity.width) * 0.5
-	# Only the FRONT BUMPER may block a runner. Previously the entire width
-	# snapped members back to the bumper, including ones who jumped over it.
-	# At higher speeds allow one physics tick of movement without tunnelling.
+
+
+
 	var bumper_reach = 18.0 + maxf(8.0, speed * dt)
 	var trapped_ids: Array[int] = []
 	for m in members:
 		if m.falling or m.y <= entity.y - float(entity.roof) + 12 or m.y > entity.y + 2 or not has_floor(m.x): continue
-		if m.x < edge - 16 or m.x > right_edge - 4: continue
+		var member_kind: int = perk_kind if perk_left > 0 else int(m.kind)
+		var reach: float = HordeFlyApprovedSprite.push_reach() if member_kind == 3 else 18.0
+		if m.x < edge - (reach - 2.0) or m.x > right_edge - 4: continue
 		if m.x > edge + bumper_reach:
-			# A runner reaching the rear edge is clear, not trapped.
+
 			if m.x >= right_edge - maxf(18.0, speed * dt * 2.0): continue
 			if m.y > entity.y - float(entity.roof) + 16: trapped_ids.append(int(m.id))
 			continue
 		if not entity.contacts.has(m.id):
 			if m.y >= entity.y - 12: entity.contacts[m.id] = member_force();entity.state = "pushing"
 			events.append({"type": "contact", "x": edge, "y": entity.y - 30, "count": entity.contacts.size(), "need": need})
-		m.push_left = 0.15
-		m.x = minf(m.x, edge - 18)
-	# Damage after iteration: removing an array element while traversing members
-	# could make another member inherit the wrong collision index.
+		m.push_left = 0.42 if perk_kind == 3 and perk_left > 0 else 0.15
+		m.x = minf(m.x, edge - reach)
+
+
 	for id in trapped_ids:
 		for i in range(members.size()):
 			if int(members[i].id) == id:
@@ -969,18 +992,26 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 
 func flip_vehicle(entity: Dictionary) -> void :
 	if entity.taken: return
+	for id in entity.contacts:
+		var member: Dictionary = member_by_id(int(id))
+		if not member.is_empty() and (perk_kind == 3 and perk_left > 0 or int(member.kind) == 3): member.push_left = 0.0
 	var spec = MonsterCatalog.VEHICLES[entity.kind]
 	entity.taken = true;entity.roof_hold_until = elapsed + 0.9;cars += 1
+	if run_items.has("coin_cars") and reward_rng.randf() < 0.25:
+		coins += 25;events.append({"type": "coin", "amount": 25, "x": entity.x, "y": entity.y - 100})
 	coins += int(spec.reward)
-	events.append({"type": "smash", "object": entity.kind, "x": entity.x, "y": entity.y - float(entity.height) * 0.5, "tilt": entity.tilt, "width": entity.width, "height": entity.height, "floor_y": entity.y, "rescued_count": entity.passengers.size()})
+	var presentation = {"type": "smash", "object": entity.kind, "x": entity.x, "y": entity.y - float(entity.height) * 0.5, "tilt": entity.tilt, "width": entity.width, "height": entity.height, "floor_y": entity.y, "rescued_count": entity.passengers.size(), "passenger_variants": entity.passengers.duplicate(), "join_ids": []}
+	events.append(presentation)
 	events.append({"type": "coin", "amount": spec.reward, "x": entity.x, "y": entity.y - 120})
 	for i in range(entity.passengers.size()):
-		# Conversion is guaranteed when the vehicle flips; passengers cannot run
-		# away, fall into the following gap, or disappear inside a tank sprite.
-		var human = {"taken": false, "state": "normal", "kind": "civilian", "rescued": true,
-			"x": entity.x - float(entity.width) * 0.25 + i * 22, "y": entity.y - 20,
-			"group": entity.id + 2000000}
+
+
+		var human = {"taken": false, "state": "normal", "kind": "civilian", "rescued": true, 
+			"x": entity.x - float(entity.width) * 0.25 + i * 22, "y": entity.y - 20, 
+			"group": entity.id + 2000000, "from_vehicle": true}
+		var old_count = members.size()
 		complete_capture(human)
+		presentation.join_ids.append(int(members[-1].id) if members.size() > old_count else -1)
 
 func helicopter_front_hit(entity: Dictionary, member: Dictionary) -> bool:
 	return HordeBalance.hazard_hits(entity, member)
@@ -1003,7 +1034,7 @@ func protect_civilian_path(e: Dictionary) -> void :
 		elif e.x >= right and e.vx < 0 and e.x + e.vx * 0.5 < right: e.vx = maxf(45, - e.vx);e.pose = "panic"
 
 func power_eligible() -> bool:
-	# Offered boxes remain collectible during the following spawn cooldown.
+
 	return transform_left <= 0 and perk_left <= 0 and boost_left <= 0
 
 func mark_power_collected() -> void :
@@ -1038,7 +1069,7 @@ func update_rushing_car(car: Dictionary) -> void :
 		return
 
 func early_soul_limit() -> int:
-	# Budget encounters before they become visible; earned souls are never removed.
+
 	if not developer_kind.is_empty(): return 999999
 	var stage = tunnel_number()
 	return [18, 29, 43, 57, 67, 76][stage] if stage <= 5 else 76 + (stage - 5) * 12
@@ -1057,7 +1088,7 @@ func follower_delay(rank: int) -> float:
 func boost_protected() -> bool:
 	return boost_left > 0 and int(levels.get("frenzy", 0)) > 0
 
-func rebuild_surfaces() -> void:
+func rebuild_surfaces() -> void :
 	physics_surfaces.clear()
 	physics_gaps.clear()
 	for e in entities:
@@ -1067,7 +1098,7 @@ func rebuild_surfaces() -> void:
 		var body = HordeBalance.surface(e)
 		if body.end.x >= -150 and body.position.x <= ANCHOR + 90: physics_surfaces.append(e)
 
-func update_power_warnings() -> void:
+func update_power_warnings() -> void :
 	var seconds = ceili(perk_left)
 	if seconds > 0 and seconds <= 3 and seconds < power_warning_tick:
 		power_warning_tick = seconds;events.append({"type": "power_warning"})
@@ -1075,11 +1106,40 @@ func update_power_warnings() -> void:
 	if seconds > 0 and seconds <= 3 and seconds < boost_warning_tick:
 		boost_warning_tick = seconds;events.append({"type": "power_warning"})
 
-static func civil_turn(e: Dictionary, flipped: bool) -> void:
+static func civil_turn(e: Dictionary, flipped: bool) -> void :
 	if bool(e.get("civil_flip", true)) == flipped: return
 	e.civil_previous_flip = e.get("civil_flip", true);e.civil_flip = flipped;e.civil_turn_left = 0.09
 
-func update_blue_civil(e: Dictionary, dt: float) -> void:
+func update_worker_civil(e: Dictionary, dt: float) -> void :
+	e.worker_time = float(e.worker_time) + dt
+	e.vx = 0.0;e.vy = 0.0
+	var clip = str(e.worker_clip)
+	if clip == "recover" and float(e.worker_time) >= HordeWorkerSprite.RECOVER_SECONDS:
+		e.worker_clip = "defesa";e.worker_time = 0.0
+	elif clip == "desastrado":
+		var lead = leader_index()
+		if lead >= 0 and float(e.x) - float(members[lead].x) < maxf(280.0, speed * 1.35):
+			e.worker_clip = "recover" if HordeWorkerSprite.idle_frame(float(e.worker_time)) >= 25 else "defesa"
+			e.worker_time = 0.0
+
+func update_woman_civil(e: Dictionary, dt: float) -> void :
+	e.woman_time = float(e.woman_time) + dt
+	var clip: String = str(e.woman_clip)
+	if clip == "idle":
+		var lead: int = leader_index()
+		if lead >= 0 and float(members[lead].x) < float(e.x) and float(e.x) - float(members[lead].x) < maxf(392.0, speed * 1.6):
+			e.woman_clip = "startle";e.woman_time = 0.0;e.pose = "panic"
+	elif clip == "startle":
+		if float(e.woman_time) >= 0.36:
+			e.vx = move_toward(float(e.vx), float(e.flee_speed), dt * 380.0)
+		if float(e.woman_time) >= 1.0:
+			e.woman_clip = "run";e.woman_time = 0.0;e.pose = "run"
+	else:
+		e.vx = move_toward(float(e.vx), float(e.flee_speed), dt * 380.0)
+	if not civilian_floor_safe(float(e.x) + float(e.vx) * 0.4, 42.0):
+		e.x -= maxf(0.0, float(e.vx)) * dt;e.vx = 0.0
+
+func update_blue_civil(e: Dictionary, dt: float) -> void :
 	e.civil_time += dt;e.civil_turn_left = maxf(0, float(e.civil_turn_left) - dt)
 	var clip = str(e.civil_clip)
 	if clip == "parado_nervoso":
@@ -1100,9 +1160,61 @@ func update_blue_civil(e: Dictionary, dt: float) -> void:
 func tutorial_hints() -> bool:
 	return tutorial_enabled and developer_kind.is_empty() and entered_tunnels == 0
 
-func configure_vehicle(entity: Dictionary) -> void:
-	# Reinforced/blindado vehicles are disabled until their own distinct sprite
-	# exists. Never silently raise the car/tank requirement.
+func configure_vehicle(entity: Dictionary) -> void :
+
+
 	if entity.taken or not MonsterCatalog.VEHICLES.has(entity.kind): return
 	entity.reinforced = false
 	entity.required_count = int(MonsterCatalog.VEHICLES[entity.kind].need)
+
+func configure_items(active: Dictionary, rare: bool) -> void:
+	run_items = active.duplicate();rare_pending = rare
+	if active.has("power_shield"): shields = maxi(shields,1)
+	if active.has("power_boost"): boost_left = HordeTuning.BOOST_SECONDS;mark_power_collected();bonuses += 1
+	opening_power = 3 if active.has("power_fly") else 2 if active.has("power_mask") else -1
+	# A prize grants a single-run use without changing permanent ownership in the save.
+	if opening_power >= 0 and opening_power not in power_owned: power_owned.append(opening_power)
+	if active.has("double_horde"):
+		var initial = members.size()
+		for i in range(initial): add_member(recruit_kind(), false)
+	if active.has("civil_pack"):
+		spawn_civilians(1200.0, 3, next_entity_id + 9000000)
+
+func update_meta_run() -> void:
+	if opening_power >= 0 and elapsed >= 1.2 and not dead and transform_left <= 0:
+		var kind = opening_power;opening_power = -1;grant_perk(kind)
+	if not rare_pending or elapsed < 8.0: return
+	var start = ANCHOR + 560.0
+	var clear = terrain.safe_span(world_px + start - 60, world_px + start + 380, 30)
+	for e in entities:
+		if not e.taken and e.kind not in ["coin", "civilian", "eye"] and e.x + float(e.width) > start - 100 and e.x < start + 440: clear = false
+	if not clear: return
+	for i in range(5):
+		var x = start + i * 64
+		add_entity("eye", x, ground_y(x) - 70 - sin(i * PI / 4) * 55, 0, 28)
+	rare_pending = false
+
+func update_projectile_impacts() -> void:
+	for e in entities.duplicate():
+		if e.taken: continue
+		if e.kind == "soldier_blast":
+			if float(e.age) > 0.45: e.taken = true
+			continue
+		if e.kind != "bullet" or str(e.get("shot_mode", "")) != "rocket": continue
+		var impact = e.y >= ground_y(e.x) - 4 and e.x > view_left
+		for obstacle in entities:
+			if not obstacle.taken and MonsterCatalog.VEHICLES.has(obstacle.kind):
+				if HordeBalance.surface(obstacle).has_point(Vector2(e.x, e.y)): impact = true;break
+		if impact: soldier.explode(self, e)
+
+func revive_horde(count: int) -> void:
+	dead = false;members.clear();cached_active = -1
+	perk_left = 0;perk_kind = -1;transform_left = 0;boost_left = 0
+	for e in entities:
+		if e.x + float(e.width) < ANCHOR - 400 or e.x > ANCHOR + maxf(1000, speed * 3.0): continue
+		if e.kind not in ["coin", "eye"]: e.taken = true
+	rebuild_surfaces()
+	for i in range(count): add_member(recruit_kind(), false)
+	hit_grace = 3.0;recovery_left = 3.0;recovery_speed = 275.0
+	for m in members: m.y = ground_y(m.x);m.vy = 0.0;m.falling = false
+	events.clear()

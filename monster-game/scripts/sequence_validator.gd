@@ -3,8 +3,8 @@ extends RefCounted
 
 const STEP = 1.0 / 60.0
 
-# Replay the same surfaces, ceiling contacts, hold physics and follower delay
-# used by the live run. A sorted sweep bounds the work per encounter.
+
+
 static func validate(run, parts: Array[Dictionary], commands: Array[Dictionary], start: float, finish: float, speed: float) -> bool:
 	if parts.is_empty() or speed < 1 or not run.terrain.safe_span(start - 40, finish + 40, 40): return false
 	var ground = run.terrain.floor_at(start)
@@ -17,13 +17,13 @@ static func validate(run, parts: Array[Dictionary], commands: Array[Dictionary],
 		var right = float(part.x) + float(part.get("width", 70)) * 0.5 + 20
 		if part.kind in ["gap", "collapse"]: left = part.x;right = part.x + part.width
 		bounds.append({"left": left, "right": right, "part": part})
-	bounds.sort_custom(func(a, b): return a.left < b.left)
-	# Prove a playable route for the responding runner. Fitting the entire
-	# tail here would silently widen every challenge and erase crowd risk.
+	bounds.sort_custom( func(a, b): return a.left < b.left)
+
+
 	var cases = [{"offset": 0.0, "delay": 0.0}]
 	for test in cases:
 		var m = {"x": start - float(test.offset), "y": ground, "vy": 0.0, "air_time": 0.0, "hold_open": false, "release_left": 0.0}
-		var next_command = 0;var next_bound = 0
+		var next_command = 0; var next_bound = 0
 		var active: Array[Dictionary] = []
 		var hold_until = -1.0
 		var coyote = 0.1

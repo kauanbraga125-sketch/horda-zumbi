@@ -10,6 +10,7 @@ const MINT = Color("8fe7c9")
 var logo_font: Font = preload("res://assets/fonts/LuckiestGuy-Regular.ttf")
 var label_font: Font = preload("res://assets/fonts/LilitaOne-Regular.ttf")
 var menu_zombie = HordeMenuZombie.new()
+var atmosphere = HordeMenuAtmosphere.new()
 var logo_texture: Texture2D = preload("res://assets/art/menu-logo-v80.png")
 var panel_texture: Texture2D = preload("res://assets/art/menu-panel-v80.png")
 var play_texture: Texture2D = preload("res://assets/art/menu-play-v80.png")
@@ -38,30 +39,25 @@ func set_visible(value: bool) -> void :
 	menu_zombie.set_visible(value)
 
 func layout(view: Rect2) -> Dictionary:
-	var margin = maxf(30, view.size.x * 0.045)
-	var left = view.position.x + margin
-	var right = view.end.x - margin
-	var top = view.position.y + 25
-	var nav = Rect2(left, view.end.y - 112, right - left, 84)
-	var right_width = minf(600, view.size.x * 0.37)
-	var play = Rect2(right - right_width, nav.position.y - 138, right_width, 112)
-	var ritual = Rect2(play.position.x + 12, play.position.y - 96, play.size.x - 24, 80)
-	var altar_height = clampf((play.position.y - top - 132) * 0.79, 180, 264)
-	var altar = Vector2(play.get_center().x, ritual.position.y + 35 - altar_height * 0.5)
-	var stage_bottom = view.position.y + view.size.y * 0.785
-	var stage_height = clampf(view.size.y * 0.525, 300, 395)
-	var wallet = Rect2(right - 318, top, 170, 65)
-	var level_left = view.position.x + view.size.x * 0.34
-	var level = Rect2(level_left, top, minf(view.size.x * 0.32, wallet.position.x - level_left - 26), 65)
-	var title_width = minf(view.size.x * 0.27, 430)
-	var result = {"view": view, "title": Rect2(left - 2, top - 8, title_width, title_width * 0.49),
-		"level": level, "wallet": wallet, "audio": Rect2(right - 136, top, 62, 65), "help": Rect2(right - 62, top, 62, 65),
-		"nav": nav, "play": play, "ritual": ritual, "altar": altar, "altar_height": altar_height,
-		"stage_bottom": stage_bottom, "stage_height": stage_height,
-		"record": Rect2(left, nav.position.y - 38, minf(380, play.position.x - left - 28), 30)}
+	var margin = maxf(32,view.size.x*.045)
+	var left = view.position.x+margin;var right = view.end.x-margin;var top = view.position.y+25
+	var nav = Rect2(left,view.end.y-104,right-left,78)
+	var play = Rect2(right-minf(650,view.size.x*.425),nav.position.y-132,minf(650,view.size.x*.425),106)
+	var ritual = Rect2(play.position.x+8,play.position.y-98,play.size.x-16,82)
+	var altar_height = clampf(ritual.position.y-top-130,170,250)
+	var altar = Vector2(play.get_center().x,ritual.position.y-altar_height*.47)
+	var wallet = Rect2(right-382,top,246,62)
+	var level_left = view.position.x+view.size.x*.35
+	var title_width = minf(view.size.x*.29,415)
+	var title = Rect2(left-2,top-8,title_width,title_width*.49)
+	var result = {"view":view,"title":title,"level":Rect2(level_left,top,wallet.position.x-level_left-20,62),
+		"wallet":wallet,"audio":Rect2(right-124,top,54,62),"help":Rect2(right-54,top,54,62),
+		"nav":nav,"play":play,"ritual":ritual,"altar":altar,"altar_height":altar_height,
+		"stage_bottom":nav.position.y-47,"stage_height":clampf(view.size.y*.5,300,385),
+		"record":Rect2(left,nav.position.y-35,minf(400,play.position.x-left-28),28),
+		"profile":Rect2(left,title.end.y+14,190,51)}
 	var tabs: Array[Rect2] = []
-	for i in range(3):
-		tabs.append(Rect2(nav.position.x + i * (nav.size.x + 14) / 3, nav.position.y, (nav.size.x - 28) / 3, nav.size.y))
+	for i in range(3): tabs.append(Rect2(nav.position.x+i*(nav.size.x+14)/3,nav.position.y,(nav.size.x-28)/3,nav.size.y))
 	result.tabs = tabs
 	return result
 
@@ -86,6 +82,8 @@ func backdrop(g, view: Rect2) -> void :
 		for ring in range(8, 0, -1):
 			g.draw_circle(at, ring * 5.5, Color(1, 0.57, 0.16, 0.0035 * flicker))
 
+	if g.screen == "home": atmosphere.background(g,layout(view))
+
 func label(g, value: String, baseline: Vector2, size: int, color: Color = IVORY, center: bool = true, max_width: float = -1, title: bool = false, outline: int = 2) -> void :
 	var font = logo_font if title else label_font
 	if max_width > 0:
@@ -98,7 +96,7 @@ func label(g, value: String, baseline: Vector2, size: int, color: Color = IVORY,
 func shape(rect: Rect2, cut: float = 10) -> PackedVector2Array:
 	var p = rect.position
 	var e = rect.end
-	return PackedVector2Array([p + Vector2(cut, 0), Vector2(e.x - cut, p.y), Vector2(e.x, p.y + cut),
+	return PackedVector2Array([p + Vector2(cut, 0), Vector2(e.x - cut, p.y), Vector2(e.x, p.y + cut), 
 		e - Vector2(0, cut), e - Vector2(cut, 0), Vector2(p.x + cut, e.y), Vector2(p.x, e.y - cut), p + Vector2(0, cut)])
 
 func slab(g, rect: Rect2, face: Color, border: Color, cut: float = 12, depth: float = 5) -> void :
@@ -130,29 +128,29 @@ func logo(g, rect: Rect2) -> void :
 func register(g, rect: Rect2, action: String) -> void :
 	g.buttons.append({"rect": rect, "action": action})
 
-func header(g, d: Dictionary) -> void :
-	logo(g, d.title)
-	var level: Rect2 = d.level
-	slab(g, level, Color("22162f"), Color("b18a52"), 12, 3)
-	corners(g, level)
-	g.animated_soul(level.position + Vector2(30, 32 + sin(g.ui_time * 2.1) * 2), 43, g.ui_time)
-	label(g, "NÍVEL " + str(g.data.player_level), level.position + Vector2(63, 29), 26, IVORY, false, level.size.x * 0.47)
-	var count = str(g.data.level_souls) + " / " + str(HordeProgress.level_target(int(g.data.player_level)))
-	var count_size = 22
-	while label_font.get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, count_size).x > level.size.x * 0.34 and count_size > 13: count_size -= 1
-	label(g, count, Vector2(level.end.x - 16 - label_font.get_string_size(count, HORIZONTAL_ALIGNMENT_LEFT, -1, count_size).x, level.position.y + 29), count_size, MINT, false)
-	g.progress_bar(Rect2(level.position + Vector2(62, 44), Vector2(level.size.x - 80, 10)), float(g.data.level_souls) / HordeProgress.level_target(int(g.data.player_level)), MINT)
-	slab(g, d.wallet, Color("27172f"), Color("b18a52"), 13, 3)
-
-	g.scenery.sprite(g, g.art.items[1], d.wallet.position + Vector2(30, 33 + sin(g.ui_time * 2) * 1.3), 39, Color.WHITE, sin(g.ui_time * 1.8) * 0.045)
-	label(g, str(g.data.wallet), d.wallet.position + Vector2(57, 45), 34, GOLD, false, d.wallet.size.x - 70)
-	for action in ["audio", "help"]:
-		var rect: Rect2 = d[action]
-		var center = rect.get_center()
-		slab(g, rect, Color("483054") if rect.has_point(g.get_local_mouse_position()) else Color("2b1c3b"), Color("b18a52"), 12, 3)
-		register(g, rect, "settings" if action == "audio" else "help")
-		if action == "help": label(g, "?", center + Vector2(0, 14), 37, IVORY, true)
-		else: gear(g, center, 18, g.ui_time * 0.35)
+func header(g, d: Dictionary) -> void:
+	logo(g,d.title)
+	var r: Rect2 = d.level
+	slab(g,r,Color("22162f"),Color("b18a52"),12,3);corners(g,r)
+	var index = posmod(int(g.data.player_level)-1,4)
+	var panes = [Rect2(.245,.216,.515,.583),Rect2(.222,.214,.548,.583),Rect2(.267,.205,.463,.544),Rect2(.252,.204,.503,.544)]
+	var glass = Rect2(r.position+Vector2(3,2)+panes[index].position*Vector2(48,58),panes[index].size*Vector2(48,58))
+	var fill = clampf(float(g.data.level_souls)/HordeProgress.level_target(int(g.data.player_level)),0,1)
+	g.paint_target.draw_rect(Rect2(glass.position+Vector2(0,glass.size.y*(1-fill)),Vector2(glass.size.x,glass.size.y*fill)),Color("b178f0"))
+	g.hub.polish.draw(g.paint_target,"vessels",index,r.position+Vector2(27,31),Vector2(48,58))
+	label(g,"NÍVEL "+str(g.data.player_level),r.position+Vector2(57,25),26,IVORY,false,r.size.x*.42)
+	var count = str(g.data.level_souls)+" / "+str(HordeProgress.level_target(int(g.data.player_level)))+" ESSÊNCIA"
+	var size = 19
+	while size>13 and label_font.get_string_size(count,HORIZONTAL_ALIGNMENT_LEFT,-1,size).x>r.size.x*.49: size-=1
+	label(g,count,Vector2(r.end.x-16-label_font.get_string_size(count,HORIZONTAL_ALIGNMENT_LEFT,-1,size).x,r.position.y+29),size,MINT,false)
+	g.progress_bar(Rect2(r.position+Vector2(62,44),Vector2(r.size.x-80,10)),float(g.data.level_souls)/HordeProgress.level_target(int(g.data.player_level)),Color("b178f0"))
+	register(g,r,"missions")
+	for action in ["audio","help"]:
+		var rect: Rect2 = d[action];var center = rect.get_center()
+		slab(g,rect,Color("483054") if rect.has_point(g.get_local_mouse_position()) else Color("2b1c3b"),Color("b18a52"),12,3)
+		register(g,rect,"settings" if action=="audio" else "help")
+		if action=="help": label(g,"?",center+Vector2(0,14),37,IVORY,true)
+		else: gear(g,center,18,g.ui_time*.35)
 
 func gear(g, point: Vector2, radius: float, time: float) -> void :
 	var vertices = PackedVector2Array()
@@ -192,23 +190,19 @@ func cast(g, d: Dictionary) -> void :
 		var fly = point + Vector2(height * 0.365, - height * 0.28 + sin(g.ui_time * 2.3) * 5)
 		g.actor.paint(g, 3, fly, height * 0.39, g.ui_time * 1.4, "fly", g.ui_time, 0, Color.WHITE, false, 1, false)
 
-func altar(g, d: Dictionary) -> void :
-	var p: Vector2 = d.altar
-	var h: float = d.altar_height
-	paint_cauldron(g, p, h)
-	for i in range(4):
-		var t = g.ui_time * 1.2 + i * TAU / 4
-		g.animated_soul(p + Vector2(cos(t) * h * 0.29, - h * 0.33 + sin(t) * h * 0.1), 33 + sin(t * 1.5) * 3, g.ui_time + i * 0.29, Color(1, 1, 1, 0.86))
-	var rect: Rect2 = d.ritual
-	g.paint_target.draw_style_box(panel_style, rect)
-	label(g, "RITUAL DA MADRUGADA", rect.position + Vector2(rect.size.x * 0.5, 28), 24, IVORY, true, rect.size.x - 48)
-	var amount = float(g.data.ritual_progress)
-	if not g.ritual_view.is_empty() and g.ritual_time < 2.5:
-		amount = fposmod(float(g.ritual_view.old_progress) + float(g.ritual_view.points) * clampf(g.ritual_time / 2.1, 0, 1), 100)
-	g.progress_bar(Rect2(rect.position + Vector2(24, 39), Vector2(rect.size.x - 48, 11)), amount / 100, MINT)
-	label(g, str(int(amount)) + " / 100", rect.position + Vector2(rect.size.x * 0.5, 69), 21, IVORY, true)
-	if not g.ritual_view.is_empty() and int(g.ritual_view.coins) > 0 and g.ritual_time > 1.7:
-		label(g, "+" + str(g.ritual_view.coins) + " MOEDAS", p - Vector2(0, h * 0.6), 22, GOLD, true, rect.size.x)
+func altar(g, d: Dictionary) -> void:
+	atmosphere.monument(g,d)
+	var r: Rect2 = d.ritual
+	slab(g,r,Color("251b33"),Color("b48b5c"),12,4)
+	label(g,"CEMITÉRIO DAS ALMAS",r.position+Vector2(r.size.x*.5,25),23,IVORY,true,r.size.x-30)
+	g.progress_bar(Rect2(r.position+Vector2(65,38),Vector2(r.size.x-205,10)),float(g.data.altar_souls)/100.0,MINT)
+	g.animated_soul(r.position+Vector2(35,48),39,g.ui_time)
+	label(g,str(g.data.altar_souls)+" / 100 ALMAS",r.position+Vector2(r.size.x*.48,57),16,MINT,true,r.size.x*.48)
+	var ready = int(g.data.graves.size())*2
+	label(g,"100 almas despertam 2 lápides",r.position+Vector2(r.size.x*.49,74),14,Color("c4b2d1"),true,r.size.x*.68)
+	label(g,str(ready)+" PRONTAS" if ready>0 else "TOQUE",Vector2(r.end.x-60,r.position.y+43),16,GOLD if ready>0 else IVORY,true,100)
+	label(g,"PARA ABRIR" if ready>0 else "PARA VER",Vector2(r.end.x-60,r.position.y+62),14,IVORY,true,100)
+	register(g,Rect2(Vector2(r.position.x,d.altar.y-d.altar_height*.5),Vector2(r.size.x,r.end.y-(d.altar.y-d.altar_height*.5))),"graves_open")
 
 func paint_cauldron(g, p: Vector2, h: float) -> void :
 	var receiving = not g.ritual_view.is_empty() and g.ritual_time < 2.7 and int(g.ritual_view.get("points", 0)) > 0
@@ -302,8 +296,7 @@ func navigation(g, d: Dictionary) -> void :
 		if i == 0:
 			g.scenery.sprite(g, g.art.ritual[2], point, 60, Color.WHITE, sin(g.ui_time * 1.8) * 0.018)
 		elif i == 1:
-			g.scenery.sprite(g, menu_zombie.face, point + Vector2(-14, -1), 49)
-			g.scenery.sprite(g, g.art.rigs[3][0], point + Vector2(18, 3), 43)
+			atmosphere.fit(g.paint_target,atmosphere.cover,Rect2(point-Vector2(33,33),Vector2(66,66)))
 		else:
 			g.scenery.sprite(g, missions_texture, point, 60, Color.WHITE, - 0.035)
 		label(g, titles[i], Vector2(group_left + 86, face.get_center().y + 12), font_size, IVORY, false, face.size.x - 110, false, 3)
@@ -321,4 +314,5 @@ func paint(g) -> void :
 	g.effects.paint(g, g.art, g.actor)
 
 func ritual_target(view: Rect2) -> Vector2:
-	return layout(view).altar - Vector2(0, 18)
+	return layout(view).level.position+Vector2(28,32)
+

@@ -1,4 +1,10 @@
 .godot/
-build/*
-*.import
-tools/__pycache__/
+build/
+validation/
+__pycache__/
+*.pyc
+*.apk
+*.idsig
+*.keystore
+*.jks
+.godot/export_credentials.cfg

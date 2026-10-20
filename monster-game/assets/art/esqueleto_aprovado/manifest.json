@@ -1,0 +1,33 @@
+{
+  "tile_width": 384,
+  "tile_height": 288,
+  "columns": 6,
+  "base_height": 181.0,
+  "clips": {
+    "corrida": {
+      "sheet": "corrida.png",
+      "count": 36,
+      "rows": 6,
+      "scale_applied": 1.0
+    },
+    "pulo_pouso": {
+      "sheet": "pulo_pouso.png",
+      "count": 30,
+      "rows": 5,
+      "scale_applied": 1.183
+    },
+    "quebrar_veiculos": {
+      "sheet": "quebrar_veiculos.png",
+      "count": 36,
+      "rows": 6,
+      "scale_applied": 0.8681
+    },
+    "captura": {
+      "sheet": "captura.png",
+      "count": 35,
+      "rows": 6,
+      "scale_applied": 1.0,
+      "note": "ultima célula da grade 6x6 fica vazia"
+    }
+  }
+}

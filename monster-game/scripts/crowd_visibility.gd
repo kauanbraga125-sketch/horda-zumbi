@@ -1,8 +1,8 @@
 class_name HordeCrowdVisibility
 extends RefCounted
 
-# Keep the front silhouettes and all distinctive actions. Hidden members still
-# receive every physics, collision, recruitment and jump update.
+
+
 static func visible(run) -> Dictionary:
 	var result: Dictionary = {}
 	var cells: Dictionary = {}
@@ -16,6 +16,8 @@ static func visible(run) -> Dictionary:
 				for dx in range(-1, 2):
 					for other in cells.get(cell + Vector2i(dx, dy), []):
 						if absf(point.x - other.x) <= 11 and absf(point.y - other.y) <= 8: hidden = true;break
+					if hidden: break
+				if hidden: break
 		if hidden: continue
 		result[i] = true
 		if not cells.has(cell): cells[cell] = []

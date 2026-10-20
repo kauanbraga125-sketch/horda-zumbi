@@ -6,10 +6,27 @@ var art: HordeArt
 var facing = 1.0
 var basis_angle = 0.0
 var zombie: HordeZombieSprite
+var skeleton_approved: HordeSkeletonApprovedSprite
+var fly_approved: HordeFlyApprovedSprite
 
 func _init(source: HordeArt) -> void :
 	art = source
 	zombie = HordeZombieSprite.new()
+	skeleton_approved = HordeSkeletonApprovedSprite.new()
+	fly_approved = HordeFlyApprovedSprite.new()
+
+
+
+func renderer_for(kind: int, state: String, landing: float) -> String:
+	if kind == 0:
+		return "zombie_original"
+	if kind == 1 and skeleton_approved.has_state(state, landing):
+		return "skeleton_approved"
+	if kind == 3 and fly_approved.has_assets():
+		return "fly_approved"
+	if kind == 8 and art.police_sprite.has_assets():
+		return "police_approved"
+	return "original_rig"
 
 static func stride_foot(phase: float) -> Vector2:
 	var t = fposmod(phase, 1.0)
@@ -58,8 +75,18 @@ func arm(canvas: Node2D, kind: int, shoulder: Vector2, swing: float, tint: Color
 
 func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String = "run", time: float = 0, landing: float = 0, tint: Color = Color.WHITE, reverse: bool = false, pose_mix: float = 1.0, show_prop: bool = true, air_age: float = -1, vertical_speed: float = 0) -> void :
 	kind = clampi(kind, 0, art.rigs.size() - 1)
-	if kind == 0:
+	var render_route: String = renderer_for(kind, state, landing)
+	if render_route == "zombie_original":
 		zombie.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
+		return
+	if render_route == "skeleton_approved":
+		skeleton_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
+		return
+	if render_route == "fly_approved":
+		fly_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
+		return
+	if render_route == "police_approved":
+		art.police_sprite.paint_actor(canvas, foot, height, phase, state, time, tint, reverse)
 		return
 	facing = -1.0 if reverse else 1.0
 	var scale = height / 112.0

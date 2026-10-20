@@ -10,9 +10,9 @@ config_version=5
 
 [application]
 
-config/name="Noite da Horda"
-config/version="0.8.13"
-run/main_scene="res://main.tscn"
+config/name="Horda Zumbi 0.9.1"
+config/version="0.10.3"
+run/main_scene="res://boot.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://assets/icon-monsters-v51.png"
 

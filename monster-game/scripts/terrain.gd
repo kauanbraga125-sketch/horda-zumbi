@@ -1,23 +1,23 @@
 class_name HordeTerrain
 extends RefCounted
 
-enum State { NORMAL, ELEVATED, RETURN }
+enum State{NORMAL, ELEVATED, RETURN}
 var state = State.NORMAL
 var generated_to = 0.0
 var segments: Array[Dictionary] = []
 
-func reset() -> void:
+func reset() -> void :
 	state = State.NORMAL;generated_to = 14500.0
 	segments.assign([{"start": -100000.0, "end": generated_to, "height": 0.0, "state": State.NORMAL}])
 
-func reserve(run, through: float, speed: float) -> void:
+func reserve(run, through: float, speed: float) -> void :
 	run.ensure_tunnels(through + 3000)
 	while generated_to < through:
 		if state == State.RETURN: state = State.NORMAL
 		var length: float
 		var height = 0.0
 		if state == State.ELEVATED:
-			# A full ground section, rather than many small fences around possible steps.
+
 			state = State.RETURN
 			length = maxf(13000, speed * run.course_rng.randf_range(45.0, 65.0))
 		else:

@@ -1,0 +1,84 @@
+{
+  "sha256": "d8cd026d8676f069e8195912dafa5911eb2876bc8f69c10b0126559a4f14652f",
+  "bytes": 253238824,
+  "plain_scripts": 48,
+  "classes": 45,
+  "verified_index_entries": 633,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 102,
+  "previousVersionName": "0.10.2",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.3",
+  "versionCode": 103,
+  "signing_certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8",
+  "same_signing_certificate_as_v0102": true,
+  "native_layout": {
+    "lib/arm64-v8a/libc++_shared.so": {
+      "zip_compression": "deflated",
+      "elf_load_segment_alignment": [
+        16384,
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/arm64-v8a/libgodot_android.so": {
+      "zip_compression": "deflated",
+      "elf_load_segment_alignment": [
+        16384,
+        16384,
+        16384,
+        16384
+      ]
+    },
+    "lib/armeabi-v7a/libc++_shared.so": {
+      "zip_compression": "deflated",
+      "elf_load_segment_alignment": [
+        4096,
+        4096,
+        4096,
+        4096
+      ]
+    },
+    "lib/armeabi-v7a/libgodot_android.so": {
+      "zip_compression": "deflated",
+      "elf_load_segment_alignment": [
+        4096,
+        4096,
+        4096,
+        4096
+      ]
+    }
+  },
+  "original_imported_assets_preserved": 250,
+  "validation": {
+    "v100_integration": {
+      "checks": 56,
+      "failures": 0
+    },
+    "v101_integration": {
+      "checks": 20,
+      "failures": 0
+    },
+    "v103_codex": {
+      "checks": 38,
+      "failures": 0
+    },
+    "v103_packed_runtime": {
+      "checks": 20,
+      "failures": 0
+    },
+    "clean_source_import": "Godot 4.5.1; no parser or missing resource errors",
+    "rendered_layouts": [
+      "1280x720",
+      "1600x720",
+      "1280x960"
+    ],
+    "physical_android_device_tested": false
+  }
+}

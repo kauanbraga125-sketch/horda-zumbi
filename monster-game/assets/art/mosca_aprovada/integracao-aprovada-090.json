@@ -1,0 +1,425 @@
+{
+  "conjunto": "Mosca — revisão final de paleta e proporção",
+  "data": "2026-10-19",
+  "ordem": "Esquerda para direita; depois a próxima linha. Índices começam em zero.",
+  "celula_comum_px": [
+    384,
+    288
+  ],
+  "pivo_comum_px": [
+    192,
+    144
+  ],
+  "escala_entre_estados": "Usar a mesma escala no jogo. O ajuste de 12% de voo e descida já está incorporado na arte; não aplicar novamente.",
+  "recorte": "Preservar células completas e pivô comum. Não ajustar o tamanho de cada quadro pela caixa visível de asas ou patas.",
+  "transicao_voo_descida": "Manter o relógio de fase das asas módulo 12 e usar o mapa da descida. A entrada 0–5 é opcional e parte da fase 0.",
+  "status": "Arte e prévias revisadas; importação e teste no projeto do jogo ainda não realizados.",
+  "animacoes": {
+    "voo": {
+      "arquivo": "Mosca-Voo-Final.png",
+      "folha_px": [
+        2304,
+        1728
+      ],
+      "colunas": 6,
+      "linhas": 6,
+      "celula_px": [
+        384,
+        288
+      ],
+      "pivo_central_px": [
+        192,
+        144
+      ],
+      "quadros_validos": 36,
+      "primeiro": 0,
+      "ultimo": 35,
+      "fps": 20,
+      "loop": true,
+      "modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "self_modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "hd": {
+        "arquivo": "HD/Mosca-Voo-Final-HD.png",
+        "celula_px": [
+          768,
+          576
+        ],
+        "pivo_central_px": [
+          384,
+          288
+        ],
+        "escala_para_tamanho_nativo": 0.5
+      },
+      "poses_unicas": 12,
+      "ciclo_minimo": [
+        0,
+        11
+      ],
+      "repeticoes_identicas_na_folha": [
+        [
+          0,
+          11
+        ],
+        [
+          12,
+          23
+        ],
+        [
+          24,
+          35
+        ]
+      ],
+      "alternativa_loop_completo": [
+        0,
+        35
+      ]
+    },
+    "descida": {
+      "arquivo": "Mosca-Descida-Final.png",
+      "folha_px": [
+        2304,
+        864
+      ],
+      "colunas": 6,
+      "linhas": 3,
+      "celula_px": [
+        384,
+        288
+      ],
+      "pivo_central_px": [
+        192,
+        144
+      ],
+      "quadros_validos": 18,
+      "primeiro": 0,
+      "ultimo": 17,
+      "fps": 20,
+      "loop": true,
+      "modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "self_modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "hd": {
+        "arquivo": "HD/Mosca-Descida-Final-HD.png",
+        "celula_px": [
+          768,
+          576
+        ],
+        "pivo_central_px": [
+          384,
+          288
+        ],
+        "escala_para_tamanho_nativo": 0.5
+      },
+      "tipo": "descida controlada ao segurar a tela",
+      "entrada": {
+        "quadros": [
+          0,
+          5
+        ],
+        "loop": false,
+        "fases_voo": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "ciclo": {
+        "quadros": [
+          6,
+          17
+        ],
+        "loop": true,
+        "fases_voo": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "fase_voo_mod12_para_quadro_descida": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "quadros_compartilhados": [
+        [
+          4,
+          16
+        ],
+        [
+          5,
+          17
+        ]
+      ],
+      "poses_unicas": 16
+    },
+    "corrida": {
+      "arquivo": "Mosca-Corrida-Final.png",
+      "folha_px": [
+        2304,
+        864
+      ],
+      "colunas": 6,
+      "linhas": 3,
+      "celula_px": [
+        384,
+        288
+      ],
+      "pivo_central_px": [
+        192,
+        144
+      ],
+      "quadros_validos": 18,
+      "primeiro": 0,
+      "ultimo": 17,
+      "fps": 20,
+      "loop": true,
+      "modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "self_modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "hd": {
+        "arquivo": "HD/Mosca-Corrida-Final-HD.png",
+        "celula_px": [
+          768,
+          576
+        ],
+        "pivo_central_px": [
+          384,
+          288
+        ],
+        "escala_para_tamanho_nativo": 0.5
+      },
+      "apoio_y_aproximado": 276,
+      "ciclo": [
+        0,
+        17
+      ],
+      "quadros_de_voo_ou_descida": 0
+    },
+    "empurrar": {
+      "arquivo": "Mosca-Empurrar-Final.png",
+      "folha_px": [
+        2304,
+        576
+      ],
+      "colunas": 6,
+      "linhas": 2,
+      "celula_px": [
+        384,
+        288
+      ],
+      "pivo_central_px": [
+        192,
+        144
+      ],
+      "quadros_validos": 12,
+      "primeiro": 0,
+      "ultimo": 11,
+      "fps": 20,
+      "loop": true,
+      "modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "self_modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "hd": {
+        "arquivo": "HD/Mosca-Empurrar-Final-HD.png",
+        "celula_px": [
+          768,
+          576
+        ],
+        "pivo_central_px": [
+          384,
+          288
+        ],
+        "escala_para_tamanho_nativo": 0.5
+      },
+      "ciclo": [
+        0,
+        11
+      ],
+      "apoio_y_aproximado": 276,
+      "plano_garras_x": 326,
+      "ativacao": "Contato com veículo durante a corrida.",
+      "manter": "Repetir enquanto faz força até virar o veículo ou terminar o contato.",
+      "veiculo_incluido": false
+    },
+    "dano": {
+      "arquivo": "Mosca-Dano-Final.png",
+      "folha_px": [
+        2304,
+        864
+      ],
+      "colunas": 6,
+      "linhas": 3,
+      "celula_px": [
+        384,
+        288
+      ],
+      "pivo_central_px": [
+        192,
+        144
+      ],
+      "quadros_validos": 16,
+      "primeiro": 0,
+      "ultimo": 15,
+      "fps": 20,
+      "loop": false,
+      "modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "self_modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "hd": {
+        "arquivo": "HD/Mosca-Dano-Final-HD.png",
+        "celula_px": [
+          768,
+          576
+        ],
+        "pivo_central_px": [
+          384,
+          288
+        ],
+        "escala_para_tamanho_nativo": 0.5
+      },
+      "duracao_segundos": 0.8,
+      "celulas_vazias_ignorar": [
+        16,
+        17
+      ],
+      "ativacao": "Novo evento de dano aceito; executar 0 a 15 uma vez, sem reiniciar a cada atualização.",
+      "ao_terminar": "Retomar o estado válido atual conforme a lógica do jogo.",
+      "olhos_brancos": "Expressão aprovada de susto e dor; preservar."
+    },
+    "captura": {
+      "arquivo": "Mosca-Captura-Final.png",
+      "folha_px": [
+        2304,
+        1728
+      ],
+      "colunas": 6,
+      "linhas": 6,
+      "celula_px": [
+        384,
+        288
+      ],
+      "pivo_central_px": [
+        192,
+        144
+      ],
+      "quadros_validos": 36,
+      "primeiro": 0,
+      "ultimo": 35,
+      "fps": 20,
+      "loop": false,
+      "modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "self_modulate": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "hd": {
+        "arquivo": "HD/Mosca-Captura-Final-HD.png",
+        "celula_px": [
+          768,
+          576
+        ],
+        "pivo_central_px": [
+          384,
+          288
+        ],
+        "escala_para_tamanho_nativo": 0.5
+      },
+      "duracao_segundos": 1.8,
+      "faixas_visuais": {
+        "preparacao": [
+          0,
+          18
+        ],
+        "impulso": [
+          19,
+          21
+        ],
+        "alcance_e_agarrar": [
+          22,
+          27
+        ],
+        "retorno": [
+          28,
+          35
+        ]
+      },
+      "civil_incluido": false,
+      "ao_terminar": "Retomar o estado válido conforme a lógica do jogo.",
+      "trajetoria": "Elevação das poses aéreas preservada; não alinhar todos os pés ao chão."
+    }
+  }
+}

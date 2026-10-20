@@ -3,7 +3,7 @@ extends RefCounted
 
 var ground_texture: AtlasTexture
 
-func _init() -> void:
+func _init() -> void :
 	ground_texture = AtlasTexture.new()
 	ground_texture.atlas = preload("res://assets/art/gameplay-ground-v83.png")
 	ground_texture.region = Rect2(0, 94, 2172, 552)
@@ -18,46 +18,46 @@ func hud_layout(view: Rect2) -> Dictionary:
 		counters.append(Rect2(left, top, width, 78))
 		left += width + 12
 	var pause_rect = Rect2(view.end.x - 100, top, 72, 76)
-	return {"counters": counters, "pause": pause_rect,
-		"location": Vector2(view.position.x + 32, top + 107),
+	return {"counters": counters, "pause": pause_rect, 
+		"location": Vector2(view.position.x + 32, top + 107), 
 		"effect": Rect2(pause_rect.position.x - 332, top, 308, 78)}
 
 func counter_target(g, index: int) -> Vector2:
 	var rect: Rect2 = hud_layout(g.full_rect()).counters[index]
 	return rect.position + Vector2(39, 52)
 
-func glyph(g, kind: String, point: Vector2, size: float, color: Color) -> void:
+func glyph(g, kind: String, point: Vector2, size: float, color: Color) -> void :
 	match kind:
 		"pause":
-			for x in [-0.23, 0.10]:
-				g.draw_rect(Rect2(point + Vector2(x * size, -size * 0.35), Vector2(size * 0.15, size * 0.70)), color)
+			for x in [-0.23, 0.1]:
+				g.draw_rect(Rect2(point + Vector2(x * size, - size * 0.35), Vector2(size * 0.15, size * 0.7)), color)
 		"play":
-			g.draw_colored_polygon(PackedVector2Array([point + Vector2(-0.3, -0.4) * size,
+			g.draw_colored_polygon(PackedVector2Array([point + Vector2(-0.3, -0.4) * size, 
 				point + Vector2(0.38, 0) * size, point + Vector2(-0.3, 0.4) * size]), color)
 		"retry":
 			g.draw_arc(point, size * 0.34, -0.6, 4.7, 28, color, maxf(3, size * 0.11), true)
-			g.draw_colored_polygon(PackedVector2Array([point + Vector2(0, -0.53) * size,
-				point + Vector2(0.31, -0.31) * size, point + Vector2(-0.04, -0.10) * size]), color)
+			g.draw_colored_polygon(PackedVector2Array([point + Vector2(0, -0.53) * size, 
+				point + Vector2(0.31, -0.31) * size, point + Vector2(-0.04, -0.1) * size]), color)
 		"home":
-			g.draw_colored_polygon(PackedVector2Array([point + Vector2(-0.48, -0.04) * size,
-				point + Vector2(0, -0.48) * size, point + Vector2(0.48, -0.04) * size,
-				point + Vector2(0.34, -0.04) * size, point + Vector2(0.34, 0.4) * size,
-				point + Vector2(0.10, 0.4) * size, point + Vector2(0.10, 0.09) * size,
-				point + Vector2(-0.10, 0.09) * size, point + Vector2(-0.10, 0.4) * size,
+			g.draw_colored_polygon(PackedVector2Array([point + Vector2(-0.48, -0.04) * size, 
+				point + Vector2(0, -0.48) * size, point + Vector2(0.48, -0.04) * size, 
+				point + Vector2(0.34, -0.04) * size, point + Vector2(0.34, 0.4) * size, 
+				point + Vector2(0.1, 0.4) * size, point + Vector2(0.1, 0.09) * size, 
+				point + Vector2(-0.1, 0.09) * size, point + Vector2(-0.1, 0.4) * size, 
 				point + Vector2(-0.34, 0.4) * size, point + Vector2(-0.34, -0.04) * size]), color)
 		"check":
-			g.draw_polyline(PackedVector2Array([point + Vector2(-0.31, -0.01) * size,
+			g.draw_polyline(PackedVector2Array([point + Vector2(-0.31, -0.01) * size, 
 				point + Vector2(-0.07, 0.23) * size, point + Vector2(0.35, -0.25) * size]), color, maxf(2.5, size * 0.14), true)
 		"distance":
-			var origin = point - Vector2(size * 0.30, size * 0.42)
-			g.draw_line(origin - Vector2(0, 2), origin + Vector2(-size * 0.06, size * 0.93), color, 2.5, true)
+			var origin = point - Vector2(size * 0.3, size * 0.42)
+			g.draw_line(origin - Vector2(0, 2), origin + Vector2( - size * 0.06, size * 0.93), color, 2.5, true)
 			var cell = size * 0.17
 			g.draw_rect(Rect2(origin, Vector2(cell * 4, cell * 3)), color)
 			for row in range(3):
 				for col in range(4):
 					if (row + col) % 2 == 0: g.draw_rect(Rect2(origin + Vector2(col, row) * cell, Vector2.ONE * cell), Color("31203f"))
 
-func hud(g) -> void:
+func hud(g) -> void :
 	var d = hud_layout(g.full_rect())
 	var labels = ["DISTÂNCIA", "HORDA", "ALMAS", "MOEDAS"]
 	var values = [str(g.runner.distance()) + " m", str(g.runner.active_count()), str(g.runner.souls), str(g.runner.coins)]
@@ -72,6 +72,8 @@ func hud(g) -> void:
 		else: g.scenery.sprite(g, g.art.items[1], centre + Vector2(0, sin(g.ui_time * 2) * 1.4), 39 + g.coin_pulse * 3, Color.WHITE, sin(g.ui_time * 1.8) * 0.035)
 		var inset = 62 if i == 0 else 69
 		g.home_menu.label(g, values[i], rect.position + Vector2(inset, 62), 30, g.GOLD if i >= 2 else g.CREAM, false, rect.size.x - inset - 12)
+	g.hub.eye(g, d.counters[3].position + Vector2(29, 103), 27)
+	g.home_menu.label(g, str(g.data.eyes), d.counters[3].position + Vector2(54, 112), 22, Color("dda7ff"), false, 100)
 	var pause_rect: Rect2 = d.pause
 	g.home_menu.slab(g, pause_rect, Color("493053"), Color("bd915b"), 12, 4)
 	glyph(g, "pause", pause_rect.get_center(), 40, g.CREAM)
@@ -84,7 +86,7 @@ func hud(g) -> void:
 		g.home_menu.label(g, "SUPER FLY" if g.runner.perk_kind == 3 else "MASCARADO", effect.position + Vector2(71, 29), 20, g.MINT, false, effect.size.x - 84)
 		var power_note = "ESCUDO " + str(g.runner.shields) if g.runner.shields > 0 else "PODER ATIVO"
 		if g.runner.perk_kind == 2:
-			# Effective flipping power, without changing the living horde count.
+
 			power_note = "FORÇA %d  (%d × %d)" % [g.runner.active_count() * g.runner.member_force(), g.runner.active_count(), g.runner.member_force()]
 		g.home_menu.label(g, power_note, effect.position + Vector2(72, 53), 17, g.CREAM, false, effect.size.x - 84)
 
@@ -116,14 +118,14 @@ func pause_layout(view: Rect2) -> Dictionary:
 	var size = Vector2(clampf(view.size.x * 0.86, 1120, 1480), clampf(view.size.y * 0.81, 568, 700))
 	var frame = Rect2(view.get_center() - size * 0.5, size)
 	var body = Rect2(frame.position + Vector2(28, 128), frame.size - Vector2(56, 156))
-	var right_width = clampf(body.size.x * 0.30, 302, 405)
+	var right_width = clampf(body.size.x * 0.3, 302, 405)
 	var gap = 14.0
 	var row_height = (body.size.y - gap * 2) / 3.0
 	var rows: Array[Rect2] = []
 	for i in range(3): rows.append(Rect2(body.position + Vector2(0, i * (row_height + gap)), Vector2(body.size.x - right_width - 24, row_height)))
 	var x = body.end.x - right_width
 	var first = clampf(row_height * 0.82, 92, 112)
-	var other = clampf(row_height * 0.70, 78, 94)
+	var other = clampf(row_height * 0.7, 78, 94)
 	var small = 62.0
 	var space = (body.size.y - first - other * 2 - small) / 3.0
 	var resume = Rect2(x, body.position.y, right_width, first)
@@ -132,7 +134,7 @@ func pause_layout(view: Rect2) -> Dictionary:
 	var settings = Rect2(x, body.end.y - small, right_width, small)
 	return {"frame": frame, "rows": rows, "resume": resume, "retry": retry, "home": home, "settings": settings}
 
-func action_button(g, rect: Rect2, label: String, action: String, kind: String, primary: bool = false) -> void:
+func action_button(g, rect: Rect2, label: String, action: String, kind: String, primary: bool = false) -> void :
 	var face = rect
 	if g.pressed_button == action: face.position.y += 3
 	if primary: g.draw_texture_rect(g.home_menu.play_texture, face, false)
@@ -144,13 +146,13 @@ func action_button(g, rect: Rect2, label: String, action: String, kind: String, 
 	g.home_menu.label(g, label, face.get_center() + Vector2(16, text_size * 0.35), text_size, g.CREAM, true, face.size.x - 93)
 	g.home_menu.register(g, rect, action)
 
-func running_icon(g, point: Vector2, height: float) -> void:
+func running_icon(g, point: Vector2, height: float) -> void :
 	for i in range(3):
-		var at = point + Vector2(-height * 0.42, -height * (0.27 - i * 0.22))
-		g.draw_line(at - Vector2(height * (0.20 + i * 0.05), 0), at, g.GOLD * Color(1, 1, 1, 0.8), 3, true)
-	g.actor.paint(g, 0, point + Vector2(5, height * 0.50), height, g.ui_time * 0.85, "run", g.ui_time, 0, Color.WHITE, false, 0, false)
+		var at = point + Vector2( - height * 0.42, - height * (0.27 - i * 0.22))
+		g.draw_line(at - Vector2(height * (0.2 + i * 0.05), 0), at, g.GOLD * Color(1, 1, 1, 0.8), 3, true)
+	g.actor.paint(g, 0, point + Vector2(5, height * 0.5), height, g.ui_time * 0.85, "run", g.ui_time, 0, Color.WHITE, false, 0, false)
 
-func pause(g) -> void:
+func pause(g) -> void :
 	g.draw_rect(g.full_rect(), Color(0.025, 0.012, 0.055, 0.64))
 	var d = pause_layout(g.full_rect())
 	var frame: Rect2 = d.frame
@@ -194,7 +196,7 @@ func pause(g) -> void:
 	action_button(g, d.home, "MENU", "home", "home")
 	action_button(g, d.settings, "CONFIGURAÇÕES", "settings", "settings")
 
-func ground(g, offset: float) -> void:
+func ground(g, offset: float) -> void :
 	var left: float = g.scenery.view_left
 	var right: float = g.scenery.view_right
 	var height = 192.0
@@ -222,10 +224,31 @@ func ground(g, offset: float) -> void:
 				if edge < left or edge > right: continue
 				HordeTerrainArt.elevation(g, edge, floor_y, float(segment.height), i == 1)
 
-func dialogue(g) -> void:
+func dialogue(g) -> void :
 	var rect = Rect2(405, g.full_rect().position.y + 107, 711, 74)
 	g.home_menu.slab(g, rect, Color("241a32"), Color("b99362"), 12, 2)
 	var rig = clampi(int(g.runner.speech_npc), 0, g.art.rigs.size() - 1)
-	var portrait = g.art.civil.portrait if rig == 4 else g.art.rigs[rig][0]
-	g.paint_target.draw_texture_rect(portrait, Rect2(rect.position + Vector2(8, 8), Vector2(62, 56)), false)
+	var destination: = Rect2(rect.position + Vector2(8, 8), Vector2(62, 56))
+	var speech_age: float = maxf(0.0, HordeBalance.SPEECH_DURATION - g.runner.speech_left)
+	if rig == 5:
+		g.paint_target.draw_texture_rect(preload("res://assets/art/soldier_v100/portrait.png"), destination, false)
+	elif rig == 4 and g.art.civil.frames.has("susto_inicio_fuga"):
+
+		var clip: = "susto_inicio_fuga" if speech_age < 1.0 else "parado_nervoso"
+		var age: float = speech_age if speech_age < 1.0 else speech_age - 1.0
+		var frame: int = HordeCivilSprite.sample(clip, age)
+		var tile: AtlasTexture = g.art.civil.frames[clip][frame]
+		var crop: = Rect2(tile.region.position + Vector2(180, 38), Vector2(340, 292))
+		g.paint_target.draw_texture_rect_region(tile.atlas, destination, crop)
+	elif rig == 6 and g.art.woman.atlases.has("startle"):
+
+		var clip: = "startle" if speech_age < 1.0 else "idle"
+		var age: float = speech_age if speech_age < 1.0 else speech_age - 1.0
+		var frame: int = HordeCivilWomanSprite.sample(clip, age)
+		var source: Texture2D = g.art.woman.atlases[clip]
+		var crop: = Rect2(Vector2(float(frame % 6) * 256.0 + 50.0, float(int(frame / 6)) * 256.0 + 12.0), Vector2(156, 156))
+		g.paint_target.draw_texture_rect_region(source, destination, crop)
+	else:
+		var portrait = g.art.civil.portrait if rig == 4 else g.art.rigs[rig][0]
+		g.paint_target.draw_texture_rect(portrait, destination, false)
 	g.wrapped(g.runner.speech_text, rect.position + Vector2(84, 30), 605, 21, g.CREAM, 2)

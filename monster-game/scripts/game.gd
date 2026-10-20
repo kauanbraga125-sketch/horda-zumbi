@@ -9,18 +9,30 @@ const CORAL = Color("ee917e")
 const CAMERA_BASE_ZOOM = 1.32 / 0.95
 const CAMERA_TRANSFORM_ZOOM = 1.42 / 0.95
 const CAMERA_ANCHOR = Vector2(360, 610)
-const CAMERA_MIN_ZOOM = 0.90 / 0.95
+const CAMERA_MIN_ZOOM = 0.9 / 0.95
 
+
+const MOTORCYCLE_RIDER_SEAT_OFFSET = Vector2(9.0, -18.0)
+
+var hub = HordeHub.new()
+var codex = HordeCodex.new()
+var selection: Array = []
+var revive_used = false
+var revive_offered = false
 var art = HordeArt.new()
 var actor = HordeActor.new(art)
 var scenery = HordeScene.new(art, actor)
 var effects = HordeEffects.new()
+var passenger_captures = HordeVehicleCaptures.new()
+var panel_styles: Dictionary = {}
+var market_layout_size = Vector2(-1, -1)
 var last_stats: Dictionary = {}
 var trail_tick = 0.0
 var voice_tick = 0.0
 var reward_rng = RandomNumberGenerator.new()
 var run_settled = false
 var run_report: Dictionary = {}
+var run_mission_report: Dictionary = {"points":0,"coins":0,"bonuses":0,"eyes":0}
 var result_time = 0.0
 var result_level = 1
 var ritual_view: Dictionary = {}
@@ -36,6 +48,7 @@ var ui_time = 0.0
 var buttons: Array[Dictionary] = []
 var jump_held = false
 var jump_touches: Dictionary = {}
+var fly_panic_until: float = -1.0
 var toast = ""
 var toast_left = 0.0
 var shake = 0.0
@@ -68,6 +81,7 @@ var market_clip: Control
 var market_canvas: Node2D
 var views = HordeViews.new()
 var gameplay_ui = HordeGameplayUI.new()
+var analytics = HordeAnalytics.new()
 var pages = HordePages.new()
 var credits_from = "help"
 var result_full_flash = 0.0
@@ -83,6 +97,10 @@ var sprite_state = 0
 var sprite_npcs = false
 var sprite_clock = 0.0
 var sprite_paused = false
+var sprite_preview_from_state: String = ""
+var sprite_preview_from_clock: float = 0.0
+
+var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
 var lab_active = false
 var lab_count = 36
@@ -131,13 +149,15 @@ func _process(dt: float) -> void :
 	if screen == "sprite_lab" and not sprite_paused: sprite_clock += dt
 	if screen == "run" and not capture_freeze:
 		update_camera(dt)
-	home_menu.set_visible(screen == "home" or (screen == "collection" and views.selected == 0))
+	home_menu.set_visible(screen == "home")
 	configure_layout()
 	world_canvas.queue_redraw();foreground_canvas.queue_redraw()
 	if capture_freeze:
 		queue_redraw()
 		return
 	if not capture_freeze: ui_time += dt
+	codex.update(self,dt)
+	hub.update(self, dt)
 	market.update(dt)
 	market_clip.visible = screen == "market"
 	if screen == "market": market_canvas.queue_redraw()
@@ -150,7 +170,7 @@ func _process(dt: float) -> void :
 	coin_pulse = maxf(0, coin_pulse - dt * 4)
 	position = layout_origin + (Vector2(sin(ui_time * 83), cos(ui_time * 71)) * shake * 0.45 if screen == "run" else Vector2.ZERO)
 	if screen == "run" and not capture_freeze: update_run_visuals(dt)
-	if screen in ["home", "results"]: update_rewards(dt)
+	if screen == "home": update_rewards(dt)
 	if end_delay >= 0:
 		end_delay -= dt
 		if end_delay < 0: change_screen("developer" if lab_active else "results")
@@ -159,6 +179,7 @@ func _process(dt: float) -> void :
 func _physics_process(dt: float) -> void :
 	if screen != "run" or capture_freeze: return
 	runner.advance(dt, jump_held)
+	if not lab_active: analytics.sample(runner)
 	consume_run_events()
 	check_challenges()
 	last_save += dt
@@ -167,16 +188,17 @@ func _physics_process(dt: float) -> void :
 		save_game()
 
 func change_screen(next: String) -> void :
+	if next in ["home", "results", "developer"]: passenger_captures.clear()
 	market_touch = -999
 	market_touch_action = ""
 	if next in ["pause", "results"] and screen == "run": frozen_world_time = ui_time
-	if next == "home": begin_ritual()
+	if next in ["home", "missions", "results"]: begin_ritual()
 	if next == "results":
 		result_time = 0;result_full_flash = 0;result_level = int(run_report.get("old_level", data.player_level))
 		sound.set_jar(runner.souls > 0)
 	else: sound.set_jar(false)
 	screen = next
-	home_menu.set_visible(next == "home" or (next == "collection" and views.selected == 0))
+	home_menu.set_visible(next == "home")
 	market_clip.visible = next == "market"
 	buttons.clear()
 	pressed_button = ""
@@ -190,10 +212,18 @@ func change_screen(next: String) -> void :
 	queue_redraw()
 
 func start_run() -> void :
+	passenger_captures.clear()
+	fly_visual_states.clear()
+	fly_panic_until = -1.0
 	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0
+	revive_used = false;revive_offered = false
 	run_settled = false;run_report = {};data.active_souls = 0
+	run_mission_report = {"points":0,"coins":0,"bonuses":0,"eyes":0}
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
+	runner.configure_items(HordeMeta.commit_inventory(data, selection), reward_rng.randf() < HordeMeta.EYE_RUN_CHANCE)
+	selection.clear()
 	runner.tutorial_enabled = not bool(data.tutorial_complete) and int(data.runs) == 0
+	if not lab_active and not test_mode and not capture_mode: analytics.begin_run(runner, data.levels)
 	data.tutorial_complete = true
 	save_game()
 	effects.clear();ui_effects.clear()
@@ -207,10 +237,18 @@ func start_run() -> void :
 	change_screen("run")
 
 func consume_run_events() -> void :
+	var save_after_events = false
+	var soul_sound_played = false
 	for e in runner.drain_events():
+		if not lab_active and not test_mode and not capture_mode: analytics.record_event(runner, e)
 		var point = Vector2(float(e.get("x", HordeRun.ANCHOR)), float(e.get("y", HordeRun.FLOOR)))
 		match e.type:
+			"eye":
+				if not lab_active: data.eyes = mini(9999999, int(data.eyes) + 1);save_after_events = true
+				sound.play("soul_capture", -12);effects.spark(point, Color("dba4ff"), 12)
 			"coin":
+				if runner.run_items.has("double_coins"):
+					runner.coins += int(e.amount);e.amount = int(e.amount) * 2
 				if not lab_active: data.wallet += int(e.amount)
 				coin_pulse = 1
 				sound.play("coin")
@@ -224,10 +262,13 @@ func consume_run_events() -> void :
 			"capture":
 				sound.play_monster(int(e.kind));effects.capture(point, int(e.kind))
 			"soul":
-				sound.play("soul_capture", -13);sound.play("recruit", -20);effects.ring(point, MINT)
+				if not soul_sound_played:
+					sound.play("soul_capture", -13);sound.play("recruit", -20)
+					soul_sound_played = true
+				if not e.get("from_vehicle", false): effects.ring(point, MINT)
 				ui_effects.soul(world_to_ui(point), gameplay_ui.counter_target(self, 2))
 				if not lab_active: data.active_souls = runner.souls
-				save_game()
+				save_after_events = true
 			"contact": sound.play("metal_push", -19);effects.dust(point, 4, 0.7)
 			"glass": sound.play("glass_break", -17);effects.spark(point, MINT, 9)
 			"surge_warning":
@@ -279,6 +320,7 @@ func consume_run_events() -> void :
 				sound.play("guard")
 				effects.spark(point, Color("8de5f0"), 20);effects.ring(point, Color("8de5f0"))
 			"smash":
+				passenger_captures.add(e)
 				sound.play("smash_" + str(e.get("object", "")) if MonsterCatalog.VEHICLES.has(str(e.get("object", ""))) else "smash", -12);shake = 6
 				var object_kind = str(e.get("object", "crate"))
 				effects.smash(point, object_kind, float(e.get("tilt", 0)), e)
@@ -286,10 +328,13 @@ func consume_run_events() -> void :
 					var rescued_count = int(e.get("rescued_count", MonsterCatalog.VEHICLES[object_kind].rescues))
 					show_toast("VEÍCULO VIRADO!" + (" +" + str(rescued_count) + " ALMAS CONVERTIDAS" if rescued_count > 0 else ""), 1.7)
 			"hit":
+				if int(e.kind) == 3 and str(e.get("cause", "")) not in ["fall", "camera"]:
+					fly_panic_until = runner.elapsed + HordeFlyApprovedSprite.DAMAGE_SECONDS
 				sound.play("pit_fall" if str(e.get("cause", "")) == "fall" else "member_lost", -15)
 				if str(e.get("cause", "")) not in ["fall", "camera"]: sound.play("hit", -17)
-				shake = 5
-				effects.death(int(e.kind), point)
+				shake = 2.5 if int(e.kind) == 3 else 5.0
+				var death_point: Vector2 = Vector2(float(e.get("foot_x", point.x)), float(e.get("foot_y", point.y))) if int(e.kind) == 3 else point
+				effects.death(int(e.kind), death_point)
 			"shot": sound.play("gunshot", -17)
 			"explosion": sound.play("explosion", -14);effects.explosion(point);shake = 8
 			"tunnel": sound.play("tunnel", -18)
@@ -308,16 +353,22 @@ func consume_run_events() -> void :
 				quake_left = 0.0
 				shake = maxf(shake, 4.0)
 			"finish": finish_run()
+	if save_after_events: save_game()
 
 func finish_run() -> void :
 	if lab_active:
 		if end_delay < 0: end_delay = 1.0;sound.play("finish")
 		return
-	if run_settled or end_delay >= 0 or screen not in ["run", "pause"]: return
+	if run_settled or end_delay >= 0 or screen not in ["run", "pause", "revive"]: return
+	if not revive_used and not revive_offered and runner.dead and screen == "run" and analytics.end_override != "abandoned":
+		revive_offered = true;jump_held = false;frozen_world_time = ui_time;change_screen("revive");return
+	if not test_mode and not capture_mode: analytics.end_run(runner)
 	data.best = maxi(int(data.best), runner.distance())
 	data.runs += 1
+	hub.settle_stats(self)
 	run_settled = true
 	run_report = HordeProgress.settle(data, runner.souls, reward_rng)
+	begin_ritual()
 	end_delay = 1.0
 	jump_held = false
 	sound.play("finish")
@@ -339,10 +390,11 @@ func check_challenges() -> void :
 		if progress >= int(challenge.target):
 			data.claimed.append(challenge.key)
 			HordeProgress.queue_mission(data, challenge)
+			begin_ritual()
 			data.missions_completed += 1
 			run_challenges.append(challenge.title)
 			sound.play("challenge")
-			show_toast("MISSÃO CONCLUÍDA  +" + str(challenge.ritual) + " PARA O RITUAL", 2.5)
+			show_toast("MISSÃO CONCLUÍDA  +" + str(ritual_view.get("points", challenge.ritual)) + " ESSÊNCIA", 2.5)
 			save_game()
 		else: all_complete = false
 	last_stats = values.duplicate()
@@ -369,18 +421,34 @@ func buy_upgrade(index: int) -> bool:
 	return true
 
 func open_market(tab: int = 0) -> void :
-	previous_page = "results" if screen == "results" else ("collection" if screen == "collection" else "home")
+	previous_page = "results" if screen == "results" else ("collection" if screen == "collection" else ("prepare" if screen == "prepare" else "home"))
 	market.open(tab);change_screen("market")
 
 func perform_action(action: String) -> void :
+	if codex.action(self,action): return
+	if hub.action(self, action): return
 	if action.begins_with("lab_kind_"):
 		var kind = action.trim_prefix("lab_kind_")
 		if kind in ["sprites", "npcs"]:
-			sprite_npcs = kind == "npcs";sprite_clock = 0;sprite_subject = 0;sprite_state = 0;change_screen("sprite_lab")
+			sprite_npcs = kind == "npcs";sprite_clock = 0;sprite_subject = 0;sprite_state = 0
+			sprite_preview_from_state = ""
+			change_screen("sprite_lab")
 		else: start_lab(kind)
 		return
-	if action == "sprite_subject": sprite_subject = (sprite_subject + 1) % (5 if sprite_npcs else 4);sprite_clock = 0;return
-	if action == "sprite_state": sprite_state = (sprite_state + 1) % 7;sprite_clock = 0;return
+	if action == "sprite_subject":
+		sprite_subject = (sprite_subject + 1) % (5 if sprite_npcs else 4)
+		sprite_preview_from_state = ""
+		sprite_state = 0
+		sprite_clock = 0.0
+		sprite_paused = false
+		return
+	if action == "sprite_state":
+		sprite_preview_from_state = str(sprite_lab_labels()[sprite_state]) if not sprite_npcs and sprite_subject == 3 else ""
+		sprite_preview_from_clock = sprite_clock
+		sprite_state = (sprite_state + 1) % sprite_lab_labels().size()
+		sprite_clock = 0.0
+		sprite_paused = false
+		return
 	if action == "sprite_pause": sprite_paused = not sprite_paused;return
 	if action == "back" and screen == "sprite_lab": change_screen("developer");return
 	if action == "lab_delay":
@@ -411,7 +479,7 @@ func perform_action(action: String) -> void :
 		var package: Variant = JSON.parse_string(DisplayServer.clipboard_get())
 		if package is Dictionary and str(package.get("signature", "")) == "HORDA-BACKUP-1" and package.get("data", null) is Dictionary:
 			var candidate: Dictionary = package.data
-			if int(candidate.get("version", -1)) in [1, 2, 3, 4, 5, 6] and candidate.has("wallet") and candidate.has("levels") and candidate.has("runs") and candidate.has("owned"):
+			if int(candidate.get("version", -1)) in [1, 2, 3, 4, 5, 6, 7] and candidate.has("wallet") and candidate.has("levels") and candidate.has("runs") and candidate.has("owned"):
 				backup_preview = candidate
 				show_toast("BACKUP LIDO. CONFIRME PARA RESTAURAR.", 2.5)
 				return
@@ -448,14 +516,14 @@ func perform_action(action: String) -> void :
 	if action.begins_with("skin_"): buy_skin(int(action.trim_prefix("skin_")));return
 	if action.begins_with("power_buy_"): buy_power(int(action.trim_prefix("power_buy_")));return
 	if action.begins_with("power_upgrade_"): buy_power_upgrade(int(action.trim_prefix("power_upgrade_")));return
-	if action.begins_with("power_tab_"): selected_power = int(action.trim_prefix("power_tab_"));open_market(2);return
+	if action.begins_with("power_tab_"): selected_power = int(action.trim_prefix("power_tab_"));open_market(1);return
 	if action.begins_with("area_"): buy_area(int(action.trim_prefix("area_")));return
 	match action:
-		"play": start_run()
+		"play": selection.clear();change_screen("prepare")
 		"market", "shop": open_market(0)
 		"monsters", "market_monsters": open_market(1)
-		"powers": open_market(2)
-		"worlds": open_market(3)
+		"powers": open_market(1)
+		"worlds": open_market(2)
 		"collection": change_screen("collection")
 		"missions": change_screen("missions")
 		"help": change_screen("help")
@@ -464,13 +532,25 @@ func perform_action(action: String) -> void :
 		"settings":
 			settings_from = "pause" if screen in ["run", "pause"] else screen
 			change_screen("settings")
+		"analytics_open": change_screen("analytics")
+		"analytics_back": change_screen("settings")
+		"analytics_copy_last":
+			DisplayServer.clipboard_set(analytics.export_report(1))
+			show_toast("RELATÓRIO DA ÚLTIMA PARTIDA COPIADO!", 3.0)
+		"analytics_copy_20":
+			DisplayServer.clipboard_set(analytics.export_report(20))
+			show_toast("ATÉ 20 PARTIDAS COPIADAS!", 3.0)
 		"retry":
-			if screen in ["run", "pause"] and not runner.dead: runner.finish();consume_run_events()
-			end_delay = -1;start_run()
+			if screen in ["run", "pause"] and not runner.dead:
+				analytics.end_override = "abandoned"
+				runner.finish();consume_run_events()
+			end_delay = -1;selection.clear();change_screen("prepare")
 		"home":
-			if screen in ["run", "pause"] and not runner.dead: runner.finish();consume_run_events();end_delay = -1
+			if screen in ["run", "pause"] and not runner.dead:
+				analytics.end_override = "abandoned"
+				runner.finish();consume_run_events();end_delay = -1
 			change_screen("home")
-		"back": change_screen("settings" if screen == "backup" else (settings_from if screen == "settings" else (credits_from if screen == "credits" else (previous_page if screen == "market" else "home"))))
+		"back": change_screen("settings" if screen in ["backup", "analytics"] else (settings_from if screen == "settings" else (credits_from if screen == "credits" else (previous_page if screen == "market" else "home"))))
 		"pause": if screen == "run": change_screen("pause")
 		"resume": if screen == "pause": change_screen("run")
 		"audio":
@@ -501,47 +581,49 @@ func release_touch(id: int) -> void :
 	if not jump_held: runner.release_jump()
 	pressed_button = ""
 
-func begin_market_touch(point: Vector2, id: int) -> void:
+func begin_market_touch(point: Vector2, id: int) -> void :
 	if market_touch != -999: return
 	market_touch = id
 	market_touch_start = point
 	market_touch_last = point
 	market_touch_moved = false
-	market_touch_action = market.action_at(self,point)
+	market_touch_action = market.action_at(self, point)
 	pressed_button = market_touch_action
 
-func move_market_touch(point: Vector2,id: int) -> void:
+func move_market_touch(point: Vector2, id: int) -> void :
 	if id != market_touch: return
-	if point.distance_to(market_touch_start)>12: market_touch_moved = true
+	if point.distance_to(market_touch_start) > 12: market_touch_moved = true
 	if market_touch_moved:
 		pressed_button = ""
 		if market.layout(full_rect()).grid.has_point(market_touch_start):
-			market.scroll_by(market_touch_last.y-point.y)
+			market.scroll_by(market_touch_last.y - point.y)
 	market_touch_last = point
 
-func end_market_touch(point: Vector2,id: int) -> void:
+func end_market_touch(point: Vector2, id: int) -> void :
 	if id != market_touch: return
 	var action = market_touch_action
-	var activate = not market_touch_moved and not action.is_empty() and market.action_at(self,point)==action
+	var activate = not market_touch_moved and not action.is_empty() and market.action_at(self, point) == action
 	market_touch = -999
 	market_touch_action = ""
-	if activate: press_at(point,id)
+	if activate: press_at(point, id)
 	release_touch(id)
 
 func _input(event: InputEvent) -> void :
+	if codex.input(self,event): return
+	if hub.input(self, event): return
 	if screen == "market":
 		if event is InputEventScreenDrag:
-			move_market_touch(to_local(event.position),event.index);return
+			move_market_touch(to_local(event.position), event.index);return
 		if event is InputEventScreenTouch:
-			if event.pressed: begin_market_touch(to_local(event.position),event.index)
-			else: end_market_touch(to_local(event.position),event.index)
+			if event.pressed: begin_market_touch(to_local(event.position), event.index)
+			else: end_market_touch(to_local(event.position), event.index)
 			return
-		if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT:
-			if event.pressed: begin_market_touch(to_local(event.position),-1)
-			else: end_market_touch(to_local(event.position),-1)
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed: begin_market_touch(to_local(event.position), -1)
+			else: end_market_touch(to_local(event.position), -1)
 			return
-		if event is InputEventMouseMotion and market_touch==-1:
-			move_market_touch(to_local(event.position),-1);return
+		if event is InputEventMouseMotion and market_touch == -1:
+			move_market_touch(to_local(event.position), -1);return
 	if event is InputEventScreenDrag and screen == "settings" and not slider_channel.is_empty(): update_slider(to_local(event.position));return
 	if event is InputEventMouseMotion and screen == "settings" and not slider_channel.is_empty(): update_slider(to_local(event.position));return
 	if event is InputEventMouseButton and screen == "market" and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
@@ -586,6 +668,12 @@ func wrapped(value: String, pos: Vector2, width: float, size: int = 19, color: C
 	if not line.is_empty(): text(line, pos + Vector2(0, row * (size + 9)), size, color)
 
 func panel(rect: Rect2, color: Color, border: Color = Color("70496f"), radius: int = 20, border_size: int = 2, shadow: bool = true) -> void :
+	paint_target.draw_style_box(panel_style(color, border, radius, border_size, shadow), rect)
+
+func panel_style(color: Color, border: Color, radius: int, border_size: int, shadow: bool) -> StyleBoxFlat:
+	var key = [color, border, radius, border_size, shadow]
+	if panel_styles.has(key): return panel_styles[key]
+	if panel_styles.size() >= 256: panel_styles.clear()
 	var box = StyleBoxFlat.new()
 	box.bg_color = color
 	box.border_color = border
@@ -594,7 +682,8 @@ func panel(rect: Rect2, color: Color, border: Color = Color("70496f"), radius: i
 	if shadow:
 		box.shadow_color = Color(0.04, 0.02, 0.09, 0.55)
 		box.shadow_size = 4;box.shadow_offset = Vector2(0, 6)
-	paint_target.draw_style_box(box, rect)
+	panel_styles[key] = box
+	return box
 
 func button(rect: Rect2, label: String, action: String, color: Color = Color("825aab"), icon: int = -2, size: int = 25) -> void :
 	var pressed = pressed_button == action
@@ -633,12 +722,12 @@ func backdrop() -> void :
 		home_menu.backdrop(self, full_rect())
 	else:
 		paint_target.draw_texture_rect(art.background, full_rect().grow(12), false)
-	for i in range(18):
+	for i in range(8 if screen == "home" else 18):
 		var x = fposmod(i * 83.0 + ui_time * (7 + i * 0.35) - runner.world_px * 0.1, 1340) - 30
 		var y = 405 + sin(ui_time * 0.5 + i * 2.2) * 115
 		paint_target.draw_circle(Vector2(x, y), 3.5, Color(0.75, 1, 0.85, 0.035))
 		paint_target.draw_circle(Vector2(x, y), 1.3, Color(0.75, 1, 0.85, 0.2 + sin(ui_time * 2 + i) * 0.1))
-	for i in range(3):
+	for i in range(0 if screen == "home" else 3):
 		var pos = Vector2(fposmod(ui_time * (25 + i * 6) + i * 440, 1460) - 90, 220 + sin(ui_time * 1.1 + i) * 35)
 		var flap = sin(ui_time * 13 + i) * 7
 		paint_target.draw_colored_polygon(PackedVector2Array([pos + Vector2(-13, flap), pos + Vector2(-6, -3), pos, pos + Vector2(6, -3), pos + Vector2(13, flap), pos + Vector2(5, 4), pos + Vector2(-5, 4)]), Color(0.11, 0.07, 0.2, 0.55))
@@ -648,13 +737,14 @@ func ground(offset: float = 0) -> void :
 
 func _draw() -> void :
 	paint_target = self;buttons.clear()
-	if screen not in ["run", "pause", "results"]:
-		backdrop();paint_target.draw_rect(full_rect(), Color(0.035, 0.012, 0.065, 0.045 if screen == "home" else (0.10 if screen == "market" else 0.18)))
+	if screen not in ["run", "pause", "results", "revive"]:
+		backdrop();paint_target.draw_rect(full_rect(), Color(0.035, 0.012, 0.065, 0.045 if screen == "home" else (0.1 if screen == "market" else 0.18)))
 	match screen:
 		"home": draw_home()
 		"market": market.paint(self)
 		"collection": draw_collection()
 		"settings": draw_settings()
+		"analytics": analytics.paint(self)
 		"backup": draw_backup()
 		"developer": draw_developer()
 		"sprite_lab": draw_sprite_lab()
@@ -662,14 +752,20 @@ func _draw() -> void :
 		"powers": draw_powers()
 		"monsters": draw_monsters()
 		"worlds": draw_worlds()
-		"missions": draw_missions()
+		"missions": hub.missions(self)
 		"help": draw_help()
 		"credits": draw_credits()
 		"run":
 			draw_run_hud()
 			if runner.transform_left > 0: draw_transformation_title()
 		"pause": draw_pause()
-		"results": draw_results()
+		"results": hub.results(self)
+		"prepare": hub.prepare(self)
+		"revive": hub.revive(self)
+		"graves": hub.graves(self)
+		"book": hub.book(self)
+		"profile": hub.profile(self)
+		"evolution": hub.evolution(self)
 	if flash > 0: paint_target.draw_rect(full_rect(), Color(0.62, 1, 0.83, flash * 0.25))
 	ui_effects.paint(paint_target, art, actor)
 	if toast_left > 0 and runner.transform_left <= 0:
@@ -679,6 +775,7 @@ func _draw() -> void :
 
 func draw_home() -> void :
 	home_menu.paint(self)
+	hub.home(self)
 
 func draw_shop() -> void :
 	text("MELHORIAS DA HORDA", Vector2(67, 99), 39, GOLD, true, false, 5);currency()
@@ -712,17 +809,18 @@ func draw_monsters() -> void :
 	button(Rect2(68, 647, 240, 59), "VOLTAR", "back", Color("513c67"), -2, 22)
 	button(Rect2(939, 647, 270, 59), "POWER-UPS", "powers", Color("487385"), -2, 22)
 
-func draw_help() -> void:
+func draw_help() -> void :
 	pages.help(self)
 
 func draw_run() -> void :
+	var captured_by_id: Dictionary = {}
 	ground(runner.world_px)
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
 	effects.draw_trails(paint_target, actor, runner.elapsed)
 
 	for e in runner.entities:
-		if e.kind not in ["gap", "collapse"] or e.x + e.width < scenery.view_left or e.x > scenery.view_right: continue
+		if e.taken or e.kind not in ["gap", "collapse"] or e.x + e.width < scenery.view_left or e.x > scenery.view_right: continue
 		var floor_y = float(e.y)
 		if e.kind == "collapse" and not e.get("collapsed", false):
 			HordeTerrainArt.collapse(self, e);continue
@@ -733,7 +831,11 @@ func draw_run() -> void :
 		if e.kind == "gap" and runner.tutorial_hints() and e.x > HordeRun.ANCHOR: text("SEGURE!" if e.get("long_jump", false) else "PULO!", Vector2(e.x + e.width * 0.5, floor_y - 28), 16, CORAL, true, true, 3)
 	for e in runner.entities:
 		if e.taken or e.x + float(e.width) * 0.5 < scenery.view_left - 100 or e.x - float(e.width) * 0.5 > scenery.view_right + 100: continue
-		if e.kind in ["civilian", "soldier", "police"] and e.state == "capture": continue
+		if e.kind in ["civilian", "soldier", "police"] and e.state == "capture":
+			var id = int(e.capturer)
+			if not captured_by_id.has(id): captured_by_id[id] = []
+			captured_by_id[id].append(e)
+			continue
 		var bob = sin(ui_time * 4 + e.bob) * 5
 		if MonsterCatalog.VEHICLES.has(e.kind):
 			draw_vehicle(e)
@@ -764,36 +866,30 @@ func draw_run() -> void :
 				scenery.sprite(paint_target, art.ritual[3] if aerial else art.props[0], point, 85.8 if aerial else HordeTuning.BOMB_HEIGHT, Color.WHITE, sin(ui_time * 7 + e.bob) * 0.07)
 				draw_fuse(point + Vector2(9, -34 if aerial else -32), ui_time + e.bob)
 				if runner.tutorial_hints() and aerial and e.get("cluster_first", true): text("PULE" if e.y > HordeRun.FLOOR - 130 else "POR BAIXO", point + Vector2(0, -52), 15, CORAL, true, true, 2)
-			"soldier":
-				if e.state == "capture": draw_civilian(e)
-				else:
-					actor.paint(paint_target, 5, Vector2(e.x, e.y), 108, 0, "aim", ui_time, 0, Color.WHITE, true)
-					var muzzle = Vector2(e.x - 54, e.y - 64)
-					if e.flash > 0: scenery.sprite(paint_target, art.props[5], muzzle, 28)
-					if e.speech_left > 0: draw_speech(e, e.y - 128)
-					if e.x > HordeRun.ANCHOR + 230:
-						if runner.tutorial_hints() and e.timer < 0.65 and e.speech_left <= 0: text("TIRO!", Vector2(e.x, e.y - 130), 15, CORAL, true, true, 2)
-						if e.timer < 0.65:
-							var beam_color := Color("cb94fa") if str(e.get("shot_mode", "")) == "tracking" else (Color("7cddf4") if str(e.get("shot_mode", "")) == "high" else Color("ffaf62"))
-							paint_target.draw_line(muzzle, muzzle + Vector2(-120, float(e.get("aim_dy", 0))), Color(beam_color.r, beam_color.g, beam_color.b, 0.47), 3, true)
-			"bullet":
-				var projectile_color := Color("cb94fa") if str(e.get("shot_mode", "")) == "tracking" else (Color("7cddf4") if str(e.get("shot_mode", "")) == "high" else GOLD)
-				paint_target.draw_line(Vector2(e.x + 31, e.y), Vector2(e.x, e.y), Color(projectile_color.r, projectile_color.g, projectile_color.b, 0.55), 4, true)
-				paint_target.draw_circle(Vector2(e.x, e.y), 4, projectile_color)
+			"soldier": runner.soldier.paint(paint_target, e)
+			"bullet", "soldier_blast": runner.soldier.paint_projectile(paint_target, e)
+			"eye": hub.eye(self, Vector2(e.x, e.y + bob), 34)
 			"helicopter":
 				scenery.helicopter(paint_target, Vector2(e.x, e.y), 185, ui_time, sin(ui_time * 2) * 0.06)
 				if runner.tutorial_hints(): text("PULE!" if e.y > HordeRun.FLOOR - 180 else "POR BAIXO", Vector2(e.x, e.y - 125), 16, CORAL, true, true, 2)
 	var visible = HordeCrowdVisibility.visible(runner)
+	passenger_captures.paint(paint_target, art, runner, false)
 	crowd_drawn = visible.size()
+
 	for i in range(runner.members.size() - 1, -1, -1):
 		if not visible.has(i): continue
 		var member = runner.members[i]
+		for captive in captured_by_id.get(int(member.id), []): draw_civilian(captive)
 		var kind = int(member.get("death_kind", member.kind)) if member.falling else (runner.perk_kind if runner.perk_left > 0 else int(member.kind))
+		if not member.falling and member.attack_left > 0.0: kind = int(member.get("attack_kind", kind))
 		var state = animation_state(member)
 		var foot = Vector2(runner.member_x(i), member.y - runner.member_depth(i))
 		if state == "fly": foot.y += sin(runner.elapsed * 7 + i) * 3
 		var height = 112.0 * (1 + sin(member.arrival / 0.35 * PI) * 0.1) * (1.4 if runner.perk_kind == 2 and runner.perk_left > 0 and int(runner.power_levels.get("mask_size", 0)) > 0 else 1)
-		var phase = (0.62 - float(member.attack_left)) / 0.62 if state == "capture" else float(member.run_phase)
+		var attack_duration: float = float(member.get("attack_duration", 0.62))
+		var phase = (attack_duration - float(member.attack_left)) / attack_duration if state == "capture" else float(member.run_phase)
+		if kind == 3 and state == "push": phase = clampf((0.42 - float(member.push_left)) / 0.42, 0.0, 1.0)
+		if kind == 3 and state == "panic": phase = clampf(1.0 - (fly_panic_until - runner.elapsed) / HordeFlyApprovedSprite.DAMAGE_SECONDS, 0.0, 1.0)
 		if not member.falling:
 			var shadow_size = clampf(1 - (runner.ground_y(member.x) - member.y) / 420, 0.25, 1)
 			paint_target.draw_set_transform(Vector2(foot.x, float(member.get("surface_y", runner.ground_y(member.x))) + 4), 0, Vector2(23 * shadow_size, 4 * shadow_size))
@@ -816,14 +912,20 @@ func draw_run() -> void :
 					var angle = a + k * 0.38
 					bolt.append(centre + Vector2(cos(angle), sin(angle)) * (36 + (k % 2) * 15))
 				paint_target.draw_polyline(bolt, Color(0.65, 1, 0.96, sin(progress * PI) * 0.9), 2.4, true)
-		else: actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
-	for e in runner.entities:
-		if not e.taken and e.kind in ["civilian", "soldier", "police"] and e.state == "capture": draw_civilian(e)
+		else:
+			if kind == 3 and actor.fly_approved.has_assets():
+				paint_fly_smooth(member, foot, height, phase, state, blink, i)
+			else:
+				actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
+		if not str(data.equipped_hat).is_empty() and i == runner.leader_index() and kind == 0 and runner.transform_left <= 0:
+			hub.hat(paint_target, foot - Vector2(0, height * 0.9), height * 0.64, str(data.equipped_hat))
+	passenger_captures.paint(paint_target, art, runner, true)
 	effects.paint(paint_target, art, actor)
 	if lab_active and lab_hitboxes: draw_collision_guides()
 
 func draw_run_hud() -> void :
 	gameplay_ui.hud(self)
+	hub.draw_run_notice(self)
 
 func draw_pause() -> void :
 	views.pause(self)
@@ -832,16 +934,16 @@ func draw_results() -> void :
 	views.results(self)
 
 func saved_ids(value) -> Array[int]:
-	# JSON decodes numbers as floats; array membership distinguishes 1 from 1.0.
+
 	var ids: Array[int] = []
 	if value is Array:
 		for kind in value:
-			if (kind is int or kind is float) and int(kind)==kind and int(kind) not in ids:
+			if (kind is int or kind is float) and int(kind) == kind and int(kind) not in ids:
 				ids.append(int(kind))
 	return ids
 
 func validate_save(value) -> Dictionary:
-	if not value is Dictionary or int(value.get("version", 0)) not in [1, 2, 3, 4, 5, 6]: return MonsterCatalog.defaults()
+	if not value is Dictionary or int(value.get("version", 0)) not in [1, 2, 3, 4, 5, 6, 7]: return MonsterCatalog.defaults()
 	var result = MonsterCatalog.defaults()
 	result.wallet = clampi(int(value.get("wallet", 120)), 0, 9999999)
 	result.best = clampi(int(value.get("best", 0)), 0, 9999999)
@@ -864,7 +966,7 @@ func validate_save(value) -> Dictionary:
 			var key = str(item.get("key", ""))
 			if key.is_empty() or key.length() > 60 or pending_keys.has(key): continue
 			pending_keys[key] = true
-			result.ritual_pending.append({"key": key, "title": str(item.get("title", "Missão")).left(120), "points": clampi(int(item.get("points", 0)), 1, 40)})
+			result.ritual_pending.append({"key": key, "title": str(item.get("title", "Missão")).left(120), "points": clampi(int(item.get("points", 0)), 1, 9000)})
 	var areas = value.get("areas", [])
 	if areas is Array:
 		for area in areas:
@@ -897,13 +999,14 @@ func validate_save(value) -> Dictionary:
 			if claimed is Array and challenge.key in claimed: result.claimed.append(challenge.key)
 			if progress is Dictionary: result.mission_progress[challenge.id] = clampi(int(progress.get(challenge.id, 0)), 0, int(challenge.target))
 			if challenge.key in result.claimed: result.mission_progress[challenge.id] = int(challenge.target)
+	HordeMeta.migrate(result, value)
 	return result
 
 func read_save(path: String = SAVE_PATH) -> Dictionary:
 	for candidate in [path, path + ".bak"]:
 		if not FileAccess.file_exists(candidate): continue
 		var parsed = JSON.parse_string(FileAccess.get_file_as_string(candidate))
-		if parsed is Dictionary and int(parsed.get("version", 0)) in [1, 2, 3, 4, 5, 6]: return validate_save(parsed)
+		if parsed is Dictionary and int(parsed.get("version", 0)) in [1, 2, 3, 4, 5, 6, 7]: return validate_save(parsed)
 	return MonsterCatalog.defaults()
 
 func save_game(path: String = SAVE_PATH) -> bool:
@@ -919,13 +1022,15 @@ func save_game(path: String = SAVE_PATH) -> bool:
 
 func _notification(what: int) -> void :
 	if what == NOTIFICATION_APPLICATION_PAUSED and is_instance_valid(sound):
+		analytics.flush()
 		if screen == "run": change_screen("pause")
 		save_game()
 	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_instance_valid(sound):
 		if screen == "run": perform_action("pause")
 		elif screen == "pause": perform_action("resume")
 		elif screen != "home": perform_action("back")
-	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_instance_valid(sound): save_game()
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_instance_valid(sound):
+		analytics.flush();save_game()
 
 func run_tests() -> void :
 	var suite = load("res://tests/self_test.gd").new()
@@ -1060,16 +1165,68 @@ func capture_preview() -> void :
 	print("HORDE_CAPTURE_OK: 40 real screens; close camera at 16:9, wide phone and 4:3 tablet, animated HUD/souls, power store/transformations, police, occupied/damaged/burning vehicles, chained terrain, tunnels/results/ritual")
 	get_tree().quit()
 
+
+
+
+func paint_fly_smooth(member: Dictionary, foot: Vector2, height: float, phase: float, state: String, tint: Color, index: int) -> void :
+	var identity: int = int(member.id)
+	var landing: float = float(member.land_left)
+	var clip: String = HordeFlyApprovedSprite.clip_key(state)
+	var old: Dictionary = fly_visual_states.get(identity, {})
+	if str(old.get("clip", "")) != clip:
+		old = {
+			"clip": clip, 
+			"entered": runner.elapsed, 
+			"from_state": str(old.get("state", "")), 
+			"from_phase": float(old.get("phase", phase)), 
+			"from_time": float(old.get("clock", runner.elapsed)), 
+		}
+	var age: float = maxf(0.0, runner.elapsed - float(old.get("entered", runner.elapsed)))
+
+
+	var air_clock: float = runner.elapsed + index * 0.071
+	var clock: float = air_clock if clip in ["voo", "pouso"] else age
+	var previous_state: String = str(old.get("from_state", ""))
+	var from_clip: String = HordeFlyApprovedSprite.clip_key(previous_state)
+	var duration: float = HordeFlyApprovedSprite.transition_duration(from_clip, clip)
+	var blend: float = smoothstep(0.0, duration, age) if duration > 0.0 else 1.0
+	if not previous_state.is_empty() and blend < 1.0:
+		var previous_clock: float = air_clock if from_clip in ["voo", "pouso"] else float(old["from_time"]) + age
+		var previous_phase: float = float(old["from_phase"])
+		if from_clip in ["captura", "dano"]:
+			previous_phase = minf(1.0, previous_phase + age / HordeFlyApprovedSprite.action_seconds(previous_state))
+		var previous_tint: = Color(tint.r, tint.g, tint.b, tint.a * (1.0 - blend))
+		actor.paint(paint_target, 3, foot, height, previous_phase, previous_state, 
+			previous_clock, 0.0, previous_tint)
+	var opacity: float = blend if not previous_state.is_empty() else 1.0
+	var current_tint: = Color(tint.r, tint.g, tint.b, tint.a * opacity)
+	actor.paint(paint_target, 3, foot, height, phase, state, clock, landing, 
+		current_tint, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
+	old["state"] = state
+	old["phase"] = phase
+	old["clock"] = clock
+	if fly_visual_states.size() > 192: fly_visual_states.clear()
+	fly_visual_states[identity] = old
+
 func animation_state(member: Dictionary) -> String:
 	if member.falling: return "fall"
 	if member.attack_left > 0: return "capture"
 	if member.push_left > 0 and member.y >= runner.ground_y(member.x) - 12: return "push"
-	if runner.perk_kind == 3 and runner.perk_left > 0: return "fly"
+
+	if (int(member.get("kind", -1)) == 3 or (runner.perk_kind == 3 and runner.perk_left > 0)) and runner.elapsed < fly_panic_until and runner.transform_left <= 0.0:
+		return "panic"
+	if int(member.get("kind", -1)) == 1 and runner.hit_grace > 0.0 and runner.transform_left <= 0.0: return "panic"
+	if runner.perk_kind == 3 and runner.perk_left > 0:
+
+		if jump_held:
+			return "run" if member.y >= runner.ground_y(member.x) - 9.0 else "fall"
+		return "fly"
 	if member.get("roof_id", -1) >= 0 and absf(float(member.vy)) < 0.1: return "run"
 	if member.y < runner.ground_y(member.x) - 4: return "rise" if member.vy < 0 else "fall"
 	return "run"
 
 func update_run_visuals(dt: float) -> void :
+	passenger_captures.update(dt, runner, effects)
 	effects.update(dt, 0 if runner.dead else runner.speed);ui_effects.update(dt, 0)
 	sound.update_course(runner, screen == "run" and not runner.dead, not effects.wrecks.is_empty())
 	if not runner.dead:
@@ -1097,7 +1254,7 @@ func floating_item(index: int, centre: Vector2, height: float, modulate: Color =
 	var texture = art.items[index]
 	var size = texture.get_size() * (height / texture.get_height())
 	var squash = maxf(0.624, absf(cos(ui_time * 3.8 + centre.x * 0.003))) if index == 1 else 1.0
-	paint_target.draw_set_transform(centre, sin(ui_time * 2.5 + centre.x * 0.003) * (0.035 if lantern else 0.09), Vector2(squash * 1.10 if index == 1 else squash, 1))
+	paint_target.draw_set_transform(centre, sin(ui_time * 2.5 + centre.x * 0.003) * (0.035 if lantern else 0.09), Vector2(squash * 1.1 if index == 1 else squash, 1))
 	paint_target.draw_texture_rect(texture, Rect2( - size * 0.5, size), false, modulate)
 	paint_target.draw_set_transform(Vector2.ZERO)
 
@@ -1167,11 +1324,17 @@ func draw_vehicle(entity: Dictionary) -> void :
 	if entity.kind == "moto" and not entity.passengers.is_empty():
 		var pose = posmod(int(ui_time * 4 + entity.bob), 4)
 		var rider = art.passenger_frames[8 + pose]
-		paint_target.draw_set_transform(point + Vector2(15, -53).rotated(angle) * float(entity.scale), angle)
+
+
+
+
+
+
+		paint_target.draw_set_transform(point + MOTORCYCLE_RIDER_SEAT_OFFSET.rotated(angle) * float(entity.scale), angle)
 		paint_target.draw_texture_rect(rider, Rect2(Vector2(-65, -80) * float(entity.scale), Vector2(130, 130) * float(entity.scale)), false)
 		paint_target.draw_set_transform(Vector2.ZERO)
 	elif entity.kind != "moto":
-		# Clip the head/torso to each native window; doors and waving hands cannot cover the vehicle.
+
 		paint_target.draw_set_transform(point, angle)
 		for i in range(mini(spec.windows.size(), entity.passengers.size())):
 			var row = 1 if int(entity.passengers[i]) == 1 else 0
@@ -1239,8 +1402,30 @@ func draw_fuse(point: Vector2, time: float) -> void :
 		paint_target.draw_circle(point + Vector2(sin(time * 7 + i) * 11 * age, - age * 33), 1.7 * (1 - age), Color(1, 0.81, 0.3, 0.8 * (1 - age)))
 
 func draw_civilian(entity: Dictionary) -> void :
+	if entity.kind == "soldier": runner.soldier.paint(paint_target, entity);return
+	var visual_foot = Vector2(entity.x, entity.y)
+	var angle = 0.0
+	var capture_tint = Color.WHITE
+	if entity.kind in ["civilian", "police"] and entity.state == "capture":
+		var civil_height = HordePoliceSprite.HEIGHT if entity.kind == "police" else float(MonsterCatalog.CIVILIANS[clampi(int(entity.variant), 0, 2)].height)
+		visual_foot += HordeCaptureMotion.offset(entity, civil_height)
+		angle = HordeCaptureMotion.angle(entity)
+		capture_tint = HordeCaptureMotion.tint(entity)
+	if entity.kind == "police" and art.police_sprite.has_assets():
+		art.police_sprite.paint(paint_target, entity, visual_foot, HordePoliceSprite.HEIGHT, capture_tint, angle)
+		if entity.state == "normal" and float(entity.get("speech_left", 0.0)) > 0.0 and float(entity.x) > HordeRun.ANCHOR + 50:
+			draw_speech(entity, float(entity.y) - HordePoliceSprite.HEIGHT - 20.0)
+		return
+	if entity.kind == "civilian" and int(entity.variant) == 2 and art.worker.has_assets():
+		art.worker.paint(paint_target, entity, visual_foot, 110.0, capture_tint, angle)
+		return
+	if entity.kind == "civilian" and int(entity.variant) == 1 and art.woman.has_assets():
+		art.woman.paint(paint_target, entity, visual_foot, 104.0, capture_tint, angle)
+		if entity.state == "normal" and float(entity.get("speech_left", 0.0)) > 0.0 and float(entity.x) > HordeRun.ANCHOR + 50:
+			draw_speech(entity, float(entity.y) - 124.0)
+		return
 	if entity.get("civil_key", "") == "civil_casaco_azul_nerd":
-		art.civil.paint(paint_target, entity, Vector2(entity.x, entity.y), 112.0)
+		art.civil.paint(paint_target, entity, visual_foot, 112.0, capture_tint, angle)
 		return
 	var spec = MonsterCatalog.CIVILIANS[clampi(int(entity.variant), 0, 2)]
 	var rig = 5 if entity.kind == "soldier" else (8 if entity.kind == "police" else int(spec.rig))
@@ -1249,7 +1434,7 @@ func draw_civilian(entity: Dictionary) -> void :
 	var foot = Vector2(entity.x, entity.y)
 	var tint = Color.WHITE
 	if entity.state == "capture":
-		var progress = 1 - float(entity.capture_left) / 0.62
+		var progress = clampf(1 - float(entity.capture_left) / float(entity.get("capture_duration", 0.62)), 0.0, 1.0)
 		state = "panic";foot.x -= progress * 16;foot.y -= sin(progress * PI) * 12
 		height *= 1 - maxf(0, progress - 0.6) * 1.5;tint.a = 1 - maxf(0, progress - 0.72) * 2.5
 		if progress > 0.35:
@@ -1262,7 +1447,12 @@ func draw_civilian(entity: Dictionary) -> void :
 
 func begin_ritual() -> void :
 	if not data.ritual_ready: return
+	if data.ritual_pending.is_empty(): data.ritual_ready = false;return
+	hub.shown_xp = float(data.level_souls);hub.shown_level = int(data.player_level)
 	ritual_view = HordeProgress.ritual(data, reward_rng);ritual_time = 0;ritual_particle_tick = 0;ritual_reward_played = false
+	if screen == "run":
+		for key in run_mission_report: run_mission_report[key] += int(ritual_view.get(key, 0))
+		hub.progress_notice_left = 4.0
 	save_game()
 	if int(ritual_view.points) > 0:
 		effects.clear();sound.play("ritual_fill", -13)
@@ -1274,7 +1464,7 @@ func update_rewards(dt: float) -> void :
 		if not ritual_view.is_empty() and ritual_time < 2.6 and int(ritual_view.points) > 0 and ritual_particle_tick > 0.1:
 			ritual_particle_tick = 0
 			var target = home_menu.ritual_target(full_rect())
-			effects.soul(target + Vector2(-270 + sin(ritual_time * 8) * 80, 140), target, 0.85)
+			effects.spark(target,Color("b178f0"),3)
 		if not ritual_view.is_empty() and ritual_time > 1.75 and int(ritual_view.bonuses) > 0 and not ritual_reward_played:
 			ritual_reward_played = true;sound.celebrate();effects.spark(home_menu.ritual_target(full_rect()), GOLD, 30)
 	else:
@@ -1323,7 +1513,7 @@ func draw_credits() -> void :
 	for i in range(lines.size()): wrapped(lines[i], Vector2(94, 190 + i * 51), 1092, 17, CREAM, 2)
 	button(Rect2(69, 641, 240, 61), "VOLTAR", "back", Color("513c67"), -2, 23)
 
-func update_camera(dt: float) -> void:
+func update_camera(dt: float) -> void :
 	camera_focus = move_toward(camera_focus, 1.0 if runner.transform_left > 0 else 0.0, dt * (1.8 if runner.transform_left > 0 else 1.2))
 	var desired = lerpf(CAMERA_BASE_ZOOM, CAMERA_TRANSFORM_ZOOM, smoothstep(0, 1, camera_focus))
 	var extent = 124.0
@@ -1331,11 +1521,11 @@ func update_camera(dt: float) -> void:
 		var member = runner.members[i]
 		if member.falling: continue
 		var height = 124.0 * (1.4 if runner.perk_kind == 2 and runner.perk_left > 0 and int(runner.power_levels.get("mask_size", 0)) > 0 else 1.0)
-		var anticipation = maxf(0, -float(member.vy)) * 0.10
+		var anticipation = maxf(0, - float(member.vy)) * 0.1
 		extent = maxf(extent, HordeRun.FLOOR - float(member.y) + height + runner.member_depth(i) + anticipation)
-	# Single jumps retain the normal framing. Tall double jumps get headroom
-	# beneath the HUD, while the walk surface stays on screen and x stays fixed.
-	var safe_top = -(get_viewport_rect().size.y - 720) * 0.5 + 140
+
+
+	var safe_top = - (get_viewport_rect().size.y - 720) * 0.5 + 140
 	var lift = clampf(safe_top + extent * desired - CAMERA_ANCHOR.y, 0, 48)
 	var fit_zoom = (CAMERA_ANCHOR.y + 48 - safe_top) / extent
 	var target_zoom = clampf(minf(desired, fit_zoom), CAMERA_MIN_ZOOM, CAMERA_TRANSFORM_ZOOM)
@@ -1347,14 +1537,15 @@ func configure_layout() -> void :
 	var size = get_viewport_rect().size
 	layout_origin = (size - Vector2(1280, 720)) * 0.5
 	position = layout_origin
-	if is_instance_valid(market_clip):
+	if is_instance_valid(market_clip) and size != market_layout_size:
+		market_layout_size = size
 		var grid: Rect2 = market.layout(full_rect()).grid
 		market_clip.position = grid.position
 		market_clip.size = grid.size
-		market_canvas.position = -grid.position
+		market_canvas.position = - grid.position
 	world_canvas.scale = Vector2.ONE * camera_zoom
 	world_canvas.position = CAMERA_ANCHOR + Vector2(0, camera_ground_shift) - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * camera_zoom
-	world_canvas.visible = screen in ["run", "pause", "results"]
+	world_canvas.visible = screen in ["run", "pause", "results", "revive"]
 	scenery.view_left = ( - layout_origin.x - world_canvas.position.x) / camera_zoom
 	scenery.view_right = (1280 + layout_origin.x - world_canvas.position.x) / camera_zoom
 	scenery.view_top = ( - layout_origin.y - world_canvas.position.y) / camera_zoom
@@ -1371,7 +1562,7 @@ func world_to_ui(point: Vector2) -> Vector2:
 
 func paint_world() -> void :
 	var interface_time = ui_time
-	if screen in ["pause", "results"]: ui_time = frozen_world_time
+	if screen in ["pause", "results", "revive"]: ui_time = frozen_world_time
 	paint_target = world_canvas
 	backdrop()
 	world_canvas.draw_rect(Rect2(scenery.view_left, scenery.view_top, scenery.view_right - scenery.view_left, scenery.view_bottom - scenery.view_top), Color(0.045, 0.018, 0.09, 0.12))
@@ -1379,7 +1570,7 @@ func paint_world() -> void :
 
 func paint_foreground() -> void :
 	var interface_time = ui_time
-	if screen in ["pause", "results"]: ui_time = frozen_world_time
+	if screen in ["pause", "results", "revive"]: ui_time = frozen_world_time
 	paint_target = foreground_canvas;draw_run();paint_target = self;ui_time = interface_time
 
 func animated_soul(point: Vector2, height: float, time: float, tint: Color = Color.WHITE) -> void :
@@ -1396,7 +1587,7 @@ func animated_soul(point: Vector2, height: float, time: float, tint: Color = Col
 func sin_color(kind: String) -> Color:
 	return Color.WHITE
 
-func draw_speech(_entity: Dictionary, _y: float) -> void:
+func draw_speech(_entity: Dictionary, _y: float) -> void :
 	pass
 
 func draw_transformation_title() -> void :
@@ -1478,6 +1669,7 @@ func update_slider(point: Vector2) -> void :
 func draw_settings() -> void :
 	home_menu.label(self, "CONFIGURAÇÕES", Vector2(69, 109), 45, GOLD, false, -1, true, 5)
 	home_menu.gear(self, Vector2(1162, 87), 30, ui_time * 0.4)
+	button(Rect2(550, 93, 250, 48), "PERFIL E ESTATÍSTICAS", "profile_open", Color("735a92"), -2, 17)
 	if settings_from != "pause": button(Rect2(842, 93, 250, 48), "BACKUP DO PROGRESSO", "backup_open", Color("426e72"), -2, 17)
 	var channels = ["music", "effects", "voices"]
 	var titles = ["MÚSICA", "EFEITOS", "VOZES"]
@@ -1494,10 +1686,11 @@ func draw_settings() -> void :
 		draw_circle(Vector2(bar.position.x + bar.size.x * float(data.audio_levels[channel]), bar.get_center().y), 14, GOLD)
 		buttons.append({"rect": Rect2(394, y + 22, 527, 73), "action": "mix_slider_" + channel})
 	button(Rect2(69, 642, 245, 57), "VOLTAR", "back", Color("513c67"), -2, 23)
-	button(Rect2(340, 642, 500, 57), "DESENVOLVEDOR TESTE", "developer", Color("4c786a"), -2, 23)
+	button(Rect2(330, 642, 256, 57), "DESENVOLVEDOR", "developer", Color("4c786a"), -2, 19)
+	button(Rect2(602, 642, 252, 57), "DIÁRIO DE PARTIDAS", "analytics_open", Color("427a72"), -2, 17)
 	if not data.audio: button(Rect2(878, 642, 258, 57), "ATIVAR SOM", "audio", Color("4c786a"), -2, 23)
 
-func draw_backup() -> void:
+func draw_backup() -> void :
 	text("SALVAR E RECUPERAR PROGRESSO", Vector2(65, 115), 39, GOLD, true, false, 4)
 	panel(Rect2(68, 166, 1142, 402), Color("2c203a"), Color("826b87"), 24, 3)
 	wrapped("COPIAR BACKUP: copie seu progresso e cole em uma nota, mensagem ou arquivo. Depois, instale o novo APK, copie o texto de volta e toque em LER BACKUP.", Vector2(101, 218), 1060, 23, CREAM, 3)
@@ -1512,7 +1705,7 @@ func draw_backup() -> void:
 	button(Rect2(883, 607, 324, 66), "VOLTAR", "back", Color("513c67"), -2, 21)
 
 func draw_collection() -> void :
-	views.collection(self)
+	codex.paint(self)
 
 func animated_result_souls() -> int:
 	var duration = clampf(float(runner.souls) * 0.055, 1.4, 4.2)
@@ -1538,7 +1731,8 @@ func preview_sprite() -> void :
 	add_child(suite)
 	await suite.run(self)
 
-func start_lab(kind: String) -> void:
+func start_lab(kind: String) -> void :
+	passenger_captures.clear()
 	if not lab_active:
 		lab_saved_runner = runner;lab_data = data.duplicate(true);lab_active = true
 		lab_context = {"settings_from": settings_from, "stats": last_stats.duplicate(true), "challenges": run_challenges.duplicate(), "settled": run_settled, "report": run_report.duplicate(true)}
@@ -1552,14 +1746,14 @@ func start_lab(kind: String) -> void:
 	change_screen("run")
 	show_toast("TESTE: " + LAB_LABELS[LAB_KINDS.find(kind)], 2.5)
 
-func leave_lab() -> void:
+func leave_lab() -> void :
 	if not lab_active: return
 	data = lab_data;runner = lab_saved_runner;lab_active = false
 	settings_from = lab_context.settings_from;last_stats = lab_context.stats;run_challenges.assign(lab_context.challenges)
 	run_settled = lab_context.settled;run_report = lab_context.report
 	end_delay = -1;effects.clear();ui_effects.clear();scenery.reset()
 
-func draw_developer() -> void:
+func draw_developer() -> void :
 	home_menu.label(self, "DESENVOLVEDOR TESTE", Vector2(69, 102), 38, GOLD, false, -1, true, 4)
 	text("Escolha uma família para testar suas variações.", Vector2(70, 143), 20, CREAM)
 	for i in range(LAB_KINDS.size()):
@@ -1570,7 +1764,7 @@ func draw_developer() -> void:
 	button(Rect2(70, 642, 245, 57), "VOLTAR", "back", Color("513c67"), -2, 23)
 	text("Testes não alteram moedas, missões ou progresso.", Vector2(650, 678), 19, MINT, false, true)
 
-func draw_collision_guides() -> void:
+func draw_collision_guides() -> void :
 	for e in runner.entities:
 		if e.taken: continue
 		if MonsterCatalog.VEHICLES.has(e.kind) or e.kind == "helicopter":
@@ -1583,9 +1777,17 @@ func draw_collision_guides() -> void:
 		elif e.kind in ["gap", "collapse"]:
 			paint_target.draw_rect(Rect2(e.x, e.y, e.width, 100), Color(1, 0.3, 0.2, 0.18), false, 2)
 
-func draw_sprite_lab() -> void:
+func sprite_lab_labels() -> Array:
+	if sprite_npcs and sprite_subject == 3: return HordePoliceSprite.LAB_LABELS
+	if sprite_npcs and sprite_subject == 2: return HordeWorkerSprite.LAB_LABELS
+
+	if sprite_npcs and sprite_subject == 1:
+		return HordeCivilWomanSprite.LAB_LABELS
+	return ["idle", "run", "rise", "fall", "capture", "push", "panic"]
+
+func draw_sprite_lab() -> void :
 	var names = ["Civil de casaco azul", "Civil mulher", "Trabalhador", "Policial", "Soldado"] if sprite_npcs else ["Zumbi", "Esqueleto", "Mascarado", "Mosca Mutante"]
-	var states = ["idle", "run", "rise", "fall", "capture", "push", "panic"]
+	var states = sprite_lab_labels()
 	home_menu.label(self, "TESTE DE SPRITES", Vector2(70, 102), 38, GOLD, false, -1, true, 4)
 	text(names[sprite_subject] + "  •  " + states[sprite_state], Vector2(70, 146), 23, CREAM)
 	panel(Rect2(70, 180, 1140, 375), Color("20182f"), Color("785b83"))
@@ -1599,11 +1801,73 @@ func draw_sprite_lab() -> void:
 		var flipped = clip in ["parado_nervoso", "captura", "transicao_corrida_captura"] or (clip == "susto_inicio_fuga" and HordeCivilSprite.sample(clip, clock) < 6)
 		art.civil.paint(paint_target, {"state": "normal", "civil_clip": clip, "civil_time": clock, "civil_flip": flipped}, foot, 300)
 		text(clip + "  •  quadro " + str(HordeCivilSprite.sample(clip, clock) + 1), Vector2(640, 222), 18, GOLD, false, true)
+	elif sprite_npcs and sprite_subject == 1:
+
+		var girl_clips: Array = HordeCivilWomanSprite.LAB_CLIPS
+		var clip: String = girl_clips[clampi(sprite_state, 0, girl_clips.size() - 1)]
+		var spec: Dictionary = HordeCivilWomanSprite.CLIPS[clip]
+		var duration: float = float(spec["frames"]) / float(spec["fps"])
+		var rest: float = 0.55 if clip in ["startle", "capture"] else 0.0
+		var preview_age: float = minf(fposmod(sprite_clock, duration + rest), duration - 0.0001)
+		var preview_entity: Dictionary = {
+			"woman_clip": clip, 
+			"woman_time": preview_age, 
+			"woman_reverse": false, 
+			"state": "capture" if clip == "capture" else "normal", 
+			"capture_left": maxf(0.0, 0.62 - preview_age)
+		}
+		if art.woman.has_assets():
+			art.woman.paint(paint_target, preview_entity, foot, 300.0)
+			text("NOVA ARTE  •  quadro " + str(HordeCivilWomanSprite.sample(clip, preview_age) + 1) + " / " + str(spec["frames"]), Vector2(640, 222), 18, GOLD, false, true)
+		else:
+			text("Sprites da civil feminina ainda nao carregados", Vector2(640, 355), 21, CORAL, false, true)
+	elif sprite_npcs and sprite_subject == 2:
+		var preview: Dictionary = {"worker_time": sprite_clock, "worker_clip": "desastrado", "state": "normal"}
+		if sprite_state == 1: preview.worker_clip = "defesa"
+		elif sprite_state == 2:
+			preview.worker_clip = "recover";preview.worker_time = minf(fposmod(sprite_clock, 0.8), 0.239)
+		elif sprite_state == 3:
+			var u = minf(fposmod(sprite_clock, 1.1) / 0.62, 1.0)
+			preview.state = "capture";preview.capture_duration = 0.62;preview.capture_left = (1.0 - u) * 0.62
+		var selected = HordeWorkerSprite.pose(preview)
+		art.worker.paint(paint_target, preview, foot, 300.0)
+		text(str(selected[0]) + "  •  quadro " + str(int(selected[1]) + 1), Vector2(640, 222), 18, GOLD, false, true)
+	elif sprite_npcs and sprite_subject == 3:
+		var preview: Dictionary = {"age": sprite_clock, "bob": 0.0, "vx": -135.0, "state": "normal"}
+		if sprite_state == 1: preview.police_clip = "defesa"
+		elif sprite_state == 2:
+			var u = minf(fposmod(sprite_clock, 1.07) / 0.62, 1.0)
+			preview.state = "capture";preview.capture_duration = 0.62;preview.capture_left = (1.0 - u) * 0.62
+		elif sprite_state == 3: preview.police_clip = "suspenso"
+		elif sprite_state == 4:
+			var clock = fposmod(sprite_clock, 1.67)
+			preview.age = clock
+			if clock >= 0.65:
+				preview.state = "capture";preview.capture_duration = 0.62;preview.capture_left = maxf(0.0, 1.27 - clock)
+		var selected = HordePoliceSprite.pose(preview)
+		art.police_sprite.paint(paint_target, preview, foot, 250.0)
+		text(str(selected[0]) + "  •  quadro " + str(int(selected[1]) + 1), Vector2(640, 222), 18, GOLD, false, true)
 	else:
 		var kind = [4, 6, 7, 8, 5][sprite_subject] if sprite_npcs else sprite_subject
-		actor.paint(paint_target, kind, foot, 300, sprite_clock * 1.4, states[sprite_state], sprite_clock)
+		var preview_state: String = str(states[sprite_state])
+		var preview_phase: float = sprite_clock * 1.4
+		if kind == 3 and preview_state in ["capture", "panic"]:
+
+			var preview_duration: float = HordeFlyApprovedSprite.action_seconds(preview_state)
+			preview_phase = minf(fposmod(sprite_clock, preview_duration + 0.35) / preview_duration, 1.0)
+		if kind == 3 and not sprite_preview_from_state.is_empty():
+			var from_clip: String = HordeFlyApprovedSprite.animation_for(sprite_preview_from_state, 0.0)
+			var to_clip: String = HordeFlyApprovedSprite.animation_for(preview_state, 0.0)
+			var duration: float = HordeFlyApprovedSprite.transition_duration(from_clip, to_clip)
+			var blend: float = smoothstep(0.0, duration, sprite_clock)
+			if blend < 1.0:
+				actor.paint(paint_target, kind, foot, 300, sprite_preview_from_clock * 1.4, sprite_preview_from_state, sprite_preview_from_clock + sprite_clock, 0.0, Color(1.0, 1.0, 1.0, 1.0 - blend))
+				actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock, 0.0, Color(1.0, 1.0, 1.0, blend))
+			else:
+				actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
+		else:
+			actor.paint(paint_target, kind, foot, 300, preview_phase, preview_state, sprite_clock)
 	button(Rect2(70, 580, 365, 54), "PRÓXIMO PERSONAGEM", "sprite_subject", Color("513c67"), -2, 20)
 	button(Rect2(457, 580, 365, 54), "PRÓXIMA ANIMAÇÃO", "sprite_state", Color("513c67"), -2, 20)
 	button(Rect2(844, 580, 365, 54), "CONTINUAR" if sprite_paused else "PAUSAR", "sprite_pause", Color("4c786a"), -2, 20)
 	button(Rect2(70, 652, 245, 49), "VOLTAR", "back", Color("513c67"), -2, 22)
-

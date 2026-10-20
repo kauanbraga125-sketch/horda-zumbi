@@ -13,8 +13,8 @@ func layout(view: Rect2) -> Dictionary:
 	var body = Rect2(left, top, right - left, height)
 	var cards: Array[Rect2] = []
 	for i in range(3): cards.append(Rect2(left + i * (body.size.x + 16) / 3, top, (body.size.x - 32) / 3, height))
-	return {"view": view, "body": body, "cards": cards, "back": Rect2(left, footer_y, 244, 64),
-		"play": Rect2(right - 300, footer_y - 3, 300, 70), "wallet": Rect2(right - 204, view.position.y + 34, 204, 68),
+	return {"view": view, "body": body, "cards": cards, "back": Rect2(left, footer_y, 244, 64), 
+		"play": Rect2(right - 300, footer_y - 3, 300, 70), "wallet": Rect2(right - 204, view.position.y + 34, 204, 68), 
 		"footer": Rect2(left + 265, footer_y, right - left - 590, 64)}
 
 func collection_layout(view: Rect2) -> Dictionary:
@@ -36,17 +36,17 @@ func collection_layout(view: Rect2) -> Dictionary:
 	d.market = Rect2(d.play.position - Vector2(34, 0), d.play.size + Vector2(34, 0))
 	return d
 
-func framed(g, rect: Rect2, mode: String = "normal") -> void:
+func framed(g, rect: Rect2, mode: String = "normal") -> void :
 	g.paint_target.draw_style_box(g.home_menu.panel_style, rect)
 	if mode != "normal":
 		var points = g.home_menu.shape(rect.grow(-3), 15)
 		points.append(points[0])
 		g.draw_polyline(points, g.MINT if mode == "done" else g.GOLD, 2, true)
 
-func lines(g, value: String, rect: Rect2, size: int, color: Color, center: bool = true, maximum: int = 2) -> void:
+func lines(g, value: String, rect: Rect2, size: int, color: Color, center: bool = true, maximum: int = 2) -> void :
 	var rows: Array[String] = []
 	while size >= 14:
-		rows.clear();var row = ""
+		rows.clear(); var row = ""
 		for word in value.split(" "):
 			var next = word if row.is_empty() else row + " " + word
 			if g.home_menu.label_font.get_string_size(next, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > rect.size.x and not row.is_empty(): rows.append(row);row = word
@@ -59,8 +59,8 @@ func lines(g, value: String, rect: Rect2, size: int, color: Color, center: bool 
 		g.home_menu.label(g, row, Vector2(rect.get_center().x if center else rect.position.x, y), size, color, center, rect.size.x)
 		y += size + 3
 
-func header(g, d: Dictionary, title: String, subtitle: String, wallet: bool = true) -> void:
-	var width = minf(d.view.size.x * (0.60 if title.begins_with("MISSÕES") else 0.49), 880)
+func header(g, d: Dictionary, title: String, subtitle: String, wallet: bool = true) -> void :
+	var width = minf(d.view.size.x * (0.6 if title.begins_with("MISSÕES") else 0.49), 880)
 	var rect = Rect2(d.body.position.x - 10, d.view.position.y + 18, width, 105)
 	g.draw_texture_rect(g.home_menu.panel_texture, rect, false)
 	g.home_menu.label(g, title, rect.get_center() + Vector2(0, 17), 42, g.GOLD, true, width - 95, true, 4)
@@ -71,7 +71,7 @@ func header(g, d: Dictionary, title: String, subtitle: String, wallet: bool = tr
 		g.scenery.sprite(g, g.art.items[1], box.position + Vector2(35, 34), 40)
 		g.home_menu.label(g, str(g.data.wallet), box.position + Vector2(67, 46), 33, g.GOLD, false, box.size.x - 78)
 
-func button(g, rect: Rect2, title: String, action: String, primary: bool = false, icon: String = "") -> void:
+func button(g, rect: Rect2, title: String, action: String, primary: bool = false, icon: String = "") -> void :
 	var face = rect
 	if g.pressed_button == action: face.position.y += 3
 	g.draw_texture_rect(g.home_menu.play_texture if primary else g.home_menu.panel_texture, face, false)
@@ -89,7 +89,7 @@ func done_count(data: Dictionary) -> int:
 		if mission.key in data.claimed: count += 1
 	return count
 
-func missions(g) -> void:
+func missions(g) -> void :
 	var d = layout(g.full_rect())
 	header(g, d, "MISSÕES DA MADRUGADA", "CAPÍTULO " + str(int(g.data.mission_tier) + 1) + "  •  " + str(done_count(g.data)) + " / 3 CONCLUÍDAS")
 	var missions = MonsterCatalog.active_missions(int(g.data.mission_tier))
@@ -105,11 +105,11 @@ func missions(g) -> void:
 			g.gameplay_ui.glyph(g, "check", Vector2(r.end.x - 35, r.position.y + 34), 24, Color("20352f"))
 		else:
 			g.home_menu.label(g, "EM ANDAMENTO", Vector2(r.end.x - 88, r.position.y + 35), 14, g.GOLD, true, 136)
-		lines(g, m.title, Rect2(r.position.x + 22, r.position.y + r.size.y * 0.40, r.size.x - 44, 65), 27, g.GOLD)
+		lines(g, m.title, Rect2(r.position.x + 22, r.position.y + r.size.y * 0.4, r.size.x - 44, 65), 27, g.GOLD)
 		var remaining = int(m.target) - count
 		var status = "CONCLUÍDA" if done else ("FALTA " if remaining == 1 else "FALTAM ") + str(remaining) + (" M" if m.stat in ["distance", "boost"] else "")
 		g.home_menu.label(g, status, Vector2(r.get_center().x, r.position.y + r.size.y * 0.63), 25, g.MINT if done else g.CREAM, true, r.size.x - 44)
-		var bar = Rect2(r.position.x + 29, r.position.y + r.size.y * 0.70, r.size.x - 58, 14)
+		var bar = Rect2(r.position.x + 29, r.position.y + r.size.y * 0.7, r.size.x - 58, 14)
 		g.progress_bar(bar, float(count) / float(m.target), g.MINT if done else g.GOLD)
 		g.home_menu.label(g, str(count) + " / " + str(m.target) + (" m" if m.stat in ["distance", "boost"] else ""), Vector2(r.get_center().x, bar.position.y + 39), 22, g.CREAM)
 		var reward = Rect2(r.position.x + 30, r.end.y - 77, r.size.x - 60, 56)
@@ -120,12 +120,12 @@ func missions(g) -> void:
 	button(g, d.play, "JOGAR", "play", true, "play")
 	lines(g, "RECOMPENSAS DO RITUAL", d.footer, 19, g.GOLD)
 
-func lock(g, point: Vector2, color: Color) -> void:
+func lock(g, point: Vector2, color: Color) -> void :
 	g.draw_arc(point + Vector2(0, -4), 5, PI, TAU, 16, color, 2.4, true)
 	g.draw_rect(Rect2(point - Vector2(8, 4), Vector2(16, 13)), color)
 	g.draw_circle(point + Vector2(0, 2), 1.8, Color("302039"))
 
-func collection(g) -> void:
+func collection(g) -> void :
 	var d = collection_layout(g.full_rect())
 	var count = int(0 in g.data.owned) + int(1 in g.data.owned)
 	header(g, d, "COLEÇÃO DA HORDA", str(count) + " / 2 MONSTROS DESBLOQUEADOS")
@@ -138,7 +138,7 @@ func collection(g) -> void:
 		var owned = i in g.data.owned
 		framed(g, r, "active" if g.views.selected == i else "normal")
 		g.scenery.sprite(g, g.home_menu.menu_zombie.face if i == 0 else g.art.rigs[1][0], r.position + Vector2(62, r.size.y * 0.46), 79)
-		g.home_menu.label(g, MonsterCatalog.MONSTERS[i].name.to_upper(), r.position + Vector2(121, r.size.y * 0.40), 25, g.GOLD, false, r.size.x - 140)
+		g.home_menu.label(g, MonsterCatalog.MONSTERS[i].name.to_upper(), r.position + Vector2(121, r.size.y * 0.4), 25, g.GOLD, false, r.size.x - 140)
 		var point = r.position + Vector2(127, r.size.y * 0.65)
 		if owned: g.gameplay_ui.glyph(g, "check", point, 18, g.MINT)
 		else: lock(g, point, g.CORAL)
@@ -176,7 +176,7 @@ func collection(g) -> void:
 	button(g, d.market, "VER NO MERCADO", "market_monsters", true, "market")
 	lines(g, "Capture civis e aumente a horda." if g.views.selected == 0 else "Pode surgir ao capturar civis.", d.footer, 18, g.MINT)
 
-func help(g) -> void:
+func help(g) -> void :
 	var d = layout(g.full_rect())
 	header(g, d, "COMO JOGAR", "APRENDA OS CONTROLES E PREPARE A HORDA", false)
 	var titles = ["1. PULE E CAPTURE", "2. VIRE VEÍCULOS", "3. USE OS PODERES"]
