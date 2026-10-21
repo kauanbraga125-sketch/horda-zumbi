@@ -1,5 +1,5 @@
 {
-  "version": "0.10.5",
+  "version": "0.10.6",
   "class_count": 53,
   "files": [
     {
@@ -234,8 +234,8 @@
     },
     {
       "path": "res://scripts/pages.gd",
-      "bytes": 15098,
-      "sha256": "86720753e464113326d43a1263d17c9f722e5d54ff698084986f798789c60c14"
+      "bytes": 15117,
+      "sha256": "e1a8a816df4ce82c547014180b569735c5a940f11e371c6f2ecd9266624d7b65"
     },
     {
       "path": "res://scripts/police_sprite.gd",

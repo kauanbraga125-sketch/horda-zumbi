@@ -187,7 +187,7 @@ func help(g) -> void :
 	g.home_menu.label(g, "Cada civil rende uma alma.", r.position + Vector2(r.size.x * 0.5, 67), 18, g.MINT, true, r.size.x - 40)
 	var floor_y = r.position.y + r.size.y * 0.46
 	g.actor.paint(g, 0, Vector2(r.get_center().x - 60, floor_y), 115, g.ui_time * 0.8, "rise", g.ui_time, 0, Color.WHITE, false, 1, false, 0.25, -220)
-	g.actor.paint(g, 4, Vector2(r.get_center().x + 68, floor_y + 5), 114, g.ui_time * 0.7, "panic_run", g.ui_time, 0, Color.WHITE, false, 1, false)
+	g.art.civil.paint(g, {"state": "normal", "civil_clip": "corrida", "civil_time": g.ui_time, "civil_flip": false}, Vector2(r.get_center().x + 68, floor_y + 5), 114)
 	g.animated_soul(Vector2(r.get_center().x + 4, floor_y - 88), 39, g.ui_time)
 	g.home_menu.label(g, "+1", Vector2(r.get_center().x + 32, floor_y - 78), 27, g.MINT)
 	var y = r.position.y + r.size.y * 0.55

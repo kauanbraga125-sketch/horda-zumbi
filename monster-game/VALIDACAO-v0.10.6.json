@@ -1,0 +1,38 @@
+{
+  "apk": "Horda-Zumbi-v0.10.6.apk",
+  "sha256": "c3a45a33e0cf9fb23681f984fc09c6a7e27f7353cac022b86ce0e8a6003df263",
+  "bytes": 280184742,
+  "plain_scripts": 56,
+  "classes": 53,
+  "verified_index_entries": 795,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 105,
+  "previousVersionName": "0.10.5",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.6",
+  "versionCode": 106,
+  "changed_resources": [
+    "assets/project.binary",
+    "assets/scripts/pages.gd",
+    "assets/startup_integrity.json"
+  ],
+  "same_assets_and_native_libraries": true,
+  "validation": {
+    "masked_and_profile_regressions": 41,
+    "packed_startup_checks": 20,
+    "tutorial_animation_frames": 4,
+    "navigation": [
+      "credits",
+      "back",
+      "play"
+    ],
+    "renderer": "Godot 4.5.1 OpenGL compatibility (Mesa llvmpipe)",
+    "android_device_tested": false
+  },
+  "certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8"
+}
