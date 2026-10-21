@@ -1,7 +1,7 @@
 extends RefCounted
 
 # Cosmetic feedback only. These particles never enter the gameplay entity list.
-const LIFE = 1.65
+const LIFE = 3.25
 const COLORS = {"civil_pack":Color("8be5ff"), "coin_bombs":Color("ffc650"), "coin_cars":Color("c58aff"),
 	"double_coins":Color("ffe17b"), "double_horde":Color("8df1bd"), "bonus_time":Color("c5a0ff"),
 	"power_fly":Color("ff888f"), "power_mask":Color("ee777f"), "power_shield":Color("8befff"), "power_boost":Color("ff9460")}
@@ -9,6 +9,14 @@ const LABELS = {"civil_pack":"ALMAS A CAMINHO", "coin_bombs":"BOMBAS DE OURO", "
 	"double_coins":"MOEDAS ×2", "double_horde":"HORDA DUPLICADA", "bonus_time":"+15 SEGUNDOS",
 	"power_fly":"MOSCA ATIVADA", "power_mask":"MASCARADO ATIVADO", "power_shield":"PROTEÇÃO ATIVADA", "power_boost":"ARRANCADA ATIVADA"}
 var events: Array[Dictionary] = []
+var ritual = preload("res://scripts/prepare_ritual.gd").new()
+
+static func duration(id: String) -> float:
+	return LIFE if id == "double_horde" else 2.55
+
+func dominant_event() -> Dictionary:
+	var summon = event_for("double_horde")
+	return summon if not summon.is_empty() else (events[-1] if not events.is_empty() else {})
 
 func clear() -> void: events.clear()
 
@@ -18,7 +26,7 @@ func trigger(id: String, source: Vector2, old_count: int) -> void:
 func advance(dt: float) -> void:
 	for i in range(events.size() - 1, -1, -1):
 		events[i].age += dt
-		if events[i].age >= LIFE: events.remove_at(i)
+		if events[i].age >= duration(events[i].id): events.remove_at(i)
 
 func event_for(id: String) -> Dictionary:
 	for e in events:
@@ -28,18 +36,19 @@ func event_for(id: String) -> Dictionary:
 func appearance(id: String, index: int) -> float:
 	var e = event_for(id)
 	if e.is_empty(): return 1.0
-	return smoothstep(0.22, 0.77, float(e.age) - index * 0.035)
+	return smoothstep(0.45, 1.65, float(e.age) - index * 0.035)
 
 func character_tint(index: int) -> Color:
 	if events.is_empty(): return Color.WHITE
-	var e: Dictionary = events[-1]
+	var e: Dictionary = dominant_event()
 	var age = float(e.age) - 0.22 - index * 0.035
-	var pulse = sin(clampf(age / 0.85, 0, 1) * PI) * 0.3
+	var pulse = sin(clampf(age / 1.65, 0, 1) * PI) * 0.38
 	return Color.WHITE.lerp(COLORS[e.id], pulse)
 
 func paint_world(g, stage, foreground: bool) -> void:
 	var canvas: Node2D = g.paint_target
 	var center = Vector2(HordeRun.ANCHOR - (mini(stage.preview.members.size(), 6) - 1) * 17.5, HordeRun.FLOOR - 57)
+	if not events.is_empty(): ritual.paint(g, stage, dominant_event(), foreground)
 	if not foreground:
 		# Small, quiet sparks retain a hint of every armed bonus after the burst.
 		for n in range(g.data.prepared_items.size()):
@@ -54,9 +63,10 @@ func paint_world(g, stage, foreground: bool) -> void:
 				var point = center + Vector2(-40 - n * 9, 12 + n * 8)
 				canvas.draw_line(point - Vector2(26 + sin(stage.clock * 12 + n) * 7, 0), point, Color(1, 0.37, 0.25, 0.28), 2.5, true)
 	for e in events:
+		if e.id == "double_horde": continue
 		var age = float(e.age) - 0.22
 		if age < 0: continue
-		var t = clampf(age / 1.2, 0, 1)
+		var t = clampf(age / (duration(e.id) - 0.25), 0, 1)
 		var fade = sin(t * PI) * (1.0 - t * 0.65)
 		var color: Color = COLORS[e.id]
 		if not foreground:
@@ -64,7 +74,7 @@ func paint_world(g, stage, foreground: bool) -> void:
 			canvas.draw_arc(center, 10 + t * 64, 0, TAU, 48, color * Color(1, 1, 1, fade * 0.55), 2.2, true)
 			continue
 		match e.id:
-			"civil_pack", "double_horde":
+			"civil_pack":
 				for n in range(6):
 					var angle = n * TAU / 6 + t * 4
 					var point = center + Vector2(cos(angle) * (56 - t * 30), sin(angle) * 28 - t * 17)
@@ -105,23 +115,13 @@ func paint_world(g, stage, foreground: bool) -> void:
 					canvas.draw_line(point - Vector2(24 + t * 40, 0), point, color * Color(1, 1, 1, fade), 2.5, true)
 
 func paint_ui(g, stage) -> void:
-	for e in events:
-		var t = clampf(float(e.age) / 0.35, 0, 1)
-		if t >= 1: continue
-		var target: Vector2 = g.world_to_ui(Vector2(HordeRun.ANCHOR, HordeRun.FLOOR - 55))
-		var color: Color = COLORS[e.id]
-		for n in range(10):
-			var q = maxf(0, t - n * 0.025)
-			var point: Vector2 = Vector2(e.source).lerp(target, q) + Vector2(0, -sin(q * PI) * 70)
-			g.paint_target.draw_circle(point, 7 - n * 0.5, color * Color(1, 1, 1, (1.0 - n / 10.0) * 0.55))
-		var head: Vector2 = Vector2(e.source).lerp(target, t) + Vector2(0, -sin(t * PI) * 70)
-		for item in HordeMeta.OBJECTS:
-			if item.id == e.id: g.hub.object_icon(g, int(item.icon), head, 32);break
 	if events.is_empty(): return
-	var last: Dictionary = events[-1]
+	var last: Dictionary = dominant_event()
 	var age: float = last.age
-	if age < 0.3 or age > 1.55: return
-	var alpha = smoothstep(0.3, 0.5, age) * (1.0 - smoothstep(1.15, 1.55, age))
+	var end = duration(last.id)
+	if age < 0.3: return
+	var alpha = smoothstep(0.3, 0.65, age) * (1.0 - smoothstep(end - 0.45, end, age))
 	var point: Vector2 = g.world_to_ui(Vector2(HordeRun.ANCHOR + 100, HordeRun.FLOOR - 96))
-	point.y -= (age - 0.3) * 14
-	g.home_menu.label(g, LABELS[last.id], point, 19, COLORS[last.id] * Color(1, 1, 1, alpha), false, 340, true, 3)
+	point.y -= sin(clampf(age / end, 0, 1) * PI) * 8
+	var title: String = "DESPERTANDO A HORDA" if last.id == "double_horde" and age < 2.1 else LABELS[last.id]
+	g.home_menu.label(g, title, point, 19, COLORS[last.id] * Color(1, 1, 1, alpha), false, 340, true, 3)

@@ -24,6 +24,7 @@ func _init() -> void:
 	header_gradient.fill_from = Vector2(0.5, 0);header_gradient.fill_to = Vector2(0.5, 1)
 
 func enter(g, returning: bool = false) -> void:
+	feedback.ritual.attach(g)
 	if not returning:
 		clock = 0.0;preview.world_px = 0.0;page = 0
 		feedback.clear()
@@ -53,7 +54,12 @@ func sync_horde(g) -> void:
 
 func update(g, dt: float) -> void:
 	clock += dt
+	var summon = feedback.event_for("double_horde")
+	var old_age = float(summon.age) if not summon.is_empty() else -1.0
 	feedback.advance(dt)
+	if old_age >= 0:
+		if old_age < 0.70 and old_age + dt >= 0.70: g.sound.play("soul_capture", -20)
+		if old_age < 1.75 and old_age + dt >= 1.75: g.sound.play("land", -22)
 	preview.world_px += 305.0 * dt
 	sync_horde(g)
 
@@ -70,15 +76,15 @@ func paint_foreground(g) -> void:
 		var foot = Vector2(preview.slot_x(i), HordeRun.FLOOR - preview.member_depth(i))
 		var kind = power if power >= 0 else int(preview.members[i].kind)
 		var height = 112.0
-		var alpha = 1.0
 		var duplicate = feedback.event_for("double_horde")
-		if not duplicate.is_empty() and i >= int(duplicate.old_count):
-			alpha = feedback.appearance("double_horde", i - int(duplicate.old_count))
-			height *= lerpf(0.78, 1.0, alpha);foot.x -= (1.0 - alpha) * 18;foot.y -= sin(alpha * PI) * 10
+		var pose: Dictionary = feedback.ritual.spawn_pose(duplicate, i)
+		if duplicate.is_empty() or i < int(duplicate.old_count): pose = feedback.ritual.reaction_pose(feedback.dominant_event(), i)
+		var alpha: float = pose.alpha
+		foot += Vector2(pose.offset)
 		if power == 2 and int(g.data.power_levels.get("mask_size", 0)) > 0: height *= 1.4
 		if power == 3: foot.y -= 30.0 + sin(clock * 7.0 + i) * 3.0
 		g.paint_target.draw_set_transform(Vector2(foot.x, HordeRun.FLOOR + 4), 0, Vector2(23, 4))
-		g.paint_target.draw_circle(Vector2.ZERO, 1, Color(0.02, 0.01, 0.05, 0.28))
+		g.paint_target.draw_circle(Vector2.ZERO, 1, Color(0.02, 0.01, 0.05, 0.28 * alpha))
 		g.paint_target.draw_set_transform(Vector2.ZERO)
 		if selected(g, "power_shield"):
 			var radius = height * (0.57 + sin(clock * 2.5 + i) * 0.012) * feedback.appearance("power_shield", 0)
@@ -88,10 +94,17 @@ func paint_foreground(g) -> void:
 		if transform_blend < 1.0:
 			g.actor.paint(g.paint_target, int(preview.members[i].kind), Vector2(foot.x, HordeRun.FLOOR), 112, clock * 1.35 + i * 0.19, "run", clock, 0, Color(1, 1, 1, alpha * (1.0 - transform_blend)))
 		var tint = feedback.character_tint(i);tint.a = alpha * transform_blend
-		g.actor.paint(g.paint_target, kind, foot, height, clock * 1.35 + i * 0.19, "fly" if power == 3 else "run", clock + i * 0.071, 0, tint)
+		var state: String = "fly" if power == 3 else str(pose.state)
+		if float(pose.echo) > 0:
+			for side in [-1, 1]:
+				g.actor.paint(g.paint_target, kind, foot + Vector2(side * 6 * (1.0 - alpha), 0), height, clock * 1.35 + i * 0.19, state, clock, float(pose.landing), Color(0.43, 1, 0.76, float(pose.echo) * transform_blend), false, 1.0, true, float(pose.air_age), float(pose.speed))
+		g.actor.paint(g.paint_target, kind, foot, height, clock * 1.35 + i * 0.19, state, clock + i * 0.071, float(pose.landing), tint, false, 1.0, true, float(pose.air_age), float(pose.speed))
 		if i == 0 and kind == 0 and not str(g.data.equipped_hat).is_empty():
 			g.hub.hat(g.paint_target, foot - Vector2(0, height * 0.9), height * 0.64, str(g.data.equipped_hat))
 	feedback.paint_world(g, self, true)
+
+func configure_layers(g) -> void:
+	feedback.ritual.configure(g, self)
 
 static func layout(view: Rect2) -> Dictionary:
 	var margin = minf(100.0, view.size.x * 0.07)

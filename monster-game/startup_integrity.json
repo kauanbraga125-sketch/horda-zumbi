@@ -1,5 +1,5 @@
 {
-  "version": "0.10.8",
+  "version": "0.10.9",
   "class_count": 53,
   "files": [
     {
@@ -159,8 +159,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 104288,
-      "sha256": "a3aa012e423e98ad76d2dc1e87bd032bba385d41dd18396dedb9e8634eee1bf4"
+      "bytes": 104323,
+      "sha256": "dd941e979a680dbb1148d71e2984b8e3ad78318c380dda07b056e463c51f1e0f"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -249,13 +249,23 @@
     },
     {
       "path": "res://scripts/prepare_effects.gd",
-      "bytes": 6470,
-      "sha256": "4de0735ca3877bf250c1e867940b43df5a7754007988c3c1738c6a89fe790f0d"
+      "bytes": 6439,
+      "sha256": "dc093389256610249424accb81f8489f1ab3d784e4b48340f212c2ba098de809"
+    },
+    {
+      "path": "res://scripts/prepare_mist.gdshader",
+      "bytes": 1879,
+      "sha256": "596e9fa84437e7672a742113aaf401392877aac0e027738b56d686abaa676bb9"
+    },
+    {
+      "path": "res://scripts/prepare_ritual.gd",
+      "bytes": 7640,
+      "sha256": "7106177158fdcd68599653c81dfa9d5045fe31ee46708d93f041980cc2647951"
     },
     {
       "path": "res://scripts/prepare_ui.gd",
-      "bytes": 10601,
-      "sha256": "1cc7569e89db79de7510f8f0cb232e83c492f523a786ae6d4851dc3bcf94877a"
+      "bytes": 11426,
+      "sha256": "617c48ae6adb1ff5dba643d0dcd46a000874eb0f042a08eb158946799364581b"
     },
     {
       "path": "res://scripts/profile_ui.gd",

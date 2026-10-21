@@ -1555,6 +1555,7 @@ func configure_layout() -> void :
 		runner.view_left = scenery.view_left
 		runner.view_right = scenery.view_right
 		runner.planning_right = maxf(scenery.view_right, HordeRun.ANCHOR + (1280 + layout_origin.x - CAMERA_ANCHOR.x) / CAMERA_MIN_ZOOM)
+	prepare_ui.configure_layers(self)
 
 func full_rect() -> Rect2:
 	return Rect2( - layout_origin, Vector2(1280, 720) + layout_origin * 2)

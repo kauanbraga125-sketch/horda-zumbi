@@ -1,0 +1,75 @@
+{
+  "apk": "Horda-Zumbi-v0.10.9.apk",
+  "sha256": "cbbdc53b262672271f057a4df7176d1288db0cdb818793c12c1eafe121872126",
+  "bytes": 280213744,
+  "plain_scripts": 59,
+  "classes": 53,
+  "verified_index_entries": 799,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 108,
+  "previousVersionName": "0.10.8",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.9",
+  "versionCode": 109,
+  "changed_resources": [
+    "AndroidManifest.xml",
+    "META-INF/ANDROIDD.RSA",
+    "META-INF/ANDROIDD.SF",
+    "META-INF/MANIFEST.MF",
+    "assets/assets.sparsepck",
+    "assets/project.binary",
+    "assets/scripts/game.gd",
+    "assets/scripts/prepare_effects.gd",
+    "assets/scripts/prepare_ui.gd",
+    "assets/startup_integrity.json"
+  ],
+  "added_resources": [
+    "assets/scripts/prepare_mist.gdshader",
+    "assets/scripts/prepare_ritual.gd"
+  ],
+  "same_assets_and_native_libraries": true,
+  "certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8",
+  "validation": {
+    "inventory_regressions": 56,
+    "inventory_art_integration": 20,
+    "codex_regressions": 38,
+    "masked_and_profile_regressions": 41,
+    "experiment_regressions": 47,
+    "preparation_integration": 33,
+    "permanent_activation_integration": 56,
+    "ritual_lifecycle_integration": 22,
+    "packed_startup_checks": 20,
+    "total_distinct_suite_checks": 333,
+    "visual_capture_resolutions": [
+      "1280x720",
+      "1600x720"
+    ],
+    "summon_capture_phases": 7,
+    "summon_variants": [
+      "single_zombie",
+      "eight_members",
+      "giant_mask",
+      "mutant_fly"
+    ],
+    "summon_seconds": 3.25,
+    "reused_mist_layers": 2,
+    "current_character_art_preserved": true,
+    "renderer": "Godot 4.5.1 OpenGL compatibility (Mesa llvmpipe)",
+    "android_device_tested": false
+  },
+  "video_preview": {
+    "file": "Horda-Zumbi-v0.10.9-Invocacao.mp4",
+    "sha256": "6ad8888c11e0c55505028b40a2f67294bc83e32031bf77a87ebbfe07d582acf5",
+    "bytes": 2697691,
+    "width": 1280,
+    "height": 720,
+    "frames": 96,
+    "fps": 12,
+    "duration_seconds": 8
+  }
+}

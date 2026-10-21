@@ -23,7 +23,7 @@ func run() -> void:
 		await tap("select_object_" + item.id)
 		if game.data.stock[item.id] != 0: failures += 1
 		var previous = 0.0
-		for age in [0.15, 0.45, 0.8, 1.25, 2.0]:
+		for age in [0.15, 0.45, 0.8, 1.65, 3.6]:
 			game.prepare_ui.update(game, age - previous);previous = age
 			await shot(item.id + "_" + str(int(age * 100)))
 		await tap("select_object_" + item.id)
