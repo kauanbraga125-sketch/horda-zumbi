@@ -1,0 +1,20 @@
+{
+  "version": "0.1",
+  "animation": "andando",
+  "frames": 8,
+  "fps": 7,
+  "loop": true,
+  "frame_px": [
+    444,
+    444
+  ],
+  "sheet_px": [
+    1776,
+    888
+  ],
+  "alpha": true,
+  "registration": "fixed soles, integer pixel translations, no per-frame rescaling",
+  "godot_version": "4.5.1",
+  "source_game": "Horda Zumbi 0.10.3",
+  "mode": "builtin image_gen; deterministic atlas/frame packing in Godot"
+}

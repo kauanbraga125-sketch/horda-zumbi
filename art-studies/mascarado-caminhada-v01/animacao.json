@@ -1,0 +1,103 @@
+{
+  "name": "Mascarado andando",
+  "version": "0.1",
+  "source_game": "Horda Zumbi 0.10.3",
+  "sheet": "mascarado_andando.png",
+  "grid": {
+    "columns": 4,
+    "rows": 2
+  },
+  "sheet_px": [
+    1776,
+    888
+  ],
+  "frame_px": [
+    444,
+    444
+  ],
+  "animation": "andando",
+  "fps": 7,
+  "loop": true,
+  "cycle_seconds": 1.1428571428571428,
+  "facing": "right",
+  "anchor_px": [
+    222.0,
+    432
+  ],
+  "frames": [
+    {
+      "file": "frames/mascarado_andando_01.png",
+      "rect": [
+        0,
+        0,
+        444,
+        444
+      ]
+    },
+    {
+      "file": "frames/mascarado_andando_02.png",
+      "rect": [
+        444,
+        0,
+        444,
+        444
+      ]
+    },
+    {
+      "file": "frames/mascarado_andando_03.png",
+      "rect": [
+        888,
+        0,
+        444,
+        444
+      ]
+    },
+    {
+      "file": "frames/mascarado_andando_04.png",
+      "rect": [
+        1332,
+        0,
+        444,
+        444
+      ]
+    },
+    {
+      "file": "frames/mascarado_andando_05.png",
+      "rect": [
+        0,
+        444,
+        444,
+        444
+      ]
+    },
+    {
+      "file": "frames/mascarado_andando_06.png",
+      "rect": [
+        444,
+        444,
+        444,
+        444
+      ]
+    },
+    {
+      "file": "frames/mascarado_andando_07.png",
+      "rect": [
+        888,
+        444,
+        444,
+        444
+      ]
+    },
+    {
+      "file": "frames/mascarado_andando_08.png",
+      "rect": [
+        1332,
+        444,
+        444,
+        444
+      ]
+    }
+  ],
+  "registration": "integer translation to a fixed sole baseline; no per-frame rescaling",
+  "art_mode": "builtin image_gen"
+}
