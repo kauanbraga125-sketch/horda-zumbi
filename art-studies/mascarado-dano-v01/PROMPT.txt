@@ -1,0 +1,19 @@
+Use case: identity-preserve
+Asset type: Horda Zumbi Mascarado damage reaction sprite sheet; eight sequential frames of TAKING A HIT and recovering, not a walk cycle.
+Input image: approved Mascarado walking sprite, used as the EXACT character identity, clothing, proportions, camera angle and painted game style reference. Preserve this character. Do not redesign him.
+Primary request: ONE high quality transparent sprite sheet with EXACTLY EIGHT different sequential full-body HURT / HIT-REACTION poses arranged FOUR columns by TWO rows. Reading order left to right then top to bottom. Overall aspect ratio 2:1, ideally 2048 x 1024, equal square cells. Keep all characters fully inside cells with generous clear transparent gutters and 10% top/bottom padding; camera and scale fixed. Feet share the SAME ground baseline in every cell. Character always faces RIGHT in the same three-quarter side view. Keep head and mask size constant; only pose changes. No text, numbers, labels or grid lines.
+Character invariants: very large cream oval hockey mask, two dark round eye holes, ventilation holes, red downward forehead chevron and red cheek slashes, brown leather straps, short brown hair and visible ear. Distressed dark navy mechanic coverall with collar, chest pockets, brass buttons, tan cloth tears, brown gloves and brown lace-up boots. The SAME near-side hand (on the viewer's left in the reference) grips one silver weathered machete with brown handle, held LOW and pointed diagonally toward lower right. Keep the blade below the belt; no overhead weapon or attacking gesture. Free far-side hand may lift protectively toward chest. Exactly two arms, two hands, two legs, two boots; clothing must be continuous and joints naturally covered, no hollow sockets.
+Motion: a short non-looping reaction to a front impact arriving from the RIGHT. The character remains standing, takes the hit, recoils and recovers. Strong readable body acting through shoulders, knees and head tilt, since face is covered. No blood or wounds needed. Clear DIFFERENT poses in all middle cells, not copies or a walking cycle.
+EXACT frame storyboard:
+1 READY: upright grounded stance matching reference, both boots planted, blade lowered, free hand relaxed.
+2 IMPACT: head snaps slightly BACK toward LEFT, shoulders recoil LEFT, knees start flexing; free hand begins lifting. Keep feet planted.
+3 PEAK RECOIL: torso leans back LEFT about 18 degrees, head tilts back LEFT, knees bend noticeably, weight sinks, free hand guards chest. This is the strongest hurt pose. Keep machete low and safely directed down.
+4 ABSORB: deep compressed stance, shoulders curl slightly forward, elbows close, mask angled down a little as he braces and absorbs the hit. Grounded boots.
+5 RECOVER A: rises partway, torso halfway to upright, free hand still near chest, blade low.
+6 RECOVER B: straightens further, head turning back to reference angle, free hand lowering.
+7 SETTLE: almost ready stance with a small residual shoulder droop and knee flexion.
+8 READY AGAIN: SAME pose, foot placement, scale and silhouette as frame 1, ready to resume the game's walking animation without a jump in size.
+Style/finish: match the approved reference exactly: polished colorful cartoon painted 2D game sprites, clean dark outline, subtle purple edge light, consistent shadows and costume details. No photorealism. Preserve mask markings, overall body shape and consistent lighting from frame to frame.
+Background: TRUE transparent RGBA alpha, no solid backdrop, no painted checkerboard, no floor, no ground shadow puddles, no smoke, no aura, no blood, no impact text, no motion trails. Sprites only. Damage flash will be applied separately in the game, so keep original colors intact in every sprite.
+
+Mode: builtin image_gen, transparent_background=true.

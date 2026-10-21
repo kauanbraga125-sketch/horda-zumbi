@@ -1,0 +1,128 @@
+{
+  "name": "Mascarado sofrendo dano",
+  "version": "0.1",
+  "animation": "dano",
+  "frame_px": [
+    444,
+    444
+  ],
+  "sheet_px": [
+    1776,
+    888
+  ],
+  "grid": {
+    "columns": 4,
+    "rows": 2
+  },
+  "facing": "right",
+  "loop": false,
+  "duration_ms": 640,
+  "anchor_px": [
+    222,
+    432
+  ],
+  "phases": [
+    "postura",
+    "impacto",
+    "recuo",
+    "absorver",
+    "recuperar_1",
+    "recuperar_2",
+    "acomodar",
+    "postura_final"
+  ],
+  "frames": [
+    {
+      "file": "frames/mascarado_dano_01.png",
+      "rect": [
+        0,
+        0,
+        444,
+        444
+      ],
+      "duration_ms": 70
+    },
+    {
+      "file": "frames/mascarado_dano_02.png",
+      "rect": [
+        444,
+        0,
+        444,
+        444
+      ],
+      "duration_ms": 60
+    },
+    {
+      "file": "frames/mascarado_dano_03.png",
+      "rect": [
+        888,
+        0,
+        444,
+        444
+      ],
+      "duration_ms": 70
+    },
+    {
+      "file": "frames/mascarado_dano_04.png",
+      "rect": [
+        1332,
+        0,
+        444,
+        444
+      ],
+      "duration_ms": 70
+    },
+    {
+      "file": "frames/mascarado_dano_05.png",
+      "rect": [
+        0,
+        444,
+        444,
+        444
+      ],
+      "duration_ms": 80
+    },
+    {
+      "file": "frames/mascarado_dano_06.png",
+      "rect": [
+        444,
+        444,
+        444,
+        444
+      ],
+      "duration_ms": 80
+    },
+    {
+      "file": "frames/mascarado_dano_07.png",
+      "rect": [
+        888,
+        444,
+        444,
+        444
+      ],
+      "duration_ms": 90
+    },
+    {
+      "file": "frames/mascarado_dano_08.png",
+      "rect": [
+        1332,
+        444,
+        444,
+        444
+      ],
+      "duration_ms": 120
+    }
+  ],
+  "optional_flash": {
+    "shader": "dano_flash.gdshader",
+    "uniform": "hit_flash",
+    "range": [
+      0,
+      1
+    ]
+  },
+  "creation_mode": "builtin image_gen",
+  "registration": "fixed sole contact, same reference and canvas as approved walk; no per-frame resizing",
+  "source_game": "Horda Zumbi 0.10.3",
+  "end_pose": "frame 8 reuses frame 1 exactly"
+}

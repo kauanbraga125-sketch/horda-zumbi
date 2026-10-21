@@ -1,0 +1,20 @@
+{
+  "animation": "dano",
+  "frame_count": 8,
+  "loop": false,
+  "duration_ms": 640,
+  "frame_px": [
+    444,
+    444
+  ],
+  "sheet_px": [
+    1776,
+    888
+  ],
+  "alpha": true,
+  "sole_baseline_y": 432,
+  "endpoint_matches_start": true,
+  "godot_resource_and_scene_loaded": true,
+  "version": "0.1",
+  "creation_mode": "builtin image_gen"
+}
