@@ -1,0 +1,27 @@
+name: Preserve Horda Zumbi history before cleanup
+
+on:
+  push:
+    branches: ['maintenance/archive-history-20261021']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horda-history-archive-20261021
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    if: github.repository == 'kauanbraga125-sketch/horda-zumbi' && github.ref == 'refs/heads/maintenance/archive-history-20261021'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify complete recovery archive and preserve it in Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 archive_history.py
