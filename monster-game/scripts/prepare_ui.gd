@@ -13,6 +13,7 @@ const TITLES = {"civil_pack":"CIVIS EXTRAS", "coin_bombs":"BOMBAS DE OURO", "coi
 var preview = HordeRun.new()
 var clock = 0.0
 var page = 0
+var feedback = preload("res://scripts/prepare_effects.gd").new()
 var header_gradient = GradientTexture2D.new()
 
 func _init() -> void:
@@ -25,10 +26,11 @@ func _init() -> void:
 func enter(g, returning: bool = false) -> void:
 	if not returning:
 		clock = 0.0;preview.world_px = 0.0;page = 0
+		feedback.clear()
 	sync_horde(g)
 
 static func selected(g, id: String) -> bool:
-	return id in g.selection and int(g.data.stock.get(id, 0)) > 0
+	return id in g.data.prepared_items
 
 static func initial_count(g) -> int:
 	var count = 1 + int(g.data.levels.get("horde", 0))
@@ -51,6 +53,7 @@ func sync_horde(g) -> void:
 
 func update(g, dt: float) -> void:
 	clock += dt
+	feedback.advance(dt)
 	preview.world_px += 305.0 * dt
 	sync_horde(g)
 
@@ -61,21 +64,34 @@ func paint_foreground(g) -> void:
 	preview.view_left = g.scenery.view_left;preview.view_right = g.scenery.view_right
 	g.gameplay_ui.ground(g, preview.world_px, preview)
 	sync_horde(g)
+	feedback.paint_world(g, self, false)
 	var power = 3 if selected(g, "power_fly") else (2 if selected(g, "power_mask") else -1)
 	for i in range(preview.members.size() - 1, -1, -1):
 		var foot = Vector2(preview.slot_x(i), HordeRun.FLOOR - preview.member_depth(i))
 		var kind = power if power >= 0 else int(preview.members[i].kind)
 		var height = 112.0
+		var alpha = 1.0
+		var duplicate = feedback.event_for("double_horde")
+		if not duplicate.is_empty() and i >= int(duplicate.old_count):
+			alpha = feedback.appearance("double_horde", i - int(duplicate.old_count))
+			height *= lerpf(0.78, 1.0, alpha);foot.x -= (1.0 - alpha) * 18;foot.y -= sin(alpha * PI) * 10
 		if power == 2 and int(g.data.power_levels.get("mask_size", 0)) > 0: height *= 1.4
 		if power == 3: foot.y -= 30.0 + sin(clock * 7.0 + i) * 3.0
 		g.paint_target.draw_set_transform(Vector2(foot.x, HordeRun.FLOOR + 4), 0, Vector2(23, 4))
 		g.paint_target.draw_circle(Vector2.ZERO, 1, Color(0.02, 0.01, 0.05, 0.28))
 		g.paint_target.draw_set_transform(Vector2.ZERO)
 		if selected(g, "power_shield"):
-			g.paint_target.draw_arc(foot - Vector2(0, height * 0.5), height * 0.57, 0, TAU, 40, Color(0.5, 0.9, 1, 0.45), 2.5, true)
-		g.actor.paint(g.paint_target, kind, foot, height, clock * 1.35 + i * 0.19, "fly" if power == 3 else "run", clock + i * 0.071)
+			var radius = height * (0.57 + sin(clock * 2.5 + i) * 0.012) * feedback.appearance("power_shield", 0)
+			g.paint_target.draw_circle(foot - Vector2(0, height * 0.5), radius, Color(0.3, 0.8, 1, 0.035))
+			g.paint_target.draw_arc(foot - Vector2(0, height * 0.5), radius, 0, TAU, 48, Color(0.5, 0.9, 1, 0.45 * alpha), 2.5, true)
+		var transform_blend = feedback.appearance("power_fly" if power == 3 else "power_mask", i) if power >= 0 else 1.0
+		if transform_blend < 1.0:
+			g.actor.paint(g.paint_target, int(preview.members[i].kind), Vector2(foot.x, HordeRun.FLOOR), 112, clock * 1.35 + i * 0.19, "run", clock, 0, Color(1, 1, 1, alpha * (1.0 - transform_blend)))
+		var tint = feedback.character_tint(i);tint.a = alpha * transform_blend
+		g.actor.paint(g.paint_target, kind, foot, height, clock * 1.35 + i * 0.19, "fly" if power == 3 else "run", clock + i * 0.071, 0, tint)
 		if i == 0 and kind == 0 and not str(g.data.equipped_hat).is_empty():
 			g.hub.hat(g.paint_target, foot - Vector2(0, height * 0.9), height * 0.64, str(g.data.equipped_hat))
+	feedback.paint_world(g, self, true)
 
 static func layout(view: Rect2) -> Dictionary:
 	var margin = minf(100.0, view.size.x * 0.07)
@@ -95,7 +111,7 @@ func paint(g) -> void:
 	# A short gradient keeps the title readable while leaving the game view open.
 	g.paint_target.draw_texture_rect(header_gradient, Rect2(view.position, Vector2(view.size.x, 160)), false)
 	g.hub.label(g, "PREPARAR A HORDA", view.position + Vector2(60, 70), 39, g.GOLD, false, view.size.x - 480)
-	g.hub.label(g, "Escolha os objetos e prepare sua próxima corrida.", view.position + Vector2(60, 117), 20, g.MINT, false, view.size.x - 120)
+	g.hub.label(g, "Toque para usar. O bônus fica ativado para a próxima partida.", view.position + Vector2(60, 117), 20, g.MINT, false, view.size.x - 120)
 	g.hub.wallet(g, Rect2(view.end.x - 430, view.position.y + 24, 370, 62))
 	var badge_width = minf(235, view.size.x * 0.185)
 	var badge = Rect2(view.position + Vector2(view.size.x * 0.48 - badge_width * 0.5, 26), Vector2(badge_width, 56))
@@ -109,15 +125,20 @@ func paint(g) -> void:
 		var box: Rect2 = d.cards[i]
 		var active = selected(g, id)
 		var stock = int(g.data.stock.get(id, 0))
+		var blocked = id in ["power_fly", "power_mask"] and not active and (selected(g, "power_fly") or selected(g, "power_mask"))
 		g.paint_target.draw_style_box(g.hub.profile_ui.featured if active else g.hub.profile_ui.panel, box)
 		g.hub.object_icon(g, int(item.icon), Vector2(box.get_center().x, box.position.y + 84 + sin(clock * 2.2 + i) * (2 if stock > 0 else 0)), minf(99, box.size.x * 0.62))
 		g.pages.lines(g, TITLES[id], Rect2(box.position + Vector2(12, 126), Vector2(box.size.x - 24, 45)), 17, g.CREAM, true, 2)
-		if stock <= 0: g.paint_target.draw_rect(box.grow(-10), Color(0.085, 0.04, 0.12, 0.32))
+		if (stock <= 0 or blocked) and not active: g.paint_target.draw_rect(box.grow(-10), Color(0.085, 0.04, 0.12, 0.32))
 		g.hub.label(g, "×" + str(stock), Vector2(box.get_center().x, box.end.y - 18), 29, g.GOLD if stock > 0 else Color("b5a6bd"), true, box.size.x - 20)
 		if active:
 			var tag = Rect2(box.position + Vector2(14, 9), Vector2(box.size.x - 28, 24))
 			g.home_menu.slab(g, tag, Color("315b46"), g.MINT, 6, 1)
-			g.hub.label(g, "SELECIONADO", Vector2(tag.get_center().x, tag.end.y - 6), 12, g.MINT, true, tag.size.x - 8)
+			g.hub.label(g, "ATIVADO", Vector2(tag.get_center().x, tag.end.y - 6), 12, g.MINT, true, tag.size.x - 8)
+			var event = feedback.event_for(id)
+			if not event.is_empty(): g.paint_target.draw_rect(box.grow(-6), Color(1, 0.85, 0.4, maxf(0, 1.0 - float(event.age)) * 0.7), false, 3)
+		elif blocked:
+			g.hub.label(g, "PODER JÁ DEFINIDO", Vector2(box.get_center().x, box.position.y + 27), 11, Color("b5a6bd"), true, box.size.x - 28)
 		g.buttons.append({"rect":box, "action":"select_object_" + id})
 	if page > 0: g.hub.button(g, d.previous, "‹", "prepare_previous")
 	if page < ORDER.size() / PAGE_SIZE - 1: g.hub.button(g, d.next, "›", "prepare_next")
@@ -127,7 +148,25 @@ func paint(g) -> void:
 	g.hub.button(g, d.footer[2], "COMEÇAR", "commit_play", true)
 	var note = Rect2(d.footer[0].end.x + 24, view.end.y - 70, d.footer[1].position.x - d.footer[0].end.x - 48, 48)
 	if note.size.x >= 180:
-		g.pages.lines(g, "Cada objeto selecionado usa 1 unidade ao começar.", note, 15, g.MINT, true, 2)
+		g.pages.lines(g, "Uso definitivo: 1 unidade ao ativar.", note, 15, g.MINT, true, 2)
+	feedback.paint_ui(g, self)
+
+func activate(g, id: String) -> void:
+	var old_count = initial_count(g)
+	var stock: Dictionary = g.data.stock.duplicate(true)
+	var prepared: Array = g.data.prepared_items.duplicate()
+	var status = HordeMeta.activate_preparation(g.data, id)
+	if status == "activated":
+		if not g.save_game():
+			g.data.stock = stock;g.data.prepared_items = prepared
+			g.sound.play("ui_denied");g.show_toast("NÃO FOI POSSÍVEL SALVAR. TENTE NOVAMENTE.");return
+		var slot = ORDER.find(id) % PAGE_SIZE
+		var source: Vector2 = layout(g.full_rect()).cards[slot].get_center() - Vector2(0, 22)
+		feedback.trigger(id, source, old_count);sync_horde(g)
+		g.sound.play("transform_fly" if id == "power_fly" else ("transform_mask" if id == "power_mask" else "perk"), -18)
+	else:
+		g.sound.play("ui_denied")
+		g.show_toast("JÁ ATIVADO PARA A PRÓXIMA PARTIDA." if status == "active" else ("A TRANSFORMAÇÃO DESTA PARTIDA JÁ FOI ATIVADA." if status == "conflict" else "SEM ESTOQUE. TOQUE EM VER OBJETOS PARA COMPRAR."))
 
 func action(g, value: String) -> bool:
 	if value not in ["prepare_next", "prepare_previous"]: return false

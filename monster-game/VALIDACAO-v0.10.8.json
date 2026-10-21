@@ -1,0 +1,70 @@
+{
+  "apk": "Horda-Zumbi-v0.10.8.apk",
+  "sha256": "2e12208b787f2c9c1e689cbc5f0abd263c181a5d18aa473b0ca8121ce8011201",
+  "bytes": 280201280,
+  "plain_scripts": 58,
+  "classes": 53,
+  "verified_index_entries": 797,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 107,
+  "previousVersionName": "0.10.7",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.8",
+  "versionCode": 108,
+  "changed_resources": [
+    "AndroidManifest.xml",
+    "META-INF/ANDROIDD.RSA",
+    "META-INF/ANDROIDD.SF",
+    "META-INF/MANIFEST.MF",
+    "assets/assets.sparsepck",
+    "assets/project.binary",
+    "assets/scripts/game.gd",
+    "assets/scripts/hub.gd",
+    "assets/scripts/meta.gd",
+    "assets/scripts/prepare_ui.gd",
+    "assets/startup_integrity.json"
+  ],
+  "added_resources": [
+    "assets/scripts/prepare_effects.gd"
+  ],
+  "same_assets_and_native_libraries": true,
+  "certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8",
+  "validation": {
+    "inventory_regressions": 56,
+    "inventory_art_integration": 20,
+    "codex_regressions": 38,
+    "masked_and_profile_regressions": 41,
+    "experiment_regressions": 47,
+    "preparation_integration": 33,
+    "permanent_activation_integration": 56,
+    "packed_startup_checks": 20,
+    "total_distinct_suite_checks": 311,
+    "visual_capture_resolutions": [
+      "1280x720",
+      "1600x720"
+    ],
+    "bonus_effects": 10,
+    "capture_phases_per_bonus": 5,
+    "touch_navigation": true,
+    "real_save_reload": true,
+    "activation_save_failure_rollback": true,
+    "run_handoff_failure_retry": true,
+    "renderer": "Godot 4.5.1 OpenGL compatibility (Mesa llvmpipe)",
+    "android_device_tested": false
+  },
+  "video_preview": {
+    "file": "Horda-Zumbi-v0.10.8-Bonus.mp4",
+    "sha256": "27447e94eb6a9a5fefbc392d0f13e14e6ff8e2c01f9fad33691c98a8815405c4",
+    "bytes": 6609491,
+    "width": 1280,
+    "height": 720,
+    "frames": 360,
+    "fps": 18,
+    "duration_seconds": 20
+  }
+}

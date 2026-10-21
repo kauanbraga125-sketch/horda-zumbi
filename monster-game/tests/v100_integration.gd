@@ -51,9 +51,10 @@ func suite() -> void:
 	data = MonsterCatalog.defaults();data.wallet = 1000
 	expect(HordeMeta.buy_object(data,"double_coins") and data.wallet == 700 and data.stock.double_coins == 1, "purchase stores consumable")
 	var selected: Array = ["double_coins", "double_coins", "missing"]
-	var active = HordeMeta.commit_inventory(data, selected)
+	for id in selected: HordeMeta.activate_preparation(data, id)
+	var active = HordeMeta.prepared_inventory(data)
 	expect(active.size() == 1 and data.stock.double_coins == 0, "consume only one unit per selected type")
-	expect(HordeMeta.commit_inventory(data, selected).is_empty(), "empty stock cannot be consumed again")
+	expect(HordeMeta.activate_preparation(data, "double_coins") == "active" and data.stock.double_coins == 0, "used bonus cannot consume stock again")
 	var pending = {"key":"m:1", "title":"TEST", "ritual":44}
 	HordeProgress.queue_mission(data,pending);HordeProgress.queue_mission(data,pending)
 	expect(data.ritual_pending.size() == 1, "mission credit deduplicates")
@@ -148,14 +149,14 @@ func additional_checks() -> void:
 	g.data.eyes = 30;g.runner = fresh_run();g.runner.dead = true;g.screen = "revive";g.revive_used = false
 	g.perform_action("revive_paid");g.perform_action("revive_paid")
 	expect(g.data.eyes == 5 and g.runner.active_count() == 5, "paid revive consumes 25 once on repeated input")
-	g.data.stock = {"double_horde":2};g.selection = ["double_horde"];g.screen = "prepare"
+	g.data.stock = {"double_horde":2};g.screen = "prepare";g.perform_action("select_object_double_horde")
 	var previous_world = g.runner.world_px;g._physics_process(1.0)
 	expect(g.runner.world_px == previous_world, "preparation freezes world")
 	g.perform_action("commit_play");g.perform_action("commit_play")
 	expect(g.data.stock.double_horde == 1 and g.runner.active_count() == 2, "double Play cannot consume two units")
-	g.data.stock = {"double_coins":1};g.selection = ["double_coins"];g.screen = "prepare"
+	g.data.stock = {"double_coins":1};g.screen = "prepare";g.perform_action("select_object_double_coins")
 	g.perform_action("back")
-	expect(g.data.stock.double_coins == 1, "cancel preserves consumable")
+	expect(g.data.stock.double_coins == 0 and "double_coins" in g.data.prepared_items, "leaving preserves an already used bonus for the next run")
 	g.runner = fresh_run();g.runner.coins = 2;g.runner.run_items = {"double_coins":true}
 	g.runner.events.assign([{"type":"coin","amount":2,"x":300,"y":500}]);var wallet_before = int(g.data.wallet)
 	g.consume_run_events()

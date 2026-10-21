@@ -17,7 +17,6 @@ const MOTORCYCLE_RIDER_SEAT_OFFSET = Vector2(9.0, -18.0)
 var hub = HordeHub.new()
 var prepare_ui = preload("res://scripts/prepare_ui.gd").new()
 var codex = HordeCodex.new()
-var selection: Array = []
 var revive_used = false
 var revive_offered = false
 var art = HordeArt.new()
@@ -216,6 +215,12 @@ func change_screen(next: String) -> void :
 	queue_redraw()
 
 func start_run() -> void :
+	var active_items = HordeMeta.take_prepared_inventory(data)
+	# Activation already paid for these items. Persist their handoff before play.
+	if not active_items.is_empty() and not save_game():
+		data.prepared_items.assign(active_items.keys())
+		show_toast("NÃO FOI POSSÍVEL SALVAR. TENTE COMEÇAR NOVAMENTE.")
+		return
 	passenger_captures.clear()
 	fly_visual_states.clear()
 	fly_panic_until = -1.0
@@ -224,8 +229,7 @@ func start_run() -> void :
 	run_settled = false;run_report = {};data.active_souls = 0
 	run_mission_report = {"points":0,"coins":0,"bonuses":0,"eyes":0}
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
-	runner.configure_items(HordeMeta.commit_inventory(data, selection), reward_rng.randf() < HordeMeta.EYE_RUN_CHANCE)
-	selection.clear()
+	runner.configure_items(active_items, reward_rng.randf() < HordeMeta.EYE_RUN_CHANCE)
 	runner.tutorial_enabled = not bool(data.tutorial_complete) and int(data.runs) == 0
 	if not lab_active and not test_mode and not capture_mode: analytics.begin_run(runner, data.levels)
 	data.tutorial_complete = true
@@ -511,7 +515,7 @@ func perform_action(action: String) -> void :
 	if action.begins_with("power_tab_"): selected_power = int(action.trim_prefix("power_tab_"));open_market(1);return
 	if action.begins_with("area_"): buy_area(int(action.trim_prefix("area_")));return
 	match action:
-		"play": selection.clear();change_screen("prepare")
+		"play": change_screen("prepare")
 		"market", "shop": open_market(0)
 		"monsters", "market_monsters": open_market(1)
 		"powers": open_market(1)
@@ -536,7 +540,7 @@ func perform_action(action: String) -> void :
 			if screen in ["run", "pause"] and not runner.dead:
 				analytics.end_override = "abandoned"
 				runner.finish();consume_run_events()
-			end_delay = -1;selection.clear();change_screen("prepare")
+			end_delay = -1;change_screen("prepare")
 		"home":
 			if screen in ["run", "pause"] and not runner.dead:
 				analytics.end_override = "abandoned"

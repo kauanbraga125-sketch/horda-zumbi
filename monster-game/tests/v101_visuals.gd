@@ -28,7 +28,8 @@ func preview() -> void:
 	game.market.open(0);game.change_screen("market");await snap("Objetos")
 	game.market.scroll = 400;await snap("Objetos-Poderes")
 	game.market.open(2);await snap("Acessorios")
-	game.change_screen("prepare");game.selection = ["power_mask","bonus_time","power_shield"]
+	game.change_screen("prepare")
+	for id in ["power_mask", "bonus_time", "power_shield"]: game.perform_action("select_object_" + id)
 	await snap("Preparacao")
 	for i in range(4):
 		game.data.player_level = i+1;game.data.level_souls = 33

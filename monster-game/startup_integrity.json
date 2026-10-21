@@ -1,5 +1,5 @@
 {
-  "version": "0.10.7",
+  "version": "0.10.8",
   "class_count": 53,
   "files": [
     {
@@ -159,8 +159,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 104080,
-      "sha256": "72ae17a9cfb6326780d91f81f694fb3efbc7764c8c64338a895492fa5a4c9dfe"
+      "bytes": 104288,
+      "sha256": "a3aa012e423e98ad76d2dc1e87bd032bba385d41dd18396dedb9e8634eee1bf4"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -189,8 +189,8 @@
     },
     {
       "path": "res://scripts/hub.gd",
-      "bytes": 30746,
-      "sha256": "fc978a80dd3551f198f2fd22074dda4af13ff061230053207eecef5da029f558"
+      "bytes": 30368,
+      "sha256": "4562173acf82675e76b508929f620cee63df64ae0e859cea523d0429bfff7cd2"
     },
     {
       "path": "res://scripts/market.gd",
@@ -224,8 +224,8 @@
     },
     {
       "path": "res://scripts/meta.gd",
-      "bytes": 12011,
-      "sha256": "a56ad0d6a2a9d202822632481bead8a474a23990c8c4dbe96374b5d61a6d9d3c"
+      "bytes": 12760,
+      "sha256": "0ca056e6b961babc6300785f6e0e3676b24cb83d2ded78ed918f3c4e74b46142"
     },
     {
       "path": "res://scripts/mission_catalog.gd",
@@ -248,9 +248,14 @@
       "sha256": "4058fec33cca65ff32dacad59ac1432a602dcf4110be29900560f61993e45d5b"
     },
     {
+      "path": "res://scripts/prepare_effects.gd",
+      "bytes": 6470,
+      "sha256": "4de0735ca3877bf250c1e867940b43df5a7754007988c3c1738c6a89fe790f0d"
+    },
+    {
       "path": "res://scripts/prepare_ui.gd",
-      "bytes": 8022,
-      "sha256": "5e11dc0eefcd7d88087e183c2b8c19f3f8a95bff6d1b9893c8cd317662710abe"
+      "bytes": 10601,
+      "sha256": "1cc7569e89db79de7510f8f0cb232e83c492f523a786ae6d4851dc3bcf94877a"
     },
     {
       "path": "res://scripts/profile_ui.gd",

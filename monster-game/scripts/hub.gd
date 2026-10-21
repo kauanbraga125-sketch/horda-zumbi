@@ -354,16 +354,8 @@ func action(g, a: String) -> bool:
 		if g.screen == "prepare": g.start_run()
 		return true
 	if a.begins_with("select_object_"):
-		var id = a.trim_prefix("select_object_")
-		if id in g.selection: g.selection.erase(id)
-		elif int(g.data.stock.get(id, 0)) > 0:
-			if id in ["power_fly","power_mask"]:
-				g.selection.erase("power_fly");g.selection.erase("power_mask")
-				g.show_toast("UMA TRANSFORMAÇÃO INICIAL POR PARTIDA.")
-			g.selection.append(id)
-		else:
-			g.sound.play("ui_denied");g.show_toast("SEM ESTOQUE. TOQUE EM VER OBJETOS PARA COMPRAR.");return true
-		g.sound.play("ui_confirm");return true
+		if g.screen == "prepare": g.prepare_ui.activate(g, a.trim_prefix("select_object_"))
+		return true
 	if a.begins_with("object_buy_"):
 		if HordeMeta.buy_object(g.data, a.trim_prefix("object_buy_")): g.save_game();g.sound.play("buy");g.show_toast("GUARDADO NO INVENTÁRIO. ESCOLHA ANTES DE JOGAR.")
 		else: g.sound.play("ui_denied");g.show_toast("MOEDAS INSUFICIENTES.")

@@ -25,7 +25,7 @@ const OBJECTS = [
 ]
 
 static func defaults() -> Dictionary:
-	return {"codex_section":0, "codex_spread":0, "codex_seen":{}, "eyes": 0, "stock": {}, "altar_souls": 0, "graves": [], "grave_serial": 0, "daily_claim_at": 0,
+	return {"codex_section":0, "codex_spread":0, "codex_seen":{}, "eyes": 0, "stock": {}, "prepared_items": [], "altar_souls": 0, "graves": [], "grave_serial": 0, "daily_claim_at": 0,
 		"dose_reset_at": 0, "doses": 3, "level_rewards": [], "lifetime": {}, "death_causes": {},
 		"book_name": "", "book_signature": [], "book_signed_at": "", "cosmetics": [], "equipped_hat": ""}
 
@@ -44,6 +44,14 @@ static func migrate(result: Dictionary, raw: Dictionary) -> void:
 	for key in ["stock", "lifetime", "death_causes"]:
 		if not result[key] is Dictionary: result[key] = {}
 	for item in OBJECTS: result.stock[item.id] = clampi(int(result.stock.get(item.id, 0)), 0, 9999)
+	var prepared: Array = []
+	if result.prepared_items is Array:
+		for id in result.prepared_items.slice(0, 64):
+			if not id is String or id in prepared: continue
+			if id in ["power_fly", "power_mask"] and ("power_fly" in prepared or "power_mask" in prepared): continue
+			for item in OBJECTS:
+				if item.id == id: prepared.append(id);break
+	result.prepared_items = prepared
 	for key in ["graves", "level_rewards", "book_signature", "cosmetics"]:
 		if not result[key] is Array: result[key] = []
 	var pairs: Array = []
@@ -95,15 +103,26 @@ static func buy_object(data: Dictionary, id: String) -> bool:
 			return true
 	return false
 
-static func commit_inventory(data: Dictionary, selection: Array) -> Dictionary:
-	var active = {}
-	var transformation = ""
-	for id in selection:
-		if id in ["power_fly","power_mask"] and int(data.stock.get(id,0)) > 0: transformation = id
+static func activate_preparation(data: Dictionary, id: String) -> String:
+	var known = false
 	for item in OBJECTS:
-		if item.id in ["power_fly","power_mask"] and item.id != transformation: continue
-		if item.id in selection and int(data.stock.get(item.id, 0)) > 0:
-			data.stock[item.id] -= 1;active[item.id] = true
+		if item.id == id: known = true;break
+	if not known: return "unknown"
+	if id in data.prepared_items: return "active"
+	if id in ["power_fly", "power_mask"] and ("power_fly" in data.prepared_items or "power_mask" in data.prepared_items): return "conflict"
+	if int(data.stock.get(id, 0)) <= 0: return "empty"
+	data.stock[id] = int(data.stock[id]) - 1
+	data.prepared_items.append(id)
+	return "activated"
+
+static func prepared_inventory(data: Dictionary) -> Dictionary:
+	var active = {}
+	for id in data.get("prepared_items", []): active[id] = true
+	return active
+
+static func take_prepared_inventory(data: Dictionary) -> Dictionary:
+	var active = prepared_inventory(data)
+	data.prepared_items.clear()
 	return active
 
 static func cosmetic_index(id: String) -> int:

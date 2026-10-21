@@ -22,20 +22,21 @@ func run() -> void:
 	game.prepare_ui.update(game, 0.7);await shot("prepare_scrolled")
 	await tap("select_object_double_horde");game.prepare_ui.update(game, 0.0)
 	await shot("prepare_double")
-	if game.prepare_ui.preview.members.size() != 2 or game.data.stock.double_horde != 1: failures += 1
+	if game.prepare_ui.preview.members.size() != 2 or game.data.stock.double_horde != 0: failures += 1
 	await tap("prepare_next");await shot("prepare_powers_empty")
 	for item in HordeMeta.OBJECTS: game.data.stock[item.id] = 3
 	await tap("select_object_power_mask");await tap("select_object_power_shield")
 	game.prepare_ui.update(game, 0.3);await shot("prepare_mask_shield")
 	game.data.power_levels.mask_size = 1;await shot("prepare_giant_mask")
 	game.data.power_levels.mask_size = 0
+	game.data.prepared_items.erase("power_mask")
 	await tap("select_object_power_fly");game.prepare_ui.update(game, 0.3)
 	await shot("prepare_fly")
-	if "power_mask" in game.selection or "power_fly" not in game.selection: failures += 1
-	await tap("prepare_previous");game.selection.clear();game.data.levels.horde = 3;game.data.owned.append(1)
+	if "power_mask" in game.data.prepared_items or "power_fly" not in game.data.prepared_items: failures += 1
+	await tap("prepare_previous");game.data.prepared_items.clear();game.data.levels.horde = 3;game.data.owned.append(1)
 	await tap("select_object_double_horde");game.prepare_ui.update(game, 0.3)
 	await shot("prepare_upgraded_horde")
-	game.data.levels.horde = 0;game.selection.clear();game.prepare_ui.update(game, 0.0)
+	game.data.levels.horde = 0;game.data.prepared_items.clear();game.prepare_ui.update(game, 0.0)
 	await shot("prepare_all_in_stock")
 	await tap("objects_open");await shot("market_from_prepare");await tap("back")
 	if game.screen != "prepare": failures += 1
