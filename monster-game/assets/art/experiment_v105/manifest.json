@@ -1,0 +1,53 @@
+{
+  "mission_art": [
+    "souls",
+    "coins",
+    "distance",
+    "vehicles",
+    "jumps",
+    "bonuses",
+    "horde",
+    "fly",
+    "frenzy",
+    "soldier",
+    "tunnel",
+    "groups",
+    "passengers",
+    "moto",
+    "bus",
+    "truck",
+    "tank",
+    "plane",
+    "mask_power",
+    "skeleton",
+    "shield",
+    "bombs",
+    "clean_tunnel",
+    "survival"
+  ],
+  "pane": [
+    0.299812030075188,
+    0.231393775372124,
+    0.398496240601504,
+    0.493234100135318
+  ],
+  "source": "Approved generated resurrection machine, 16 specimens, 24 mission illustrations; continuous native liquid",
+  "specimens": [
+    "brain",
+    "eye",
+    "hand",
+    "mask",
+    "tentacle",
+    "ghost",
+    "larva",
+    "egg",
+    "vhs",
+    "skull",
+    "fang",
+    "heart",
+    "bat",
+    "mushroom",
+    "leaves",
+    "vial"
+  ]
+}

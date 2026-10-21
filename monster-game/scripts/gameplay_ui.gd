@@ -168,7 +168,7 @@ func pause(g) -> void :
 	g.home_menu.slab(g, souls, Color("25192f"), Color("8b6c8b"), 10, 2)
 	g.animated_soul(souls.position + Vector2(25, 24), 39, g.ui_time)
 	g.home_menu.label(g, str(g.runner.souls) + " ALMAS", souls.position + Vector2(49, 32), 22, g.MINT, false, souls.size.x - 60)
-	var missions = MonsterCatalog.active_missions(int(g.data.mission_tier))
+	var missions = MonsterCatalog.active_missions(int(g.data.mission_tier),g.data)
 	for i in range(3):
 		var mission: Dictionary = missions[i]
 		var row: Rect2 = d.rows[i]

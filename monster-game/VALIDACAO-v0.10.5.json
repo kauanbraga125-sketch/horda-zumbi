@@ -1,0 +1,85 @@
+{
+  "apk": "Horda-Zumbi-v0.10.5.apk",
+  "sha256": "6a655f1dcf88a824c504b722a4e8fbe63abc3c5012c33c5f89ec266f8910fa3b",
+  "bytes": 280184740,
+  "plain_scripts": 56,
+  "classes": 53,
+  "verified_index_entries": 795,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 104,
+  "previousVersionName": "0.10.4",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.5",
+  "versionCode": 105,
+  "android_device_tested": false,
+  "engine": "Godot 4.5.1 stable f62fdbde1",
+  "certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8",
+  "suites": [
+    {
+      "suite": "v100_integration",
+      "passed": true,
+      "summary": [
+        "V100_RESULT checks=56 failures=0"
+      ]
+    },
+    {
+      "suite": "v101_integration",
+      "passed": true,
+      "summary": [
+        "V101_RESULT checks=20 failures=0"
+      ]
+    },
+    {
+      "suite": "v103_codex",
+      "passed": true,
+      "summary": [
+        "V103_RESULT checks=38 failures=0"
+      ]
+    },
+    {
+      "suite": "v103_apk_runtime",
+      "passed": true,
+      "summary": [
+        "APK103_RESULT checks=20 failures=0"
+      ]
+    },
+    {
+      "suite": "v104_integration",
+      "passed": true,
+      "summary": [
+        "V104_RESULT checks=41 failures=0"
+      ]
+    },
+    {
+      "suite": "v105_integration",
+      "passed": true,
+      "summary": [
+        "V105_RESULT checks=47 failures=0"
+      ]
+    }
+  ],
+  "checks_passed": 222,
+  "graphics_validation": {
+    "renderer": "OpenGL compatibility, Mesa llvmpipe",
+    "mixture_palettes": 12,
+    "reward_timeline_snapshots": 7,
+    "screens": [
+      "missions",
+      "home",
+      "run_reward"
+    ]
+  },
+  "mission_templates": 90,
+  "difficulties": {
+    "easy": 30,
+    "medium": 30,
+    "hard": 30
+  },
+  "mission_conditions": 25,
+  "mixtures_through_level_500": 500
+}

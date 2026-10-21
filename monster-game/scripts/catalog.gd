@@ -76,7 +76,8 @@ const MISSIONS = [
 	{"id": "horde_large", "stat": "horde", "target": 18, "ritual": 32, "title": "FORME UMA HORDA DE 18", "mode": "best"}
 ]
 
-static func active_missions(tier: int) -> Array[Dictionary]:
+static func active_missions(tier: int, context: Dictionary = {}) -> Array[Dictionary]:
+	if int(context.get("mission_schema",0))>=2: return HordeMissionCatalog.active(context)
 	var result: Array[Dictionary] = []
 	var start = posmod(tier, 6) * 3
 	var scale = 1 + int(tier / 6) * 0.35
@@ -92,6 +93,7 @@ static func defaults() -> Dictionary:
 	var data = {"version": 7, "tutorial_complete": false, "audio_levels": {"music": 0.75, "effects": 0.85, "voices": 1.0}, "wallet": 120, "best": 0, "runs": 0, "audio": true, "levels": {"horde": 0, "jump": 0, "magnet": 0, "perk": 0, "frenzy": 0}, "claimed": [], "owned": [0], "skin": 0, "areas": [0, 1], "power_owned": [3], "power_levels": {"fly_time": 0, "mask_time": 0, "mask_force": 0, "mask_shield": 0, "mask_size": 0, "mask_revive": 0}, "mission_tier": 0, "mission_progress": {}, "missions_completed": 0, "player_level": 1, "level_souls": 0, "best_souls": 0, "total_souls": 0, "active_souls": 0, "ritual_progress": 0, "ritual_pending": [], "ritual_ready": false}
 
 	data.merge(HordeMeta.defaults())
+	HordeMissionCatalog.initialize(data)
 	return data
 
 static func upgrade_cost(item: Dictionary, level: int) -> int:

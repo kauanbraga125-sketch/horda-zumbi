@@ -1,11 +1,11 @@
 {
-  "version": "0.10.4",
-  "class_count": 47,
+  "version": "0.10.5",
+  "class_count": 53,
   "files": [
     {
       "path": "res://.godot/global_script_class_cache.cfg",
-      "bytes": 8058,
-      "sha256": "ab491938b01b54c815e3146b7f89a0872b3a65d0f9821bb584ec2e799c120458"
+      "bytes": 9156,
+      "sha256": "0fd6c3a9bf69950c460a4fcd87ac0e6c7643736b863b13955f499dee087ec5ce"
     },
     {
       "path": "res://boot.tscn",
@@ -59,8 +59,8 @@
     },
     {
       "path": "res://scripts/catalog.gd",
-      "bytes": 9309,
-      "sha256": "4f736f921fe08c77fefbf36b6ec03f69726bacbc7ab774b4f68f60b1555854fd"
+      "bytes": 9461,
+      "sha256": "ba4ed888b7e122a0fc656acc7b6c9fdace9f13fa740a5d5c0bbfc900309a10c0"
     },
     {
       "path": "res://scripts/civil_sprite.gd",
@@ -113,6 +113,41 @@
       "sha256": "8d2fe3f8b50174d47137e2b1efef82fe001b4419e764b0ca9f4261394029eb62"
     },
     {
+      "path": "res://scripts/experiment_art.gd",
+      "bytes": 1728,
+      "sha256": "1e4e7a4dc0df15c743fbe553d1e39ff0d946232cb8606da4c55548d264b65b55"
+    },
+    {
+      "path": "res://scripts/experiment_liquid.gdshader",
+      "bytes": 2014,
+      "sha256": "05ceb8bff3730499812bbdb98b586aa2a2bdadd5c3c07a531fb65f4a521343fb"
+    },
+    {
+      "path": "res://scripts/experiment_overlay.gd",
+      "bytes": 1857,
+      "sha256": "e0281ac02a0de2d738854dbdef3d88d24e3e8d86d1b0fcffafbd97c1dc20c107"
+    },
+    {
+      "path": "res://scripts/experiment_presentation.gd",
+      "bytes": 2934,
+      "sha256": "82d950e89cf1bc4f698863fbcaaaca195c4ad75f38c85ae85a110cacf70d5124"
+    },
+    {
+      "path": "res://scripts/experiment_specimen.gdshader",
+      "bytes": 990,
+      "sha256": "2cfe946f3c85275522716393023ef29fa0a64c8091a207f508ee49af17f336fe"
+    },
+    {
+      "path": "res://scripts/experiment_ui.gd",
+      "bytes": 4987,
+      "sha256": "fe9ad87164a4bc7773fdcb8fd6d8a170485b3751e69a8666eb35d046b47bb16b"
+    },
+    {
+      "path": "res://scripts/experiment_vessel.gd",
+      "bytes": 2883,
+      "sha256": "1a81338b53e4e19701c8aa85bb533a78ad004401f2e76e32529948b58f3cd512"
+    },
+    {
       "path": "res://scripts/fly_approved_sprite.gd",
       "bytes": 4551,
       "sha256": "3b607b774a3e6ddc6447505e57127678e5fa30cba332860de42252b5299a40a7"
@@ -124,13 +159,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 104830,
-      "sha256": "b138907780415e057ef03c63346fb72f6411eb03ce08b20ed7874ca5092e9e10"
+      "bytes": 103586,
+      "sha256": "4b196b1ab5d83f26dad5d07aec9881757884cb4b728405487c99ad0e461dff7e"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 15951,
-      "sha256": "316fc3e761064c873fd5ae089aff5b4546a7a91f4c1339b355f8a0c6936d7da2"
+      "bytes": 15958,
+      "sha256": "93a3d52e41844cbc9d24fc77a09686276cf6f2ab1f580b24518a9e2534ec0dcf"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -139,8 +174,8 @@
     },
     {
       "path": "res://scripts/home_menu.gd",
-      "bytes": 17673,
-      "sha256": "9da21c214974a5dea232d945d898629ffe3b4b5475adb20523d94dce06785713"
+      "bytes": 17184,
+      "sha256": "a837627863709b72d74807addebcce700b68a829bc515f7842dc430e09caa6e3"
     },
     {
       "path": "res://scripts/horda_analytics.gd",
@@ -154,8 +189,8 @@
     },
     {
       "path": "res://scripts/hub.gd",
-      "bytes": 34045,
-      "sha256": "c2dc32dc475f8c6c1b9a0efed2a813d1ebc573a28b3e53bbca1e43a5be943af9"
+      "bytes": 32671,
+      "sha256": "7898bba8f55df11d6d0515c79fe0d76a7c56fc118f6446cd98e5814be3148380"
     },
     {
       "path": "res://scripts/market.gd",
@@ -193,9 +228,14 @@
       "sha256": "a56ad0d6a2a9d202822632481bead8a474a23990c8c4dbe96374b5d61a6d9d3c"
     },
     {
+      "path": "res://scripts/mission_catalog.gd",
+      "bytes": 6123,
+      "sha256": "24de607ec373d09683ed828aa045090db8667761a786d591cd2b157e7d23053f"
+    },
+    {
       "path": "res://scripts/pages.gd",
-      "bytes": 15086,
-      "sha256": "47c6906eeea49cfadec82e3352b9b1a669f3b28a34461da82c5ec921023e8c59"
+      "bytes": 15098,
+      "sha256": "86720753e464113326d43a1263d17c9f722e5d54ff698084986f798789c60c14"
     },
     {
       "path": "res://scripts/police_sprite.gd",
@@ -214,13 +254,13 @@
     },
     {
       "path": "res://scripts/progression.gd",
-      "bytes": 2696,
-      "sha256": "6cf7d761a41f0c0671b2fd870e01d9326761994dec32b7471412551c666eed63"
+      "bytes": 2949,
+      "sha256": "cc6d9cbeb3f7bcdd44035988aa7f0eda54181fdb70735dbe6e0f868491499ebe"
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 60315,
-      "sha256": "1f095695ef4122f0f68dec5bdee08eeddb7f06889b0b40815fd04efe4907f5b1"
+      "bytes": 62707,
+      "sha256": "15e399f81bd54b912e20a9cdbc40009587170cfb83511fe65b84c8c1556143dc"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -306,6 +346,16 @@
       "path": "res://assets/art/codex_v103/entries.json",
       "bytes": 5486,
       "sha256": "f0ff3af592aaa04b70dd553118bfd780fc4d86db5d4e903617ee96c1b0ed7770"
+    },
+    {
+      "path": "res://assets/art/experiment_v105/manifest.json",
+      "bytes": 822,
+      "sha256": "16bbc7644463eb6573da4a52f7c4ad264bacf8d9cd26e3c27cc8fff0be94cac7"
+    },
+    {
+      "path": "res://assets/art/experiment_v105/missions.json",
+      "bytes": 25094,
+      "sha256": "82fd752bd81ae0f4c67d3e31853cd40190f60a11d98174320e60e704fb416063"
     },
     {
       "path": "res://assets/art/masked_v104/manifest.json",

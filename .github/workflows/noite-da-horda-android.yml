@@ -27,7 +27,7 @@ jobs:
       - name: Validar progressão, inventário, livro e inicialização
         run: |
           set -euo pipefail
-          for SUITE in v100_integration v101_integration v103_codex v103_apk_runtime v104_integration; do
+          for SUITE in v100_integration v101_integration v103_codex v103_apk_runtime v104_integration v105_integration; do
             /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --path monster-game --script "res://tests/${SUITE}.gd" 2>&1 | tee "/tmp/${SUITE}.log"
             if grep -E 'SCRIPT ERROR|Parse Error|FAIL |failures=[1-9]' "/tmp/${SUITE}.log"; then exit 1; fi
             grep -E 'RESULT.*failures=0' "/tmp/${SUITE}.log"

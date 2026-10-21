@@ -70,6 +70,8 @@ var tunnels: Array[Dictionary] = []
 var entered_tunnels = 0
 var completed_tunnels = 0
 var cars = 0
+var mission_stats: Dictionary = {}
+var last_loss_world = 0.0
 var losses = 0
 var shots = 0
 var clean_jumps = 0
@@ -134,6 +136,7 @@ var eyes_collected = 0
 var loss_causes: Dictionary = {}
 
 func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Array = [0, 1], collection: Array = [0], powers: Array = [3], power_upgrades: Dictionary = {}) -> void :
+	mission_stats.clear();last_loss_world=0.0
 	run_items.clear();rare_pending = false;opening_power = -1;eyes_collected = 0;loss_causes.clear()
 	levels = upgrades.duplicate(true)
 	owned = collection.duplicate();power_owned = powers.duplicate();power_levels = power_upgrades.duplicate(true)
@@ -467,6 +470,8 @@ func rescue_from_pit() -> bool:
 	return true
 
 func register_loss() -> void :
+	mission_stats.clean_distance=maxi(int(mission_stats.get("clean_distance",0)),int((world_px-last_loss_world)/30))
+	last_loss_world=world_px;mission_stats.clean_coin_current=0;mission_stats.clean_tunnel_current=0
 	losses += 1;loss_times.append(elapsed)
 	while not loss_times.is_empty() and loss_times[0] < elapsed - 4.5: loss_times.pop_front()
 	if (loss_times.size() >= 3 or active_count() <= 3) and recovery_left <= 0 and active_count() > 0:
@@ -705,7 +710,11 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			var radius = 54.0 + int(levels.get("magnet", 0)) * 65.0 + (30 if boost_left > 0 else 0)
 			if centre.distance_to(Vector2(e.x, e.y)) < radius:
 				var amount = 2 if boost_left > 0 else 1
-				e.taken = true;coins += amount;events.append({"type": "coin", "amount": amount, "x": e.x, "y": e.y})
+				e.taken = true;coins += amount
+				mission_stats.clean_coin_current=int(mission_stats.get("clean_coin_current",0))+amount
+				mission_stats.clean_coins=maxi(int(mission_stats.get("clean_coins",0)),int(mission_stats.clean_coin_current))
+				if boost_left>0: mission_stats.frenzy_coins=int(mission_stats.get("frenzy_coins",0))+amount
+				events.append({"type":"coin","amount":amount,"x":e.x,"y":e.y,"physical_pickup":true,"frenzy_pickup":boost_left>0})
 			continue
 		if e.kind in ["civilian", "soldier", "police"]:
 			if e.state == "normal":
@@ -743,6 +752,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				soldier.explode(self, e);break
 			if ((perk_kind == 2 and perk_left > 0) or boost_protected()) and e.kind in ["crate", "spikes", "bomb", "air_bomb", "bullet"]:
 				e.taken = true
+				if e.kind in ["bomb","air_bomb"]: mission_stats.bombs_broken=int(mission_stats.get("bombs_broken",0))+1
 				events.append({"type": "smash", "object": e.kind, "x": e.x, "y": e.y - 35 if e.y == FLOOR else e.y})
 			else:
 				var applied = damage(i, e.kind)
@@ -758,8 +768,11 @@ func distance() -> int:
 	return int(world_px / 30.0)
 
 func stats() -> Dictionary:
-	return {"distance": distance(), "coins": coins, "recruits": recruits, "souls": souls, "soldiers": soldiers, "rescues": rescues, "groups": groups, "cars": cars, 
+	var result = {"distance": distance(), "coins": coins, "recruits": recruits, "souls": souls, "soldiers": soldiers, "rescues": rescues, "groups": groups, "cars": cars,
 		"jumps": clean_jumps, "bonuses": bonuses, "horde": max_horde, "flights": flights, "boost": int(boost_px / 30), "tunnels": completed_tunnels, "losses": losses}
+	for key in ["civilians","civil_groups","army","fly_captures","mask_captures","skeleton_captures","vehicle_car","vehicle_moto","vehicle_bus","vehicle_truck","vehicle_tank","vehicle_plane","mask_vehicles","bombs_broken","frenzy_coins","clean_tunnel_streak","clean_coins"]: result[key]=int(mission_stats.get(key,0))
+	result.seconds=floori(elapsed);result.clean_distance=maxi(int(mission_stats.get("clean_distance",0)),int((world_px-last_loss_world)/30))
+	return result
 
 func drain_events() -> Array[Dictionary]:
 	var result = events.duplicate();events.clear();return result
@@ -791,10 +804,14 @@ func update_tunnels() -> void :
 			t.rewards_spawned = true
 			spawn_tunnel_rewards(t)
 		if not t.entered and world_px >= float(t.entry):
-			t.entered = true;entered_tunnels = int(t.number)
+			t.entered = true;entered_tunnels = int(t.number);t.mission_entry_losses=losses
 			events.append({"type": "tunnel_enter", "number": entered_tunnels})
 		if not t.completed and world_px >= float(t.entry) + float(t.length):
 			t.completed = true;completed_tunnels = int(t.number)
+			if losses==int(t.get("mission_entry_losses",losses)):
+				mission_stats.clean_tunnel_current=int(mission_stats.get("clean_tunnel_current",0))+1
+				mission_stats.clean_tunnel_streak=maxi(int(mission_stats.get("clean_tunnel_streak",0)),int(mission_stats.clean_tunnel_current))
+			else: mission_stats.clean_tunnel_current=0
 			save_generation_trace()
 			events.append({"type": "tunnel_exit", "number": completed_tunnels, "area": area()})
 			break
@@ -914,11 +931,18 @@ func complete_capture(entity: Dictionary) -> void :
 	if entity.taken or dead or active_count() == 0: return
 	entity.taken = true;entity.state = "converted"
 	souls += 1;recruits += 1
+	if entity.kind=="soldier": mission_stats.army=int(mission_stats.get("army",0))+1
+	if entity.kind=="civilian" and not bool(entity.get("from_vehicle",false)):
+		mission_stats.civilians=int(mission_stats.get("civilians",0))+1
+		var counter = str({1:"skeleton_captures",2:"mask_captures",3:"fly_captures"}.get(int(entity.get("capture_kind",0)),""))
+		if not counter.is_empty(): mission_stats[counter]=int(mission_stats.get(counter,0))+1
 	if entity.kind in ["soldier", "police"]: soldiers += 1
 	if entity.rescued: rescues += 1
 	if int(entity.group) >= 0:
 		var count = int(group_captures.get(entity.group, 0)) + 1;group_captures[entity.group] = count
-		if count == 3: groups += 1
+		if count == 3:
+			groups += 1
+			if entity.kind=="civilian" and not bool(entity.get("from_vehicle",false)): mission_stats.civil_groups=int(mission_stats.get("civil_groups",0))+1
 	var kind = recruit_kind()
 
 
@@ -1008,6 +1032,8 @@ func flip_vehicle(entity: Dictionary) -> void :
 		if not member.is_empty() and (perk_kind == 3 and perk_left > 0 or int(member.kind) == 3): member.push_left = 0.0
 	var spec = MonsterCatalog.VEHICLES[entity.kind]
 	entity.taken = true;entity.roof_hold_until = elapsed + 0.9;cars += 1
+	var counter="vehicle_"+str(entity.kind);mission_stats[counter]=int(mission_stats.get(counter,0))+1
+	if perk_kind==2 and perk_left>0: mission_stats.mask_vehicles=int(mission_stats.get("mask_vehicles",0))+1
 	if run_items.has("coin_cars") and reward_rng.randf() < 0.25:
 		coins += 25;events.append({"type": "coin", "amount": 25, "x": entity.x, "y": entity.y - 100})
 	coins += int(spec.reward)

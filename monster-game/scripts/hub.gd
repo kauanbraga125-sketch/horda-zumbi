@@ -4,6 +4,11 @@ const EYE = preload("res://assets/art/meta_v100/eye.png")
 const BOOK = preload("res://assets/art/meta_v100/book.png")
 var grave_texture: Texture2D = preload("res://assets/art/meta_v100/grave.png")
 var fluid: ColorRect
+var vessel: HordeExperimentVessel
+var overlay: HordeExperimentOverlay
+var presentation = HordeExperimentPresentation.new()
+var experiment_ui = HordeExperimentUI.new()
+var completed_clocks: Dictionary = {}
 var name_edit: LineEdit
 var fluid_rect = Rect2()
 var shown_xp = -1.0
@@ -33,13 +38,10 @@ var reveal_left: Array[float] = [0.0,0.0]
 var level_glow = 0.0
 
 func init(g) -> void:
-	if is_instance_valid(fluid): return
-	fluid = ColorRect.new();fluid.mouse_filter = Control.MOUSE_FILTER_IGNORE;fluid.z_index = 1
-	var material = ShaderMaterial.new();material.shader = preload("res://scripts/experiment.gdshader");fluid.material = material
-	g.add_child(fluid)
-	vessel_overlay = TextureRect.new();vessel_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vessel_overlay.z_index = 2;vessel_overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	g.add_child(vessel_overlay)
+	if is_instance_valid(vessel): return
+	vessel=HordeExperimentVessel.new();g.add_child(vessel)
+	fluid=vessel.liquid;vessel_overlay=vessel.frame
+	overlay=HordeExperimentOverlay.new();overlay.game=g;g.add_child(overlay)
 	for i in range(2):
 		var mud = ColorRect.new();mud.mouse_filter = Control.MOUSE_FILTER_IGNORE;mud.z_index = 1
 		var mat = ShaderMaterial.new();mat.shader = preload("res://scripts/grave_mud.gdshader");mud.material = mat
@@ -59,8 +61,8 @@ func update(g, dt: float) -> void:
 	if g.screen != "graves": brush_down = false
 	book_phase = move_toward(book_phase,1.0 if book_opened else 0.0,dt*1.45)
 	last_screen = g.screen
-	fluid.visible = (g.screen in ["missions", "results"] or (g.screen == "run" and progress_notice_left > 0)) and fluid_rect.size.x > 0
-	vessel_overlay.visible = fluid.visible
+	var visible_screen = g.screen in ["missions","results"] or (g.screen in ["run","home"] and (progress_notice_left>0 or presentation.busy()))
+	vessel.visible=visible_screen and fluid_rect.size.x>0;overlay.visible=vessel.visible
 	for i in range(mud_nodes.size()): mud_nodes[i].visible = g.screen == "graves" and not g.data.graves.is_empty() and not bool(g.data.graves[0].claimed[i])
 	name_edit.visible = (g.screen == "book" and book_phase >= 0.95 and HordeMeta.relic_count(int(g.data.player_level)) >= 4 and str(g.data.book_signed_at).is_empty()) or g.codex.signature_active(g)
 	if name_edit.visible:
@@ -70,16 +72,23 @@ func update(g, dt: float) -> void:
 		if g.screen == "collection":
 			var field = g.codex.name_rect(g);name_edit.position = field.position;name_edit.size = field.size
 	book_reaction = maxf(0, book_reaction - dt)
-	if shown_xp < 0: shown_xp = float(g.data.level_souls);shown_level = int(g.data.player_level)
-	var target_level = int(g.data.player_level)
-	if shown_level < target_level:
-		shown_xp = move_toward(shown_xp, float(HordeProgress.level_target(shown_level)), dt * maxf(38, HordeProgress.level_target(shown_level) * 0.7))
-		if shown_xp >= HordeProgress.level_target(shown_level):
-			shown_xp = 0;shown_level += 1;level_glow = 1.4;g.sound.play("jar_full", -15)
-	else: shown_xp = move_toward(shown_xp, float(g.data.level_souls), dt * maxf(30, HordeProgress.level_target(shown_level) * 0.65))
-	if is_instance_valid(fluid):
-		fluid.material.set_shader_parameter("amount", clampf(shown_xp / HordeProgress.level_target(shown_level), 0, 1))
-		fluid.material.set_shader_parameter("liquid", [Color("79edba"), Color("df85ff"), Color("ff7b8d"), Color("76caff")][posmod(shown_level - 1, 4)])
+	if not presentation.initialized: presentation.reset(int(g.data.player_level),float(g.data.level_souls))
+	presentation.advance(dt)
+	if not presentation.busy() and (presentation.shown_level!=int(g.data.player_level) or not is_equal_approx(presentation.shown_xp,float(g.data.level_souls))): presentation.reset(int(g.data.player_level),float(g.data.level_souls))
+	shown_xp=presentation.shown_xp;shown_level=presentation.shown_level
+	if presentation.changed=="react": g.sound.play("jar_full",-15)
+	if presentation.changed=="award": g.sound.celebrate()
+	if vessel.visible:
+		vessel.animate(shown_level,presentation.amount(),g.ui_time,presentation.energy(),0.4+0.6*presentation.portion() if presentation.stage()=="reset" else 1.0)
+		overlay.source=vessel.rect;overlay.queue_redraw()
+	for i in range(3):
+		var m: Dictionary=HordeMissionCatalog.active(g.data)[i]
+		if m.key in g.data.claimed:
+			completed_clocks[m.key]=float(completed_clocks.get(m.key,0))+dt
+			if float(completed_clocks[m.key])>1.9:
+				completed_clocks.erase(m.key);HordeMissionCatalog.replace_completed(g.data,i)
+				if g.screen=="run" or (not g.run_settled and g.runner.elapsed>0): g.mission_born_stats[HordeMissionCatalog.active(g.data)[i].key]=g.runner.stats()
+				g.save_game()
 
 func body(g) -> Rect2:
 	var view: Rect2 = g.full_rect()
@@ -110,22 +119,18 @@ func wallet(g, rect: Rect2) -> void:
 	g.home_menu.slab(g, rect, Color("21152e"), Color("ba925c"), 10, 3)
 	var middle = rect.position.x + rect.size.x * 0.55
 	g.scenery.sprite(g.paint_target, g.art.items[1], Vector2(rect.position.x + 25, rect.get_center().y), 34)
-	label(g, str(g.data.wallet), Vector2(rect.position.x + 48, rect.get_center().y + 10), 27, g.GOLD, false, rect.size.x * 0.4)
+	if is_instance_valid(overlay): overlay.wallet_target=Vector2(rect.position.x+25,rect.get_center().y)
+	label(g, str(presentation.wallet(int(g.data.wallet))), Vector2(rect.position.x + 48, rect.get_center().y + 10), 27, g.GOLD, false, rect.size.x * 0.4)
 	eye(g, Vector2(middle + 18, rect.get_center().y), 36)
 	label(g, str(g.data.eyes), Vector2(middle + 44, rect.get_center().y + 10), 27, Color("dda7ff"), false, rect.end.x - middle - 50)
 
 func experiment(g, rect: Rect2) -> void:
-	fluid_rect = rect
-	var index = posmod(shown_level-1,4)
-	var panes = [Rect2(0.245,0.216,0.515,0.583),Rect2(0.222,0.214,0.548,0.583),Rect2(0.267,0.205,0.463,0.544),Rect2(0.252,0.204,0.503,0.544)]
-	if is_instance_valid(fluid):
-		fluid.position = rect.position + panes[index].position*rect.size
-		fluid.size = panes[index].size*rect.size
-		vessel_overlay.texture = polish.icon("vessels",index)
-		vessel_overlay.position = rect.position;vessel_overlay.size = rect.size
-	if level_glow > 0:
-		g.paint_target.draw_arc(rect.get_center(),rect.size.y*0.38+(1.4-level_glow)*24,0,TAU,40,Color(0.85,0.6,1.0,level_glow*0.25),3,true)
-	label(g, "NÍVEL " + str(shown_level), rect.position + Vector2(rect.size.x * 0.5, rect.size.y + 45), 25, g.GOLD, true, rect.size.x * 1.5)
+	fluid_rect=rect
+	if not presentation.initialized: presentation.reset(int(g.data.player_level),float(g.data.level_souls))
+	if is_instance_valid(vessel):
+		vessel.place(rect);vessel.visible=true
+		vessel.animate(presentation.shown_level,presentation.amount(),g.ui_time,presentation.energy())
+		overlay.source=vessel.rect;overlay.visible=true;overlay.queue_redraw()
 
 func object_icon(g, index: int, p: Vector2, height: float) -> void:
 	if index < 6:
@@ -140,6 +145,7 @@ func object_icon(g, index: int, p: Vector2, height: float) -> void:
 func home(g) -> void:
 	var d = g.home_menu.layout(g.full_rect())
 	wallet(g,d.wallet)
+	if presentation.busy(): draw_run_notice(g)
 	button(g,d.profile,"MEU PERFIL","profile_open")
 	if HordeMeta.daily_available(g.data,int(Time.get_unix_time_from_system())):
 		button(g,Rect2(d.profile.position+Vector2(0,63),Vector2(d.profile.size.x,44)),"+5 OLHOS GRÁTIS","daily_eyes")
@@ -208,26 +214,7 @@ func results(g) -> void:
 	button(g, Rect2(r.end.x - 300, g.full_rect().end.y - 82, 300, 66), "JOGAR DE NOVO", "play", true)
 
 func missions(g) -> void:
-	var r = frame(g, "EXPERIMENTO DE RESSURREIÇÃO", "Complete missões para encher o recipiente e avançar de nível.")
-	var chamber = Rect2(r.position, Vector2(r.size.x * 0.31, r.size.y))
-	g.panel(chamber, Color("21192d"), Color("997c61"), 20, 2)
-	experiment(g, Rect2(chamber.get_center().x - 80, chamber.position.y + 36, 160, chamber.size.y - 135))
-	g.pages.lines(g, HordeMeta.EXPERIMENTS[posmod(int(g.data.player_level) - 1, 4)], Rect2(chamber.position + Vector2(15, chamber.size.y - 58), Vector2(chamber.size.x - 30, 42)), 20, g.MINT)
-	var x = chamber.end.x + 20;var w = r.end.x - x
-	var missions = MonsterCatalog.active_missions(int(g.data.mission_tier))
-	for i in range(3):
-		var m: Dictionary = missions[i];var row = Rect2(x, r.position.y + i * (r.size.y - 70) / 3, w, (r.size.y - 94) / 3)
-		g.panel(row, Color("30213e"), Color("89647d"), 14, 2)
-		var count = int(g.data.mission_progress.get(m.id, 0))
-		label(g, m.title, row.position + Vector2(20, 32), 24, g.GOLD, false, w - 170)
-		label(g, str(count) + " / " + str(m.target), Vector2(row.end.x - 130, row.position.y + 32), 22, g.CREAM)
-		g.progress_bar(Rect2(row.position + Vector2(20, 48), Vector2(w - 160, 10)), float(count) / maxf(1, float(m.target)), g.MINT)
-		label(g, ("EM UMA PARTIDA" if m.mode == "best" else "ACUMULATIVA") + " · +" + str(m.ritual) + " ESSÊNCIA", row.position + Vector2(20, row.size.y - 12), 16, g.MINT)
-	var dose_count = int(g.data.doses) if Time.get_unix_time_from_system() < int(g.data.dose_reset_at) + 86400 else 3
-	for i in range(3): polish.draw(g.paint_target,"relics",7,Vector2(x+12+i*22,r.end.y-41),Vector2(24,31),Color.WHITE if i < dose_count else Color(0.35,0.3,0.4,0.65))
-	label(g, "ADRENALINA " + str(dose_count) + "/3 · +50% NAS MISSÕES · RENOVA EM 24H", Vector2(x+80, r.end.y - 35), 16, g.MINT, false, w-80)
-	label(g, str(g.data.level_souls) + " / " + str(HordeProgress.level_target(int(g.data.player_level))) + " ESSÊNCIA · PRÓXIMO NÍVEL: " + str(100 + mini(50, int(g.data.player_level) + 1) * 10) + " MOEDAS + " + str(HordeMeta.level_eyes(int(g.data.player_level) + 1)) + " OLHOS", Vector2(x, r.end.y - 7), 17, g.GOLD, false, w)
-	footer(g)
+	experiment_ui.paint(g)
 
 func grave_rects(g) -> Array[Rect2]:
 	var r = body(g);var h = r.size.y - 12;var w = minf(290, r.size.x * 0.3)
@@ -478,10 +465,17 @@ func input(g, event: InputEvent) -> bool:
 	return false
 
 func draw_run_notice(g) -> void:
-	if progress_notice_left <= 0: return
-	var v: Rect2 = g.full_rect()
-	experiment(g, Rect2(v.end.x - 125, v.position.y + 142, 70, 112))
-	label(g, "+ESSÊNCIA", Vector2(v.end.x - 90, v.position.y + 129), 17, g.MINT, true)
+	if progress_notice_left<=0 and not presentation.busy(): return
+	var v: Rect2=g.full_rect()
+	var panel=Rect2(v.end.x-242,v.position.y+145,220,183)
+	g.paint_target.draw_style_box(profile_ui.panel,panel)
+	experiment(g,Rect2(panel.position+Vector2(4,16),Vector2(104,150)))
+	label(g,"EXPERIMENTO",panel.position+Vector2(104,29),13,g.GOLD,false,108)
+	label(g,"NÍVEL "+str(presentation.shown_level),panel.position+Vector2(104,53),19,g.GOLD,false,108)
+	label(g,str(floori(presentation.shown_xp))+" / "+str(HordeProgress.level_target(presentation.shown_level)),panel.position+Vector2(104,80),17,g.MINT,false,108)
+	label(g,"CARTEIRA",panel.position+Vector2(104,126),12,g.MINT)
+	label(g,str(presentation.wallet(int(g.data.wallet))),panel.position+Vector2(104,153),22,g.GOLD,false,108)
+	overlay.wallet_target=panel.position+Vector2(137,144)
 
 func evolution(g) -> void:
 	var kind = detail_kind

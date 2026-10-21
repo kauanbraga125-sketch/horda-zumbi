@@ -132,18 +132,14 @@ func header(g, d: Dictionary) -> void:
 	logo(g,d.title)
 	var r: Rect2 = d.level
 	slab(g,r,Color("22162f"),Color("b18a52"),12,3);corners(g,r)
-	var index = posmod(int(g.data.player_level)-1,4)
-	var panes = [Rect2(.245,.216,.515,.583),Rect2(.222,.214,.548,.583),Rect2(.267,.205,.463,.544),Rect2(.252,.204,.503,.544)]
-	var glass = Rect2(r.position+Vector2(3,2)+panes[index].position*Vector2(48,58),panes[index].size*Vector2(48,58))
-	var fill = clampf(float(g.data.level_souls)/HordeProgress.level_target(int(g.data.player_level)),0,1)
-	g.paint_target.draw_rect(Rect2(glass.position+Vector2(0,glass.size.y*(1-fill)),Vector2(glass.size.x,glass.size.y*fill)),Color("b178f0"))
-	g.hub.polish.draw(g.paint_target,"vessels",index,r.position+Vector2(27,31),Vector2(48,58))
+	var mixture=HordeExperimentArt.variant(int(g.data.player_level))
+	g.hub.experiment(g,Rect2(r.position+Vector2(3,2),Vector2(48,58)))
 	label(g,"NÍVEL "+str(g.data.player_level),r.position+Vector2(57,25),26,IVORY,false,r.size.x*.42)
 	var count = str(g.data.level_souls)+" / "+str(HordeProgress.level_target(int(g.data.player_level)))+" ESSÊNCIA"
 	var size = 19
 	while size>13 and label_font.get_string_size(count,HORIZONTAL_ALIGNMENT_LEFT,-1,size).x>r.size.x*.49: size-=1
 	label(g,count,Vector2(r.end.x-16-label_font.get_string_size(count,HORIZONTAL_ALIGNMENT_LEFT,-1,size).x,r.position.y+29),size,MINT,false)
-	g.progress_bar(Rect2(r.position+Vector2(62,44),Vector2(r.size.x-80,10)),float(g.data.level_souls)/HordeProgress.level_target(int(g.data.player_level)),Color("b178f0"))
+	g.progress_bar(Rect2(r.position+Vector2(62,44),Vector2(r.size.x-80,10)),float(g.data.level_souls)/HordeProgress.level_target(int(g.data.player_level)),mixture.color)
 	register(g,r,"missions")
 	for action in ["audio","help"]:
 		var rect: Rect2 = d[action];var center = rect.get_center()

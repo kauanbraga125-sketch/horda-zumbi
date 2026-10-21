@@ -85,14 +85,14 @@ func button(g, rect: Rect2, title: String, action: String, primary: bool = false
 
 func done_count(data: Dictionary) -> int:
 	var count = 0
-	for mission in MonsterCatalog.active_missions(int(data.mission_tier)):
+	for mission in MonsterCatalog.active_missions(int(data.mission_tier),data):
 		if mission.key in data.claimed: count += 1
 	return count
 
 func missions(g) -> void :
 	var d = layout(g.full_rect())
 	header(g, d, "MISSÕES DA MADRUGADA", "CAPÍTULO " + str(int(g.data.mission_tier) + 1) + "  •  " + str(done_count(g.data)) + " / 3 CONCLUÍDAS")
-	var missions = MonsterCatalog.active_missions(int(g.data.mission_tier))
+	var missions = MonsterCatalog.active_missions(int(g.data.mission_tier),g.data)
 	for i in range(3):
 		var m: Dictionary = missions[i]
 		var r: Rect2 = d.cards[i]

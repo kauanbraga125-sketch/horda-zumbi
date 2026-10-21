@@ -178,3 +178,8 @@ Nenhuma imagem ou folha de sprites nova. As três telas reutilizam os painéis, 
 - `assets/art/civil-azul-v089/`: seis folhas alinhadas e 66 quadros fornecidos pelo usuário em `Civil_Casaco_Azul_Pacote_Integracao(1).zip`. Pixels dos PNGs aprovados preservados; orientação, origem e tempos seguem o prompt do pacote. Referências, prévias e quadros individuais não são incluídos no APK.
 - `assets/art/terrain-v089.png`: folha original gerada pela ferramenta integrada imagegen para pedra intacta, rachaduras, desmoronamento, margens de buracos e pontas de elevações, no estilo do chão v0.8.3. Recortes e animação são feitos pelo motor.
 - `assets/audio/power-warning-v089.ogg`: sinal original sintetizado com senoides, ataque curto e decaimento, para os três segundos finais dos poderes.
+
+
+## Experimentos 0.10.5
+
+A máquina vazia de bronze, 16 objetos isolados e 24 ilustrações de missões foram criados com image_gen a partir das referências aprovadas para este projeto. Originais em `art-source/v0.10.5`, derivados e manifestos em `assets/art/experiment_v105`. Extração e redução mecânicas no Godot; água, bolhas, movimento e moedas usam desenho/shaders nativos. Paletas e nomes são referências de atmosfera de terror; NPCs e monstros seguem a identidade visual existente.

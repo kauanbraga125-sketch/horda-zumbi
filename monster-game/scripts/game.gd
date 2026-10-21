@@ -27,6 +27,7 @@ var passenger_captures = HordeVehicleCaptures.new()
 var panel_styles: Dictionary = {}
 var market_layout_size = Vector2(-1, -1)
 var last_stats: Dictionary = {}
+var mission_born_stats: Dictionary = {}
 var trail_tick = 0.0
 var voice_tick = 0.0
 var reward_rng = RandomNumberGenerator.new()
@@ -229,7 +230,7 @@ func start_run() -> void :
 	effects.clear();ui_effects.clear()
 	scenery.reset();voice_tick = 1.8
 	run_challenges.clear()
-	last_stats = {}
+	last_stats = {};mission_born_stats.clear()
 	trail_tick = 0
 	end_delay = -1
 	toast_left = 0
@@ -248,8 +249,13 @@ func consume_run_events() -> void :
 				sound.play("soul_capture", -12);effects.spark(point, Color("dba4ff"), 12)
 			"coin":
 				if runner.run_items.has("double_coins"):
-					runner.coins += int(e.amount);e.amount = int(e.amount) * 2
-				if not lab_active: data.wallet += int(e.amount)
+					runner.coins += int(e.amount)
+					if bool(e.get("physical_pickup",false)):
+						runner.mission_stats.clean_coin_current=int(runner.mission_stats.get("clean_coin_current",0))+int(e.amount)
+						runner.mission_stats.clean_coins=maxi(int(runner.mission_stats.get("clean_coins",0)),int(runner.mission_stats.clean_coin_current))
+					if bool(e.get("frenzy_pickup",false)): runner.mission_stats.frenzy_coins=int(runner.mission_stats.get("frenzy_coins",0))+int(e.amount)
+					e.amount = int(e.amount)*2
+				if not lab_active: data.wallet = mini(9999999,int(data.wallet)+int(e.amount))
 				coin_pulse = 1
 				sound.play("coin")
 				effects.spark(point, GOLD, 5)
@@ -375,34 +381,16 @@ func finish_run() -> void :
 	sound.set_area(0, false)
 	save_game()
 
-func check_challenges() -> void :
+func check_challenges() -> void:
 	if lab_active: return
 	var values = runner.stats()
-	var all_complete = true
-	for challenge in MonsterCatalog.active_missions(int(data.mission_tier)):
-		if challenge.key in data.claimed: continue
-		var current = int(values.get(challenge.stat, 0))
-		var progress = int(data.mission_progress.get(challenge.id, 0))
-		if challenge.mode == "sum":
-			progress += maxi(0, current - int(last_stats.get(challenge.stat, 0)))
-		else: progress = maxi(progress, current)
-		data.mission_progress[challenge.id] = mini(progress, int(challenge.target))
-		if progress >= int(challenge.target):
-			data.claimed.append(challenge.key)
-			HordeProgress.queue_mission(data, challenge)
-			begin_ritual()
-			data.missions_completed += 1
-			run_challenges.append(challenge.title)
-			sound.play("challenge")
-			show_toast("MISSÃO CONCLUÍDA  +" + str(ritual_view.get("points", challenge.ritual)) + " ESSÊNCIA", 2.5)
-			save_game()
-		else: all_complete = false
-	last_stats = values.duplicate()
-	if all_complete:
-		data.mission_tier += 1
-		data.claimed.clear();data.mission_progress.clear()
-		show_toast("NOVAS MISSÕES! CAPÍTULO " + str(int(data.mission_tier) + 1), 2.5)
-		save_game()
+	var completed = HordeMissionCatalog.advance(data,values,last_stats,mission_born_stats)
+	for challenge in completed:
+		HordeProgress.queue_mission(data,challenge);run_challenges.append(challenge.title)
+	if not completed.is_empty():
+		begin_ritual();sound.play("challenge")
+		show_toast("MISSÃO CONCLUÍDA  +"+str(ritual_view.get("points",0))+" ESSÊNCIA",2.5);save_game()
+	last_stats=values.duplicate()
 
 func buy_upgrade(index: int) -> bool:
 	if index < 0 or index >= MonsterCatalog.UPGRADES.size(): return false
@@ -1003,6 +991,7 @@ func validate_save(value) -> Dictionary:
 			if progress is Dictionary: result.mission_progress[challenge.id] = clampi(int(progress.get(challenge.id, 0)), 0, int(challenge.target))
 			if challenge.key in result.claimed: result.mission_progress[challenge.id] = int(challenge.target)
 	HordeMeta.migrate(result, value)
+	HordeMissionCatalog.migrate(result,value,MonsterCatalog.active_missions(result.mission_tier))
 	return result
 
 func read_save(path: String = SAVE_PATH) -> Dictionary:
@@ -1467,33 +1456,17 @@ func draw_civilian(entity: Dictionary) -> void :
 func begin_ritual() -> void :
 	if not data.ritual_ready: return
 	if data.ritual_pending.is_empty(): data.ritual_ready = false;return
-	hub.shown_xp = float(data.level_souls);hub.shown_level = int(data.player_level)
-	ritual_view = HordeProgress.ritual(data, reward_rng);ritual_time = 0;ritual_particle_tick = 0;ritual_reward_played = false
+	ritual_view = HordeProgress.ritual(data, reward_rng);hub.presentation.enqueue(ritual_view);ritual_time = 0;ritual_particle_tick = 0;ritual_reward_played = false
 	if screen == "run":
 		for key in run_mission_report: run_mission_report[key] += int(ritual_view.get(key, 0))
 		hub.progress_notice_left = 4.0
 	save_game()
 	if int(ritual_view.points) > 0:
-		effects.clear();sound.play("ritual_fill", -13)
+		sound.play("ritual_fill", -13)
 
 func update_rewards(dt: float) -> void :
 	effects.update(dt, 0)
-	if screen == "home":
-		ritual_time += dt;ritual_particle_tick += dt
-		if not ritual_view.is_empty() and ritual_time < 2.6 and int(ritual_view.points) > 0 and ritual_particle_tick > 0.1:
-			ritual_particle_tick = 0
-			var target = home_menu.ritual_target(full_rect())
-			effects.spark(target,Color("b178f0"),3)
-		if not ritual_view.is_empty() and ritual_time > 1.75 and int(ritual_view.bonuses) > 0 and not ritual_reward_played:
-			ritual_reward_played = true;sound.celebrate();effects.spark(home_menu.ritual_target(full_rect()), GOLD, 30)
-	else:
-		if result_full_flash <= 0: result_time += dt
-		result_full_flash = maxf(0, result_full_flash - dt)
-		sound.set_jar(result_full_flash <= 0 and animated_result_souls() < runner.souls)
-		var animated = animated_result_souls()
-		var view = HordeProgress.board(int(run_report.get("old_level", data.player_level)), int(run_report.get("old_progress", data.level_souls)), animated)
-		if int(view.level) > result_level:
-			result_level = int(view.level);result_full_flash = 0.34;sound.set_jar(false);sound.play("jar_full", -12);sound.celebrate();effects.spark(Vector2(331, 380), MINT, 24)
+	ritual_time+=dt
 
 func draw_ritual_panel() -> void :
 	panel(Rect2(78, 349, 650, 146), Color(0.12, 0.07, 0.2, 0.96), Color("8da690"), 22, 2)

@@ -27,17 +27,20 @@ static func queue_mission(data: Dictionary, mission: Dictionary) -> void:
 	data.ritual_ready = true
 
 static func ritual(data: Dictionary, _rng: RandomNumberGenerator) -> Dictionary:
-	var result = {"old_progress": int(data.level_souls), "old_level": int(data.player_level), "points": 0, "coins": 0, "bonuses": 0, "eyes": 0}
+	var result = {"old_progress": int(data.level_souls), "old_level": int(data.player_level), "points": 0, "coins": 0, "bonuses": 0, "eyes": 0, "steps": []}
 	if not bool(data.ritual_ready): return result
 	for item in data.ritual_pending: result.points += int(item.points)
 	data.level_souls += int(result.points)
 	while int(data.player_level) < 500 and int(data.level_souls) >= level_target(int(data.player_level)):
 		data.level_souls -= level_target(int(data.player_level));data.player_level += 1
 		var level = int(data.player_level);var coins = 100 + mini(50, level) * 10
-		data.wallet = mini(9999999, int(data.wallet) + coins);result.coins += coins;result.bonuses += 1
+		var before = clampi(int(data.wallet),0,9999999);var eyes_paid = 0
+		data.wallet = mini(9999999, int(data.wallet) + coins);coins=int(data.wallet)-before;result.coins += coins;result.bonuses += 1
 		if level not in data.level_rewards:
 			data.level_rewards.append(level);var eyes = HordeMeta.level_eyes(level)
-			data.eyes = mini(9999999, int(data.eyes) + eyes);result.eyes += eyes
+			var old_eyes = int(data.eyes)
+			data.eyes = mini(9999999, int(data.eyes) + eyes);eyes_paid=int(data.eyes)-old_eyes;result.eyes += eyes_paid
+		result.steps.append({"level":level,"coins":coins,"eyes":eyes_paid})
 	data.level_souls = mini(int(data.level_souls), level_target(int(data.player_level)) - 1)
 	data.ritual_progress = int(data.level_souls) % 100;data.ritual_pending.clear();data.ritual_ready = false
 	return result
