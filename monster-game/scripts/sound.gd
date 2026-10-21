@@ -1,5 +1,6 @@
 class_name HordeSound
 extends Node
+signal result_cue(name: String, pitch: float, volume: float)
 
 var enabled = true
 var music: AudioStreamPlayer
@@ -21,6 +22,8 @@ var cauldron: AudioStreamPlayer
 var footsteps: AudioStreamPlayer
 var heavy_steps: AudioStreamPlayer
 var jar_loop: AudioStreamPlayer
+var result_liquid: AudioStreamPlayer
+var result_fill_target = -80.0
 var atmosphere: Array[AudioStreamPlayer] = []
 var atmosphere_key = ""
 var atmosphere_index = 0
@@ -67,6 +70,12 @@ func _ready() -> void :
 		var name = str(file.output).trim_suffix(".ogg")
 		var stream = load("res://assets/audio/v7/" + str(file.output)) as AudioStreamOggVorbis
 		stream.loop = bool(file.loop);clips[name] = stream;variants[key].append(name)
+	result_liquid=loop_player()
+	for name in ["soul","fill","full","coin","reward"]:
+		var stream=AudioStreamWAV.new();stream.format=AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate=32000;stream.stereo=false
+		stream.data=FileAccess.get_file_as_bytes("res://assets/audio/results_v110/"+name+".pcm")
+		if name=="fill": stream.loop_mode=AudioStreamWAV.LOOP_FORWARD;stream.loop_begin=0;stream.loop_end=stream.data.size()/2
+		clips["result_"+name]=stream
 	set_mix(mix_levels)
 
 func loop_player() -> AudioStreamPlayer:
@@ -79,6 +88,7 @@ func set_mix(value: Dictionary) -> void :
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index(bus), linear_to_db(maxf(0.0001, mix_levels[channel])))
 
 func _process(dt: float) -> void :
+	if is_instance_valid(result_liquid): result_liquid.volume_db=move_toward(result_liquid.volume_db,result_fill_target,dt*100)
 	duck_left = maxf(0, duck_left - dt)
 	for i in range(2):
 		atmosphere_weights[i] = move_toward(atmosphere_weights[i], atmosphere_targets[i], dt / 1.1)
@@ -97,7 +107,7 @@ func _process(dt: float) -> void :
 
 func set_enabled(value: bool) -> void :
 	enabled = value
-	for player in music_players + atmosphere + [ambience, rotor, engine, fire, wings, cauldron, footsteps, heavy_steps, jar_loop]: player.stream_paused = not value
+	for player in music_players + atmosphere + [ambience, rotor, engine, fire, wings, cauldron, footsteps, heavy_steps, jar_loop, result_liquid]: player.stream_paused = not value
 	if not value:
 		for player in players: player.stop()
 
@@ -223,3 +233,26 @@ func set_atmosphere(group: String) -> void :
 	var p = atmosphere[atmosphere_index]
 	p.stream = clips[choose_variant(group)];p.volume_db = -70;p.play();p.stream_paused = not enabled
 	atmosphere_weights[atmosphere_index] = 0;atmosphere_targets[atmosphere_index] = 1
+
+func results_one_shot(name: String, pitch: float = 1.0, volume: float = -14) -> void:
+	if not enabled or not clips.has(name): return
+	if name in ["result_full","result_reward"]: duck_left=maxf(duck_left,0.55)
+	for player in players:
+		if player.playing: continue
+		player.bus="HordeEffects";player.stream=clips[name];player.volume_db=volume
+		player.pitch_scale=pitch;player.play();result_cue.emit(name,pitch,volume);return
+
+func results_soul(index: int) -> void:
+	results_one_shot("result_soul",0.94+float(index%10)*0.022,-11)
+
+func results_fill(active: bool, portion: float = 0.0) -> void:
+	if not is_instance_valid(result_liquid): return
+	if not active:
+		if result_liquid.playing: result_cue.emit("result_fill_stop",1.0,-80)
+		result_liquid.stop();result_fill_target=-80;return
+	result_liquid.pitch_scale=0.94+portion*0.10
+	if not result_liquid.playing:
+		result_liquid.stream=clips.result_fill;result_liquid.volume_db=-24;result_liquid.play()
+		if enabled: result_cue.emit("result_fill",result_liquid.pitch_scale,-9)
+	result_fill_target=-9+sin(portion*PI)*2;duck_left=maxf(duck_left,0.15)
+	result_liquid.stream_paused=not enabled

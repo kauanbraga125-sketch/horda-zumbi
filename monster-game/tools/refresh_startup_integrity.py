@@ -17,6 +17,8 @@ def refresh(root: Path):
     paths += sorted(p for p in (root / 'scripts').iterdir() if p.suffix in ('.gd', '.gdshader'))
     for folder in ('soldier_v100', 'polish_v101', 'menu_v102', 'codex_v103', 'masked_v104', 'profile_v104', 'experiment_v105'):
         paths += sorted((root / 'assets/art' / folder).glob('*.json'))
+    paths += sorted(p for p in (root / 'assets/art/results_v110').glob('*') if p.suffix in ('.png', '.json'))
+    paths += sorted(p for p in (root / 'assets/audio/results_v110').glob('*') if p.suffix in ('.pcm', '.json'))
     version = re.search(r'config/version="([^"]+)"', (root / 'project.godot').read_text()).group(1)
     manifest = {'version': version,
                 'class_count': len(re.findall(rb'"class":', cache.read_bytes())),

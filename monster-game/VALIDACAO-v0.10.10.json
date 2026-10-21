@@ -1,0 +1,101 @@
+{
+  "apk": "Horda-Zumbi-v0.10.10.apk",
+  "sha256": "0eb21d1f74ced03997fa27d17510cfd6733b096528bfa662ce5850301f724b01",
+  "bytes": 282278944,
+  "plain_scripts": 60,
+  "classes": 53,
+  "verified_index_entries": 808,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 109,
+  "previousVersionName": "0.10.9",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.10",
+  "versionCode": 110,
+  "changed_resources": [
+    "AndroidManifest.xml",
+    "META-INF/ANDROIDD.RSA",
+    "META-INF/ANDROIDD.SF",
+    "META-INF/MANIFEST.MF",
+    "assets/assets.sparsepck",
+    "assets/project.binary",
+    "assets/scripts/boot_audit.gd",
+    "assets/scripts/experiment_overlay.gd",
+    "assets/scripts/experiment_presentation.gd",
+    "assets/scripts/game.gd",
+    "assets/scripts/hub.gd",
+    "assets/scripts/sound.gd",
+    "assets/startup_integrity.json"
+  ],
+  "added_resources": [
+    "assets/assets/art/results_v110/manifest.json",
+    "assets/assets/art/results_v110/souls.png",
+    "assets/assets/audio/results_v110/coin.pcm",
+    "assets/assets/audio/results_v110/fill.pcm",
+    "assets/assets/audio/results_v110/full.pcm",
+    "assets/assets/audio/results_v110/manifest.json",
+    "assets/assets/audio/results_v110/reward.pcm",
+    "assets/assets/audio/results_v110/soul.pcm",
+    "assets/scripts/results_ui.gd"
+  ],
+  "same_assets_and_native_libraries": true,
+  "certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8",
+  "validation": {
+    "suite_counts": {
+      "v100_integration": 56,
+      "v101_integration": 20,
+      "v103_codex": 38,
+      "v104_integration": 41,
+      "v105_integration": 47,
+      "v107_integration": 33,
+      "v108_integration": 56,
+      "v109_integration": 22,
+      "v103_apk_runtime": 20,
+      "v110_integration": 40
+    },
+    "total_distinct_checks": 373,
+    "packed_suites": [
+      "v103_apk_runtime",
+      "v110_integration",
+      "v108_integration",
+      "v109_integration"
+    ],
+    "startup_files": 89,
+    "grid": [
+      10,
+      10
+    ],
+    "new_soul_atlas_regions": 6,
+    "active_soul_poses": 5,
+    "new_audio_cues": 5,
+    "long_run_souls_tested": 1200,
+    "layout_sizes": [
+      "960x720",
+      "1280x720",
+      "1600x720",
+      "1280x960"
+    ],
+    "visual_sizes": [
+      "1280x720",
+      "1600x720"
+    ],
+    "renderer": "Godot 4.5.1 OpenGL compatibility, Mesa llvmpipe",
+    "android_device_tested": false,
+    "saved_rewards_independent_of_animation": true
+  },
+  "video_preview": {
+    "file": "Horda-Zumbi-v0.10.10-Resultados.mp4",
+    "sha256": "d3494998b9156efb0a8f8d5bcdf9f7441b85bec6c589883a6a1753daf8775547",
+    "bytes": 1598209,
+    "frames": 156,
+    "fps": 12,
+    "seconds": 13,
+    "width": 1280,
+    "height": 720,
+    "audio": "Offline mix of shipped PCM cues at engine-recorded event timestamps; not an Android device capture."
+  }
+}

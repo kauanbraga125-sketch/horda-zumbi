@@ -1,0 +1,64 @@
+{
+  "version": "0.10.10",
+  "tool": "built-in imagegen",
+  "source": "Original unmodified transparent six-frame sheet, 1536x1024. Reference: approved end-of-run mockup from this conversation.",
+  "sha256": "35f2f334aab83bd03f059894f1fe905c99dfeba1951d8a29e9c07d9d385c7ec1",
+  "sheet": [
+    1536,
+    1024
+  ],
+  "cells": [
+    3,
+    2
+  ],
+  "regions": [
+    [
+      123,
+      66,
+      318,
+      414
+    ],
+    [
+      614,
+      85,
+      315,
+      381
+    ],
+    [
+      1138,
+      64,
+      282,
+      407
+    ],
+    [
+      132,
+      563,
+      318,
+      407
+    ],
+    [
+      598,
+      573,
+      329,
+      382
+    ],
+    [
+      1115,
+      567,
+      328,
+      408
+    ]
+  ],
+  "sequence": [
+    0,
+    1,
+    2,
+    5,
+    3,
+    5,
+    2,
+    1
+  ],
+  "alignment": "Equal visible body height, centered alpha bounds; fifth source pose excluded to preserve facing.",
+  "prompt": "Transparent 3x2 six-frame cyan ghost soul sheet. Same rounded teardrop head, simple dark oval eyes, tiny mischievous mouth; aqua edges and ivory face, tapered ectoplasm tail. Hand-painted cartoon Halloween UI identity. Smooth tail-curl poses, equal-size cells, generous gutters, no letters, frames or backgrounds. Preserve source pixels; use runtime atlas regions."
+}

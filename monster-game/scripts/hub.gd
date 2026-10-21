@@ -8,6 +8,7 @@ var vessel: HordeExperimentVessel
 var overlay: HordeExperimentOverlay
 var presentation = HordeExperimentPresentation.new()
 var experiment_ui = HordeExperimentUI.new()
+var result_ui = preload("res://scripts/results_ui.gd").new()
 var completed_clocks: Dictionary = {}
 var name_edit: LineEdit
 var fluid_rect = Rect2()
@@ -52,7 +53,7 @@ func init(g) -> void:
 
 func update(g, dt: float) -> void:
 	init(g)
-	if g.screen == "results": g.result_time += dt
+	if g.screen == "results": result_ui.update(g, dt)
 	progress_notice_left = maxf(0, progress_notice_left - dt)
 	for i in range(2): reveal_left[i] = maxf(0,reveal_left[i]-dt)
 	level_glow = maxf(0,level_glow-dt)
@@ -61,7 +62,7 @@ func update(g, dt: float) -> void:
 	if g.screen != "graves": brush_down = false
 	book_phase = move_toward(book_phase,1.0 if book_opened else 0.0,dt*1.45)
 	last_screen = g.screen
-	var visible_screen = g.screen in ["missions","results"] or (g.screen in ["run","home"] and (progress_notice_left>0 or presentation.busy()))
+	var visible_screen = g.screen in ["missions","results"] or (g.screen == "home" and (progress_notice_left>0 or presentation.busy()))
 	vessel.visible=visible_screen and fluid_rect.size.x>0;overlay.visible=vessel.visible
 	for i in range(mud_nodes.size()): mud_nodes[i].visible = g.screen == "graves" and not g.data.graves.is_empty() and not bool(g.data.graves[0].claimed[i])
 	name_edit.visible = (g.screen == "book" and book_phase >= 0.95 and HordeMeta.relic_count(int(g.data.player_level)) >= 4 and str(g.data.book_signed_at).is_empty()) or g.codex.signature_active(g)
@@ -72,14 +73,16 @@ func update(g, dt: float) -> void:
 		if g.screen == "collection":
 			var field = g.codex.name_rect(g);name_edit.position = field.position;name_edit.size = field.size
 	book_reaction = maxf(0, book_reaction - dt)
-	if not presentation.initialized: presentation.reset(int(g.data.player_level),float(g.data.level_souls))
-	presentation.advance(dt)
-	if not presentation.busy() and (presentation.shown_level!=int(g.data.player_level) or not is_equal_approx(presentation.shown_xp,float(g.data.level_souls))): presentation.reset(int(g.data.player_level),float(g.data.level_souls))
-	shown_xp=presentation.shown_xp;shown_level=presentation.shown_level
-	if presentation.changed=="react": g.sound.play("jar_full",-15)
-	if presentation.changed=="award": g.sound.celebrate()
+	var p = active_presentation(g)
+	if not p.initialized: p.reset(int(g.data.player_level),float(g.data.level_souls))
+	if g.screen != "results":
+		p.advance(dt)
+		if not p.busy() and (p.shown_level!=int(g.data.player_level) or not is_equal_approx(p.shown_xp,float(g.data.level_souls))): p.reset(int(g.data.player_level),float(g.data.level_souls))
+		if p.changed=="react": g.sound.play("jar_full",-15)
+		if p.changed=="award": g.sound.celebrate()
+	shown_xp=p.shown_xp;shown_level=p.shown_level
 	if vessel.visible:
-		vessel.animate(shown_level,presentation.amount(),g.ui_time,presentation.energy(),0.4+0.6*presentation.portion() if presentation.stage()=="reset" else 1.0)
+		vessel.animate(shown_level,p.amount(),g.ui_time,p.energy(),0.4+0.6*p.portion() if p.stage()=="reset" else 1.0)
 		overlay.source=vessel.rect;overlay.queue_redraw()
 	for i in range(3):
 		var m: Dictionary=HordeMissionCatalog.active(g.data)[i]
@@ -89,6 +92,9 @@ func update(g, dt: float) -> void:
 				completed_clocks.erase(m.key);HordeMissionCatalog.replace_completed(g.data,i)
 				if g.screen=="run" or (not g.run_settled and g.runner.elapsed>0): g.mission_born_stats[HordeMissionCatalog.active(g.data)[i].key]=g.runner.stats()
 				g.save_game()
+
+func active_presentation(g) -> HordeExperimentPresentation:
+	return result_ui.presentation if g.screen == "results" else presentation
 
 func body(g) -> Rect2:
 	var view: Rect2 = g.full_rect()
@@ -120,16 +126,17 @@ func wallet(g, rect: Rect2) -> void:
 	var middle = rect.position.x + rect.size.x * 0.55
 	g.scenery.sprite(g.paint_target, g.art.items[1], Vector2(rect.position.x + 25, rect.get_center().y), 34)
 	if is_instance_valid(overlay): overlay.wallet_target=Vector2(rect.position.x+25,rect.get_center().y)
-	label(g, str(presentation.wallet(int(g.data.wallet))), Vector2(rect.position.x + 48, rect.get_center().y + 10), 27, g.GOLD, false, rect.size.x * 0.4)
+	label(g, str(active_presentation(g).wallet(int(g.data.wallet))), Vector2(rect.position.x + 48, rect.get_center().y + 10), 27, g.GOLD, false, rect.size.x * 0.4)
 	eye(g, Vector2(middle + 18, rect.get_center().y), 36)
 	label(g, str(g.data.eyes), Vector2(middle + 44, rect.get_center().y + 10), 27, Color("dda7ff"), false, rect.end.x - middle - 50)
 
 func experiment(g, rect: Rect2) -> void:
 	fluid_rect=rect
-	if not presentation.initialized: presentation.reset(int(g.data.player_level),float(g.data.level_souls))
+	var p = active_presentation(g)
+	if not p.initialized: p.reset(int(g.data.player_level),float(g.data.level_souls))
 	if is_instance_valid(vessel):
 		vessel.place(rect);vessel.visible=true
-		vessel.animate(presentation.shown_level,presentation.amount(),g.ui_time,presentation.energy())
+		vessel.animate(p.shown_level,p.amount(),g.ui_time,p.energy(),0.4+0.6*p.portion() if p.stage()=="reset" else 1.0)
 		overlay.source=vessel.rect;overlay.visible=true;overlay.queue_redraw()
 
 func object_icon(g, index: int, p: Vector2, height: float) -> void:
@@ -167,27 +174,7 @@ func revive(g) -> void:
 	button(g, Rect2(r.get_center().x - 160, g.full_rect().end.y - 78, 320, 58), "ENCERRAR PARTIDA", "revive_decline")
 
 func results(g) -> void:
-	var r = frame(g, "A NOITE TERMINOU", "As almas alimentam o altar. As missões fazem o experimento crescer.")
-	g.panel(r, Color("241830"), Color("8a6a78"), 22, 2)
-	var left = Rect2(r.position + Vector2(20, 20), Vector2(r.size.x * 0.36, r.size.y - 40))
-	label(g, "ALTAR DE ALMAS", left.position + Vector2(left.size.x * 0.5, 29), 29, g.GOLD, true)
-	var amount = mini(g.runner.souls, floori(maxf(0, g.result_time - 0.2) * maxf(6, g.runner.souls / 1.8)))
-	var total = int(g.run_report.get("old_altar", 0)) + amount
-	var shown = total % 100
-	g.draw_soul_grid(Rect2(left.position + Vector2(15, 56), Vector2(left.size.x - 30, left.size.y - 133)), shown, 100)
-	label(g, str(shown) + " / 100", Vector2(left.get_center().x, left.end.y - 44), 28, g.MINT, true)
-	label(g, "+" + str(g.run_report.get("graves", 0)) + " PARES DE LÁPIDES", Vector2(left.get_center().x, left.end.y - 12), 23, g.GOLD, true)
-	var x = r.position.x + r.size.x * 0.41
-	var stats = [["ALMAS", str(g.runner.souls)], ["DISTÂNCIA", str(g.runner.distance()) + " m"], ["MOEDAS", str(g.runner.coins)], ["MAIOR HORDA", str(g.runner.max_horde)]]
-	for i in range(4):
-		var p = Vector2(x + (i % 2) * 240, r.position.y + 45 + int(i / 2) * 92)
-		label(g, stats[i][0], p, 18, g.MINT);label(g, stats[i][1], p + Vector2(0, 37), 34, g.GOLD)
-	experiment(g, Rect2(r.end.x - 155, r.position.y + 20, 120, r.size.y - 90))
-	label(g, "MISSÕES +" + str(g.run_mission_report.get("points", 0)) + " ESSÊNCIA", Vector2(x, r.end.y - 86), 22, g.MINT)
-	if int(g.run_mission_report.get("bonuses", 0)) > 0: label(g, "SUBIU DE NÍVEL! +" + str(g.run_mission_report.coins) + " MOEDAS · +" + str(g.run_mission_report.eyes) + " OLHOS", Vector2(x, r.end.y - 48), 20, g.GOLD, false, r.size.x * 0.48)
-	button(g, Rect2(r.position.x, g.full_rect().end.y - 78, 225, 58), "MENU", "home")
-	button(g, Rect2(r.get_center().x - 145, g.full_rect().end.y - 78, 290, 58), "LÁPIDES (" + str(g.data.graves.size()) + ")", "graves_open")
-	button(g, Rect2(r.end.x - 300, g.full_rect().end.y - 82, 300, 66), "JOGAR DE NOVO", "play", true)
+	result_ui.paint(g)
 
 func missions(g) -> void:
 	experiment_ui.paint(g)

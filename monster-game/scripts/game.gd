@@ -34,6 +34,7 @@ var reward_rng = RandomNumberGenerator.new()
 var run_settled = false
 var run_report: Dictionary = {}
 var run_mission_report: Dictionary = {"points":0,"coins":0,"bonuses":0,"eyes":0}
+var run_ritual_reports: Array[Dictionary] = []
 var result_time = 0.0
 var result_level = 1
 var ritual_view: Dictionary = {}
@@ -190,6 +191,7 @@ func _physics_process(dt: float) -> void :
 		save_game()
 
 func change_screen(next: String) -> void :
+	if screen == "results" and next != "results": hub.result_ui.leave(self)
 	if next == "prepare": prepare_ui.enter(self, screen == "market")
 	if next in ["home", "results", "developer"]: passenger_captures.clear()
 	market_touch = -999
@@ -198,9 +200,9 @@ func change_screen(next: String) -> void :
 	if next in ["home", "missions", "results"]: begin_ritual()
 	if next == "results":
 		result_time = 0;result_full_flash = 0;result_level = int(run_report.get("old_level", data.player_level))
-		sound.set_jar(runner.souls > 0)
-	else: sound.set_jar(false)
+	sound.set_jar(false)
 	screen = next
+	if next == "results": hub.result_ui.enter(self)
 	home_menu.set_visible(next == "home")
 	market_clip.visible = next == "market"
 	buttons.clear()
@@ -228,6 +230,7 @@ func start_run() -> void :
 	revive_used = false;revive_offered = false
 	run_settled = false;run_report = {};data.active_souls = 0
 	run_mission_report = {"points":0,"coins":0,"bonuses":0,"eyes":0}
+	run_ritual_reports.clear();hub.result_ui.reset()
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
 	runner.configure_items(active_items, reward_rng.randf() < HordeMeta.EYE_RUN_CHANCE)
 	runner.tutorial_enabled = not bool(data.tutorial_complete) and int(data.runs) == 0
@@ -1464,13 +1467,17 @@ func draw_civilian(entity: Dictionary) -> void :
 func begin_ritual() -> void :
 	if not data.ritual_ready: return
 	if data.ritual_pending.is_empty(): data.ritual_ready = false;return
-	ritual_view = HordeProgress.ritual(data, reward_rng);hub.presentation.enqueue(ritual_view);ritual_time = 0;ritual_particle_tick = 0;ritual_reward_played = false
-	if screen == "run":
-		for key in run_mission_report: run_mission_report[key] += int(ritual_view.get(key, 0))
-		hub.progress_notice_left = 4.0
+	ritual_view = HordeProgress.ritual(data, reward_rng);ritual_time = 0;ritual_particle_tick = 0;ritual_reward_played = false
+	# Rewards are committed now, while their presentation belongs to the results.
+	if screen in ["run", "pause", "revive"]:
+		if int(ritual_view.points) > 0:
+			run_ritual_reports.append(ritual_view.duplicate(true))
+			for key in run_mission_report: run_mission_report[key] += int(ritual_view.get(key, 0))
+		hub.presentation.reset(int(data.player_level), float(data.level_souls))
+		hub.progress_notice_left = 0.0
+	else:
+		hub.presentation.enqueue(ritual_view)
 	save_game()
-	if int(ritual_view.points) > 0:
-		sound.play("ritual_fill", -13)
 
 func update_rewards(dt: float) -> void :
 	effects.update(dt, 0)

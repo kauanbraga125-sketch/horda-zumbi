@@ -1,0 +1,71 @@
+{
+  "version": "0.10.10",
+  "provenance": "Derived only from existing project sounds; original files unchanged. Source provenance retained in assets/audio/v7/manifest.json and assets/audio/SOURCES*.json.",
+  "files": [
+    {
+      "id": "soul",
+      "file": "soul.pcm",
+      "source": "assets/audio/v7/v7_rec_02_1.ogg",
+      "source_sha256": "b6c44dbaf88519b49b7b3f48b134219dbcb7026d1174899c2c2970156fed8297",
+      "sha256": "9cb4674327d6a3ccd3733a1e3434be6a802fc80dd0c0a38813fddee9fefb255a",
+      "rate": 32000,
+      "channels": 1,
+      "format": "signed 16-bit little-endian PCM",
+      "seconds": 0.34,
+      "loop": false,
+      "processing": "audible-onset crop; 2.8 ms attack; 25 ms release; normalized -3.74 dBFS peak"
+    },
+    {
+      "id": "fill",
+      "file": "fill.pcm",
+      "source": "assets/audio/v7/v7_rit_01_1.ogg",
+      "source_sha256": "85b64164e9dd34877eded37868589430f02153008cdf977d4f223d8a99683d3f",
+      "sha256": "56d32404133b085de31d4bac3ccdf1d0b3b925a41508edf0bdf2bf5afab70301",
+      "rate": 32000,
+      "channels": 1,
+      "format": "signed 16-bit little-endian PCM",
+      "seconds": 3.392,
+      "loop": true,
+      "processing": "boundary fade removal; 180 ms wrap crossfade; normalized -3.74 dBFS peak"
+    },
+    {
+      "id": "full",
+      "file": "full.pcm",
+      "source": "assets/audio/v7/v7_rit_02_1.ogg",
+      "source_sha256": "5166bad0545eb5cad9bfcb6be25654b85009d8e66f25d935a228a22949048327",
+      "sha256": "c51a86cf1b5c95ece103b909d2f3c892a3ccab302b516b6fd7d174736fd1c28f",
+      "rate": 32000,
+      "channels": 1,
+      "format": "signed 16-bit little-endian PCM",
+      "seconds": 0.55,
+      "loop": false,
+      "processing": "audible-onset crop; 2.8 ms attack; 25 ms release; normalized -3.74 dBFS peak"
+    },
+    {
+      "id": "coin",
+      "file": "coin.pcm",
+      "source": "assets/audio/v7/v7_rec_01_1.ogg",
+      "source_sha256": "3d883d204e1c63f55a8d4bbe1dacd5bfd284c833bce467d6b3440216479c9a30",
+      "sha256": "240862275bf0d4a84b91d381686321ae0b4e0a1bcd16452b0a22345121563a01",
+      "rate": 32000,
+      "channels": 1,
+      "format": "signed 16-bit little-endian PCM",
+      "seconds": 0.18,
+      "loop": false,
+      "processing": "audible-onset crop; 2.8 ms attack; 25 ms release; normalized -3.74 dBFS peak"
+    },
+    {
+      "id": "reward",
+      "file": "reward.pcm",
+      "source": "assets/audio/level_up.ogg",
+      "source_sha256": "c1f5855bf7d4b5bb88a856cb602a004f49c12bdfc956236018c06ba4c2c70dea",
+      "sha256": "13028df0de120fa38afad04f4472e7bcd9306a2eda3cfd5394559167846acc42",
+      "rate": 32000,
+      "channels": 1,
+      "format": "signed 16-bit little-endian PCM",
+      "seconds": 1.05,
+      "loop": false,
+      "processing": "audible-onset crop; 2.8 ms attack; 25 ms release; normalized -3.74 dBFS peak"
+    }
+  ]
+}

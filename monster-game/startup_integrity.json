@@ -1,5 +1,5 @@
 {
-  "version": "0.10.9",
+  "version": "0.10.10",
   "class_count": 53,
   "files": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": "res://scripts/boot_audit.gd",
-      "bytes": 2946,
-      "sha256": "622cb58412147a3e289d8850bcecd8af265fddc364c5204bdd36c2f82d54d0ee"
+      "bytes": 3026,
+      "sha256": "c4d66083baf88b7b94382ea0db4a62ac01f80af02f533df79a77e23aeb7187b9"
     },
     {
       "path": "res://scripts/capture_motion.gd",
@@ -124,13 +124,13 @@
     },
     {
       "path": "res://scripts/experiment_overlay.gd",
-      "bytes": 1857,
-      "sha256": "e0281ac02a0de2d738854dbdef3d88d24e3e8d86d1b0fcffafbd97c1dc20c107"
+      "bytes": 1940,
+      "sha256": "7d99fd251f4d77267b9a13a0f3e854ff96c2692e099d163879b6293e13a69f1c"
     },
     {
       "path": "res://scripts/experiment_presentation.gd",
-      "bytes": 2934,
-      "sha256": "82d950e89cf1bc4f698863fbcaaaca195c4ad75f38c85ae85a110cacf70d5124"
+      "bytes": 3109,
+      "sha256": "513c9cba8ed45451066c7a76026847edd91b35546f6397ac31b987fcdc6428ec"
     },
     {
       "path": "res://scripts/experiment_specimen.gdshader",
@@ -159,8 +159,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 104323,
-      "sha256": "dd941e979a680dbb1148d71e2984b8e3ad78318c380dda07b056e463c51f1e0f"
+      "bytes": 104712,
+      "sha256": "d2aacb76d6db4a441bfab0181f909552885e04f6ef5bc71f538c3b914db1ad89"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -189,8 +189,8 @@
     },
     {
       "path": "res://scripts/hub.gd",
-      "bytes": 30368,
-      "sha256": "4562173acf82675e76b508929f620cee63df64ae0e859cea523d0429bfff7cd2"
+      "bytes": 28468,
+      "sha256": "0e971991506478fc0a8cdac893e7396d4ff7bd3d03e3845f283c566a1957cda9"
     },
     {
       "path": "res://scripts/market.gd",
@@ -278,6 +278,11 @@
       "sha256": "cc6d9cbeb3f7bcdd44035988aa7f0eda54181fdb70735dbe6e0f868491499ebe"
     },
     {
+      "path": "res://scripts/results_ui.gd",
+      "bytes": 20318,
+      "sha256": "510cf4df17c8eaf77986b78094632fb0eabcd445b32979bce6e4962804b3874f"
+    },
+    {
       "path": "res://scripts/runner.gd",
       "bytes": 62707,
       "sha256": "15e399f81bd54b912e20a9cdbc40009587170cfb83511fe65b84c8c1556143dc"
@@ -309,8 +314,8 @@
     },
     {
       "path": "res://scripts/sound.gd",
-      "bytes": 12359,
-      "sha256": "b57ed99afa32e4bd3026c1dc378ce7cec4e57b43207a5fc5501b6546b27d6ad9"
+      "bytes": 14209,
+      "sha256": "73bbdfa2f7169a8e229e5b1c7b241f55714a4c90999f0f410cf588265ca8c605"
     },
     {
       "path": "res://scripts/terrain.gd",
@@ -401,6 +406,46 @@
       "path": "res://assets/art/soldier_v100/runtime.json",
       "bytes": 13874,
       "sha256": "28101d5d3b287254efc205420284c76fa8ab54cd9fb92a31505641c4d41417d3"
+    },
+    {
+      "path": "res://assets/art/results_v110/manifest.json",
+      "bytes": 1267,
+      "sha256": "a1c7e2fe07a6839af53754953b4e5c15fc0b32351d256d37fa9e1c142d52b8cf"
+    },
+    {
+      "path": "res://assets/art/results_v110/souls.png",
+      "bytes": 1683463,
+      "sha256": "35f2f334aab83bd03f059894f1fe905c99dfeba1951d8a29e9c07d9d385c7ec1"
+    },
+    {
+      "path": "res://assets/audio/results_v110/coin.pcm",
+      "bytes": 11520,
+      "sha256": "240862275bf0d4a84b91d381686321ae0b4e0a1bcd16452b0a22345121563a01"
+    },
+    {
+      "path": "res://assets/audio/results_v110/fill.pcm",
+      "bytes": 217088,
+      "sha256": "56d32404133b085de31d4bac3ccdf1d0b3b925a41508edf0bdf2bf5afab70301"
+    },
+    {
+      "path": "res://assets/audio/results_v110/full.pcm",
+      "bytes": 35200,
+      "sha256": "c51a86cf1b5c95ece103b909d2f3c892a3ccab302b516b6fd7d174736fd1c28f"
+    },
+    {
+      "path": "res://assets/audio/results_v110/manifest.json",
+      "bytes": 2822,
+      "sha256": "1cdb26b8cd70ee724edc2964ae7fd7d2c7489968062fe18ff51b0446ccec5969"
+    },
+    {
+      "path": "res://assets/audio/results_v110/reward.pcm",
+      "bytes": 67200,
+      "sha256": "13028df0de120fa38afad04f4472e7bcd9306a2eda3cfd5394559167846acc42"
+    },
+    {
+      "path": "res://assets/audio/results_v110/soul.pcm",
+      "bytes": 21760,
+      "sha256": "9cb4674327d6a3ccd3733a1e3434be6a802fc80dd0c0a38813fddee9fefb255a"
     }
   ]
 }

@@ -6,6 +6,8 @@ var wallet_target = Vector2.ZERO
 func _init() -> void: z_index=10
 func _draw() -> void:
 	if game==null or not visible: return
+	if game.screen == "results":
+		game.hub.result_ui.paint_overlay(game,self);return
 	var p: HordeExperimentPresentation=game.hub.presentation
 	var before=game.paint_target;game.paint_target=self
 	if p.stage()=="fill":

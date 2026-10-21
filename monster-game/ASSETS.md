@@ -183,3 +183,10 @@ Nenhuma imagem ou folha de sprites nova. As três telas reutilizam os painéis, 
 ## Experimentos 0.10.5
 
 A máquina vazia de bronze, 16 objetos isolados e 24 ilustrações de missões foram criados com image_gen a partir das referências aprovadas para este projeto. Originais em `art-source/v0.10.5`, derivados e manifestos em `assets/art/experiment_v105`. Extração e redução mecânicas no Godot; água, bolhas, movimento e moedas usam desenho/shaders nativos. Paletas e nomes são referências de atmosfera de terror; NPCs e monstros seguem a identidade visual existente.
+
+
+## Resultados 0.10.10
+
+`assets/art/results_v110/souls.png`: folha original RGBA 1536×1024, criada com imagegen integrado para o fim de partida aprovado. Pixels preservados, seis regiões de atlas e ciclo de cinco poses, metadados em `manifest.json`. Nova arte usada nos resultados; personagens e NPCs da corrida preservados.
+
+`assets/audio/results_v110/`: cinco PCM derivados apenas dos sons existentes. Fontes, hashes, duração e tratamento em `manifest.json`; reprodução em `sound.gd`. Recriação por `tools/prepare_v110_audio.py`. Referências e licenças originais permanecem em `assets/audio/`.
