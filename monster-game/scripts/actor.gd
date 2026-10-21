@@ -8,12 +8,14 @@ var basis_angle = 0.0
 var zombie: HordeZombieSprite
 var skeleton_approved: HordeSkeletonApprovedSprite
 var fly_approved: HordeFlyApprovedSprite
+var masked_approved: HordeMaskedApprovedSprite
 
 func _init(source: HordeArt) -> void :
 	art = source
 	zombie = HordeZombieSprite.new()
 	skeleton_approved = HordeSkeletonApprovedSprite.new()
 	fly_approved = HordeFlyApprovedSprite.new()
+	masked_approved = HordeMaskedApprovedSprite.new()
 
 
 
@@ -22,6 +24,8 @@ func renderer_for(kind: int, state: String, landing: float) -> String:
 		return "zombie_original"
 	if kind == 1 and skeleton_approved.has_state(state, landing):
 		return "skeleton_approved"
+	if kind == 2 and masked_approved.has_assets():
+		return "masked_approved"
 	if kind == 3 and fly_approved.has_assets():
 		return "fly_approved"
 	if kind == 8 and art.police_sprite.has_assets():
@@ -81,6 +85,9 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 		return
 	if render_route == "skeleton_approved":
 		skeleton_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
+		return
+	if render_route == "masked_approved":
+		masked_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)
 		return
 	if render_route == "fly_approved":
 		fly_approved.paint(canvas, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed)

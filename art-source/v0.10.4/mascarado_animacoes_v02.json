@@ -1,0 +1,1076 @@
+{
+  "animations": {
+    "andando": {
+      "duration_ms": 1144,
+      "frames": [
+        {
+          "alpha_bounds_px": [
+            104,
+            63,
+            328,
+            422
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_01.png",
+          "index": 1,
+          "rect": [
+            0,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 1,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            11,
+            62,
+            416,
+            427
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_02.png",
+          "index": 2,
+          "rect": [
+            512,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 2,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            9,
+            62,
+            413,
+            426
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_03.png",
+          "index": 3,
+          "rect": [
+            1024,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 3,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            3,
+            61,
+            368,
+            425
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_04.png",
+          "index": 4,
+          "rect": [
+            1536,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 4,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            104,
+            69,
+            326,
+            419
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_05.png",
+          "index": 5,
+          "rect": [
+            0,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 5,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            19,
+            53,
+            400,
+            430
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_06.png",
+          "index": 6,
+          "rect": [
+            512,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 6,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            6,
+            54,
+            416,
+            430
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_07.png",
+          "index": 7,
+          "rect": [
+            1024,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 7,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            1,
+            59,
+            416,
+            424
+          ],
+          "duration_ms": 143,
+          "file": "frames/andando/mascarado_andando_08.png",
+          "index": 8,
+          "rect": [
+            1536,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "scale": 1.0,
+            "source": "referencia/caminhada_aprovada.png",
+            "source_pose": 8,
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        }
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "loop": true,
+      "sheet": "mascarado_andando.png"
+    },
+    "pouso": {
+      "duration_ms": 480,
+      "frames": [
+        {
+          "alpha_bounds_px": [
+            90,
+            92,
+            284,
+            393
+          ],
+          "duration_ms": 40,
+          "file": "frames/pouso/mascarado_pouso_01.png",
+          "index": 1,
+          "rect": [
+            0,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pouso_original.png",
+            "source_pose": 1,
+            "source_rect": [
+              93,
+              50,
+              284,
+              393
+            ],
+            "translation": [
+              90,
+              92
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            102,
+            172,
+            287,
+            313
+          ],
+          "duration_ms": 50,
+          "file": "frames/pouso/mascarado_pouso_02.png",
+          "index": 2,
+          "rect": [
+            512,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pouso_original.png",
+            "source_pose": 2,
+            "source_rect": [
+              528,
+              129,
+              287,
+              313
+            ],
+            "translation": [
+              102,
+              172
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            78,
+            223,
+            313,
+            262
+          ],
+          "duration_ms": 70,
+          "file": "frames/pouso/mascarado_pouso_03.png",
+          "index": 3,
+          "rect": [
+            1024,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pouso_original.png",
+            "source_pose": 3,
+            "source_rect": [
+              941,
+              179,
+              313,
+              262
+            ],
+            "translation": [
+              78,
+              223
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            102,
+            172,
+            287,
+            313
+          ],
+          "duration_ms": 50,
+          "file": "frames/pouso/mascarado_pouso_04.png",
+          "index": 4,
+          "rect": [
+            1536,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pouso_original.png",
+            "source_pose": 2,
+            "source_rect": [
+              528,
+              129,
+              287,
+              313
+            ],
+            "translation": [
+              102,
+              172
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            104,
+            126,
+            257,
+            359
+          ],
+          "duration_ms": 60,
+          "file": "frames/pouso/mascarado_pouso_05.png",
+          "index": 5,
+          "rect": [
+            0,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pouso_original.png",
+            "source_pose": 4,
+            "source_rect": [
+              1412,
+              83,
+              258,
+              359
+            ],
+            "translation": [
+              103,
+              126
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            99,
+            80,
+            245,
+            405
+          ],
+          "duration_ms": 60,
+          "file": "frames/pouso/mascarado_pouso_06.png",
+          "index": 6,
+          "rect": [
+            512,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pouso_original.png",
+            "source_pose": 5,
+            "source_rect": [
+              110,
+              465,
+              245,
+              406
+            ],
+            "translation": [
+              99,
+              79
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            110,
+            66,
+            244,
+            419
+          ],
+          "duration_ms": 70,
+          "file": "frames/pouso/mascarado_pouso_07.png",
+          "index": 7,
+          "rect": [
+            1024,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pouso_original.png",
+            "source_pose": 6,
+            "source_rect": [
+              562,
+              452,
+              244,
+              419
+            ],
+            "translation": [
+              110,
+              66
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            104,
+            63,
+            328,
+            422
+          ],
+          "duration_ms": 80,
+          "file": "frames/pouso/mascarado_pouso_08.png",
+          "index": 8,
+          "rect": [
+            1536,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "approved original pixels, no resampling",
+            "scale": 1.0,
+            "source": "referencia/neutro_aprovado.png",
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        }
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "loop": false,
+      "sheet": "mascarado_pouso.png"
+    },
+    "pulo": {
+      "duration_ms": 860,
+      "frames": [
+        {
+          "alpha_bounds_px": [
+            104,
+            63,
+            328,
+            422
+          ],
+          "duration_ms": 60,
+          "file": "frames/pulo/mascarado_pulo_01.png",
+          "index": 1,
+          "rect": [
+            0,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "approved original pixels, no resampling",
+            "scale": 1.0,
+            "source": "referencia/neutro_aprovado.png",
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            104,
+            119,
+            265,
+            365
+          ],
+          "duration_ms": 70,
+          "file": "frames/pulo/mascarado_pulo_02.png",
+          "index": 2,
+          "rect": [
+            512,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pulo_original.png",
+            "source_pose": 2,
+            "source_rect": [
+              546,
+              73,
+              267,
+              366
+            ],
+            "translation": [
+              103,
+              119
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            70,
+            165,
+            299,
+            320
+          ],
+          "duration_ms": 90,
+          "file": "frames/pulo/mascarado_pulo_03.png",
+          "index": 3,
+          "rect": [
+            1024,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/pulo_original.png",
+            "source_pose": 3,
+            "source_rect": [
+              943,
+              122,
+              300,
+              320
+            ],
+            "translation": [
+              69,
+              165
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            44,
+            77,
+            269,
+            387
+          ],
+          "duration_ms": 90,
+          "file": "frames/pulo/mascarado_pulo_04.png",
+          "index": 4,
+          "rect": [
+            1536,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "face; single source calibrated to approved mask height",
+            "scale": 0.368876080691643,
+            "source": "fontes/impulso_corrigido.png",
+            "translation": [
+              44,
+              77
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            27,
+            61,
+            287,
+            411
+          ],
+          "duration_ms": 120,
+          "file": "frames/pulo/mascarado_pulo_05.png",
+          "index": 5,
+          "rect": [
+            0,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "face",
+            "scale": 1.0,
+            "source": "fontes/pulo_original.png",
+            "source_pose": 5,
+            "source_rect": [
+              85,
+              454,
+              287,
+              411
+            ],
+            "translation": [
+              27,
+              61
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            59,
+            61,
+            283,
+            345
+          ],
+          "duration_ms": 180,
+          "file": "frames/pulo/mascarado_pulo_06.png",
+          "index": 6,
+          "rect": [
+            512,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "face",
+            "scale": 1.0,
+            "source": "fontes/pulo_original.png",
+            "source_pose": 6,
+            "source_rect": [
+              542,
+              449,
+              283,
+              345
+            ],
+            "translation": [
+              59,
+              61
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            22,
+            60,
+            292,
+            411
+          ],
+          "duration_ms": 150,
+          "file": "frames/pulo/mascarado_pulo_07.png",
+          "index": 7,
+          "rect": [
+            1024,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "face",
+            "scale": 1.0,
+            "source": "fontes/pulo_original.png",
+            "source_pose": 7,
+            "source_rect": [
+              943,
+              459,
+              292,
+              411
+            ],
+            "translation": [
+              22,
+              60
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            24,
+            61,
+            289,
+            399
+          ],
+          "duration_ms": 100,
+          "file": "frames/pulo/mascarado_pulo_08.png",
+          "index": 8,
+          "rect": [
+            1536,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "face",
+            "scale": 1.0,
+            "source": "fontes/pulo_original.png",
+            "source_pose": 8,
+            "source_rect": [
+              1405,
+              467,
+              289,
+              399
+            ],
+            "translation": [
+              24,
+              61
+            ]
+          }
+        }
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "loop": false,
+      "sheet": "mascarado_pulo.png"
+    },
+    "virar_veiculo": {
+      "duration_ms": 900,
+      "frames": [
+        {
+          "alpha_bounds_px": [
+            104,
+            63,
+            328,
+            422
+          ],
+          "duration_ms": 100,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_01.png",
+          "index": 1,
+          "rect": [
+            0,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "approved original pixels, no resampling",
+            "scale": 1.0,
+            "source": "referencia/neutro_aprovado.png",
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            57,
+            128,
+            400,
+            356
+          ],
+          "duration_ms": 100,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_02.png",
+          "index": 2,
+          "rect": [
+            512,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "hand_px": [
+              418.0,
+              366.0
+            ],
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/virar_veiculo_original.png",
+            "source_pose": 2,
+            "source_rect": [
+              501,
+              82,
+              400,
+              357
+            ],
+            "translation": [
+              57,
+              128
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            83,
+            173,
+            371,
+            311
+          ],
+          "duration_ms": 140,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_03.png",
+          "index": 3,
+          "rect": [
+            1024,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "hand_px": [
+              419.0,
+              372.0
+            ],
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/virar_veiculo_original.png",
+            "source_pose": 3,
+            "source_rect": [
+              944,
+              128,
+              371,
+              312
+            ],
+            "translation": [
+              83,
+              173
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            84,
+            64,
+            302,
+            421
+          ],
+          "duration_ms": 100,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_04.png",
+          "index": 4,
+          "rect": [
+            1536,
+            0,
+            512,
+            512
+          ],
+          "registration": {
+            "hand_px": [
+              354.0,
+              299.0
+            ],
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/virar_veiculo_original.png",
+            "source_pose": 4,
+            "source_rect": [
+              1406,
+              20,
+              302,
+              421
+            ],
+            "translation": [
+              84,
+              64
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            83,
+            71,
+            326,
+            414
+          ],
+          "duration_ms": 80,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_05.png",
+          "index": 5,
+          "rect": [
+            0,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "hand_px": [
+              373.0,
+              169.0
+            ],
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/virar_veiculo_original.png",
+            "source_pose": 5,
+            "source_rect": [
+              90,
+              452,
+              326,
+              414
+            ],
+            "translation": [
+              83,
+              71
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            76,
+            72,
+            336,
+            413
+          ],
+          "duration_ms": 100,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_06.png",
+          "index": 6,
+          "rect": [
+            512,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "hand_px": [
+              378.0,
+              119.0
+            ],
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/virar_veiculo_original.png",
+            "source_pose": 6,
+            "source_rect": [
+              523,
+              453,
+              336,
+              413
+            ],
+            "translation": [
+              76,
+              72
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            86,
+            91,
+            276,
+            394
+          ],
+          "duration_ms": 120,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_07.png",
+          "index": 7,
+          "rect": [
+            1024,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "hand_px": [
+              318.0,
+              349.0
+            ],
+            "registration": "sole",
+            "scale": 1.0,
+            "source": "fontes/virar_veiculo_original.png",
+            "source_pose": 7,
+            "source_rect": [
+              956,
+              469,
+              277,
+              394
+            ],
+            "translation": [
+              86,
+              91
+            ]
+          }
+        },
+        {
+          "alpha_bounds_px": [
+            104,
+            63,
+            328,
+            422
+          ],
+          "duration_ms": 160,
+          "file": "frames/virar_veiculo/mascarado_virar_veiculo_08.png",
+          "index": 8,
+          "rect": [
+            1536,
+            512,
+            512,
+            512
+          ],
+          "registration": {
+            "registration": "approved original pixels, no resampling",
+            "scale": 1.0,
+            "source": "referencia/neutro_aprovado.png",
+            "translation": [
+              -12,
+              48
+            ]
+          }
+        }
+      ],
+      "grid": [
+        4,
+        2
+      ],
+      "loop": false,
+      "sheet": "mascarado_virar_veiculo.png"
+    }
+  },
+  "approved_standing_height_px": 414,
+  "art_mode": "builtin image_gen; Godot mechanical crop, alignment and packing",
+  "character": "Mascarado",
+  "engine": "Godot 4.5.1",
+  "events": {
+    "pouso": [
+      {
+        "name": "contato_chao",
+        "time_ms": 0
+      }
+    ],
+    "pulo": [
+      {
+        "name": "impulso",
+        "time_ms": 220
+      }
+    ],
+    "virar_veiculo": [
+      {
+        "name": "apoio_veiculo",
+        "time_ms": 200
+      },
+      {
+        "name": "soltar_veiculo",
+        "time_ms": 440
+      }
+    ]
+  },
+  "facing": "right",
+  "frame_size_px": [
+    512,
+    512
+  ],
+  "origin_px": [
+    224.0,
+    480.0
+  ],
+  "vehicle_separate": true,
+  "version": "0.2"
+}

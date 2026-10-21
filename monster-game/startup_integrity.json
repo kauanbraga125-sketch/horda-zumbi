@@ -1,11 +1,11 @@
 {
-  "version": "0.10.3",
-  "class_count": 45,
+  "version": "0.10.4",
+  "class_count": 47,
   "files": [
     {
       "path": "res://.godot/global_script_class_cache.cfg",
-      "bytes": 7693,
-      "sha256": "2375912e75b14aafcb52b275d5cb04121e73b6f384b37e514c945c092719e3c5"
+      "bytes": 8058,
+      "sha256": "ab491938b01b54c815e3146b7f89a0872b3a65d0f9821bb584ec2e799c120458"
     },
     {
       "path": "res://boot.tscn",
@@ -19,8 +19,8 @@
     },
     {
       "path": "res://scripts/actor.gd",
-      "bytes": 8964,
-      "sha256": "64ac3993064a59b1dcf04bbc65ae95cbb9f13c90788cbb7193dd45701585fb6c"
+      "bytes": 9300,
+      "sha256": "740522d8005d0cba03de40fec6b37faa131741cfd2ac80318bccaef37ff75012"
     },
     {
       "path": "res://scripts/art.gd",
@@ -50,7 +50,7 @@
     {
       "path": "res://scripts/boot_audit.gd",
       "bytes": 2946,
-      "sha256": "e34427d98d80c2daf158d1b9301f31c0af6f2bc2f4440f670b1627da570117bd"
+      "sha256": "622cb58412147a3e289d8850bcecd8af265fddc364c5204bdd36c2f82d54d0ee"
     },
     {
       "path": "res://scripts/capture_motion.gd",
@@ -104,8 +104,8 @@
     },
     {
       "path": "res://scripts/effects.gd",
-      "bytes": 12771,
-      "sha256": "642e8462dd95c3b7a60d22f640572af5e04c7f36082f55f0cea3eabf2c07433f"
+      "bytes": 13217,
+      "sha256": "32b1d1a86f08f4cb5b113a761212e6d8d29ffa430f161a42f5df0da5ab784655"
     },
     {
       "path": "res://scripts/experiment.gdshader",
@@ -124,8 +124,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 103129,
-      "sha256": "4f266cbfa5f5afaf1d09283f33e170f3f13972b8718b4c4346ebe2b494f816ed"
+      "bytes": 104830,
+      "sha256": "b138907780415e057ef03c63346fb72f6411eb03ce08b20ed7874ca5092e9e10"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -154,13 +154,18 @@
     },
     {
       "path": "res://scripts/hub.gd",
-      "bytes": 36014,
-      "sha256": "1fe9c362e08a690bd65c28cee966bcca7f496456aafd25f0209d941643a41dd9"
+      "bytes": 34045,
+      "sha256": "c2dc32dc475f8c6c1b9a0efed2a813d1ebc573a28b3e53bbca1e43a5be943af9"
     },
     {
       "path": "res://scripts/market.gd",
       "bytes": 16195,
       "sha256": "1feb538a0f039f0ecc09fa1a59d524c7f8feb400e5534fb53898d4fa8aac655d"
+    },
+    {
+      "path": "res://scripts/masked_approved_sprite.gd",
+      "bytes": 3692,
+      "sha256": "e05baeaf7a6ad4c833644545521c007bb779a64716cb4130d4d71c0e3c5cf93f"
     },
     {
       "path": "res://scripts/menu_atmosphere.gd",
@@ -203,14 +208,19 @@
       "sha256": "4058fec33cca65ff32dacad59ac1432a602dcf4110be29900560f61993e45d5b"
     },
     {
+      "path": "res://scripts/profile_ui.gd",
+      "bytes": 7905,
+      "sha256": "d2b9943ee76ffb6d62fef0e49a7791332c4547d3fd5573bac673f28be6c35987"
+    },
+    {
       "path": "res://scripts/progression.gd",
       "bytes": 2696,
       "sha256": "6cf7d761a41f0c0671b2fd870e01d9326761994dec32b7471412551c666eed63"
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 59033,
-      "sha256": "5c2368ac5af79728f774f3cc0b8e346d054fd8b902bcf70c1d8734e7c81dff53"
+      "bytes": 60315,
+      "sha256": "1f095695ef4122f0f68dec5bdee08eeddb7f06889b0b40815fd04efe4907f5b1"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -298,6 +308,11 @@
       "sha256": "f0ff3af592aaa04b70dd553118bfd780fc4d86db5d4e903617ee96c1b0ed7770"
     },
     {
+      "path": "res://assets/art/masked_v104/manifest.json",
+      "bytes": 2037,
+      "sha256": "f64376767f58fd337f852a650b95591fed7108ff5cc50cbcb764380d2e778ccf"
+    },
+    {
       "path": "res://assets/art/menu_v102/source.json",
       "bytes": 888,
       "sha256": "eddc25fd574ee0494fb20249040e2b79069453187e139ad86527432c9585cf92"
@@ -306,6 +321,11 @@
       "path": "res://assets/art/polish_v101/runtime.json",
       "bytes": 12597,
       "sha256": "c4eaee02e53a3f449e43232c43d82b8160e5dfa8129813cc3ec11fe0a948a04f"
+    },
+    {
+      "path": "res://assets/art/profile_v104/manifest.json",
+      "bytes": 447,
+      "sha256": "64e201dd989b7bd7e972f54d9e45590fa0a69ed89e2156be5a571775bcfde78e"
     },
     {
       "path": "res://assets/art/soldier_v100/runtime.json",

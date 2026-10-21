@@ -39,7 +39,7 @@ func smash(pos: Vector2, object_kind: String, start_angle: float = 0, geometry: 
 	for i in range(8): add("chip", pos, Vector2(randf_range(-190, 170), randf_range(-260, -100)), Color("99705f"), randf_range(3, 8), 0.9, 750)
 	if MonsterCatalog.VEHICLES.has(object_kind):
 		if wrecks.size() >= 12: wrecks.pop_front()
-		wrecks.append({"object": object_kind, "pos": pos, "origin_y": pos.y, "age": 0.0, "start_angle": start_angle, "width": float(geometry.get("width", MonsterCatalog.VEHICLES[object_kind].width)), "height": float(geometry.get("height", MonsterCatalog.VEHICLES[object_kind].height)), "floor_y": float(geometry.get("floor_y", HordeRun.FLOOR))})
+		wrecks.append({"object": object_kind, "pos": pos, "origin_y": pos.y, "age": 0.0, "flip_delay": float(geometry.get("flip_delay", 0.0)), "start_angle": start_angle, "width": float(geometry.get("width", MonsterCatalog.VEHICLES[object_kind].width)), "height": float(geometry.get("height", MonsterCatalog.VEHICLES[object_kind].height)), "floor_y": float(geometry.get("floor_y", HordeRun.FLOOR))})
 	elif object_kind in ["bomb", "helicopter", "air_bomb"]: explosion(pos)
 
 func capture(pos: Vector2, kind: int) -> void :
@@ -58,13 +58,13 @@ func explosion(pos: Vector2) -> void :
 func death(kind: int, pos: Vector2) -> void :
 	if deaths.size() >= 24: deaths.pop_front()
 	var duration: float = HordeFlyApprovedSprite.DAMAGE_SECONDS + 0.16 if kind == 3 else 0.85
-	deaths.append({"kind": kind, "pos": pos if kind == 3 else Vector2(pos.x, HordeRun.FLOOR), "life": duration, "duration": duration})
+	if kind == 2: duration = HordeMaskedApprovedSprite.DAMAGE_SECONDS + 0.16
+	deaths.append({"kind": kind, "pos": pos if kind in [2, 3] else Vector2(pos.x, HordeRun.FLOOR), "life": duration, "duration": duration})
 	if kind == 1:
 		for index in [0, 1, 2, 3, 4, 5, 6, 7, 5, 6, 7]:
 			var p = add("bone", pos + Vector2(randf_range(-12, 12), randf_range(-45, 18)), Vector2(randf_range(-140, 140), randf_range(-250, -70)), Color.WHITE, 35 if index == 0 else 20, 0.8, 850)
 			p.part = index
 	elif kind == 2:
-		var p = add("mask", pos - Vector2(0, 28), Vector2(80, -180), Color.WHITE, 43, 0.8, 700)
 		for i in range(14): add("dust", pos + Vector2(0, -30), Vector2(randf_range(-60, 60), randf_range(-80, -20)), Color("ae8bca"), randf_range(8, 16), 0.55)
 	elif kind == 3:
 		var centre: = pos - Vector2(0, 60)
@@ -81,7 +81,7 @@ func update(dt: float, speed: float) -> void :
 	for w in wrecks:
 		w.age += dt;w.pos.x -= speed * dt
 		var height = float(w.height)
-		w.pos.y = float(w.floor_y) - height * 0.44 - sin(minf(1, w.age / 0.7) * PI) * 46
+		w.pos.y = float(w.floor_y) - height * 0.44 - sin(clampf((float(w.age) - float(w.get("flip_delay", 0.0))) / 0.7, 0.0, 1.0) * PI) * 46
 	for i in range(wrecks.size() - 1, -1, -1):
 		if wrecks[i].pos.x + float(wrecks[i].width) * 0.5 < -650: wrecks.remove_at(i)
 	for i in range(particles.size() - 1, -1, -1):
@@ -107,6 +107,11 @@ func draw_trails(canvas: Node2D, actor: HordeActor, time: float) -> void :
 
 func paint(canvas: Node2D, art: HordeArt, actor: HordeActor = null) -> void :
 	for d in deaths:
+		if d.kind == 2 and actor != null:
+			var age: float = float(d.duration) - float(d.life)
+			var progress = clampf(age / HordeMaskedApprovedSprite.DAMAGE_SECONDS, 0.0, 1.0)
+			actor.paint(canvas, 2, d.pos, 112.0, progress, "panic", age, 0.0, Color(1, 1, 1, smoothstep(0.0, 0.16, float(d.life))))
+			continue
 		if d.kind == 3 and actor != null:
 			var age: float = float(d.duration) - float(d.life)
 			var damage_progress: float = clampf(age / HordeFlyApprovedSprite.DAMAGE_SECONDS, 0.0, 1.0)
@@ -196,7 +201,7 @@ func paint_wrecks(canvas: Node2D, art: HordeArt, time: float, left: float) -> vo
 		var spec = MonsterCatalog.VEHICLES[w.object]
 		var size = Vector2(w.width, w.height)
 		if w.pos.x + size.x * 0.5 < left - 90: continue
-		var turn = clampf(w.age / 0.7, 0, 1)
+		var turn = clampf((float(w.age) - float(w.get("flip_delay", 0.0))) / 0.7, 0, 1)
 		var angle = lerpf(float(w.start_angle), PI, smoothstep(0, 1, turn))
 		var mix = smoothstep(0.65, 1.0, turn)
 		canvas.draw_set_transform(w.pos, angle, Vector2(-1 if spec.reverse else 1, 1))

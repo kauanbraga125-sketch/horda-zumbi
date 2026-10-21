@@ -1,0 +1,64 @@
+{
+  "apk": "Horda-Zumbi-v0.10.4.apk",
+  "sha256": "b01a98e33fb9ce4dffb79933fb29dbe6b89c04e751e13bc7dd3ab047cc5c3cfa",
+  "bytes": 272510327,
+  "plain_scripts": 50,
+  "classes": 47,
+  "verified_index_entries": 702,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 103,
+  "previousVersionName": "0.10.3",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.4",
+  "versionCode": 104,
+  "apk_sha256": "b01a98e33fb9ce4dffb79933fb29dbe6b89c04e751e13bc7dd3ab047cc5c3cfa",
+  "certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8",
+  "base_certificate_matches": true,
+  "packed_suites": [
+    {
+      "suite": "v103_apk_runtime",
+      "exit": 0,
+      "evidence": [
+        "HORDA_BOOT_START version=0.10.4 scripts=text",
+        "HORDA_BOOT_ASSETS_OK files=66 classes=47",
+        "HORDA_BOOT_READY scene=NoiteDaHorda",
+        "APK103_RESULT checks=20 failures=0"
+      ]
+    },
+    {
+      "suite": "v104_integration",
+      "exit": 0,
+      "evidence": [
+        "V104_RESULT checks=41 failures=0"
+      ]
+    },
+    {
+      "suite": "v100_integration",
+      "exit": 0,
+      "evidence": [
+        "V100_RESULT checks=56 failures=0"
+      ]
+    },
+    {
+      "suite": "v101_integration",
+      "exit": 0,
+      "evidence": [
+        "V101_RESULT checks=20 failures=0"
+      ]
+    },
+    {
+      "suite": "v103_codex",
+      "exit": 0,
+      "evidence": [
+        "V103_RESULT checks=38 failures=0"
+      ]
+    }
+  ],
+  "physical_android_tested": false,
+  "automated_checks_passed": 175
+}

@@ -18,6 +18,7 @@ var signature_down = false
 var detail_kind = 0
 var detail_buy_action = ""
 var profile_page = 0
+var profile_ui = HordeProfileUI.new()
 var profile_from = "home"
 var graves_from = "home"
 var progress_notice_left = 0.0
@@ -366,23 +367,7 @@ func book(g) -> void:
 	if unlocked and str(g.data.book_signed_at).is_empty(): button(g, Rect2(r.get_center().x - 90, g.full_rect().end.y - 78, 180, 58), "LIMPAR", "signature_clear")
 
 func profile(g) -> void:
-	var r = frame(g, "PERDAS DA HORDA" if profile_page == 1 else "PERFIL DA HORDA", "Monstros perdidos em cada perigo." if profile_page == 1 else "Seu recorde é medido pelas almas capturadas em uma única partida.")
-	var values = [["MELHOR PARTIDA", str(g.data.best_souls) + " ALMAS"], ["DISTÂNCIA RECORDE", str(g.data.best) + " m"], ["PARTIDAS", str(g.data.runs)], ["ALMAS CAPTURADAS", str(g.data.total_souls)], ["MAIOR HORDA", str(g.data.lifetime.get("horde", 1))], ["MOEDAS RECOLHIDAS", str(g.data.lifetime.get("coins", 0))], ["VEÍCULOS VIRADOS", str(g.data.lifetime.get("cars", 0))], ["TÚNEIS ATRAVESSADOS", str(g.data.lifetime.get("tunnels", 0))], ["TEMPO JOGADO", str(int(g.data.lifetime.get("seconds", 0)) / 60) + " MIN"]]
-	if profile_page == 1:
-		values = []
-		var names = {"fall":"BURACOS", "car":"CARROS", "bomb":"BOMBAS", "helicopter":"HELICÓPTEROS", "air_bomb":"BOMBAS AÉREAS", "bullet":"TIROS", "rocket_explosion":"EXPLOSÕES DA BAZUCA", "camera":"FICOU PARA TRÁS", "spikes":"ESPINHOS", "crate":"CAIXAS", "truck":"CAMINHÕES", "tank":"TANQUES", "bus":"ÔNIBUS", "plane":"AVIÕES", "moto":"MOTOS", "impact":"IMPACTOS"}
-		var keys: Array = g.data.death_causes.keys()
-		keys.sort_custom(func(a,b): return int(g.data.death_causes[a]) > int(g.data.death_causes[b]))
-		for key in keys.slice(0,9): values.append([str(names.get(key,key)),str(g.data.death_causes[key])])
-		if values.is_empty(): values = [["SEM PERDAS REGISTRADAS","0"]]
-	for i in range(values.size()):
-		var w = (r.size.x - 28) / 3;var h = (r.size.y - 30) / 3
-		var box = Rect2(r.position + Vector2((i % 3) * (w + 14), int(i / 3) * (h + 10)), Vector2(w,h))
-		g.panel(box, Color("2e203c"), Color("806079"), 14, 2)
-		label(g, values[i][0], box.position + Vector2(18, 28), 18, g.MINT)
-		label(g, values[i][1], box.position + Vector2(18, h - 21), 29, g.GOLD, false, w - 35)
-	footer(g, "COPIAR RECORDE", "share_score")
-	button(g, Rect2(r.get_center().x - 145, g.full_rect().end.y - 78, 290, 58), "VISÃO GERAL" if profile_page == 1 else "PERDAS POR CAUSA", "causes_open")
+	profile_ui.paint(g, profile_page)
 
 func settle_stats(g) -> void:
 	var stats = g.runner.stats()

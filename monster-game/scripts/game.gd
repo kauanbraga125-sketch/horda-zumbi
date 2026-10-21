@@ -333,7 +333,7 @@ func consume_run_events() -> void :
 				sound.play("pit_fall" if str(e.get("cause", "")) == "fall" else "member_lost", -15)
 				if str(e.get("cause", "")) not in ["fall", "camera"]: sound.play("hit", -17)
 				shake = 2.5 if int(e.kind) == 3 else 5.0
-				var death_point: Vector2 = Vector2(float(e.get("foot_x", point.x)), float(e.get("foot_y", point.y))) if int(e.kind) == 3 else point
+				var death_point: Vector2 = Vector2(float(e.get("foot_x", point.x)), float(e.get("foot_y", point.y))) if int(e.kind) in [2, 3] else point
 				effects.death(int(e.kind), death_point)
 			"shot": sound.play("gunshot", -17)
 			"explosion": sound.play("explosion", -14);effects.explosion(point);shake = 8
@@ -888,6 +888,9 @@ func draw_run() -> void :
 		var height = 112.0 * (1 + sin(member.arrival / 0.35 * PI) * 0.1) * (1.4 if runner.perk_kind == 2 and runner.perk_left > 0 and int(runner.power_levels.get("mask_size", 0)) > 0 else 1)
 		var attack_duration: float = float(member.get("attack_duration", 0.62))
 		var phase = (attack_duration - float(member.attack_left)) / attack_duration if state == "capture" else float(member.run_phase)
+		if kind == 2 and state == "push":
+			phase = 1.0 - float(member.mask_flip_left) / HordeMaskedApprovedSprite.FLIP_SECONDS if float(member.get("mask_flip_left", 0)) > 0.0 else minf(0.37, (runner.elapsed - float(member.get("mask_push_at", runner.elapsed))) / HordeMaskedApprovedSprite.FLIP_SECONDS)
+		if kind == 2 and state == "panic": phase = 1.0 - float(member.get("hurt_left", 0)) / HordeMaskedApprovedSprite.DAMAGE_SECONDS
 		if kind == 3 and state == "push": phase = clampf((0.42 - float(member.push_left)) / 0.42, 0.0, 1.0)
 		if kind == 3 and state == "panic": phase = clampf(1.0 - (fly_panic_until - runner.elapsed) / HordeFlyApprovedSprite.DAMAGE_SECONDS, 0.0, 1.0)
 		if not member.falling:
@@ -1211,6 +1214,10 @@ func paint_fly_smooth(member: Dictionary, foot: Vector2, height: float, phase: f
 func animation_state(member: Dictionary) -> String:
 	if member.falling: return "fall"
 	if member.attack_left > 0: return "capture"
+	var shown_kind: int = runner.perk_kind if runner.perk_left > 0 else int(member.kind)
+	if shown_kind == 2:
+		if float(member.get("hurt_left", 0)) > 0.0: return "panic"
+		if float(member.get("mask_flip_left", 0)) > 0.0 and absf(float(member.vy)) < 0.1: return "push"
 	if member.push_left > 0 and member.y >= runner.ground_y(member.x) - 12: return "push"
 
 	if (int(member.get("kind", -1)) == 3 or (runner.perk_kind == 3 and runner.perk_left > 0)) and runner.elapsed < fly_panic_until and runner.transform_left <= 0.0:
@@ -1408,9 +1415,21 @@ func draw_civilian(entity: Dictionary) -> void :
 	var capture_tint = Color.WHITE
 	if entity.kind in ["civilian", "police"] and entity.state == "capture":
 		var civil_height = HordePoliceSprite.HEIGHT if entity.kind == "police" else float(MonsterCatalog.CIVILIANS[clampi(int(entity.variant), 0, 2)].height)
-		visual_foot += HordeCaptureMotion.offset(entity, civil_height)
+		if int(entity.get("capture_kind", -1)) == 2 and actor.masked_approved.has_assets():
+			var capturer = runner.member_by_id(int(entity.capturer))
+			if not capturer.is_empty():
+				var index = runner.members.find(capturer)
+				var progress = HordeCaptureMotion.progress(entity)
+				var mask_height = 112.0 * (1.4 if runner.perk_kind == 2 and runner.perk_left > 0 and int(runner.power_levels.get("mask_size", 0)) > 0 else 1.0)
+				var grip = Vector2(capturer.x, capturer.y - runner.member_depth(index)) + actor.masked_approved.capture_hand(minf(progress, 0.72), mask_height)
+				var collar_ratio = 0.46 if entity.get("civil_key", "") == "civil_casaco_azul_nerd" else 0.5
+				visual_foot = visual_foot.lerp(grip + Vector2(0, civil_height * collar_ratio), smoothstep(0.2, 0.39, progress))
+		else: visual_foot += HordeCaptureMotion.offset(entity, civil_height)
 		angle = HordeCaptureMotion.angle(entity)
 		capture_tint = HordeCaptureMotion.tint(entity)
+		if int(entity.get("capture_kind", -1)) == 2:
+			angle = -0.1 * smoothstep(0.39, 0.61, HordeCaptureMotion.progress(entity))
+			capture_tint.a *= 1.0 - smoothstep(0.61, 0.88, HordeCaptureMotion.progress(entity))
 	if entity.kind == "police" and art.police_sprite.has_assets():
 		art.police_sprite.paint(paint_target, entity, visual_foot, HordePoliceSprite.HEIGHT, capture_tint, angle)
 		if entity.state == "normal" and float(entity.get("speech_left", 0.0)) > 0.0 and float(entity.x) > HordeRun.ANCHOR + 50:

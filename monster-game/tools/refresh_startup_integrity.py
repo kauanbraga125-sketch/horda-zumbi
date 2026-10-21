@@ -15,7 +15,7 @@ def refresh(root: Path):
         raise SystemExit('Import the project in Godot 4.5.1 before refreshing the audit.')
     paths = [cache, root / 'boot.tscn', root / 'main.tscn']
     paths += sorted(p for p in (root / 'scripts').iterdir() if p.suffix in ('.gd', '.gdshader'))
-    for folder in ('soldier_v100', 'polish_v101', 'menu_v102', 'codex_v103'):
+    for folder in ('soldier_v100', 'polish_v101', 'menu_v102', 'codex_v103', 'masked_v104', 'profile_v104'):
         paths += sorted((root / 'assets/art' / folder).glob('*.json'))
     version = re.search(r'config/version="([^"]+)"', (root / 'project.godot').read_text()).group(1)
     manifest = {'version': version,

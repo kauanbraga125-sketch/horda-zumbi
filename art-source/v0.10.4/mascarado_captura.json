@@ -1,0 +1,351 @@
+{
+  "animation": "capturar_civil",
+  "character": "Mascarado",
+  "civil_separate": true,
+  "columns": 4,
+  "duration_ms": 1000,
+  "endpoint": "Frame12 reuses the approved walking neutral frame byte for byte within an 8px left gutter.",
+  "events": [
+    {
+      "name": "agarrar",
+      "time_ms": 390
+    },
+    {
+      "name": "confirmar_captura",
+      "time_ms": 610
+    },
+    {
+      "name": "soltar",
+      "time_ms": 730
+    },
+    {
+      "name": "finalizar",
+      "time_ms": 1000
+    }
+  ],
+  "facing": "right",
+  "frame_size_px": [
+    512,
+    444
+  ],
+  "frames": [
+    {
+      "duration_ms": 100,
+      "file": "frames/mascarado_captura_01.png",
+      "hand_grip_px": [
+        318.0,
+        255.0
+      ],
+      "index": 1,
+      "registration": {
+
+      },
+      "sole_px": [
+        243.5,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 100,
+      "file": "frames/mascarado_captura_02.png",
+      "hand_grip_px": [
+        339.74,
+        299.8
+      ],
+      "index": 2,
+      "registration": {
+        "source": "agarrar_soltar.png",
+        "source_component": 2,
+        "source_rect": [
+          397,
+          18,
+          260,
+          345
+        ],
+        "translation": [
+          88,
+          23
+        ],
+        "uniform_source_scale": 1.19308357348703
+      },
+      "sole_px": [
+        242.5,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 80,
+      "file": "frames/mascarado_captura_03.png",
+      "hand_grip_px": [
+        441.7,
+        221.47
+      ],
+      "index": 3,
+      "registration": {
+        "source": "agarrar_soltar.png",
+        "source_component": 3,
+        "source_rect": [
+          746,
+          21,
+          337,
+          342
+        ],
+        "translation": [
+          79,
+          27
+        ],
+        "uniform_source_scale": 1.19308357348703
+      },
+      "sole_px": [
+        242.5,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 60,
+      "file": "frames/mascarado_captura_04.png",
+      "hand_grip_px": [
+        427.61,
+        186.26
+      ],
+      "index": 4,
+      "registration": {
+        "source": "agarrar_soltar.png",
+        "source_component": 4,
+        "source_rect": [
+          1129,
+          19,
+          308,
+          345
+        ],
+        "translation": [
+          84,
+          24
+        ],
+        "uniform_source_scale": 1.19308357348703
+      },
+      "sole_px": [
+        242.5,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 50,
+      "file": "frames/mascarado_captura_05.png",
+      "hand_grip_px": [
+        469.88,
+        182.29
+      ],
+      "index": 5,
+      "registration": {
+        "source": "agarrar_soltar.png",
+        "source_component": 5,
+        "source_rect": [
+          26,
+          371,
+          364,
+          343
+        ],
+        "translation": [
+          69,
+          26
+        ],
+        "uniform_source_scale": 1.19308357348703
+      },
+      "sole_px": [
+        242.5,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 60,
+      "file": "frames/mascarado_captura_06.png",
+      "hand_grip_px": [
+        482.42,
+        180.49
+      ],
+      "index": 6,
+      "registration": {
+        "source": "agarrar_soltar.png",
+        "source_component": 6,
+        "source_rect": [
+          397,
+          370,
+          355,
+          345
+        ],
+        "translation": [
+          72,
+          23
+        ],
+        "uniform_source_scale": 1.19308357348703
+      },
+      "sole_px": [
+        243.0,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 70,
+      "file": "frames/mascarado_captura_07.png",
+      "hand_grip_px": [
+        389.33,
+        177.89
+      ],
+      "index": 7,
+      "registration": {
+        "source": "puxar_corrigido.png",
+        "source_component": 1,
+        "source_rect": [
+          141,
+          6,
+          523,
+          712
+        ],
+        "translation": [
+          110,
+          15
+        ],
+        "uniform_source_scale": 0.588068181818182
+      },
+      "sole_px": [
+        243.0,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 90,
+      "file": "frames/mascarado_captura_08.png",
+      "hand_grip_px": [
+        294.42,
+        195.01
+      ],
+      "index": 8,
+      "registration": {
+        "source": "puxar_corrigido.png",
+        "source_component": 2,
+        "source_rect": [
+          853,
+          10,
+          449,
+          708
+        ],
+        "translation": [
+          108,
+          18
+        ],
+        "uniform_source_scale": 0.588068181818182
+      },
+      "sole_px": [
+        243.0,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 120,
+      "file": "frames/mascarado_captura_09.png",
+      "hand_grip_px": [
+        289.71,
+        224.24
+      ],
+      "index": 9,
+      "registration": {
+        "source": "puxar_corrigido.png",
+        "source_component": 3,
+        "source_rect": [
+          1550,
+          30,
+          450,
+          688
+        ],
+        "translation": [
+          108,
+          29
+        ],
+        "uniform_source_scale": 0.588068181818182
+      },
+      "sole_px": [
+        243.0,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 90,
+      "file": "frames/mascarado_captura_10.png",
+      "hand_grip_px": [
+        368.73,
+        265.13
+      ],
+      "index": 10,
+      "registration": {
+        "source": "agarrar_soltar.png",
+        "source_component": 10,
+        "source_rect": [
+          397,
+          716,
+          280,
+          356
+        ],
+        "translation": [
+          80,
+          11
+        ],
+        "uniform_source_scale": 1.19308357348703
+      },
+      "sole_px": [
+        243.0,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 80,
+      "file": "frames/mascarado_captura_11.png",
+      "hand_grip_px": [
+        371.99,
+        309.08
+      ],
+      "index": 11,
+      "registration": {
+        "source": "agarrar_soltar.png",
+        "source_component": 11,
+        "source_rect": [
+          780,
+          717,
+          248,
+          355
+        ],
+        "translation": [
+          94,
+          12
+        ],
+        "uniform_source_scale": 1.19308357348703
+      },
+      "sole_px": [
+        243.0,
+        432.0
+      ]
+    },
+    {
+      "duration_ms": 100,
+      "file": "frames/mascarado_captura_12.png",
+      "hand_grip_px": [
+        318.0,
+        255.0
+      ],
+      "index": 12,
+      "registration": {
+
+      },
+      "sole_px": [
+        243.5,
+        432.0
+      ]
+    }
+  ],
+  "loop": false,
+  "origin_px": [
+    242.5,
+    432
+  ],
+  "rows": 3
+}

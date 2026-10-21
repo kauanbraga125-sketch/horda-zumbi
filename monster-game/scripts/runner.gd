@@ -202,7 +202,7 @@ func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(
 		return
 	var index = members.size()
 	members.append({"id": next_member_id, "kind": clampi(kind, 0, 3), "x": slot_x(index) if is_inf(spawn.x) else spawn.x, "y": ground_y(slot_x(index)) if is_inf(spawn.y) else minf(FLOOR, spawn.y), "vy": 0.0, "jump_delay": -1.0, "jump_at": -1.0, 
-		"landed_at": -1.0, "last_jump_at": -1.0, "air_jumps": 0, "coyote": 0.1, "land_left": 0.0, "glide_left": 0.0, "arrival": 0.35, "step_phase": -1, "falling": false, "attack_left": 0.0, "push_left": 0.0, "run_phase": index * 0.11, "air_pose": 0.0, "jump_ground_only": false, "jump_queue": [], "wave_id": -1, "air_time": 0.0, "roof_id": -1, "reform_hold_until": 0.0, "jump_gravity_scale": 1.0})
+		"hurt_left": 0.0, "mask_flip_left": 0.0, "mask_push_at": 0.0, "landed_at": -1.0, "last_jump_at": -1.0, "air_jumps": 0, "coyote": 0.1, "land_left": 0.0, "glide_left": 0.0, "arrival": 0.35, "step_phase": -1, "falling": false, "attack_left": 0.0, "push_left": 0.0, "run_phase": index * 0.11, "air_pose": 0.0, "jump_ground_only": false, "jump_queue": [], "wave_id": -1, "air_time": 0.0, "roof_id": -1, "reform_hold_until": 0.0, "jump_gravity_scale": 1.0})
 	cached_active = -1
 	next_member_id += 1;max_horde = maxi(max_horde, active_count())
 	if count_recruit:
@@ -489,6 +489,8 @@ func damage(index: int, cause: String = "impact") -> bool:
 	if hit_grace > 0 or transform_left > 0 or boost_protected(): return false
 	hit_grace = 0.06;clean_air = false
 	if shields > 0:
+		if (perk_kind if perk_left > 0 else int(members[index].kind)) == 2:
+			members[index].hurt_left = HordeMaskedApprovedSprite.DAMAGE_SECONDS
 		shields -= 1;events.append({"type": "guard", "x": members[index].x, "y": members[index].y - 60});return true
 	remove_member(index, cause)
 	return true
@@ -609,6 +611,8 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			remove_member(i, "camera");continue
 		var cadence = HordeZombieStride.cycle_rate(speed) if int(m.kind) == 0 and perk_left <= 0 else clampf(speed / 240.0, 1.15, 2.65)
 		m.run_phase += dt * cadence
+		m.hurt_left = maxf(0, float(m.get("hurt_left", 0)) - dt)
+		m.mask_flip_left = maxf(0, float(m.get("mask_flip_left", 0)) - dt)
 		m.attack_left = maxf(0, m.attack_left - dt);m.push_left = maxf(0, m.push_left - dt)
 		m.land_left = maxf(0, m.land_left - dt);m.arrival = maxf(0, m.arrival - dt);m.glide_left = maxf(0, m.glide_left - dt)
 
@@ -648,7 +652,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				m.y = floor_y;m.vy = 0.0
 			if m.y == floor_y and previous_y < floor_y - 2:
 				m.reform_hold_until = elapsed + HordeTuning.LANDING_RECOVERY_SECONDS
-				m.land_left = 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == 0})
+				m.land_left = HordeMaskedApprovedSprite.LANDING_SECONDS if (perk_kind if perk_left > 0 else int(m.kind)) == 2 else 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == 0})
 		else:
 
 
@@ -665,7 +669,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				if not was_grounded:
 					m.reform_hold_until = elapsed + HordeTuning.LANDING_RECOVERY_SECONDS
 				if m.vy > 250:
-					m.land_left = 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == 0})
+					m.land_left = HordeMaskedApprovedSprite.LANDING_SECONDS if (perk_kind if perk_left > 0 else int(m.kind)) == 2 else 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == 0})
 					if i == 0 and clean_air: clean_jumps += 1;clean_air = false
 				m.landed_at = elapsed - dt + dt * clampf((floor_y - previous_y) / maxf(1e-05, float(m.y) - previous_y), 0, 1) if not was_grounded else float(m.get("landed_at", -1))
 				m.y = floor_y;m.vy = 0;m.air_jumps = 0
@@ -944,7 +948,7 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 		if not alive.has(id) or member.is_empty():
 			entity.contacts.erase(id);continue
 		var member_kind: int = perk_kind if perk_left > 0 else int(member.kind)
-		var reach: float = HordeFlyApprovedSprite.push_reach() if member_kind == 3 else 18.0
+		var reach: float = HordeFlyApprovedSprite.push_reach() if member_kind == 3 else (HordeMaskedApprovedSprite.push_reach(112.0 * (1.4 if perk_kind == 2 and perk_left > 0 and int(power_levels.get("mask_size", 0)) > 0 else 1.0)) if member_kind == 2 else 18.0)
 		if member.y < entity.y - 12 or absf(float(member.x) - (float(entity.x) - float(entity.width) * 0.5 - reach)) > 70: entity.contacts.erase(id)
 	var edge = float(entity.x) - float(entity.width) * 0.5
 	var right_edge = float(entity.x) + float(entity.width) * 0.5
@@ -956,7 +960,7 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 	for m in members:
 		if m.falling or m.y <= entity.y - float(entity.roof) + 12 or m.y > entity.y + 2 or not has_floor(m.x): continue
 		var member_kind: int = perk_kind if perk_left > 0 else int(m.kind)
-		var reach: float = HordeFlyApprovedSprite.push_reach() if member_kind == 3 else 18.0
+		var reach: float = HordeFlyApprovedSprite.push_reach() if member_kind == 3 else (HordeMaskedApprovedSprite.push_reach(112.0 * (1.4 if perk_kind == 2 and perk_left > 0 and int(power_levels.get("mask_size", 0)) > 0 else 1.0)) if member_kind == 2 else 18.0)
 		if m.x < edge - (reach - 2.0) or m.x > right_edge - 4: continue
 		if m.x > edge + bumper_reach:
 
@@ -964,7 +968,9 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 			if m.y > entity.y - float(entity.roof) + 16: trapped_ids.append(int(m.id))
 			continue
 		if not entity.contacts.has(m.id):
-			if m.y >= entity.y - 12: entity.contacts[m.id] = member_force();entity.state = "pushing"
+			if m.y >= entity.y - 12:
+				entity.contacts[m.id] = member_force();entity.state = "pushing"
+				m.mask_push_at = elapsed
 			events.append({"type": "contact", "x": edge, "y": entity.y - 30, "count": entity.contacts.size(), "need": need})
 		m.push_left = 0.42 if perk_kind == 3 and perk_left > 0 else 0.15
 		m.x = minf(m.x, edge - reach)
@@ -992,15 +998,20 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 
 func flip_vehicle(entity: Dictionary) -> void :
 	if entity.taken: return
+	var flip_delay = 0.0
 	for id in entity.contacts:
 		var member: Dictionary = member_by_id(int(id))
+		if not member.is_empty() and (perk_kind if perk_left > 0 else int(member.kind)) == 2:
+			var preparation = minf(0.34, maxf(0.0, elapsed - float(member.get("mask_push_at", elapsed))))
+			member.mask_flip_left = HordeMaskedApprovedSprite.FLIP_SECONDS - preparation
+			flip_delay = maxf(flip_delay, maxf(0.0, 0.2 - preparation))
 		if not member.is_empty() and (perk_kind == 3 and perk_left > 0 or int(member.kind) == 3): member.push_left = 0.0
 	var spec = MonsterCatalog.VEHICLES[entity.kind]
 	entity.taken = true;entity.roof_hold_until = elapsed + 0.9;cars += 1
 	if run_items.has("coin_cars") and reward_rng.randf() < 0.25:
 		coins += 25;events.append({"type": "coin", "amount": 25, "x": entity.x, "y": entity.y - 100})
 	coins += int(spec.reward)
-	var presentation = {"type": "smash", "object": entity.kind, "x": entity.x, "y": entity.y - float(entity.height) * 0.5, "tilt": entity.tilt, "width": entity.width, "height": entity.height, "floor_y": entity.y, "rescued_count": entity.passengers.size(), "passenger_variants": entity.passengers.duplicate(), "join_ids": []}
+	var presentation = {"type": "smash", "object": entity.kind, "x": entity.x, "y": entity.y - float(entity.height) * 0.5, "tilt": entity.tilt, "flip_delay": flip_delay, "width": entity.width, "height": entity.height, "floor_y": entity.y, "rescued_count": entity.passengers.size(), "passenger_variants": entity.passengers.duplicate(), "join_ids": []}
 	events.append(presentation)
 	events.append({"type": "coin", "amount": spec.reward, "x": entity.x, "y": entity.y - 120})
 	for i in range(entity.passengers.size()):

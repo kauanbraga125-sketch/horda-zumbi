@@ -1,0 +1,28 @@
+{
+  "losses": [
+    "fall",
+    "camera",
+    "air_bomb",
+    "rushing_car",
+    "bullet",
+    "rocket_explosion",
+    "bomb",
+    "helicopter",
+    "spikes",
+    "crate",
+    "hump",
+    "vehicle"
+  ],
+  "profile": [
+    "record",
+    "distance",
+    "runs",
+    "souls",
+    "horde",
+    "coins",
+    "vehicles",
+    "tunnels",
+    "time"
+  ],
+  "source": "Approved profile and loss concepts; builtin image_gen artwork; native dynamic values"
+}

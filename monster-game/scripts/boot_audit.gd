@@ -4,11 +4,11 @@ extends Node
 # the exact startup files before loading the full scene and records Android
 # read failures instead of silently crashing inside a dependent script.
 const REPORT = "user://horda_boot_diagnostico.json"
-var results: Dictionary = {"version": "0.10.3", "status": "starting", "files_checked": 0}
+var results: Dictionary = {"version": "0.10.4", "status": "starting", "files_checked": 0}
 var started = Time.get_ticks_msec()
 
 func _ready() -> void:
-	print("HORDA_BOOT_START version=0.10.3 scripts=text")
+	print("HORDA_BOOT_START version=0.10.4 scripts=text")
 	call_deferred("start_game")
 
 func sha256(bytes: PackedByteArray) -> String:
