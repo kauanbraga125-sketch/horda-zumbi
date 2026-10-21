@@ -151,31 +151,7 @@ func home(g) -> void:
 		button(g,Rect2(d.profile.position+Vector2(0,63),Vector2(d.profile.size.x,44)),"+5 OLHOS GRÁTIS","daily_eyes")
 
 func prepare(g) -> void:
-	var r = frame(g, "PREPARAR A HORDA", "Selecione os objetos que quer usar. Cada item escolhido consome 1 unidade ao começar.")
-	var entries: Array = []
-	for item in HordeMeta.OBJECTS:
-		if int(g.data.stock.get(item.id, 0)) > 0: entries.append(item)
-	var columns = mini(5,maxi(1,entries.size()));var rows = ceili(entries.size()/float(columns))
-	var h = 120.0 if rows > 1 else 156.0;var gap = 12.0
-	for i in range(entries.size()):
-		var item: Dictionary = entries[i];var w = (r.size.x - gap * (columns-1)) / columns
-		var box = Rect2(r.position + Vector2((i%columns) * (w + gap), 10 + int(i/columns)*(h+gap)), Vector2(w, h))
-		var selected = item.id in g.selection
-		g.panel(box, Color("354f48") if selected else Color("30203f"), g.MINT if selected else Color("8b6c77"), 16, 3)
-		object_icon(g, int(item.icon), box.get_center() - Vector2(0, 19), 54 if rows > 1 else 70)
-		g.pages.lines(g, item.name, Rect2(box.position + Vector2(8, h-62), Vector2(w - 16, 34)), 16, g.CREAM)
-		label(g, ("✓  " if selected else "") + "x" + str(g.data.stock[item.id]), Vector2(box.get_center().x, box.end.y - 10), 22, g.GOLD, true)
-		g.buttons.append({"rect": box, "action": "select_object_" + item.id})
-	if entries.is_empty():
-		label(g, "SEU INVENTÁRIO ESTÁ VAZIO", r.position + Vector2(r.size.x * 0.5, 65), 29, g.GOLD, true)
-		label(g, "Compre objetos no mercado ou encontre prêmios nas lápides.", r.position + Vector2(r.size.x * 0.5, 106), 22, g.MINT, true)
-	var floor_y = r.end.y - 25
-	g.paint_target.draw_line(Vector2(r.position.x + 20, floor_y), Vector2(r.end.x - 20, floor_y), Color("9e7a8c"), 4, true)
-	for i in range(mini(5, 1 + int(g.data.levels.horde))):
-		g.actor.paint(g.paint_target, 0, Vector2(r.position.x + 170 + i * 65, floor_y), 125, g.ui_time * 1.3 + i * 0.2, "run", g.ui_time, 0, Color.WHITE, false, 1, false)
-	label(g, "A horda espera seu comando.", Vector2(r.end.x - 290, floor_y - 45), 24, g.MINT, true, 400)
-	button(g, Rect2(r.position.x + 245, g.full_rect().end.y - 78, 240, 58), "VER OBJETOS", "objects_open")
-	footer(g, "COMEÇAR", "commit_play")
+	g.prepare_ui.paint(g)
 
 func revive(g) -> void:
 	g.paint_target.draw_rect(g.full_rect(), Color(0.025, 0.01, 0.05, 0.75))
@@ -385,6 +361,8 @@ func action(g, a: String) -> bool:
 				g.selection.erase("power_fly");g.selection.erase("power_mask")
 				g.show_toast("UMA TRANSFORMAÇÃO INICIAL POR PARTIDA.")
 			g.selection.append(id)
+		else:
+			g.sound.play("ui_denied");g.show_toast("SEM ESTOQUE. TOQUE EM VER OBJETOS PARA COMPRAR.");return true
 		g.sound.play("ui_confirm");return true
 	if a.begins_with("object_buy_"):
 		if HordeMeta.buy_object(g.data, a.trim_prefix("object_buy_")): g.save_game();g.sound.play("buy");g.show_toast("GUARDADO NO INVENTÁRIO. ESCOLHA ANTES DE JOGAR.")

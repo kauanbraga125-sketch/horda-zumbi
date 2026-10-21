@@ -196,12 +196,13 @@ func pause(g) -> void :
 	action_button(g, d.home, "MENU", "home", "home")
 	action_button(g, d.settings, "CONFIGURAÇÕES", "settings", "settings")
 
-func ground(g, offset: float) -> void :
+func ground(g, offset: float, terrain_run: HordeRun = null) -> void :
+	var run: HordeRun = g.runner if terrain_run == null else terrain_run
 	var left: float = g.scenery.view_left
 	var right: float = g.scenery.view_right
 	var height = 192.0
 	var width = ground_texture.get_width() * height / ground_texture.get_height()
-	for segment in g.runner.terrain.segments:
+	for segment in run.terrain.segments:
 		var start = maxf(left, float(segment.start) - offset)
 		var end = minf(right, float(segment.end) - offset)
 		if start >= end: continue
@@ -217,7 +218,7 @@ func ground(g, offset: float) -> void :
 			g.paint_target.draw_texture_rect_region(ground_texture.atlas, Rect2(x1, floor_y, x2 - x1, height), source)
 		if float(segment.height) > 0:
 			var entry = float(segment.start) - offset
-			if g.runner.tutorial_hints() and entry > HordeRun.ANCHOR and entry < right - 30:
+			if run.tutorial_hints() and entry > HordeRun.ANCHOR and entry < right - 30:
 				g.text("PULE!", Vector2(entry - 52, HordeRun.FLOOR - 28), 15, g.GOLD, true, true, 2)
 			for i in range(2):
 				var edge = float(segment.start if i == 0 else segment.end) - offset

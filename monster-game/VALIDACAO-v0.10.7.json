@@ -1,0 +1,60 @@
+{
+  "apk": "Horda-Zumbi-v0.10.7.apk",
+  "sha256": "7c5f8c5dfb0dc5d622165f8586b9e53ce1750f4cd19a67463528e91a7a3251d8",
+  "bytes": 280192999,
+  "plain_scripts": 57,
+  "classes": 53,
+  "verified_index_entries": 796,
+  "preserved_native_libraries": [
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libgodot_android.so",
+    "lib/armeabi-v7a/libc++_shared.so",
+    "lib/armeabi-v7a/libgodot_android.so"
+  ],
+  "previousVersionCode": 106,
+  "previousVersionName": "0.10.6",
+  "package": "com.kauan.noitedahorda.playtest091",
+  "versionName": "0.10.7",
+  "versionCode": 107,
+  "changed_resources": [
+    "AndroidManifest.xml",
+    "META-INF/ANDROIDD.RSA",
+    "META-INF/ANDROIDD.SF",
+    "META-INF/MANIFEST.MF",
+    "assets/assets.sparsepck",
+    "assets/project.binary",
+    "assets/scripts/game.gd",
+    "assets/scripts/gameplay_ui.gd",
+    "assets/scripts/hub.gd",
+    "assets/startup_integrity.json"
+  ],
+  "added_resources": [
+    "assets/scripts/prepare_ui.gd"
+  ],
+  "same_assets_and_native_libraries": true,
+  "certificate_sha256": "78278cf6478de24cfb84f6370d5bf0e800319fe512b4f5aaa62f83611bfb61e8",
+  "validation": {
+    "inventory_regressions": 56,
+    "inventory_art_integration": 20,
+    "codex_regressions": 38,
+    "masked_and_profile_regressions": 41,
+    "experiment_regressions": 47,
+    "preparation_integration": 33,
+    "packed_startup_checks": 20,
+    "total_distinct_suite_checks": 255,
+    "visual_capture_resolutions": [
+      "1280x720",
+      "1600x720"
+    ],
+    "renderer": "Godot 4.5.1 OpenGL compatibility (Mesa llvmpipe)",
+    "preview_wait_seconds": 600,
+    "camera_zoom_multiplier": 1.12,
+    "layout_widths": [
+      960,
+      1280,
+      1600,
+      2340
+    ],
+    "android_device_tested": false
+  }
+}

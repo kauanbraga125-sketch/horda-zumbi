@@ -1,5 +1,5 @@
 {
-  "version": "0.10.6",
+  "version": "0.10.7",
   "class_count": 53,
   "files": [
     {
@@ -159,13 +159,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 103586,
-      "sha256": "4b196b1ab5d83f26dad5d07aec9881757884cb4b728405487c99ad0e461dff7e"
+      "bytes": 104080,
+      "sha256": "72ae17a9cfb6326780d91f81f694fb3efbc7764c8c64338a895492fa5a4c9dfe"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 15958,
-      "sha256": "93a3d52e41844cbc9d24fc77a09686276cf6f2ab1f580b24518a9e2534ec0dcf"
+      "bytes": 16048,
+      "sha256": "ab3805bc4ce7ea21c3baa0f8fefc80ae85853c26a8d02782dcd46296ab2e1a49"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -189,8 +189,8 @@
     },
     {
       "path": "res://scripts/hub.gd",
-      "bytes": 32671,
-      "sha256": "7898bba8f55df11d6d0515c79fe0d76a7c56fc118f6446cd98e5814be3148380"
+      "bytes": 30746,
+      "sha256": "fc978a80dd3551f198f2fd22074dda4af13ff061230053207eecef5da029f558"
     },
     {
       "path": "res://scripts/market.gd",
@@ -246,6 +246,11 @@
       "path": "res://scripts/polish.gd",
       "bytes": 2498,
       "sha256": "4058fec33cca65ff32dacad59ac1432a602dcf4110be29900560f61993e45d5b"
+    },
+    {
+      "path": "res://scripts/prepare_ui.gd",
+      "bytes": 8022,
+      "sha256": "5e11dc0eefcd7d88087e183c2b8c19f3f8a95bff6d1b9893c8cd317662710abe"
     },
     {
       "path": "res://scripts/profile_ui.gd",

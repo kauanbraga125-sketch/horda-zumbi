@@ -15,6 +15,7 @@ const CAMERA_MIN_ZOOM = 0.9 / 0.95
 const MOTORCYCLE_RIDER_SEAT_OFFSET = Vector2(9.0, -18.0)
 
 var hub = HordeHub.new()
+var prepare_ui = preload("res://scripts/prepare_ui.gd").new()
 var codex = HordeCodex.new()
 var selection: Array = []
 var revive_used = false
@@ -148,6 +149,7 @@ func _ready() -> void :
 
 func _process(dt: float) -> void :
 	if screen == "sprite_lab" and not sprite_paused: sprite_clock += dt
+	if screen == "prepare" and not capture_freeze: prepare_ui.update(self, dt)
 	if screen == "run" and not capture_freeze:
 		update_camera(dt)
 	home_menu.set_visible(screen == "home")
@@ -189,6 +191,7 @@ func _physics_process(dt: float) -> void :
 		save_game()
 
 func change_screen(next: String) -> void :
+	if next == "prepare": prepare_ui.enter(self, screen == "market")
 	if next in ["home", "results", "developer"]: passenger_captures.clear()
 	market_touch = -999
 	market_touch_action = ""
@@ -413,6 +416,7 @@ func open_market(tab: int = 0) -> void :
 	market.open(tab);change_screen("market")
 
 func perform_action(action: String) -> void :
+	if prepare_ui.action(self, action): return
 	if codex.action(self,action): return
 	if hub.action(self, action): return
 	if action.begins_with("lab_kind_"):
@@ -725,7 +729,7 @@ func ground(offset: float = 0) -> void :
 
 func _draw() -> void :
 	paint_target = self;buttons.clear()
-	if screen not in ["run", "pause", "results", "revive"]:
+	if screen not in ["run", "pause", "results", "revive", "prepare"]:
 		backdrop();paint_target.draw_rect(full_rect(), Color(0.035, 0.012, 0.065, 0.045 if screen == "home" else (0.1 if screen == "market" else 0.18)))
 	match screen:
 		"home": draw_home()
@@ -1535,16 +1539,18 @@ func configure_layout() -> void :
 		market_clip.position = grid.position
 		market_clip.size = grid.size
 		market_canvas.position = - grid.position
-	world_canvas.scale = Vector2.ONE * camera_zoom
-	world_canvas.position = CAMERA_ANCHOR + Vector2(0, camera_ground_shift) - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * camera_zoom
-	world_canvas.visible = screen in ["run", "pause", "results", "revive"]
-	scenery.view_left = ( - layout_origin.x - world_canvas.position.x) / camera_zoom
-	scenery.view_right = (1280 + layout_origin.x - world_canvas.position.x) / camera_zoom
-	scenery.view_top = ( - layout_origin.y - world_canvas.position.y) / camera_zoom
-	scenery.view_bottom = (720 + layout_origin.y - world_canvas.position.y) / camera_zoom
-	runner.view_left = scenery.view_left
-	runner.view_right = scenery.view_right
-	runner.planning_right = maxf(scenery.view_right, HordeRun.ANCHOR + (1280 + layout_origin.x - CAMERA_ANCHOR.x) / CAMERA_MIN_ZOOM)
+	var zoom = prepare_ui.camera_zoom(self) if screen == "prepare" else camera_zoom
+	world_canvas.scale = Vector2.ONE * zoom
+	world_canvas.position = CAMERA_ANCHOR + Vector2(0, 0 if screen == "prepare" else camera_ground_shift) - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * zoom
+	world_canvas.visible = screen in ["run", "pause", "results", "revive", "prepare"]
+	scenery.view_left = ( - layout_origin.x - world_canvas.position.x) / zoom
+	scenery.view_right = (1280 + layout_origin.x - world_canvas.position.x) / zoom
+	scenery.view_top = ( - layout_origin.y - world_canvas.position.y) / zoom
+	scenery.view_bottom = (720 + layout_origin.y - world_canvas.position.y) / zoom
+	if screen != "prepare":
+		runner.view_left = scenery.view_left
+		runner.view_right = scenery.view_right
+		runner.planning_right = maxf(scenery.view_right, HordeRun.ANCHOR + (1280 + layout_origin.x - CAMERA_ANCHOR.x) / CAMERA_MIN_ZOOM)
 
 func full_rect() -> Rect2:
 	return Rect2( - layout_origin, Vector2(1280, 720) + layout_origin * 2)
@@ -1556,14 +1562,18 @@ func paint_world() -> void :
 	var interface_time = ui_time
 	if screen in ["pause", "results", "revive"]: ui_time = frozen_world_time
 	paint_target = world_canvas
-	backdrop()
+	if screen == "prepare": prepare_ui.paint_world(self)
+	else: backdrop()
 	world_canvas.draw_rect(Rect2(scenery.view_left, scenery.view_top, scenery.view_right - scenery.view_left, scenery.view_bottom - scenery.view_top), Color(0.045, 0.018, 0.09, 0.12))
 	paint_target = self;ui_time = interface_time
 
 func paint_foreground() -> void :
 	var interface_time = ui_time
 	if screen in ["pause", "results", "revive"]: ui_time = frozen_world_time
-	paint_target = foreground_canvas;draw_run();paint_target = self;ui_time = interface_time
+	paint_target = foreground_canvas
+	if screen == "prepare": prepare_ui.paint_foreground(self)
+	else: draw_run()
+	paint_target = self;ui_time = interface_time
 
 func animated_soul(point: Vector2, height: float, time: float, tint: Color = Color.WHITE) -> void :
 	var frame = fposmod(time * 8, 6)
