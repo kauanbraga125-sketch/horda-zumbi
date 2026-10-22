@@ -1,0 +1,74 @@
+name: Rebuild Horda Zumbi 0.10.10 APK
+
+on:
+  push:
+    branches: [rebuild/v0.10.10-chat]
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout 0.10.10 sources
+        uses: actions/checkout@v4
+      - name: Install Godot 4.5.1 and matching Android export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip
+          echo '02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  /tmp/godot.zip' | sha256sum -c -
+          unzip -q /tmp/godot.zip -d /tmp
+          sudo install -m 0755 /tmp/Godot_v4.5.1-stable_linux.x86_64 /usr/local/bin/godot
+          curl -fL --retry 3 -o /tmp/templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_export_templates.tpz
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.5.1.stable"
+          unzip -q /tmp/templates.tpz -d /tmp/godot-export
+          cp /tmp/godot-export/templates/android_debug.apk /tmp/godot-export/templates/android_release.apk "$HOME/.local/share/godot/export_templates/4.5.1.stable/"
+          printf '4.5.1.stable\n' > "$HOME/.local/share/godot/export_templates/4.5.1.stable/version.txt"
+          godot --version
+      - name: Configure Android SDK, Java, and a separate test signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "JAVA_HOME=$JAVA_HOME"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_HOME" "platform-tools" "build-tools;35.0.0" "platforms;android-35" >/dev/null
+          mkdir -p "$HOME/.config/godot" "$HOME/.android"
+          cat > "$HOME/.config/godot/editor_settings-4.5.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          EOF
+          keytool -genkeypair -noprompt -keystore "$RUNNER_TEMP/horda-rebuild.keystore" -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 3650 -storepass android -keypass android -dname "CN=Horda Rebuild, O=Community Testing, C=BR"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$RUNNER_TEMP/horda-rebuild.keystore" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android" >> "$GITHUB_ENV"
+      - name: Import project, update startup integrity, and build Android APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          godot --headless --path monster-game --editor --import 2>&1 | tee /tmp/import.log
+          if grep -E 'SCRIPT ERROR|Parse Error|ERROR: Failed to load' /tmp/import.log; then exit 1; fi
+          python3 monster-game/tools/refresh_startup_integrity.py
+          godot --headless --path monster-game --export-debug Android "$GITHUB_WORKSPACE/dist/Horda-Zumbi-v0.10.10-reconstruido.apk" 2>&1 | tee /tmp/export.log
+          test -s dist/Horda-Zumbi-v0.10.10-reconstruido.apk
+          unzip -tqq dist/Horda-Zumbi-v0.10.10-reconstruido.apk
+          "$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)" verify --verbose --print-certs dist/Horda-Zumbi-v0.10.10-reconstruido.apk > dist/APK-assinatura.txt
+          sha256sum dist/Horda-Zumbi-v0.10.10-reconstruido.apk > dist/SHA256SUMS.txt
+          ls -lh dist/*
+      - name: Save downloadable APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horda-zumbi-v0.10.10-reconstruido
+          path: |
+            dist/Horda-Zumbi-v0.10.10-reconstruido.apk
+            dist/APK-assinatura.txt
+            dist/SHA256SUMS.txt
+          if-no-files-found: warn
+          retention-days: 14
