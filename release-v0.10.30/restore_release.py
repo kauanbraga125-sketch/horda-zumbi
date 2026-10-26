@@ -1,5 +1,5 @@
 """Recreate the exact signed APK and verify all public sources; no private key."""
-import argparse,hashlib,json,shutil,urllib.request
+import argparse,hashlib,json,os,shutil,urllib.request
 from pathlib import Path
 from zipfile import ZipFile,ZIP_DEFLATED
 
@@ -17,7 +17,16 @@ def main(a):
     checked(old,m['base'])
     literal=b''.join(checked((here/p['path']).read_bytes(),p) for p in m['literal']['parts']);checked(literal,m['literal'])
     data=b''.join((old if kind==0 else literal)[offset:offset+length] for kind,offset,length in m['operations']);checked(data,m['apk'])
-    apk=a.out/m['apk']['name'];apk.write_bytes(data)
+    apk=a.out/m['apk']['name']
+    with apk.open('wb') as output:
+        for offset in range(0,len(data),1024*1024):
+            chunk=memoryview(data)[offset:offset+1024*1024]
+            while chunk:
+                written=output.write(chunk)
+                assert written is not None and written>0,'APK write interrupted'
+                chunk=chunk[written:]
+        output.flush();os.fsync(output.fileno())
+    checked(apk.read_bytes(),m['apk'])
     sources=[]
     for item in m['source_files']:
         p=repo/item['path'];checked(p.read_bytes(),item);sources.append(p)
