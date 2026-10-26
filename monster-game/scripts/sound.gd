@@ -76,6 +76,11 @@ func _ready() -> void :
 		stream.data=FileAccess.get_file_as_bytes("res://assets/audio/results_v110/"+name+".pcm")
 		if name=="fill": stream.loop_mode=AudioStreamWAV.LOOP_FORWARD;stream.loop_begin=0;stream.loop_end=stream.data.size()/2
 		clips["result_"+name]=stream
+	for name in ["beam","hit","capture","energy","warning","return","discovery","music"]:
+		var stream = AudioStreamWAV.new();stream.format = AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate = 32000;stream.stereo = false
+		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/space_v130/" + name + ".pcm")
+		if name == "music": stream.loop_mode = AudioStreamWAV.LOOP_FORWARD;stream.loop_begin = 0;stream.loop_end = stream.data.size() / 2
+		clips["space_" + name] = stream
 	set_mix(mix_levels)
 
 func loop_player() -> AudioStreamPlayer:
@@ -168,6 +173,9 @@ func update_course(run: HordeRun, running: bool, burning: bool = false) -> void 
 		for p in [rotor, engine, fire, wings, footsteps, heavy_steps]: p.stop()
 		set_atmosphere("")
 		return
+	if run.space.active:
+		for p in [rotor,engine,fire,wings,footsteps,heavy_steps]: p.stop()
+		set_atmosphere("");set_music("space_music");return
 	set_music("midnight_late" if run.tunnel_number() >= 6 else "midnight_run")
 	var heli_distance = 2000.0; var engine_distance = 2000.0; var aircraft = false; var motorcycle = false
 	for entity in run.entities:

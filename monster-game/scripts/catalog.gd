@@ -41,10 +41,12 @@ const CHALLENGES = [
 
 const SKIN_PRICES = [0, 1000, 2800, 4500]
 const POWERS = [
+	{"kind": 4, "name": "ABDUÇÃO MALDITA", "price": 0, "description": "A horda vai ao espaço por 30 segundos. A corrida e os túneis continuam lá embaixo."},
 	{"kind": 3, "name": "SUPER FLY", "price": 0, "description": "Suba sozinho. Segure a tela para mergulhar."}, 
 	{"kind": 2, "name": "MASCARADO", "price": 2800, "description": "Transforme a horda em uma força de destruição."}
 ]
 const POWER_UPGRADES = [
+	{"id": "space_time", "kind": 4, "name": "ALÉM DA ATMOSFERA", "price": 650, "max": 3, "description": "Mais 10 segundos por nível: 40, 50 e 60 s. Alcance o ninho alienígena e o buraco negro."},
 	{"id": "fly_time", "kind": 3, "name": "VOO PROLONGADO", "price": 500, "max": 3, "description": "Mais 3 segundos de voo por nível."}, 
 	{"id": "mask_time", "kind": 2, "name": "MAIS TEMPO", "price": 500, "max": 3, "description": "Mais 3 segundos de transformação por nível."}, 
 	{"id": "mask_force", "kind": 2, "name": "MAIS FORÇA", "price": 650, "max": 3, "description": "Cada membro empurra com força extra."}, 
@@ -90,7 +92,7 @@ static func active_missions(tier: int, context: Dictionary = {}) -> Array[Dictio
 	return result
 
 static func defaults() -> Dictionary:
-	var data = {"version": 7, "tutorial_complete": false, "audio_levels": {"music": 0.75, "effects": 0.85, "voices": 1.0}, "wallet": 120, "best": 0, "runs": 0, "audio": true, "levels": {"horde": 0, "jump": 0, "magnet": 0, "perk": 0, "frenzy": 0}, "claimed": [], "owned": [0], "skin": 0, "areas": [0, 1], "power_owned": [3], "power_levels": {"fly_time": 0, "mask_time": 0, "mask_force": 0, "mask_shield": 0, "mask_size": 0, "mask_revive": 0}, "mission_tier": 0, "mission_progress": {}, "missions_completed": 0, "player_level": 1, "level_souls": 0, "best_souls": 0, "total_souls": 0, "active_souls": 0, "ritual_progress": 0, "ritual_pending": [], "ritual_ready": false}
+	var data = {"version": 7, "tutorial_complete": false, "audio_levels": {"music": 0.75, "effects": 0.85, "voices": 1.0}, "wallet": 120, "best": 0, "runs": 0, "audio": true, "levels": {"horde": 0, "jump": 0, "magnet": 0, "perk": 0, "frenzy": 0}, "claimed": [], "owned": [0], "skin": 0, "areas": [0, 1], "power_owned": [3, 4], "power_levels": {"space_time": 0, "fly_time": 0, "mask_time": 0, "mask_force": 0, "mask_shield": 0, "mask_size": 0, "mask_revive": 0}, "mission_tier": 0, "mission_progress": {}, "missions_completed": 0, "player_level": 1, "level_souls": 0, "best_souls": 0, "total_souls": 0, "active_souls": 0, "ritual_progress": 0, "ritual_pending": [], "ritual_ready": false}
 
 	data.merge(HordeMeta.defaults())
 	HordeMissionCatalog.initialize(data)

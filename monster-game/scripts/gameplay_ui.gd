@@ -80,7 +80,9 @@ func hud(g) -> void :
 	g.home_menu.register(g, pause_rect, "pause")
 	g.home_menu.label(g, ("TESTE  •  " + g.LAB_LABELS[g.LAB_KINDS.find(g.lab_kind)] if g.lab_active else MonsterCatalog.AREAS[g.runner.area()].name.to_upper() + "  •  TÚNEL " + str(g.runner.tunnel_number())), d.location, 19, MonsterCatalog.AREAS[g.runner.area()].color, false, 680)
 	var effect: Rect2 = d.effect
-	if g.runner.perk_left > 0:
+	if g.runner.space.active:
+		g.runner.space.paint_hud(g)
+	elif g.runner.perk_left > 0:
 		g.home_menu.slab(g, effect, Color("33203f"), Color("a582bd"), 12, 3)
 		g.scenery.sprite(g, g.art.power(g.runner.perk_kind, g.ui_time), effect.position + Vector2(35, 41), 51)
 		g.home_menu.label(g, "SUPER FLY" if g.runner.perk_kind == 3 else "MASCARADO", effect.position + Vector2(71, 29), 20, g.MINT, false, effect.size.x - 84)
@@ -95,7 +97,7 @@ func hud(g) -> void :
 		g.scenery.sprite(g, g.actor.zombie.portrait, effect.position + Vector2(35, 41), 48)
 		g.home_menu.label(g, "FRENESI", effect.position + Vector2(72, 36), 24, g.GOLD, false, effect.size.x - 84)
 		g.home_menu.label(g, "IMPLACÁVEL" if g.runner.boost_protected() else "ACELERAÇÃO", effect.position + Vector2(73, 61), 18, g.CREAM, false)
-	if g.runner.inside_tunnel():
+	if g.runner.inside_tunnel() and not g.runner.space.active:
 		g.home_menu.label(g, "TÚNEL " + str(g.runner.tunnel_number()), Vector2(g.full_rect().get_center().x, d.location.y + 43), 24, g.GOLD)
 	for car in g.runner.entities:
 		if g.runner.tutorial_hints() and car.kind == "car" and car.rushing and car.warned and not car.taken and car.x > HordeRun.ANCHOR:
@@ -108,7 +110,7 @@ func hud(g) -> void :
 		g.home_menu.slab(g, Rect2(405, g.full_rect().position.y + 107, 711, 74), Color("241a32"), g.GOLD, 12, 2)
 		g.wrapped("TOQUE PARA PULAR. SEGURE PARA IR MAIS LONGE. TOQUE DE NOVO AO POUSAR.", Vector2(425, g.full_rect().position.y + 135), 670, 19, g.CREAM, 2)
 	elif g.runner.speech_left > 0 and not g.runner.speech_text.is_empty() and g.toast_left <= 0: dialogue(g)
-	if g.lab_active:
+	if g.lab_active and g.lab_kind != "space":
 		g.button(Rect2(g.full_rect().end.x - 226, g.full_rect().end.y - 64, 205, 43), "OCULTAR COLISÕES" if g.lab_hitboxes else "COLISÕES", "lab_hitboxes", Color("513c67"), -2, 17)
 		if g.lab_kind == "powers":
 			for i in range(4):

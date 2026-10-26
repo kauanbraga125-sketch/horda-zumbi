@@ -1,0 +1,61 @@
+{
+  "license": "Original project audio; no external sound recordings.",
+  "clips": [
+    {
+      "name": "beam",
+      "rate": 32000,
+      "loop": false,
+      "samples": 51200,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    },
+    {
+      "name": "hit",
+      "rate": 32000,
+      "loop": false,
+      "samples": 12160,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    },
+    {
+      "name": "capture",
+      "rate": 32000,
+      "loop": false,
+      "samples": 17600,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    },
+    {
+      "name": "energy",
+      "rate": 32000,
+      "loop": false,
+      "samples": 16000,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    },
+    {
+      "name": "warning",
+      "rate": 32000,
+      "loop": false,
+      "samples": 5120,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    },
+    {
+      "name": "return",
+      "rate": 32000,
+      "loop": false,
+      "samples": 48000,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    },
+    {
+      "name": "discovery",
+      "rate": 32000,
+      "loop": false,
+      "samples": 32000,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    },
+    {
+      "name": "music",
+      "rate": 32000,
+      "loop": true,
+      "samples": 768000,
+      "source": "Original mathematical synthesis for Horda Zumbi 0.10.30"
+    }
+  ]
+}

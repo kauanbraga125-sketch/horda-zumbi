@@ -25,6 +25,7 @@ var course_rng = RandomNumberGenerator.new()
 var reward_rng = RandomNumberGenerator.new()
 var run_seed = 0
 var bonus_director = HordeBonusDirector.new()
+var space = preload("res://scripts/space.gd").new()
 var course_history: Array[String] = []
 var generation_trace: Array[Dictionary] = []
 var next_challenge_level = 0
@@ -147,6 +148,7 @@ func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Arra
 	run_seed = seed_value if seed_value else Time.get_ticks_usec()
 	rng.seed = run_seed;course_rng.seed = run_seed ^ 3699770;reward_rng.seed = run_seed ^ 5556785
 	bonus_director.reset(run_seed)
+	space.reset(run_seed)
 	course_history.clear();generation_trace.clear();next_challenge_level = 0;next_helicopter_world = 0
 	mobile_slots = 0;helicopter_draws = 0;sequence_rejections = 0;next_rhythm_world = 0
 	members.clear();entities.clear();events.clear();loss_times.clear();tunnels.clear();group_captures.clear()
@@ -474,6 +476,7 @@ func grounded_strength() -> int:
 	return count
 
 func jump() -> void :
+	if space.active: space.impulse();return
 	HordeJump.request(self)
 
 func release_jump() -> void :
@@ -483,7 +486,7 @@ func release_jump() -> void :
 
 func grant_perk(kind: int) -> void :
 	var lead = leader_index()
-	if dead or lead < 0 or transform_left > 0 or kind not in power_owned: return
+	if dead or space.active or lead < 0 or transform_left > 0 or kind not in power_owned: return
 	transform_from_kind = perk_kind if perk_left > 0 else -1
 	transform_kind = kind;transform_left = transform_duration
 	mark_power_collected()
@@ -590,6 +593,9 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	if not jump_held: release_jump()
 	elapsed += dt;voice_cooldown = maxf(0, voice_cooldown - dt)
 	speech_left = maxf(0, speech_left - dt);speech_cooldown = maxf(0, speech_cooldown - dt)
+	if space.active:
+		space.advance(self, dt, jump_held)
+		return
 	if absf(speed - last_effective_speed) > 2: cruise_speed = speed / maxf(0.2, time_scale)
 	if transform_left > 0:
 		transform_left = maxf(0, transform_left - dt)
@@ -654,7 +660,9 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	rebuild_surfaces()
 	while next_segment < 99999 and next_pattern_world - world_px < generation_horizon():
 		spawn_next_pattern()
-	if developer_kind.is_empty(): bonus_director.tick(self)
+	if developer_kind.is_empty():
+		space.offer_test_pickup(self)
+		bonus_director.tick(self)
 	refresh_formation()
 	for i in range(members.size() - 1, -1, -1):
 		var m = members[i]
@@ -776,12 +784,14 @@ func advance(dt: float, jump_held: bool = false) -> void :
 					if Vector2(m.x, m.y - 52).distance_to(Vector2(e.x, e.y - 50)) < 62:
 						begin_capture(e, m);break
 			continue
-		if e.kind in ["crystal", "mask", "shield", "boost"]:
+		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain"]:
 			if e.kind == "mask" and 2 not in power_owned: continue
 			if not power_eligible(): e.taken = true;continue
 			if centre.distance_to(Vector2(e.x, e.y)) < 72:
 				e.taken = true
 				match e.kind:
+					"space_brain":
+						if space.begin(self): return
 					"crystal": grant_perk(3)
 					"mask": grant_perk(2)
 					"shield": mark_power_collected();shields = 1;bonuses += 1;events.append({"type": "guard", "x": e.x, "y": e.y})
@@ -1137,12 +1147,12 @@ func protect_civilian_path(e: Dictionary) -> void :
 
 func power_eligible() -> bool:
 
-	return transform_left <= 0 and perk_left <= 0 and boost_left <= 0
+	return not space.active and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
 
 func mark_power_collected() -> void :
 	bonus_director.collected(self)
 	for entity in entities:
-		if entity.kind in ["crystal", "mask", "shield", "boost"]: entity.taken = true
+		if entity.kind in ["crystal", "mask", "shield", "boost", "space_brain"]: entity.taken = true
 
 func try_spawn_power(x: float) -> bool:
 	var before = bonus_director.last_opportunity

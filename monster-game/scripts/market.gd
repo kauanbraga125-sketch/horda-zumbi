@@ -71,9 +71,12 @@ func items(data: Dictionary) -> Array[Dictionary]:
 			result.append({"key": "skeleton", "name": "ESQUELETO", "description": "Civis capturados têm 30% de chance de virar esqueleto. Visual aprovado da coleção.", "status": "NA COLEÇÃO" if 1 in data.owned else "MONSTRO DESBLOQUEÁVEL", "price": 1000, "full": 1 in data.owned, "action": "skin_1", "illustration": "monster", "index": 1, "kind": 1})
 			for power in MonsterCatalog.POWERS:
 				var chain = HordeMeta.chain(data, int(power.kind));var nxt: Dictionary = chain.next
-				var name = "MOSCA MUTANTE" if power.kind == 3 else "MASCARADO"
+				var name = "ABDUÇÃO MALDITA" if power.kind == 4 else "MOSCA MUTANTE" if power.kind == 3 else "MASCARADO"
 				var description = str(power.description) if not chain.owned else ("TODOS OS BENEFÍCIOS: " + str(chain.benefits) if chain.full else "PRÓXIMO: " + str(nxt.name) + ". " + str(nxt.description))
-				result.append({"key": "monster_chain_" + str(power.kind), "name": name + " · " + ("NÍVEL " + str(chain.level) if chain.owned else "BLOQUEADO"), "description": description, "status": "ATUAL: " + str(chain.benefits), "level_value": chain.level, "level_max": 4 if power.kind == 3 else 10, "price": power.price if not chain.owned else int(nxt.get("price", 0)), "full": chain.full, "action": "power_buy_" + str(power.kind) if not chain.owned else "power_upgrade_" + str(nxt.get("index", 0)), "illustration": "power", "index": power.kind, "kind": power.kind})
+				if power.kind == 4:
+					var seconds = 30 + int(data.power_levels.get("space_time",0)) * 10
+					description = "VOO ATUAL: %d s. %s Túneis e distância continuam avançando." % [seconds, "TEMPO MÁXIMO." if chain.full else "PRÓXIMO: %d s." % (seconds + 10)]
+				result.append({"key": "monster_chain_" + str(power.kind), "name": name + " · " + ("NÍVEL " + str(chain.level) if chain.owned else "BLOQUEADO"), "description": description, "status": "ATUAL: " + str(chain.benefits), "level_value": chain.level, "level_max": 4 if power.kind in [3, 4] else 10, "price": power.price if not chain.owned else int(nxt.get("price", 0)), "full": chain.full, "action": "power_buy_" + str(power.kind) if not chain.owned else "power_upgrade_" + str(nxt.get("index", 0)), "illustration": "power", "index": power.kind, "kind": power.kind})
 		2:
 			if accessory_filter == 2:
 				for i in range(MonsterCatalog.AREAS.size()):
@@ -212,6 +215,9 @@ func illustration(g, item: Dictionary, p: Vector2, height: float) -> void :
 		"monster":
 			g.actor.paint(g.paint_target, item.kind, p + Vector2(0, height * 0.48), height, g.ui_time * 0.7, "idle", g.ui_time, 0, Color.WHITE, false, 1, false)
 		"power":
+			if int(item.kind) == 4:
+				g.runner.space.paint_pickup(g,p,height * 0.85,false)
+				return
 			g.actor.paint(g.paint_target, item.kind, p + Vector2(0, height * 0.48), height, g.ui_time * 0.7, "fly" if item.kind == 3 else "idle", g.ui_time, 0, Color.WHITE, false, 1, false)
 		"area":
 			var size = Vector2(height * 1.16, height * 0.68)
