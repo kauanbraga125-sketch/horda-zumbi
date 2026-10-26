@@ -28,7 +28,7 @@ func suite() -> void:
 	expect(migrated.power_levels.mask_shield == 1 and migrated.power_levels.mask_force == 2 and migrated.areas.size() == 4, "migration preserves non-prefix upgrades and areas")
 	expect(not migrated.ritual_pending.is_empty() and migrated.ritual_ready, "legacy ritual essence preserved")
 	var chain = HordeMeta.chain(migrated, 2)
-	expect(chain.level == 4 and chain.next.index == 1, "chain skips purchased upgrades without removing them")
+	expect(chain.level == 4 and MonsterCatalog.POWER_UPGRADES[int(chain.next.index)].id == "mask_time", "chain skips purchased upgrades without removing them")
 	var data = MonsterCatalog.defaults();var rng = RandomNumberGenerator.new();rng.seed = 1934
 	data.altar_souls = 75
 	var report = HordeProgress.settle(data, 333, rng)

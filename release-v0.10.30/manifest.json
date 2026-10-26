@@ -9793,8 +9793,8 @@
     },
     {
       "path": "monster-game/VALIDACAO-v0.10.30.json",
-      "bytes": 2614,
-      "sha256": "608e0b048b398293f37442cb01b507cdccbca9ecf680d4fe6c49630a202eb422"
+      "bytes": 3288,
+      "sha256": "05ff3572f65ab4d0311efdb8234db833a7ebd2fa7d6c080f346109379895cf0f"
     },
     {
       "path": "monster-game/VALIDACAO-v0.10.4.json",
@@ -14708,8 +14708,8 @@
     },
     {
       "path": "monster-game/tests/v100_integration.gd",
-      "bytes": 14148,
-      "sha256": "a469c04de14d134daad81f41b5a69706a51c514fb621f54e5dc423606ad39372"
+      "bytes": 14197,
+      "sha256": "69dd088e9319c1bcace313f0ea3518e6e60a17e319779e1c2de060259e754028"
     },
     {
       "path": "monster-game/tests/v100_integration.gd.uid",
@@ -14718,8 +14718,8 @@
     },
     {
       "path": "monster-game/tests/v101_integration.gd",
-      "bytes": 5790,
-      "sha256": "2d11511841948dc4f34c08d469e5440e36e1edb4dae81438be4cd9814fb64214"
+      "bytes": 5909,
+      "sha256": "c75d49f07953a021ac36cd43318170ca260d2c6816d84cad6f611df2debd655d"
     },
     {
       "path": "monster-game/tests/v101_integration.gd.uid",

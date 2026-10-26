@@ -93,5 +93,41 @@
     "identical": true,
     "sha256": "d9526066d9088db243adde3667d6503e88c47ca3c01f4f45709ce9fe80777794"
   },
-  "physical_device_tested": false
+  "physical_device_tested": false,
+  "legacy_source_suites": {
+    "checks": 226,
+    "failures": 0,
+    "suites": [
+      {
+        "suite": "v100_integration",
+        "checks": 56,
+        "failures": 0
+      },
+      {
+        "suite": "v101_integration",
+        "checks": 20,
+        "failures": 0
+      },
+      {
+        "suite": "v103_codex",
+        "checks": 38,
+        "failures": 0
+      },
+      {
+        "suite": "v103_apk_runtime",
+        "checks": 20,
+        "failures": 0
+      },
+      {
+        "suite": "v104_integration",
+        "checks": 45,
+        "failures": 0
+      },
+      {
+        "suite": "v105_integration",
+        "checks": 47,
+        "failures": 0
+      }
+    ]
+  }
 }

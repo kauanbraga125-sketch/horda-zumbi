@@ -44,6 +44,7 @@ jobs:
             mkdir -p existing
             gh release download v0.10.30 --pattern Horda-Zumbi-v0.10.30-ARM64.apk --dir existing
             cmp existing/Horda-Zumbi-v0.10.30-ARM64.apk dist/Horda-Zumbi-v0.10.30-ARM64.apk
+            gh release upload v0.10.30 dist/Horda-Zumbi-v0.10.30-Projeto-Publico.zip dist/VALIDACAO-v0.10.30.json dist/SHA256SUMS.txt --clobber
           else
             gh release create v0.10.30 dist/* --target "$GITHUB_SHA" --title 'Horda Zumbi 0.10.30 — Abdução Maldita' --notes-file monster-game/CORRECAO-v0.10.30.md --prerelease
           fi

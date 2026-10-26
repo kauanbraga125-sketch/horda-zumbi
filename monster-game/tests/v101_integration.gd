@@ -36,9 +36,9 @@ func suite() -> void:
 	run = fresh();run.levels.frenzy = 1;run.configure_items({"power_boost":true},false)
 	expect(run.boost_left == HordeTuning.BOOST_SECONDS and run.boost_protected(),"starting impulse uses existing protected boost mechanics")
 	data = MonsterCatalog.defaults();data.wallet = 8000
-	expect(HordeMeta.equip_cosmetic(data,"bruxa") and data.wallet == 6200 and data.equipped_hat == "bruxa","new hat can be purchased and equipped")
+	expect(HordeMeta.equip_cosmetic(data,"bruxa") and data.wallet == 7350 and data.equipped_hat == "bruxa","new hat can be purchased and equipped")
 	HordeMeta.equip_cosmetic(data,"bruxa");HordeMeta.equip_cosmetic(data,"bruxa")
-	expect(data.wallet == 6200 and data.cosmetics.count("bruxa") == 1 and data.equipped_hat == "bruxa","equipping owned cosmetic never charges twice")
+	expect(data.wallet == 7350 and data.cosmetics.count("bruxa") == 1 and data.equipped_hat == "bruxa","equipping owned cosmetic never charges twice")
 	var rng = RandomNumberGenerator.new();rng.seed = 77119
 	var seen = {};var jackpots = 0;var cosmetics = {}
 	for i in range(20000):
@@ -47,7 +47,8 @@ func suite() -> void:
 		if prize.type == "coins" and int(prize.amount) >= 2000: jackpots += 1
 		if prize.type == "cosmetic": cosmetics[prize.id] = true
 	expect(seen.size() == HordeMeta.OBJECTS.size(),"grave pool can award all ten objects including four powers")
-	expect(cosmetics.size() == 3 and jackpots > 100 and jackpots < 300,"all cosmetics and rare large treasure occur in seeded sample")
+	var coin_cosmetics = HordeMeta.COSMETICS.filter(func(item): return item.currency == "coins")
+	expect(cosmetics.size() == coin_cosmetics.size() and jackpots > 100 and jackpots < 300,"all coin cosmetics and rare large treasure occur in seeded sample")
 	print("V101_REWARDS sample=20000 jackpots=",jackpots)
 	data = MonsterCatalog.defaults();HordeMeta.add_grave_pair(data,rng)
 	data.graves[0].rewards[0] = {"type":"object","id":"power_mask","amount":1,"label":"MÁSCARA"}

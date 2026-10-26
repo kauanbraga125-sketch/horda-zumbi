@@ -32,3 +32,10 @@ jobs:
             if grep -E 'SCRIPT ERROR|Parse Error|FAIL |failures=[1-9]' "/tmp/${SUITE}.log"; then exit 1; fi
             grep -E 'RESULT.*failures=0' "/tmp/${SUITE}.log"
           done
+      - name: Validar abertura, saldo de testes e poder espacial
+        run: |
+          set -euo pipefail
+          for SUITE in verify_packaged_boot v129_currency v130_space; do
+            /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --path monster-game --script "res://tests/${SUITE}.gd" -- --space-test 2>&1 | tee "/tmp/${SUITE}.log"
+            if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/${SUITE}.log"; then exit 1; fi
+          done
