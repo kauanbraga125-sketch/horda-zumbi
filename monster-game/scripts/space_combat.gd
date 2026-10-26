@@ -55,11 +55,11 @@ func spawn(s,r) -> void:
 	for i in range(5): s.add_object("coin",x+120+i*62,lane+sin(i*.7)*32,{"radius":22.0,"coin_row":row,"speed":1.0})
 	if serial%3==1: s.add_object("astronaut",x+280,clampf(lane+75,250,510),{"radius":38.0,"speed":.75})
 	if serial%3==0: s.add_object("core",x+270,lane-55,{"radius":29.0,"speed":.8})
-	if serial%5==0:
+	if serial%4==0:
 		var choices = ["fuel"]
 		if 7 in r.power_owned: choices.append("alien_power")
 		if 8 in r.power_owned: choices.append("orbital_power")
-		s.add_object(choices[s.random.randi_range(0,choices.size()-1)],x+350,lane,{"radius":31.0,"speed":.8})
+		s.add_object(choices[posmod(int(serial/4),choices.size())],x+350,lane,{"radius":31.0,"speed":.8})
 	if serial%11==0: s.add_object("eye",x+440,330,{"radius":24.0,"speed":.8})
 
 func give_power(s,r,kind: int) -> void:
@@ -143,6 +143,12 @@ func advance(s,r,dt: float) -> void:
 		else:
 			e.x -= r.speed*float(e.speed)*dt
 			e.y = float(e.base_y)+sin(float(e.age)*2+float(e.seed))*(3 if e.kind=="coin" else 9)
+		if e.kind=="parasite" and e.age>1 and e.x<MonsterCatalog.ANCHOR+380:
+			e.state = "attack";e.base_y = move_toward(e.base_y,s.y-55,dt*36)
+		if e.kind=="egg" and e.age>2:
+			e.state = "open"
+			if e.age>2.65:
+				e.taken = true;s.add_object("parasite",e.x,e.y,{"radius":34.0,"speed":.9,"state":"attack"});r.events.append({"type":"space_warning"});continue
 		if e.state=="capture":
 			var lead = r.leader_index()
 			if lead<0: return

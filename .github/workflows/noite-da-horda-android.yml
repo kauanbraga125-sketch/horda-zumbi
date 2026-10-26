@@ -35,7 +35,7 @@ jobs:
       - name: Validar abertura, saldo de testes e poder espacial
         run: |
           set -euo pipefail
-          for SUITE in verify_packaged_boot v129_currency v130_space; do
+          for SUITE in verify_packaged_boot v129_currency v132_adventure; do
             /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --path monster-game --script "res://tests/${SUITE}.gd" -- --space-test 2>&1 | tee "/tmp/${SUITE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/${SUITE}.log"; then exit 1; fi
           done

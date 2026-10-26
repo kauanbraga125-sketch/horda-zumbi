@@ -1,0 +1,32 @@
+{
+  "license": "Original procedural sound effects for Horda Zumbi; no third-party samples.",
+  "rate": 32000,
+  "format": "PCM signed 16-bit little-endian mono",
+  "files": [
+    {
+      "file": "perfect.pcm",
+      "bytes": 52480,
+      "sha256": "44705294e99b964bf4b8c2323042ea45a94906bc3276097814f1083a0692e258"
+    },
+    {
+      "file": "space_dash.pcm",
+      "bytes": 27520,
+      "sha256": "13385ee800072968b8129a62f83cbaf075c8112a2ba8065df506bd9d36a48b20"
+    },
+    {
+      "file": "space_boost.pcm",
+      "bytes": 73600,
+      "sha256": "a6d90b30aad24ace2b74c5b329539ff7d500d6648341522f594c5476612a9431"
+    },
+    {
+      "file": "space_smash.pcm",
+      "bytes": 37120,
+      "sha256": "ea83ec048a83c8a79c4bcff5f33e9459ea5fe9ad931f3896e328fc6b0f9a127b"
+    },
+    {
+      "file": "creeper_wing.pcm",
+      "bytes": 35840,
+      "sha256": "046b452cb46f9abef0d436bbb54b9030f4647d93be3b71eaf16c1e724242beb2"
+    }
+  ]
+}

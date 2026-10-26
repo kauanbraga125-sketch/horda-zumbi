@@ -53,12 +53,13 @@ func drop_civilian(r) -> void:
 		for e in r.entities:
 			if not e.taken and (MonsterCatalog.VEHICLES.has(e.kind) or e.kind in ["bomb","spikes","collapse"]) and absf(candidate-float(e.x)) < float(e.width)*.5+75: blocked = true;break
 		if blocked: continue
-		var e = r.add_entity("civilian",candidate,r.ground_y(candidate)-155,0)
-		e.airdrop = true;e.drop_vy = -55.0;e.vx = 40.0;e.pose = "panic";e.speaker = false;e.speech_left = 0
+		var e = r.add_entity("civilian",candidate,r.ground_y(candidate)-220,0)
+		e.airdrop = true;e.rescued_civil = true;e.drop_at = r.elapsed;e.drop_vy = -55.0;e.vx = 40.0;e.pose = "panic";e.speaker = false;e.speech_left = 0
 		deliveries += 1;r.events.append({"type":"civil_drop","x":candidate,"y":e.y});return
 
-func paint(g) -> void:
+func paint(g, front: bool = true) -> void:
 	if not active(): return
+	if (kind==5 and front) or (kind==6 and not front): return
 	var r = g.runner;var c = g.paint_target
 	if kind == 5 and pass_age >= 0:
 		var lead = r.leader_index()
@@ -66,7 +67,7 @@ func paint(g) -> void:
 		var target = float(r.members[lead].x)+120
 		var x = lerpf(r.view_left-210,target,smoothstep(0,1.25,pass_age)) if pass_age < 1.25 else lerpf(target,r.view_right+230,smoothstep(1.25,2.6,pass_age))
 		var y = r.ground_y(x)-235 + sin(pass_age*PI/2.6)*-42
-		var frame = posmod(int(pass_age*7),4) if pass_age < 1.16 else (4 if pass_age < 1.25 else 5 if pass_age < 1.38 else 6+posmod(int(pass_age*7),2))
+		var frame = [0,1,2,1][posmod(int(pass_age*7),4)] if pass_age < 1.16 else (4 if pass_age < 1.25 else 6)
 		art.sprite(c,"helpers",frame,Vector2(x,y),225,sin(pass_age*3)*.04)
 	elif kind == 6:
 		var lead = r.leader_index()

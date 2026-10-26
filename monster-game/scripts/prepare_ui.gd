@@ -133,12 +133,14 @@ func paint(g) -> void:
 	g.home_menu.slab(g, badge, Color("21172e"), Color("9c7a53"), 9, 2)
 	g.hub.label(g, "HORDA INICIAL  ×" + str(initial_count(g)), Vector2(badge.get_center().x, badge.get_center().y + 7), 18, g.GOLD, true, badge.size.x - 12)
 	for i in range(PAGE_SIZE):
+		if page * PAGE_SIZE + i >= ORDER.size(): continue
 		var id: String = ORDER[page * PAGE_SIZE + i]
 		var item: Dictionary = HordeMeta.OBJECTS.filter(func(entry): return entry.id == id)[0]
 		var box: Rect2 = d.cards[i]
 		var active = selected(g, id)
 		var stock = int(g.data.stock.get(id, 0))
 		var blocked = id in ["power_fly", "power_mask"] and not active and (selected(g, "power_fly") or selected(g, "power_mask"))
+		if id in ["power_harvester","power_spectral"] and not active and (selected(g,"power_harvester") or selected(g,"power_spectral")): blocked = true
 		g.paint_target.draw_style_box(g.hub.profile_ui.featured if active else g.hub.profile_ui.panel, box)
 		g.hub.object_icon(g, int(item.icon), Vector2(box.get_center().x, box.position.y + 84 + sin(clock * 2.2 + i) * (2 if stock > 0 else 0)), minf(99, box.size.x * 0.62))
 		g.pages.lines(g, TITLES[id], Rect2(box.position + Vector2(12, 126), Vector2(box.size.x - 24, 45)), 17, g.CREAM, true, 2)
@@ -154,8 +156,8 @@ func paint(g) -> void:
 			g.hub.label(g, "PODER JÁ DEFINIDO", Vector2(box.get_center().x, box.position.y + 27), 11, Color("b5a6bd"), true, box.size.x - 28)
 		g.buttons.append({"rect":box, "action":"select_object_" + id})
 	if page > 0: g.hub.button(g, d.previous, "‹", "prepare_previous")
-	if page < ORDER.size() / PAGE_SIZE - 1: g.hub.button(g, d.next, "›", "prepare_next")
-	g.hub.label(g, "OBJETOS  " + str(page + 1) + " / 2", Vector2(view.get_center().x, view.position.y + 402), 15, g.MINT, true)
+	if page < ceili(ORDER.size()/float(PAGE_SIZE))-1: g.hub.button(g, d.next, "›", "prepare_next")
+	g.hub.label(g, "OBJETOS  " + str(page + 1) + " / " + str(ceili(ORDER.size()/float(PAGE_SIZE))), Vector2(view.get_center().x, view.position.y + 402), 15, g.MINT, true)
 	g.hub.button(g, d.footer[0], "VOLTAR", "back")
 	g.hub.button(g, d.footer[1], "VER OBJETOS", "objects_open")
 	g.hub.button(g, d.footer[2], "COMEÇAR", "commit_play", true)

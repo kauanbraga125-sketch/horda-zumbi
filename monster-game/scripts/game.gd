@@ -515,7 +515,7 @@ func perform_action(action: String) -> void :
 			runner.boost_left = 0;runner.activate_perk(3 if kind == "fly" else 2)
 		return
 	if action == "lab_count":
-		var values = [1, 16, 36, 56, 88];lab_count = values[(values.find(lab_count) + 1) % values.size()];return
+		var values = [1,4,8,16,20,36,56,88];lab_count = values[(values.find(lab_count) + 1) % values.size()];return
 	if action == "lab_stage":
 		var values = [0, 3, 6, 8, 12];lab_stage = values[(values.find(lab_stage) + 1) % values.size()];return
 	if action == "developer": change_screen("developer");return
@@ -895,6 +895,7 @@ func draw_run() -> void :
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
 	effects.draw_trails(paint_target, actor, runner.elapsed)
+	runner.blessings.paint(self,false)
 
 	for e in runner.entities:
 		if e.taken or e.kind not in ["gap", "collapse"] or e.x + e.width < scenery.view_left or e.x > scenery.view_right: continue
@@ -1539,6 +1540,11 @@ func draw_civilian(entity: Dictionary) -> void :
 		if int(entity.get("capture_kind", -1)) == 2:
 			angle = -0.1 * smoothstep(0.39, 0.61, HordeCaptureMotion.progress(entity))
 			capture_tint.a *= 1.0 - smoothstep(0.61, 0.88, HordeCaptureMotion.progress(entity))
+	if bool(entity.get("rescued_civil",false)):
+		var frame = mini(3,int((runner.elapsed-float(entity.drop_at))*5)) if entity.get("airdrop",false) else 4+posmod(int(entity.age*7),4)
+		if entity.state == "capture": frame = 8+clampi(int(HordeCaptureMotion.progress(entity)*4),0,3)
+		adventure_art.sprite(paint_target,"civil",frame,visual_foot-Vector2(0,55),116,angle,capture_tint)
+		return
 	if entity.kind == "police" and art.police_sprite.has_assets():
 		art.police_sprite.paint(paint_target, entity, visual_foot, HordePoliceSprite.HEIGHT, capture_tint, angle)
 		if entity.state == "normal" and float(entity.get("speech_left", 0.0)) > 0.0 and float(entity.x) > HordeRun.ANCHOR + 50:

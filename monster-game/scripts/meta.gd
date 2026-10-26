@@ -48,6 +48,7 @@ static func migrate(result: Dictionary, raw: Dictionary) -> void:
 		for id in result.prepared_items.slice(0, 64):
 			if not id is String or id in prepared: continue
 			if id in ["power_fly", "power_mask"] and ("power_fly" in prepared or "power_mask" in prepared): continue
+			if id in ["power_harvester","power_spectral"] and ("power_harvester" in prepared or "power_spectral" in prepared): continue
 			for item in OBJECTS:
 				if item.id == id: prepared.append(id);break
 	result.prepared_items = prepared
@@ -118,6 +119,7 @@ static func activate_preparation(data: Dictionary, id: String) -> String:
 	if not known: return "unknown"
 	if id in data.prepared_items: return "active"
 	if id in ["power_fly", "power_mask"] and ("power_fly" in data.prepared_items or "power_mask" in data.prepared_items): return "conflict"
+	if id in ["power_harvester","power_spectral"] and ("power_harvester" in data.prepared_items or "power_spectral" in data.prepared_items): return "conflict"
 	if int(data.stock.get(id, 0)) <= 0: return "empty"
 	data.stock[id] = int(data.stock[id]) - 1
 	data.prepared_items.append(id)

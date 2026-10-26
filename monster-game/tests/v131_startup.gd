@@ -46,7 +46,7 @@ func run() -> void:
 	if fixture == "existing":
 		check(game.data.best == 4567 and game.data.runs == 31,"existing run progress preserved")
 		check(game.data.cosmetics == ["bruxa"] and game.data.active_cosmetics == ["bruxa"],"existing cosmetics preserved")
-	if str(ProjectSettings.get_setting("application/config/version")) == "0.10.31":
+	if str(ProjectSettings.get_setting("application/config/version")) in ["0.10.31","0.10.32"]:
 		var shortcuts: Dictionary = {}
 		for candidate in game.buttons:
 			if candidate.action in ["home_space_test","developer_test_funds"]: shortcuts[candidate.action] = candidate.rect

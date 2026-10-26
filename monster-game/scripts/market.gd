@@ -60,7 +60,7 @@ func items(data: Dictionary) -> Array[Dictionary]:
 		0:
 			for i in range(HordeMeta.OBJECTS.size()):
 				var item: Dictionary = HordeMeta.OBJECTS[i]
-				result.append({"key": item.id, "name": item.name, "description": item.description, "status": "ESTOQUE x" + str(data.stock.get(item.id, 0)), "price": item.price, "full": false, "action": "object_buy_" + item.id, "illustration": "object", "index": i, "kind": 0})
+				result.append({"key": item.id, "name": item.name, "description": item.description, "status": "ESTOQUE x" + str(data.stock.get(item.id, 0)), "price": item.price, "full": false, "action": "object_buy_" + item.id, "illustration": "object", "index": item.icon, "kind": 0})
 		1:
 			var next = {};var done = 0;var maximum = 1
 			for i in range(MonsterCatalog.UPGRADES.size()):

@@ -140,6 +140,15 @@ func run() -> void:
 	check(HordeMeta.activate_preparation(g.data,"coin_magnet")=="activated","magnet selected for one run")
 	var active = HordeMeta.take_prepared_inventory(g.data);check(active.has("coin_magnet") and not HordeMeta.take_prepared_inventory(g.data).has("coin_magnet"),"magnet consumed by exactly one run")
 	for name in ["perfect","space_boost","space_dash","creeper_wing","space_smash"]: check(g.sound.clips.has(name) and g.sound.clips[name].get_length()>.1,"new audible cue "+name)
+	g.market.category = 0
+	for card in g.market.items(g.data):
+		for entry in HordeMeta.OBJECTS:
+			if entry.id==card.key: check(int(card.index)==int(entry.icon),"consumable uses its own correct icon "+str(card.key))
+	g.data.stock.power_harvester = 1;g.data.stock.power_spectral = 1
+	check(HordeMeta.activate_preparation(g.data,"power_harvester")=="activated","helper selected for next run")
+	check(HordeMeta.activate_preparation(g.data,"power_spectral")=="conflict" and g.data.stock.power_spectral==1,"support conflict never wastes another consumable")
+	var eggs = flight();eggs.space.add_object("egg",1100,300,{"speed":0.0});ticks(eggs,165)
+	check(eggs.space.objects.any(func(e):return e.kind=="parasite"),"alien nest egg hatches an animated threat")
 	g.start_lab("space");g.perform_action("lab_space_power");check(g.runner.space.battle.power_kind==7,"developer can preview space power")
 	g.perform_action("lab_space_power");check(g.runner.space.battle.power_kind==8,"developer cycles exclusive powers")
 	g.leave_lab();g.sound.set_enabled(false);g.queue_free();await process_frame

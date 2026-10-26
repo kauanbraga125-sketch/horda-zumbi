@@ -4,8 +4,9 @@ static var textures: Dictionary = {}
 static var cells: Dictionary = {}
 
 func warm() -> void:
-	if not textures.is_empty(): return
-	for key in ["fleet","helpers"]:
+	if textures.size()==3: return
+	for key in ["fleet","helpers","civil"]:
+		if textures.has(key): continue
 		var image = Image.new()
 		if image.load_png_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/adventure_v132/" + key + ".png")) != OK: push_error("Missing adventure art " + key);continue
 		textures[key] = ImageTexture.create_from_image(image);cells[key] = []
@@ -20,6 +21,6 @@ func sprite(c, key: String, frame: int, point: Vector2, size: float, angle: floa
 	c.draw_set_transform(Vector2.ZERO)
 
 func power(c, kind: int, point: Vector2, size: float, time: float) -> void:
-	if kind == 5: sprite(c,"helpers",posmod(int(time*6),4),point,size)
+	if kind == 5: sprite(c,"helpers",[0,1,2,1][posmod(int(time*6),4)],point,size)
 	elif kind == 6: sprite(c,"helpers",8+posmod(int(time*6),4),point,size)
 	else: sprite(c,"fleet",12 if kind == 7 else 13,point,size,sin(time*2)*.05)

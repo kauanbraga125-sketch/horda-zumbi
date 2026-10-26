@@ -242,7 +242,7 @@ func _spawn_discovery(r, layer: int) -> void:
 		add_object("egg", right + 170, 390, {"speed":0.55,"radius":39.0})
 		r.events.append({"type":"space_discovery","title":"UM PASSAGEIRO A MAIS..."})
 	if layer == 3:
-		add_object("ghost_ship", right + 350, 270, {"speed":0.25,"radius":60.0})
+		battle.spawn_ship(self,r,"ghost_frigate",right+350,270)
 		add_object("monolith", right + 190, 430, {"speed":0.65,"radius":39.0})
 		r.events.append({"type":"space_discovery","title":"HORIZONTE PERDIDO • SINAL DESCONHECIDO"})
 
