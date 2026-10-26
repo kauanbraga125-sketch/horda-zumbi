@@ -1,14 +1,11 @@
 class_name HordeArt
 extends RefCounted
 
-var background: Texture2D = preload("res://assets/art/background.png")
-var creature_sheet: Texture2D = preload("res://assets/art/creatures.png")
+var background: Texture2D = preload("res://assets/art/trim_v113/background.png")
 var item_sheet: Texture2D = preload("res://assets/art/items.png")
 var title_font: Font = preload("res://assets/fonts/LilitaOne-Regular.ttf")
 var body_font: Font = preload("res://assets/fonts/DejaVuSans.ttf")
-var creatures: Array = []
 var items: Array[AtlasTexture] = []
-var baselines: Array[float] = []
 var rigs: Array = []
 var layers: Array[AtlasTexture] = []
 var sky: AtlasTexture
@@ -38,11 +35,6 @@ func _init() -> void :
 	for row in range(3):
 		for col in range(4): passenger_frames.append(atlas(passengers, [col * 362, [0, 360, 640][row], 362, [350, 285, 446][row]]))
 	var data = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/layout.json"))
-	for row in data.creatures:
-		var frames: Array[AtlasTexture] = []
-		for region in row.frames: frames.append(atlas(creature_sheet, region))
-		creatures.append(frames)
-		baselines.append(float(row.baseline))
 	for region in data.items: items.append(atlas(item_sheet, region))
 	var rig_data = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/rig-layout.json"))
 	for rig in rig_data.rigs:
@@ -68,7 +60,7 @@ func _init() -> void :
 	for group in world_layers:
 		var region = group[1].region
 		world_thumbnails.append(atlas(group[1].atlas, [region.position.x + 500, region.position.y, 510, region.size.y]))
-	var vehicle_sheet = preload("res://assets/art/vehicles-v3.png")
+	var vehicle_sheet = preload("res://assets/art/trim_v113/helicopter.png")
 	for region in extra.vehicles: vehicles.append(atlas(vehicle_sheet, region))
 	var prop_sheet = preload("res://assets/art/props-v3.png")
 	for region in extra.props: props.append(atlas(prop_sheet, region))
@@ -110,6 +102,3 @@ static func atlas(sheet: Texture2D, region: Array) -> AtlasTexture:
 	texture.region = Rect2(float(region[0]), float(region[1]), float(region[2]), float(region[3]))
 	texture.filter_clip = true
 	return texture
-
-func actor(kind: int, frame: int) -> AtlasTexture:
-	return creatures[clampi(kind, 0, 3)][clampi(frame, 0, 5)]

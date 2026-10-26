@@ -1,0 +1,33 @@
+{
+  "mode": "builtin",
+  "original_images_recovered_unchanged": true,
+  "reference": "Godot native approved characters, zombie run frame 6 and skeleton run frame 8",
+  "notes": "The original prompt files were lost when the scratch session reset. This file records the recovered originals and reconstructed instruction summaries; it does not claim to preserve the exact original prompt wording.",
+  "items": [
+    {
+      "name": "scientist",
+      "library_file_id": "libfile_31bec94ac1588191bc39fab0d681d0aa",
+      "instructions_summary": "Silver-white replacement hair matching the approved zombie hairline, ear cutout and forehead; transparent standalone sprite extracted from the fitted character."
+    },
+    {
+      "name": "cape",
+      "library_file_id": "libfile_93ee3e0c7a6c819189f3098faee8ac54",
+      "instructions_summary": "Black vampire cape with red lining, high collar behind the jaw, chest clasp and a knee-length drape; extracted transparent sprite."
+    },
+    {
+      "name": "scarf",
+      "library_file_id": "libfile_af7165bf54a48191be9921cb1ee6fb3e",
+      "instructions_summary": "Narrow red wrap at the actual neck, small knot behind the ear and two short trailing ends; extracted transparent sprite."
+    },
+    {
+      "name": "chain",
+      "library_file_id": "libfile_06a534122a088191821ac5ab338f5fc9",
+      "instructions_summary": "Short gold necklace fitted to the V collar with a small skull pendant, above the forearms; extracted transparent sprite."
+    },
+    {
+      "name": "skull",
+      "library_file_id": "libfile_b0e9e19b871c8191a9e75596b3ecedc6",
+      "instructions_summary": "Rounded ivory cranium matching the approved skeleton and cyan eyes; extracted head supplies only rear/crown geometry, preserving native animated eyes and jaw."
+    }
+  ]
+}

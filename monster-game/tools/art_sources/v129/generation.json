@@ -1,0 +1,32 @@
+{
+  "tool": "built-in image_gen",
+  "mode": "precise-object-edit",
+  "base_version": "0.10.28",
+  "reference": "original skeleton s_run_8, same character and running pose, transparent background",
+  "assets": [
+    {
+      "id": "s_goth",
+      "path": "assets/art/cosmetics_v129/s_goth.png",
+      "sha256": "172985ebe690c8bdeddc62a58ae93015bd3787f58ebff4474cb643e6521dc8bf",
+      "prompt_summary": "Gothic black/violet sunglasses fitted to the original cyan eyes in three-quarter view. Only the near temple is visible; far temple occluded by skull/hood. Preserve character, pose, anatomy and game style."
+    },
+    {
+      "id": "s_comic",
+      "path": "assets/art/cosmetics_v129/s_comic.png",
+      "sha256": "ba7c9554c5b70b0b2f317ce1dab58fd4180a5754bcd7066500394a7303585cc1",
+      "prompt_summary": "Close-fitting red/blue domino eye mask on the exact skeleton. Clean eye apertures, one near strap under hood, foreshortened far side. Preserve original cyan eyes, anatomy, expression and running pose."
+    },
+    {
+      "id": "s_vest",
+      "path": "assets/art/cosmetics_v129/s_vest.png",
+      "sha256": "386e9c477d435633953d178ee5b8be0dd10efffbd1971d62a8ae858041bd06d2",
+      "prompt_summary": "Snug black midnight vest with purple lapels and bold gold trim/buttons on the thin tilted original torso. Original arms, hands, belt, skull clasp, head, cape and running pose stay visible."
+    },
+    {
+      "id": "s_hourglass",
+      "path": "assets/art/cosmetics_v129/s_hourglass.png",
+      "sha256": "a30628ee17be8285d8f8f216c0f90a548d9702fff2affc6c33d33ecba5ea058e",
+      "prompt_summary": "Readable polished gold hourglass pendant with warm amber sand on a gold chain at the base of the original skeleton neck. Roughly 45% of head width in height. Preserve all original anatomy, clothes and pose."
+    }
+  ]
+}

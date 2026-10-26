@@ -101,6 +101,7 @@ var sprite_clock = 0.0
 var sprite_paused = false
 var sprite_preview_from_state: String = ""
 var sprite_preview_from_clock: float = 0.0
+var item_lab = preload("res://scripts/item_lab.gd").new()
 
 var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
@@ -126,11 +127,14 @@ func _ready() -> void :
 	market_clip.clip_contents = true;market_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE;market_clip.visible = false;add_child(market_clip)
 	market_canvas = Node2D.new();market_canvas.position = - market_clip.position;market_clip.add_child(market_canvas)
 	market_canvas.draw.connect(paint_market_rows)
+	item_lab.attach(self)
 	configure_layout()
 	reward_rng.randomize()
 	test_mode = "--self-test" in OS.get_cmdline_user_args()
 	capture_mode = "--sprite-preview" in OS.get_cmdline_user_args() or "--rig-preview" in OS.get_cmdline_user_args() or "--v7-preview" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--motion-preview" in OS.get_cmdline_user_args() or "--menu-preview" in OS.get_cmdline_user_args()
-	if not test_mode and not capture_mode: data = read_save()
+	if not test_mode and not capture_mode:
+		data = read_save()
+		if apply_test_funds(): save_game()
 	sound = HordeSound.new()
 	add_child(sound)
 	sound.set_mix(data.audio_levels)
@@ -149,6 +153,7 @@ func _ready() -> void :
 
 func _process(dt: float) -> void :
 	if screen == "sprite_lab" and not sprite_paused: sprite_clock += dt
+	if screen == "item_lab": item_lab.update(dt)
 	if screen == "prepare" and not capture_freeze: prepare_ui.update(self, dt)
 	if screen == "run" and not capture_freeze:
 		update_camera(dt)
@@ -205,6 +210,7 @@ func change_screen(next: String) -> void :
 	if next == "results": hub.result_ui.enter(self)
 	home_menu.set_visible(next == "home")
 	market_clip.visible = next == "market"
+	item_lab.set_visible(next == "item_lab")
 	buttons.clear()
 	pressed_button = ""
 	jump_touches.clear()
@@ -232,6 +238,7 @@ func start_run() -> void :
 	run_mission_report = {"points":0,"coins":0,"bonuses":0,"eyes":0}
 	run_ritual_reports.clear();hub.result_ui.reset()
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
+	runner.active_cosmetics = data.get("active_cosmetics", []).duplicate()
 	runner.configure_items(active_items, reward_rng.randf() < HordeMeta.EYE_RUN_CHANCE)
 	runner.tutorial_enabled = not bool(data.tutorial_complete) and int(data.runs) == 0
 	if not lab_active and not test_mode and not capture_mode: analytics.begin_run(runner, data.levels)
@@ -426,6 +433,11 @@ func perform_action(action: String) -> void :
 	if prepare_ui.action(self, action): return
 	if codex.action(self,action): return
 	if hub.action(self, action): return
+	if item_lab.action(self, action): return
+	if action == "developer_test_funds" and screen == "developer":
+		if apply_test_funds(): save_game()
+		show_toast("SALDO DE TESTE: 1.000.000 MOEDAS E 10.000 OLHOS",3.0)
+		return
 	if action.begins_with("lab_kind_"):
 		var kind = action.trim_prefix("lab_kind_")
 		if kind in ["sprites", "npcs"]:
@@ -506,6 +518,7 @@ func perform_action(action: String) -> void :
 	if not action.begins_with("buy_") and not action.begins_with("skin_") and not action.begins_with("area_") and not action.begins_with("power_buy_") and not action.begins_with("power_upgrade_"):
 		sound.play("ui_back" if action in ["back", "home"] else "ui_confirm")
 	if action.begins_with("market_tab_"): market.open(int(action.trim_prefix("market_tab_")));return
+	if action.begins_with("market_filter_"): market.accessory_filter = clampi(int(action.trim_prefix("market_filter_")), 0, 2);market.scroll = 0;return
 	if action.begins_with("market_select_"): market.select(action.trim_prefix("market_select_"));return
 	if action == "market_next" or action == "market_prev":
 		market.page += 1 if action == "market_next" else -1;market.selected = "";market.expanded.clear();return
@@ -747,6 +760,7 @@ func _draw() -> void :
 		"backup": draw_backup()
 		"developer": draw_developer()
 		"sprite_lab": draw_sprite_lab()
+		"item_lab": item_lab.paint(self)
 		"shop": draw_shop()
 		"powers": draw_powers()
 		"monsters": draw_monsters()
@@ -875,8 +889,13 @@ func draw_run() -> void :
 	passenger_captures.paint(paint_target, art, runner, false)
 	crowd_drawn = visible.size()
 
-	for i in range(runner.members.size() - 1, -1, -1):
-		if not visible.has(i): continue
+	var draw_order: Array = visible.keys()
+	draw_order.sort_custom(func(a, b):
+		var ay = float(runner.members[a].y) - runner.member_depth(a)
+		var by = float(runner.members[b].y) - runner.member_depth(b)
+		if is_equal_approx(ay, by) and runner.member_lane(a) != runner.member_lane(b): return runner.member_lane(a) > runner.member_lane(b)
+		return runner.member_x(a) < runner.member_x(b) if is_equal_approx(ay, by) else ay < by)
+	for i in draw_order:
 		var member = runner.members[i]
 		for captive in captured_by_id.get(int(member.id), []): draw_civilian(captive)
 		var kind = int(member.get("death_kind", member.kind)) if member.falling else (runner.perk_kind if runner.perk_left > 0 else int(member.kind))
@@ -884,7 +903,7 @@ func draw_run() -> void :
 		var state = animation_state(member)
 		var foot = Vector2(runner.member_x(i), member.y - runner.member_depth(i))
 		if state == "fly": foot.y += sin(runner.elapsed * 7 + i) * 3
-		var height = 112.0 * (1 + sin(member.arrival / 0.35 * PI) * 0.1) * (1.4 if runner.perk_kind == 2 and runner.perk_left > 0 and int(runner.power_levels.get("mask_size", 0)) > 0 else 1)
+		var height = 112.0 * (1.4 if runner.perk_kind == 2 and runner.perk_left > 0 and int(runner.power_levels.get("mask_size", 0)) > 0 else 1)
 		var attack_duration: float = float(member.get("attack_duration", 0.62))
 		var phase = (attack_duration - float(member.attack_left)) / attack_duration if state == "capture" else float(member.run_phase)
 		if kind == 2 and state == "push":
@@ -894,7 +913,7 @@ func draw_run() -> void :
 		if kind == 3 and state == "panic": phase = clampf(1.0 - (fly_panic_until - runner.elapsed) / HordeFlyApprovedSprite.DAMAGE_SECONDS, 0.0, 1.0)
 		if not member.falling:
 			var shadow_size = clampf(1 - (runner.ground_y(member.x) - member.y) / 420, 0.25, 1)
-			paint_target.draw_set_transform(Vector2(foot.x, float(member.get("surface_y", runner.ground_y(member.x))) + 4), 0, Vector2(23 * shadow_size, 4 * shadow_size))
+			paint_target.draw_set_transform(Vector2(foot.x, float(member.get("surface_y", runner.ground_y(member.x))) - runner.member_depth(i) + 4), 0, Vector2(23 * shadow_size, 4 * shadow_size))
 			paint_target.draw_circle(Vector2.ZERO, 1, Color(0.02, 0.01, 0.05, 0.28 * shadow_size))
 			paint_target.draw_set_transform(Vector2.ZERO)
 			if runner.shields > 0: paint_target.draw_arc(foot - Vector2(0, 56), 62, 0, TAU, 32, Color(0.5, 0.9, 1, 0.4), 3, true)
@@ -903,8 +922,9 @@ func draw_run() -> void :
 			var progress = 1 - runner.transform_left / runner.transform_duration
 			var blend = smoothstep(0.16 + i * 0.007, 0.84 + i * 0.006, progress)
 			foot.y -= sin(progress * PI) * 22
-			actor.paint(paint_target, runner.transform_from_kind if runner.transform_from_kind >= 0 else int(member.kind), foot, height, phase, "run", runner.elapsed, 0, Color(1, 1, 1, 1 - blend))
-			actor.paint(paint_target, runner.transform_kind, foot, height * (0.9 + blend * 0.1), phase, "fly" if runner.transform_kind == 3 else "run", runner.elapsed, 0, Color(1, 1, 1, blend))
+			var from_kind = runner.transform_from_kind if runner.transform_from_kind >= 0 else int(member.kind)
+			actor.paint(paint_target, from_kind, foot, height, phase, "run", runner.elapsed, 0, Color(1, 1, 1, 1 - blend),false,1.0,true,-1.0,0.0,runner.cosmetics_for(member,from_kind))
+			actor.paint(paint_target, runner.transform_kind, foot, height * (0.9 + blend * 0.1), phase, "fly" if runner.transform_kind == 3 else "run", runner.elapsed, 0, Color(1, 1, 1, blend),false,1.0,true,-1.0,0.0,runner.cosmetics_for(member,runner.transform_kind))
 			scenery.sprite(paint_target, art.power(runner.transform_kind, ui_time), foot - Vector2(0, 56), height * 1.18, Color(1, 1, 1, sin(progress * PI) * 0.48), progress * 0.15)
 			for j in range(3):
 				var centre = foot - Vector2(0, 51)
@@ -918,9 +938,7 @@ func draw_run() -> void :
 			if kind == 3 and actor.fly_approved.has_assets():
 				paint_fly_smooth(member, foot, height, phase, state, blink, i)
 			else:
-				actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy))
-		if not str(data.equipped_hat).is_empty() and i == runner.leader_index() and kind == 0 and runner.transform_left <= 0:
-			hub.hat(paint_target, foot - Vector2(0, height * 0.9), height * 0.64, str(data.equipped_hat))
+				actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy), runner.cosmetics_for(member, kind))
 	passenger_captures.paint(paint_target, art, runner, true)
 	effects.paint(paint_target, art, actor)
 	if lab_active and lab_hitboxes: draw_collision_guides()
@@ -1004,6 +1022,13 @@ func validate_save(value) -> Dictionary:
 	HordeMeta.migrate(result, value)
 	HordeMissionCatalog.migrate(result,value,MonsterCatalog.active_missions(result.mission_tier))
 	return result
+
+func apply_test_funds() -> bool:
+	if not bool(ProjectSettings.get_setting("testing/catalog_funds_enabled",false)): return false
+	var changed = int(data.wallet)<1000000 or int(data.eyes)<10000
+	data.wallet = maxi(int(data.wallet),1000000)
+	data.eyes = maxi(int(data.eyes),10000)
+	return changed
 
 func read_save(path: String = SAVE_PATH) -> Dictionary:
 	for candidate in [path, path + ".bak"]:
@@ -1544,12 +1569,13 @@ func configure_layout() -> void :
 	var size = get_viewport_rect().size
 	layout_origin = (size - Vector2(1280, 720)) * 0.5
 	position = layout_origin
-	if is_instance_valid(market_clip) and size != market_layout_size:
-		market_layout_size = size
+	if is_instance_valid(market_clip):
 		var grid: Rect2 = market.layout(full_rect()).grid
-		market_clip.position = grid.position
-		market_clip.size = grid.size
-		market_canvas.position = - grid.position
+		if size != market_layout_size or market_clip.position != grid.position or market_clip.size != grid.size:
+			market_layout_size = size
+			market_clip.position = grid.position
+			market_clip.size = grid.size
+			market_canvas.position = - grid.position
 	var zoom = prepare_ui.camera_zoom(self) if screen == "prepare" else camera_zoom
 	world_canvas.scale = Vector2.ONE * zoom
 	world_canvas.position = CAMERA_ANCHOR + Vector2(0, 0 if screen == "prepare" else camera_ground_shift) - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * zoom
@@ -1776,7 +1802,10 @@ func draw_developer() -> void :
 	button(Rect2(456, 548, 369, 49), "TÚNEL: " + str(lab_stage), "lab_stage", Color("4c786a"), -2, 21)
 	button(Rect2(842, 548, 369, 49), "ATRASO: " + str(snappedf(lab_delay * 1000, 0.1)) + " ms / zumbi", "lab_delay", Color("4c786a"), -2, 19)
 	button(Rect2(70, 642, 245, 57), "VOLTAR", "back", Color("513c67"), -2, 23)
-	text("Testes não alteram moedas, missões ou progresso.", Vector2(650, 678), 19, MINT, false, true)
+	button(Rect2(330, 642, 300, 57), "BANCADA DE ITENS", "item_lab_open", Color("4c786a"), -2, 21)
+	if bool(ProjectSettings.get_setting("testing/catalog_funds_enabled",false)):
+		button(Rect2(650,642,560,57),"REPOR MOEDAS E OLHOS DE TESTE","developer_test_funds",Color("4c786a"),-2,21)
+	text("Testes da bancada preservam sua coleção e seu progresso.", Vector2(70,627), 18, MINT)
 
 func draw_collision_guides() -> void :
 	for e in runner.entities:

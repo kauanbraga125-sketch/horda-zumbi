@@ -1,0 +1,65 @@
+{
+  "bone_differences": 0,
+  "bone_samples": 379620,
+  "checks": 18979,
+  "combination_renders": 1512,
+  "examples": [],
+  "eye_differences": 0,
+  "eye_samples": 15510,
+  "failures": [],
+  "per_item": {
+    "s_bat": {
+      "bone_differences": 0,
+      "bone_samples": 65348,
+      "eye_differences": 0,
+      "eye_samples": 0
+    },
+    "s_comic": {
+      "bone_differences": 0,
+      "bone_samples": 65348,
+      "eye_differences": 0,
+      "eye_samples": 5170
+    },
+    "s_goth": {
+      "bone_differences": 0,
+      "bone_samples": 65348,
+      "eye_differences": 0,
+      "eye_samples": 0
+    },
+    "s_hourglass": {
+      "bone_differences": 0,
+      "bone_samples": 65348,
+      "eye_differences": 0,
+      "eye_samples": 0
+    },
+    "s_punk": {
+      "bone_differences": 0,
+      "bone_samples": 26440,
+      "eye_differences": 0,
+      "eye_samples": 5170
+    },
+    "s_silver": {
+      "bone_differences": 0,
+      "bone_samples": 26440,
+      "eye_differences": 0,
+      "eye_samples": 5170
+    },
+    "s_vest": {
+      "bone_differences": 0,
+      "bone_samples": 65348,
+      "eye_differences": 0,
+      "eye_samples": 0
+    }
+  },
+  "repaired_existing_renders": 432,
+  "revised_renders": 2338,
+  "unchanged_renders": 6298,
+  "version": "0.10.29",
+  "apk_sha256": "221ec982137efca60aac576a268f2ad3961ce038eb7d7cc6c27128f82f62469a",
+  "original_character_pngs_changed": 0,
+  "physical_device_tested": false,
+  "workbench_checks": 6231,
+  "currency_checks": 45,
+  "transformation_checks": 44,
+  "repaired_head_frames": 24
+}

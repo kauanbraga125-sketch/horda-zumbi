@@ -9,6 +9,7 @@ var zombie: HordeZombieSprite
 var skeleton_approved: HordeSkeletonApprovedSprite
 var fly_approved: HordeFlyApprovedSprite
 var masked_approved: HordeMaskedApprovedSprite
+var cosmetics = HordeCosmetics.new()
 
 func _init(source: HordeArt) -> void :
 	art = source
@@ -77,7 +78,8 @@ func arm(canvas: Node2D, kind: int, shoulder: Vector2, swing: float, tint: Color
 		else: part(canvas, kind, 8, hand + Vector2(4, -9), Vector2(11, 36), 0.55 + swing * 0.2, tint, root, scale, Vector2(0.5, 0.88))
 	part(canvas, kind, 4, hand, Vector2(12, 13), swing - 0.7, tint, root, scale, Vector2(0.5, 0.2))
 
-func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String = "run", time: float = 0, landing: float = 0, tint: Color = Color.WHITE, reverse: bool = false, pose_mix: float = 1.0, show_prop: bool = true, air_age: float = -1, vertical_speed: float = 0) -> void :
+func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String = "run", time: float = 0, landing: float = 0, tint: Color = Color.WHITE, reverse: bool = false, pose_mix: float = 1.0, show_prop: bool = true, air_age: float = -1, vertical_speed: float = 0, wear: Array = []) -> void :
+	if cosmetics.paint(canvas, kind, foot, height, phase, state, time, landing, tint, reverse, air_age, vertical_speed, wear): return
 	kind = clampi(kind, 0, art.rigs.size() - 1)
 	var render_route: String = renderer_for(kind, state, landing)
 	if render_route == "zombie_original":

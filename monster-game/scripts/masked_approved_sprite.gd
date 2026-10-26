@@ -76,11 +76,17 @@ func capture_hand(progress: float, height: float = 112.0) -> Vector2:
 	var point: Array = capture_hands[timed_frame("captura", progress)]
 	return (Vector2(point[0], point[1]) - FOOT_ORIGIN) * height / BODY_HEIGHT
 
+func texture_for_frame(clip: String, frame: int) -> Texture2D:
+	# These actions share the same approved neutral drawing. Sampling one
+	# texture keeps that pose identical after independent atlas compression.
+	if frame == 0 and clip in ["pulo", "virar_veiculo", "dano", "captura"]: return textures.andando
+	return textures[clip]
+
 func paint(canvas: Node2D, foot: Vector2, height: float, phase: float, state: String, time: float, landing: float, tint: Color, reverse: bool, air_age: float, vertical_speed: float) -> void:
 	var clip = animation_for(state, landing)
 	if not textures.has(clip): return
 	var frame = frame_for(state, phase, time, landing, air_age, vertical_speed)
 	var region = Rect2(Vector2(frame % COLUMNS, int(frame / COLUMNS)) * CELL, CELL)
 	canvas.draw_set_transform(foot, 0.0, Vector2(-1.0 if reverse else 1.0, 1.0))
-	canvas.draw_texture_rect_region(textures[clip], draw_rect(height), region, tint)
+	canvas.draw_texture_rect_region(texture_for_frame(clip, frame), draw_rect(height), region, tint)
 	canvas.draw_set_transform(Vector2.ZERO)

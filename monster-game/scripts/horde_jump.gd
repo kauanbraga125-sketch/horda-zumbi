@@ -54,21 +54,12 @@ static func begin_wave(run, index: int, double: bool = false) -> void :
 	var origin: Dictionary = run.members[index]
 	origin.jump_queue.clear()
 	launch(run, origin, wave)
-	var closing = maxf(1, run.speed)
-	for e in run.entities:
-		if e.taken or float(e.x) <= float(origin.x): continue
-		if e.get("rushing", false) or (e.kind == "helicopter" and float(e.y) > run.ground_y(origin.x) - 180):
-			var relative = run.speed - float(e.vx)
-			if float(e.x) - float(origin.x) < relative * 1.5: closing = maxf(closing, relative)
-
-
-	var coordination = lerpf(0.85, 0.35, clampf((run.active_count() - 12) / 76.0, 0, 1))
+	var followers: Array = run.members.filter(func(m): return not m.falling and m.id != origin.id)
+	followers.sort_custom(func(a, b): return float(a.x) > float(b.x))
 	var rank = 1
-	for i in range(run.members.size()):
-		var m: Dictionary = run.members[i]
-		if m.falling or i == index: continue
+	for m in followers:
 		var extra_delay = run.follower_delay(rank)
-		var due = run.elapsed + extra_delay + maxf(0, float(origin.x) - float(m.x)) / closing * coordination
+		var due = run.elapsed + extra_delay
 		rank += 1
 		while m.jump_queue.size() >= 3: m.jump_queue.pop_front()
 		m.jump_queue.append({"due": due, "extra_delay": extra_delay, "expires": due + HordeTuning.FOLLOWER_INPUT_WINDOW, "id": wave, "double": double})

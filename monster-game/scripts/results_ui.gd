@@ -29,7 +29,7 @@ func _init() -> void:
 	filled_style = cell_style(Color("16434a"), Color("67decf"))
 	flash_style = cell_style(Color("267c83"), Color("c5fff1"))
 	var image=Image.new()
-	if image.load_png_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/results_v110/souls.png"))==OK:
+	if image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/results_v110/souls.webp"))==OK:
 		var sheet=ImageTexture.create_from_image(image)
 		var meta=JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/results_v110/manifest.json"))
 		for region in meta.regions:

@@ -26,7 +26,8 @@ func run() -> void:
 		expect(total == int(manifest.clips[clip].duration_ms), "art timing preserved: " + clip)
 	var neutral = sprite.textures.andando.get_image().get_region(Rect2i(0, 0, 512, 512)).get_data()
 	for clip in ["pulo", "virar_veiculo", "dano", "captura"]:
-		expect(sprite.textures[clip].get_image().get_region(Rect2i(0, 0, 512, 512)).get_data() == neutral, "seamless neutral entry: " + clip)
+		expect(sprite.texture_for_frame(clip,0).get_image().get_region(Rect2i(0, 0, 512, 512)).get_data() == neutral, "seamless neutral entry: " + clip)
+		expect(sprite.texture_for_frame(clip,1) == sprite.textures[clip], "approved action frames preserved: " + clip)
 	expect(HordeMaskedApprovedSprite.draw_rect(156.8).size.is_equal_approx(HordeMaskedApprovedSprite.draw_rect(112).size * 1.4), "one body scale for every pose and the enlarged power")
 	var r = fresh(); g.runner = r
 	r.jump()

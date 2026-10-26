@@ -114,3 +114,32 @@ def write_entry(archive,info,data):
             info.extra=struct.pack('<HH',0xd935,padding-4)+bytes(padding-4)
     archive.writestr(info,data)
 
+def verify_android_layout(archive):
+    """Verify SDK flags and Android's stored/aligned resource-table contract."""
+    raw=archive.read('AndroidManifest.xml');offset=8;strings=[];metadata={}
+    while offset<len(raw):
+        kind,header,size=struct.unpack_from('<HHI',raw,offset)
+        if size<8 or offset+size>len(raw):raise ValueError('Invalid Android manifest chunk')
+        if kind==1:strings,_=string_pool(raw,offset)
+        elif kind==0x102:
+            tag=strings[struct.unpack_from('<I',raw,offset+20)[0]]
+            start,width,count=struct.unpack_from('<HHH',raw,offset+24)
+            for i in range(count):
+                attribute=offset+16+start+i*width
+                name=strings[struct.unpack_from('<I',raw,attribute+4)[0]]
+                value=struct.unpack_from('<I',raw,attribute+16)[0]
+                if tag=='uses-sdk' and name in ['minSdkVersion','targetSdkVersion']:
+                    metadata['min_sdk' if name=='minSdkVersion' else 'target_sdk']=value
+                elif tag=='application' and name=='extractNativeLibs':metadata['extract_native_libs']=bool(value)
+        offset+=size
+    assert metadata.get('min_sdk')==24 and metadata.get('target_sdk')==35, 'Unexpected Android SDK requirements'
+    assert metadata.get('extract_native_libs') is True, 'Native extraction flag changed'
+    info=archive.getinfo('resources.arsc');position=archive.fp.tell()
+    archive.fp.seek(info.header_offset);local=archive.fp.read(30);archive.fp.seek(position)
+    assert local[:4]==b'PK\x03\x04'
+    name_length,extra_length=struct.unpack_from('<HH',local,26)
+    data_offset=info.header_offset+30+name_length+extra_length
+    assert info.compress_type==ZIP_STORED, 'Android resource table must be stored without compression'
+    assert data_offset%4==0, 'Android resource table is not 4-byte aligned'
+    return dict(**metadata,resources_arsc_compression=info.compress_type,resources_arsc_offset=data_offset,resources_arsc_bytes=info.file_size)
+

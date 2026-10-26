@@ -6,11 +6,7 @@ const RELIC_LEVELS = [10, 25, 50, 75]
 const SEAL_LEVELS = [100, 125, 150]
 const RELIC_NAMES = ["DENTE INFECTADO", "MÁSCARA RACHADA", "CRÂNIO MALDITO", "CORAÇÃO DA HORDA"]
 const EXPERIMENTS = ["SORO DO ACAMPAMENTO 13", "PLASMA DA FITA PERDIDA", "EXTRATO DO PORÃO", "ESSÊNCIA DO HOSPEDEIRO"]
-const COSMETICS = [
-	{"id":"coveiro","name":"CARTOLA DO COVEIRO","price":1200,"icon":0},
-	{"id":"bruxa","name":"CHAPÉU DA BRUXA","price":1800,"icon":1},
-	{"id":"sobrevivente","name":"BONÉ DO SOBREVIVENTE","price":1600,"icon":2}
-]
+const COSMETICS = HordeCosmeticCatalog.ITEMS
 const OBJECTS = [
 	{"id": "coin_bombs", "name": "BOMBAS DE OURO", "price": 180, "icon": 0, "description": "25% das bombas terrestres viram 12 moedas nesta partida."},
 	{"id": "coin_cars", "name": "SUCATA VALIOSA", "price": 220, "icon": 1, "description": "25% dos veículos virados dão 25 moedas extras. Mantém passageiros e almas."},
@@ -27,7 +23,7 @@ const OBJECTS = [
 static func defaults() -> Dictionary:
 	return {"codex_section":0, "codex_spread":0, "codex_seen":{}, "eyes": 0, "stock": {}, "prepared_items": [], "altar_souls": 0, "graves": [], "grave_serial": 0, "daily_claim_at": 0,
 		"dose_reset_at": 0, "doses": 3, "level_rewards": [], "lifetime": {}, "death_causes": {},
-		"book_name": "", "book_signature": [], "book_signed_at": "", "cosmetics": [], "equipped_hat": ""}
+		"book_name": "", "book_signature": [], "book_signed_at": "", "cosmetics": [], "active_cosmetics": [], "equipped_hat": ""}
 
 static func migrate(result: Dictionary, raw: Dictionary) -> void:
 	for key in defaults(): result[key] = raw.get(key, defaults()[key])
@@ -52,8 +48,17 @@ static func migrate(result: Dictionary, raw: Dictionary) -> void:
 			for item in OBJECTS:
 				if item.id == id: prepared.append(id);break
 	result.prepared_items = prepared
-	for key in ["graves", "level_rewards", "book_signature", "cosmetics"]:
+	for key in ["graves", "level_rewards", "book_signature", "cosmetics", "active_cosmetics"]:
 		if not result[key] is Array: result[key] = []
+	var valid_owned: Array = []
+	for id in result.cosmetics:
+		if id is String and not HordeCosmetics.item(id).is_empty() and id not in valid_owned: valid_owned.append(id)
+	result.cosmetics = valid_owned
+	var valid_active: Array = []
+	for id in result.active_cosmetics:
+		if id in valid_owned and id not in valid_active: valid_active.append(id)
+	if not raw.has("active_cosmetics") and str(result.equipped_hat) in valid_owned: valid_active.append(str(result.equipped_hat))
+	result.active_cosmetics = valid_active
 	var pairs: Array = []
 	for pair in result.graves.slice(0, 500):
 		if not pair is Dictionary or not pair.get("rewards", null) is Array or pair.rewards.size() != 2: continue
@@ -134,9 +139,13 @@ static func equip_cosmetic(data: Dictionary, id: String) -> bool:
 	for item in COSMETICS:
 		if item.id != id: continue
 		if id not in data.cosmetics:
-			if int(data.wallet) < int(item.price): return false
-			data.wallet -= int(item.price);data.cosmetics.append(id)
-		data.equipped_hat = "" if data.equipped_hat == id else id
+			var currency = "eyes" if item.currency == "eyes" else "wallet"
+			if int(data[currency]) < int(item.price): return false
+			data[currency] -= int(item.price);data.cosmetics.append(id)
+		if not data.has("active_cosmetics"): data.active_cosmetics = []
+		if id in data.active_cosmetics: data.active_cosmetics.erase(id)
+		else: data.active_cosmetics.append(id)
+		data.equipped_hat = id if item.kind == 0 and item.slot == "head" and id in data.active_cosmetics else ""
 		return true
 	return false
 
@@ -171,7 +180,8 @@ static func reward(rng: RandomNumberGenerator) -> Dictionary:
 		var amount = rng.randi_range(1, 3)
 		return {"type": "eyes", "amount": amount, "label": str(amount) + " OLHOS MALDITOS"}
 	if roll < 0.99:
-		var item = COSMETICS[rng.randi_range(0,COSMETICS.size()-1)]
+		var available = COSMETICS.filter(func(entry): return entry.currency == "coins")
+		var item = available[rng.randi_range(0,available.size()-1)]
 		return {"type":"cosmetic","id":item.id,"amount":1,"label":item.name}
 	var jackpot = [2000,5000,10000][rng.randi_range(0,2)]
 	return {"type":"coins","amount":jackpot,"label":"TESOURO DO COVEIRO! " + str(jackpot) + " MOEDAS"}

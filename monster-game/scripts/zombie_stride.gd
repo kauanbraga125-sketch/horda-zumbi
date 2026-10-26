@@ -27,7 +27,7 @@ func read_frame(entry: Dictionary) -> Dictionary:
 	if entry.has("mouth_patch"): result["mouth_mesh"] = patch_mesh(entry.mouth_patch, textures.mouth.get_size())
 	return result
 
-func patch_mesh(patch: Dictionary, atlas_size: Vector2) -> ArrayMesh:
+static func patch_mesh(patch: Dictionary, atlas_size: Vector2) -> ArrayMesh:
 	var offset = Vector2(patch.offset[0], patch.offset[1])
 	var size = Vector2(patch.size[0], patch.size[1])
 	var source = Rect2(patch.source_region[0], patch.source_region[1], patch.source_region[2], patch.source_region[3])

@@ -1,0 +1,38 @@
+{
+  "frames": 263,
+  "item_frame_occlusions": 288,
+  "other_items_preserved": 26,
+  "new_art": [
+    {
+      "name": "scientist",
+      "png_sha256": "233a64652f8224e634e9b0100d6c7a60537aca47fb77eb2ce50d8704b1481c28",
+      "rgba_sha256": "f1c24f2e68335b62b1f8a5fdce72500aadb414bbf5c3e187f1711a84bf8769fa",
+      "lossless": true
+    },
+    {
+      "name": "cape",
+      "png_sha256": "0d102823d09cb98ccdb9b7dcc8dda80422af7a9aebe19b9bed137b7ad35f9bc0",
+      "rgba_sha256": "ed4310bb0b5c35cec5a27002787cd7d7c6be14e5b6b37a892dd4851e520ac1e4",
+      "lossless": true
+    },
+    {
+      "name": "scarf",
+      "png_sha256": "197c085393b5cd5a6efe8c037d8ceda41cf23a7623f1d2156dabf1f07de43753",
+      "rgba_sha256": "755924392e528d9ca9bcb184fca8981d61f6f5a086e267e7f25340a048afebf9",
+      "lossless": true
+    },
+    {
+      "name": "chain",
+      "png_sha256": "2281b27e2bca4012f0dd911d8486a409a9263a35869ddabc0a6554239cd692df",
+      "rgba_sha256": "ca1cc1cffeb59a2c794b260996cc08b640446d799dea4ab026e8590af60facf7",
+      "lossless": true
+    },
+    {
+      "name": "skull",
+      "png_sha256": "5774ac496d15ed864a6f23ce3431c8f79ad0b8955fdae026e05526ed0300d050",
+      "rgba_sha256": "01571c7096aceadae4b6f183cc78beeb93245f43c9bab04ebc9e2326f64d70d6",
+      "lossless": true
+    }
+  ],
+  "original_fitting_sha256": "5a7fdb5ebdb86a0c92f97813559272b778d3ec65987f458127f9d66d76ee8940"
+}

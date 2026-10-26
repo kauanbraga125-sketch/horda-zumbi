@@ -134,6 +134,7 @@ var rare_pending = false
 var opening_power = -1
 var eyes_collected = 0
 var loss_causes: Dictionary = {}
+var active_cosmetics: Array = []
 
 func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Array = [0, 1], collection: Array = [0], powers: Array = [3], power_upgrades: Dictionary = {}) -> void :
 	mission_stats.clear();last_loss_world=0.0
@@ -172,18 +173,31 @@ func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Arra
 
 func slot_x(index: int) -> float:
 	var columns = 10 if members.size() > 24 else 8
-	var spacing = 26.0 if columns == 10 else 35.0
-	var desired: float = ANCHOR - float(index % columns) * spacing - float(int(index / columns)) * (17.0 if columns == 10 else 15.0)
+	var spacing = 52.0 if members.size() <= 6 else (26.0 if columns == 10 else 35.0)
+	var rank = int(members[index].get("formation_rank", index)) if index < members.size() else index
+	# Keep every column distinct even when the camera zooms in.
+	var rows = int(maxi(0, members.size() - 1) / columns)
+	var available_width = maxf(180.0, ANCHOR - view_left - rows * 15.0 - 12.0)
+	spacing = minf(spacing, available_width / float(mini(columns - 1, maxi(1, members.size() - 1))))
+	return ANCHOR - float(rank % columns) * spacing - float(int(rank / columns)) * 15.0
 
-
-	return maxf(view_left - 35.0, desired)
-
-func member_depth(index: int) -> float:
+func member_lane(index: int) -> int:
 	var columns = 10 if members.size() > 24 else 8
-	return float(int(index / columns) % 3) * 10.0
+	var rank = int(members[index].get("formation_rank", index)) if index < members.size() else index
+	return int(rank / columns)
+
+func member_depth(_index: int) -> float:
+	# Lanes control crowd ordering, never lift grounded feet off the surface.
+	return 0.0
 
 func member_x(index: int) -> float:
 	return float(members[index].x) if index >= 0 and index < members.size() else slot_x(index)
+
+func cosmetics_for(m: Dictionary, kind: int) -> Array:
+	if kind not in [0, 1]: return []
+	var key = "cosmetics_" + str(kind)
+	if not m.has(key): m[key] = HordeCosmetics.choose(run_seed, int(m.id), kind, active_cosmetics)
+	return m[key]
 
 func active_count() -> int:
 	if cached_active >= 0: return cached_active
@@ -194,9 +208,41 @@ func active_count() -> int:
 	return total
 
 func leader_index() -> int:
+	var lead = -1
 	for i in range(members.size()):
-		if not members[i].falling: return i
-	return -1
+		if not members[i].falling and (lead < 0 or float(members[i].x) > float(members[lead].x)): lead = i
+	return lead
+
+func refresh_formation() -> void:
+	var order: Array = members.filter(func(m): return not m.falling)
+	order.sort_custom(func(a, b): return int(a.get("formation_rank", a.id)) < int(b.get("formation_rank", b.id)))
+	# A member ahead of a blocked neighbour can take its slot. Hysteresis
+	# prevents small animation/physics corrections from shuffling the group.
+	for i in range(1, order.size()):
+		var j = i
+		while j > 0 and float(order[j].x) > float(order[j - 1].x) + 12.0:
+			var previous = order[j - 1];order[j - 1] = order[j];order[j] = previous;j -= 1
+	for i in range(order.size()): order[i].formation_rank = i
+
+func separate_members(dt: float) -> void:
+	var minimum = 38.0 if members.size() <= 6 else (24.0 if members.size() > 24 else 30.0)
+	for i in range(members.size()):
+		var a: Dictionary = members[i]
+		if a.falling: continue
+		for j in range(i + 1, members.size()):
+			var b: Dictionary = members[j]
+			if b.falling: continue
+			# Independent lanes avoid pushing a dense crowd out of view. They
+			# are drawn with grounded feet instead of a floating vertical stack.
+			var dy = float(a.y) - float(b.y) + (member_lane(j) - member_lane(i)) * 38.0
+			if absf(dy) >= minimum: continue
+			var required = sqrt(minimum * minimum - dy * dy)
+			var dx = float(a.x) - float(b.x)
+			if absf(dx) >= required: continue
+			var sign_x = 1.0 if int(a.formation_rank) < int(b.formation_rank) else -1.0
+			var correction = minf(required - absf(dx), dt * (HordeTuning.REFORM_AIR_SPEED if not HordeJump.grounded(self, a) or not HordeJump.grounded(self, b) else HordeTuning.REFORM_WALK_SPEED)) * 0.5
+			a.x = reform_x(a, float(a.x) + sign_x * correction, dt)
+			b.x = reform_x(b, float(b.x) - sign_x * correction, dt)
 
 func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(INF, INF)) -> void :
 	if dead or ( not members.is_empty() and active_count() == 0): return
@@ -205,7 +251,7 @@ func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(
 		return
 	var index = members.size()
 	members.append({"id": next_member_id, "kind": clampi(kind, 0, 3), "x": slot_x(index) if is_inf(spawn.x) else spawn.x, "y": ground_y(slot_x(index)) if is_inf(spawn.y) else minf(FLOOR, spawn.y), "vy": 0.0, "jump_delay": -1.0, "jump_at": -1.0, 
-		"hurt_left": 0.0, "mask_flip_left": 0.0, "mask_push_at": 0.0, "landed_at": -1.0, "last_jump_at": -1.0, "air_jumps": 0, "coyote": 0.1, "land_left": 0.0, "glide_left": 0.0, "arrival": 0.35, "step_phase": -1, "falling": false, "attack_left": 0.0, "push_left": 0.0, "run_phase": index * 0.11, "air_pose": 0.0, "jump_ground_only": false, "jump_queue": [], "wave_id": -1, "air_time": 0.0, "roof_id": -1, "reform_hold_until": 0.0, "jump_gravity_scale": 1.0})
+		"hurt_left": 0.0, "mask_flip_left": 0.0, "mask_push_at": 0.0, "landed_at": -1.0, "last_jump_at": -1.0, "air_jumps": 0, "coyote": 0.1, "land_left": 0.0, "glide_left": 0.0, "arrival": 0.0, "step_phase": -1, "falling": false, "attack_left": 0.0, "push_left": 0.0, "run_phase": index * 0.11, "air_pose": 0.0, "jump_ground_only": false, "jump_queue": [], "wave_id": -1, "air_time": 0.0, "roof_id": -1, "reform_hold_until": 0.0, "jump_gravity_scale": 1.0, "formation_rank": index})
 	cached_active = -1
 	next_member_id += 1;max_horde = maxi(max_horde, active_count())
 	if count_recruit:
@@ -295,8 +341,11 @@ func member_floor(m: Dictionary) -> Dictionary:
 func reform_x(m: Dictionary, target: float, dt: float) -> float:
 
 	if float(m.get("reform_hold_until", 0.0)) > elapsed: return float(m.x)
-	if float(m.y) < float(m.get("surface_y", ground_y(float(m.x)))) - 4.0: return float(m.x)
-	var candidate: = move_toward(float(m.x), target, dt * HordeTuning.REFORM_WALK_SPEED)
+	var airborne = float(m.y) < float(m.get("surface_y", ground_y(float(m.x)))) - 4.0
+	var candidate: = move_toward(float(m.x), target, dt * (HordeTuning.REFORM_AIR_SPEED if airborne else HordeTuning.REFORM_WALK_SPEED))
+	if not airborne:
+		# Never slide a grounded character into a hole or through a step.
+		if not has_floor(candidate) or ground_y(candidate) < float(m.y) - 3.0: return float(m.x)
 	for e in entities:
 		if e.taken or not MonsterCatalog.VEHICLES.has(e.kind): continue
 
@@ -606,6 +655,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	while next_segment < 99999 and next_pattern_world - world_px < generation_horizon():
 		spawn_next_pattern()
 	if developer_kind.is_empty(): bonus_director.tick(self)
+	refresh_formation()
 	for i in range(members.size() - 1, -1, -1):
 		var m = members[i]
 		if m.falling:
@@ -661,8 +711,9 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		else:
 
 
-			var follow_through = float(wave_durations.get(int(m.wave_id), 0)) * 0.7
-			var hold_for = HordeBalance.MAX_HOLD if jump_held else maxf(HordeTuning.MIN_TAP_HOLD, follow_through)
+			var wave = int(m.wave_id)
+			var recorded = float(wave_durations.get(wave, HordeBalance.MAX_HOLD if bool(wave_holds.get(wave, false)) else HordeTuning.MIN_TAP_HOLD))
+			var hold_for = maxf(HordeTuning.MIN_TAP_HOLD, recorded)
 			var held = not m.falling and bool(m.get("hold_open", false)) and float(m.air_time) < hold_for
 			var hold_step = minf(dt, maxf(0, hold_for - float(m.air_time))) if held else 0.0
 			if hold_step > 0: HordeBalance.integrate(m, hold_step, true)
@@ -674,8 +725,8 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				if not was_grounded:
 					m.reform_hold_until = elapsed + HordeTuning.LANDING_RECOVERY_SECONDS
 				if m.vy > 250:
-					m.land_left = HordeMaskedApprovedSprite.LANDING_SECONDS if (perk_kind if perk_left > 0 else int(m.kind)) == 2 else 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == 0})
-					if i == 0 and clean_air: clean_jumps += 1;clean_air = false
+					m.land_left = HordeMaskedApprovedSprite.LANDING_SECONDS if (perk_kind if perk_left > 0 else int(m.kind)) == 2 else 0.2;events.append({"type": "land", "x": m.x, "y": floor_y, "leader": i == leader_index()})
+					if i == leader_index() and clean_air: clean_jumps += 1;clean_air = false
 				m.landed_at = elapsed - dt + dt * clampf((floor_y - previous_y) / maxf(1e-05, float(m.y) - previous_y), 0, 1) if not was_grounded else float(m.get("landed_at", -1))
 				m.y = floor_y;m.vy = 0;m.air_jumps = 0
 			if boost_protected() and not m.falling and m.y > floor_y: m.y = floor_y;m.vy = 0.0
@@ -687,10 +738,11 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		if m.y > FLOOR + 145 and active_count() == 0: rescue_from_pit()
 		if m.y > FLOOR + 170:
 			remove_member(i, "fall")
-		elif i < 3 and not m.falling and m.y >= floor_y - 0.1 and m.y <= floor_y + 0.1 and floor_here and m.jump_delay < 0:
+		elif int(m.formation_rank) < 3 and not m.falling and m.y >= floor_y - 0.1 and m.y <= floor_y + 0.1 and floor_here and m.jump_delay < 0:
 			var phase = int(float(m.run_phase) * 2)
 			if phase != m.step_phase:
-				m.step_phase = phase;events.append({"type": "step", "x": m.x - 6, "y": floor_y})
+				m.step_phase = phase;events.append({"type": "step", "x": m.x - 6, "y": floor_y - member_depth(i)})
+	separate_members(dt)
 	if jump_buffer_until >= 0: HordeJump.resolve_buffer(self)
 	if members.is_empty(): finish();return
 	var lead = leader_index()
@@ -1005,6 +1057,19 @@ func update_vehicle(entity: Dictionary, dt: float) -> void :
 			if int(members[i].id) == id:
 				damage(i, "vehicle")
 				break
+	# Grounded neighbours transmit their push through the queue. They do not
+	# need to occupy the same bumper position to contribute their strength.
+	var queue: Array = members.filter(func(m): return not m.falling and float(m.y) >= float(entity.y) - 12 and float(m.y) <= float(entity.y) + 2 and absf(float(m.vy)) < 1 and has_floor(float(m.x)) and float(m.x) <= edge + 2)
+	queue.sort_custom(func(a, b): return float(a.x) > float(b.x))
+	var connected = {}
+	var previous_x = INF
+	for m in queue:
+		var touching = entity.contacts.has(m.id) or (not connected.is_empty() and previous_x - float(m.x) <= 46.0)
+		if not touching: continue
+		connected[m.id] = member_force();previous_x = float(m.x)
+		if not entity.contacts.has(m.id): m.mask_push_at = elapsed
+		m.push_left = 0.15
+	entity.contacts = connected
 	var count = entity.contacts.size()
 	var effort = 0
 	for value in entity.contacts.values(): effort += int(value)
@@ -1120,7 +1185,9 @@ func remaining_soul_slots() -> int:
 	return maxi(0, early_soul_limit() - souls - pending)
 
 func follower_delay(rank: int) -> float:
-	return maxi(0, rank) * maxf(0, jump_delay_step)
+	# A pair reacts together; a large crowd still visibly propagates the jump.
+	var n = maxi(0, rank)
+	return 0.065 * minf(n, 3) + maxf(0, n - 3) * 0.014
 
 func boost_protected() -> bool:
 	return boost_left > 0 and int(levels.get("frenzy", 0)) > 0

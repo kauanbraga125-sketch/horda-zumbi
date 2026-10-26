@@ -10,6 +10,7 @@ var max_scroll = 0.0
 var selected = ""
 var expanded: Dictionary = {}
 var sprites: Dictionary = {}
+var accessory_filter = 0
 
 func _init() -> void :
 	var regions = {"logo": Rect2(8, 82, 1520, 490), "shoe": Rect2(0, 620, 384, 350), "magnet": Rect2(390, 606, 378, 364), "potion": Rect2(768, 598, 384, 378), "church": Rect2(1152, 590, 384, 390)}
@@ -41,6 +42,7 @@ func layout(view: Rect2) -> Dictionary:
 	var sidebar_width = clampf(view.size.x * 0.18, 214, 320)
 	var top = view.position.y + 190
 	var grid = Rect2(left + sidebar_width + 20, top, right - left - sidebar_width - 20, view.size.y - 238)
+	if category == 2: grid.position.y += 46;grid.size.y -= 46
 	var gap = 14.0
 	var card_size = Vector2((grid.size.x - gap) * 0.5, (grid.size.y - gap) * 0.5)
 	var title_width = minf(view.size.x * 0.3, 450)
@@ -73,11 +75,14 @@ func items(data: Dictionary) -> Array[Dictionary]:
 				var description = str(power.description) if not chain.owned else ("TODOS OS BENEFÍCIOS: " + str(chain.benefits) if chain.full else "PRÓXIMO: " + str(nxt.name) + ". " + str(nxt.description))
 				result.append({"key": "monster_chain_" + str(power.kind), "name": name + " · " + ("NÍVEL " + str(chain.level) if chain.owned else "BLOQUEADO"), "description": description, "status": "ATUAL: " + str(chain.benefits), "level_value": chain.level, "level_max": 4 if power.kind == 3 else 10, "price": power.price if not chain.owned else int(nxt.get("price", 0)), "full": chain.full, "action": "power_buy_" + str(power.kind) if not chain.owned else "power_upgrade_" + str(nxt.get("index", 0)), "illustration": "power", "index": power.kind, "kind": power.kind})
 		2:
-			for i in range(MonsterCatalog.AREAS.size()):
-				var item: Dictionary = MonsterCatalog.AREAS[i]
-				result.append({"key": "area" + str(i), "name": item.name.to_upper(), "description": item.description, "status": "NA ROTA" if i in data.areas else "CENÁRIO", "price": item.price, "full": i in data.areas, "action": "area_" + str(i), "illustration": "area", "index": i, "kind": 0})
+			if accessory_filter == 2:
+				for i in range(MonsterCatalog.AREAS.size()):
+					var item: Dictionary = MonsterCatalog.AREAS[i]
+					result.append({"key": "area" + str(i), "name": item.name.to_upper(), "description": item.description, "status": "NA ROTA" if i in data.areas else "CENÁRIO", "price": item.price, "full": i in data.areas, "action": "area_" + str(i), "illustration": "area", "index": i, "kind": 0})
 			for item in HordeMeta.COSMETICS:
-				result.append({"key":item.id,"name":item.name,"description":"Acessório para o líder zumbi. Também pode sair nas lápides.","status":"EQUIPADO" if data.equipped_hat == item.id else "NA COLEÇÃO" if item.id in data.cosmetics else "ACESSÓRIO","price":0 if item.id in data.cosmetics else item.price,"full":false,"action":"cosmetic_"+item.id,"illustration":"hat","index":item.icon,"kind":0})
+				if accessory_filter == 2 or int(item.kind) != accessory_filter: continue
+				var owned = item.id in data.cosmetics;var active = item.id in data.get("active_cosmetics", [])
+				result.append({"key":item.id,"name":item.name,"description":"Participa dos visuais sorteados na horda. Ative vários para variar.","status":"ATIVO NA HORDA" if active else "NA COLEÇÃO" if owned else "EXCLUSIVO · OLHOS" if item.currency == "eyes" else "ACESSÓRIO","price":0 if owned else item.price,"currency":item.currency,"active":active,"owned":owned,"full":false,"action":"cosmetic_"+item.id,"illustration":"cosmetic","index":item.icon,"kind":item.kind})
 		3:
 			var available = HordeMeta.daily_available(data, int(Time.get_unix_time_from_system()))
 			result.append({"key": "daily", "name": "PRESENTE DA MADRUGADA", "description": "5 Olhos Malditos a cada 24 horas. Toque em resgatar quando estiver disponível.", "status": "DISPONÍVEL" if available else "VOLTE EM " + str(ceili((int(data.daily_claim_at) + 86400 - Time.get_unix_time_from_system()) / 3600.0)) + " H", "price": 0, "full": not available, "action": "daily_eyes", "illustration": "eye", "index": 0, "kind": 0})
@@ -142,6 +147,12 @@ func paint(g) -> void :
 		var thumb = maxf(42, rail.size.y * d.grid.size.y / (max_scroll + d.grid.size.y))
 		g.panel(Rect2(rail.position + Vector2(0, (rail.size.y - thumb) * scroll / max_scroll), Vector2(6, thumb)), g.MINT, g.MINT, 3, 0, false)
 		g.home_menu.label(g, "DESLIZE PARA VER MAIS", Vector2(d.grid.get_center().x, d.grid.end.y + 27), 15, g.MINT, true, d.grid.size.x)
+	if category == 2:
+		for i in range(3):
+			var rect = Rect2(d.grid.position + Vector2(i * d.grid.size.x / 3, -44), Vector2(d.grid.size.x / 3 - 8, 36))
+			g.panel(rect, Color("52385c") if i == accessory_filter else Color("24182e"), g.GOLD if i == accessory_filter else g.MINT, 8, 1, false)
+			g.home_menu.label(g, ["ZUMBIS", "ESQUELETOS", "CENÁRIOS"][i], rect.get_center() + Vector2(0, 7), 20, g.CREAM, true, rect.size.x - 12)
+			g.buttons.append({"rect":rect,"action":"market_filter_" + str(i)})
 
 
 	for i in range(entries.size()):
@@ -184,6 +195,7 @@ func gem(g, point: Vector2, filled: bool) -> void :
 func illustration(g, item: Dictionary, p: Vector2, height: float) -> void :
 	var bob = sin(g.ui_time * 1.7 + int(item.index)) * 1.4
 	match item.illustration:
+		"cosmetic": g.actor.paint(g.paint_target, int(item.kind), p + Vector2(0, height * .53), height, g.ui_time * .7, "run", g.ui_time, 0, Color.WHITE, false, 1, true, -1, 0, [str(item.key)])
 		"object": g.hub.object_icon(g, int(item.index), p, height * 0.7)
 		"eye": g.hub.eye(g, p, height * 0.8)
 		"grave": g.scenery.sprite(g.paint_target, g.hub.grave_texture, p, height)
@@ -216,6 +228,12 @@ func purchase(g, item: Dictionary, rect: Rect2) -> void :
 	var full = bool(item.full)
 	var locked = bool(item.get("locked", false))
 	g.paint_target.draw_texture_rect(g.home_menu.play_texture, face, false, Color(0.46, 0.43, 0.57) if full or locked else Color.WHITE)
+	if item.illustration == "cosmetic":
+		var owned = bool(item.owned)
+		var label = ("DESATIVAR" if item.active else "ATIVAR") if owned else "COMPRAR"
+		g.home_menu.label(g, label, face.get_center() + Vector2(0, -7), 19, Color("3f211f"), true, face.size.x - 16)
+		g.home_menu.label(g, "NA COLEÇÃO" if owned else str(item.price) + (" OLHOS" if item.currency == "eyes" else " MOEDAS"), face.get_center() + Vector2(0, 23), 18, g.CREAM, true, face.size.x - 16)
+		return
 	if full or locked:
 		var state = "BLOQUEADO" if locked else ("NO MÁXIMO" if item.has("level_value") else ("RESGATADO" if item.key == "daily" else "LIBERADO"))
 		g.home_menu.label(g, state, face.get_center() + Vector2(0, 8), 19, g.CREAM if locked else g.MINT, true, face.size.x - 30)
@@ -240,7 +258,14 @@ func paint_rows(g) -> void :
 		g.home_menu.label(g, item.name, Vector2(text_x, rect.position.y + 42), title_size, g.CREAM, false, text_width, false, 3)
 		wrapped(g, item.description, Vector2(text_x + 1, rect.position.y + 78), text_width - 2, int(clampf(rect.size.x * 0.036, 17, 20)), 3)
 		var art_height = clampf(rect.size.x * 0.28, 112, 154)
-		illustration(g, item, rect.position + Vector2(rect.size.x * 0.205, rect.size.y * 0.43), art_height)
+		if item.illustration == "cosmetic":
+			var preview = Rect2(rect.position+Vector2(17,15),Vector2(text_x-rect.position.x-30,rect.size.y-64))
+			var bounds: Rect2 = g.actor.cosmetics.preview_bounds(str(item.key))
+			var height = minf(preview.size.x/bounds.size.x,preview.size.y/bounds.size.y)*.98
+			var foot = preview.get_center()-bounds.get_center()*height
+			g.actor.paint(g.paint_target,int(item.kind),foot,height,g.ui_time*.7,"run",g.ui_time,0,Color.WHITE,false,1,true,-1,0,[str(item.key)])
+		else:
+			illustration(g,item,rect.position+Vector2(rect.size.x*.205,rect.size.y*.43),art_height)
 		var baseline = rect.end.y - 28
 		if item.has("level_value"):
 			g.home_menu.label(g, "NÍVEL " + str(item.level_value) + " / " + str(item.level_max), Vector2(rect.position.x + 23, baseline), 17, g.MINT, false, 111)

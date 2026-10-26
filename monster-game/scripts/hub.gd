@@ -258,7 +258,16 @@ func brush(g, point: Vector2) -> void:
 	brush_last = point
 
 func hat(canvas: Node2D, p: Vector2, size: float, id: String = "coveiro") -> void:
-	polish.draw(canvas,"props",HordeMeta.cosmetic_index(id),p,Vector2(size,size*0.85))
+	var entry = HordeCosmetics.item(id)
+	if entry.is_empty() or entry.group == "legacy":
+		polish.draw(canvas,"props",HordeMeta.cosmetic_index(id),p,Vector2(size,size*0.85))
+	else:
+		var sheet: Texture2D = load("res://assets/art/cosmetics_v113/" + str(entry.group) + ".png")
+		var graphics = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/cosmetics_v113/graphics.json"))
+		var r: Array = graphics[id].rect
+		var scale = minf(size / float(r[2]), size * .85 / float(r[3]))
+		var dimensions = Vector2(r[2],r[3]) * scale
+		canvas.draw_texture_rect_region(sheet,Rect2(p-dimensions*.5,dimensions),Rect2(r[0],r[1],r[2],r[3]))
 
 func signature_rect(g) -> Rect2:
 	var r = body(g)
@@ -330,7 +339,9 @@ func settle_stats(g) -> void:
 func action(g, a: String) -> bool:
 	if a.begins_with("cosmetic_"):
 		if HordeMeta.equip_cosmetic(g.data,a.trim_prefix("cosmetic_")): g.save_game();g.sound.play("buy")
-		else: g.show_toast("FALTAM MOEDAS.");g.sound.play("ui_denied")
+		else:
+			var item = HordeCosmetics.item(a.trim_prefix("cosmetic_"))
+			g.show_toast("FALTAM OLHOS MALDITOS." if item.get("currency", "coins") == "eyes" else "FALTAM MOEDAS.");g.sound.play("ui_denied")
 		return true
 	if a.begins_with("evolution_"):
 		detail_kind = clampi(int(a.trim_prefix("evolution_")), 0, 3);g.change_screen("evolution");return true

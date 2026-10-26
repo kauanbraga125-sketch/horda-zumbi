@@ -17,8 +17,20 @@ def refresh(root: Path):
     paths += sorted(p for p in (root / 'scripts').iterdir() if p.suffix in ('.gd', '.gdshader'))
     for folder in ('soldier_v100', 'polish_v101', 'menu_v102', 'codex_v103', 'masked_v104', 'profile_v104', 'experiment_v105'):
         paths += sorted((root / 'assets/art' / folder).glob('*.json'))
-    paths += sorted(p for p in (root / 'assets/art/results_v110').glob('*') if p.suffix in ('.png', '.json'))
+    paths += sorted(p for p in (root / 'assets/art/results_v110').glob('*') if p.suffix in ('.webp', '.json'))
     paths += sorted(p for p in (root / 'assets/audio/results_v110').glob('*') if p.suffix in ('.pcm', '.json'))
+    paths += sorted(p for p in (root / 'assets/art/cosmetics_v113').glob('*') if p.suffix in ('.json', '.bin'))
+    paths += sorted((root / 'assets/art/cosmetics_v123').glob('*.bin'))
+    paths += sorted((root / 'assets/art/cosmetics_v124').glob('*.bin'))
+    paths += sorted((root / 'assets/art/cosmetics_v125').glob('*.bin'))
+    paths += sorted((root / 'assets/art/cosmetics_v126').glob('*.bin'))
+    paths += sorted(p for p in (root / 'assets/art/cosmetics_v127').glob('*') if p.suffix in ('.json', '.bin'))
+    paths += sorted(p for p in (root / 'assets/art/cosmetics_v129').glob('*') if p.suffix in ('.bin', '.json'))
+    for folder in ['cosmetics_v116', 'cosmetics_v117', 'cosmetics_v119', 'cosmetics_v120', 'cosmetics_v121', 'cosmetics_v122', 'cosmetics_v124', 'cosmetics_v126', 'cosmetics_v127', 'cosmetics_v128', 'cosmetics_v129']:
+        for importer in sorted((root / 'assets/art' / folder).glob('*.png.import')):
+            paths.append(importer)
+            imported = re.search(r'path="res://([^"]+)"', importer.read_text()).group(1)
+            paths.append(root / imported)
     version = re.search(r'config/version="([^"]+)"', (root / 'project.godot').read_text()).group(1)
     manifest = {'version': version,
                 'class_count': len(re.findall(rb'"class":', cache.read_bytes())),

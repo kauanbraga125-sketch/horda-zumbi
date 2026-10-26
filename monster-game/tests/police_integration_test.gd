@@ -34,7 +34,7 @@ func run_checks() -> void:
 	for state in ["idle", "run", "rise", "fall", "capture", "panic", "push"]:
 		expect(actor.renderer_for(8, state, 0.0) == "police_approved", "Police renderer: " + state)
 		expect(actor.renderer_for(0, state, 0.0) == "zombie_original", "Original zombie preserved: " + state)
-		expect(actor.renderer_for(2, state, 0.0) == "original_rig", "Masked monster preserved: " + state)
+		expect(actor.renderer_for(2, state, 0.0) == "masked_approved", "Approved masked monster preserved: " + state)
 		expect(actor.renderer_for(3, state, 0.0) == "fly_approved", "Latest fly preserved: " + state)
 	expect(art.worker.has_assets() and art.woman.has_assets(), "Worker and female civilian still load")
 	expect(is_equal_approx(HordeFlyApprovedSprite.CAPTURE_SECONDS, 1.8), "Fly capture duration preserved")

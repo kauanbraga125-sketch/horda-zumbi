@@ -1,0 +1,17 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path="res://.godot/imported/s_goth-v129-lossless.ctex"
+metadata={"vram_texture":false}
+
+[deps]
+
+source_file="res://assets/art/cosmetics_v129/s_goth.png"
+dest_files=["res://.godot/imported/s_goth-v129-lossless.ctex"]
+
+[params]
+
+compress/mode=0
+mipmaps/generate=false
+process/fix_alpha_border=true

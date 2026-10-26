@@ -1,0 +1,17 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+path="res://.godot/imported/s_ghostpirate-v128-lossless.ctex"
+metadata={"vram_texture":false}
+
+[deps]
+
+source_file="res://assets/art/cosmetics_v128/s_ghostpirate.png"
+dest_files=["res://.godot/imported/s_ghostpirate-v128-lossless.ctex"]
+
+[params]
+
+compress/mode=0
+mipmaps/generate=false
+process/fix_alpha_border=true

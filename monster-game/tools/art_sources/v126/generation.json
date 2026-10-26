@@ -1,0 +1,54 @@
+{
+  "mode": "builtin",
+  "jobs": [
+    {
+      "name": "scientist",
+      "prompt": "Use case: precise-object-edit. Create a corrected standalone SCIENTIST HAIR WIG from the silver white scientist hair in the lower left of image 1; image 2 is ONLY the game character proportions reference. Dense, short, wild swept-back silver-white spiky hair in this richly shaded hand-painted cartoon game style with clean dark outline. A compact complete crown of hair meant for the green chibi zombie facing RIGHT in three-quarter side view. Critical: the cap/crown is SOLID and DENSE across its entire top and side, with a short continuous wavy forehead fringe along the lower right edge; NO hollow square, face-sized hole, empty middle, huge U-shaped wig, big sideburn curtains, beard, or long locks beside the mouth. Hair ends near the tops of the ears. The upper spikes sweep to the LEFT/back of head. Only the standalone hair accessory, no character, face, skin, eyes, ears, body, text or shadow, genuine transparent background, centered and completely within frame with margin.",
+      "paths": [
+        "/workspace/scratch/7c3421bad065/horda-zumbi/monster-game/assets/art/cosmetics_v113/zombie_style.png",
+        "/workspace/scratch/7c3421bad065/horda-zumbi/monster-game/tools/art_sources/v124/zombie-head-reference.png"
+      ],
+      "source": "/workspace/scratch/7c3421bad065/generated_images/exec-39fff772-b973-4e0f-95c0-8107be1d4f8b.png"
+    },
+    {
+      "name": "s_chaos",
+      "prompt": "Use case: precise-object-edit. Create a corrected standalone game accessory derived from the green and purple jester hat in the TOP LEFT of the reference atlas, three floppy points with small brass bells, stitched cloth. Keep its recognizable colors, material, silhouette and richly shaded hand-painted cartoon game style with a clean dark outline. This replaces a buggy floating hat in a side-view game. Critical correction: show it as WORN on an invisible head facing RIGHT, viewed from slightly ABOVE its brim, not from below. The base must be a CLOSED opaque curved lower edge with a narrow front band. No visible oval underside, black interior, hollow mouth or empty hole in the bottom. The complete hat sits over the forehead, its base approximately horizontal, a gently convex lower edge. Isolate ONLY this one accessory, centered, large, all tips and bells fully visible, generous transparent margin. No head, skull, hood, face, body, other hats, text or ground shadow. Genuine transparent background.",
+      "paths": [
+        "/workspace/scratch/7c3421bad065/horda-zumbi/monster-game/assets/art/cosmetics_v113/skeleton_head.png"
+      ],
+      "source": "/workspace/scratch/7c3421bad065/generated_images/exec-34ba521a-2e14-4e6b-8665-a6a26cd8a1fd.png"
+    },
+    {
+      "name": "s_north",
+      "prompt": "Use case: precise-object-edit. Create a corrected standalone game accessory derived from the weathered silver steel Viking helmet with two curved ivory horns in the TOP ROW SECOND of the reference atlas. Keep its recognizable colors, material, silhouette and richly shaded hand-painted cartoon game style with a clean dark outline. This replaces a buggy floating hat in a side-view game. Critical correction: show it as WORN on an invisible head facing RIGHT, viewed from slightly ABOVE its brim, not from below. The base must be a CLOSED opaque curved lower edge with a narrow front band. No visible oval underside, black interior, hollow mouth or empty hole in the bottom. The complete hat sits over the forehead, its base approximately horizontal, a gently convex lower edge. Isolate ONLY this one accessory, centered, large, all tips and bells fully visible, generous transparent margin. No head, skull, hood, face, body, other hats, text or ground shadow. Genuine transparent background.",
+      "paths": [
+        "/workspace/scratch/7c3421bad065/horda-zumbi/monster-game/assets/art/cosmetics_v113/skeleton_head.png"
+      ],
+      "source": "/workspace/scratch/7c3421bad065/generated_images/exec-f05d7ddf-6bfb-4d70-be4e-075d3ee52d64.png"
+    },
+    {
+      "name": "s_wizard",
+      "prompt": "Use case: precise-object-edit. Create a corrected standalone game accessory derived from the navy blue wizard hat with gold stars, crescent moon and purple ribbon in the TOP ROW THIRD of the reference atlas. Keep its recognizable colors, material, silhouette and richly shaded hand-painted cartoon game style with a clean dark outline. This replaces a buggy floating hat in a side-view game. Critical correction: show it as WORN on an invisible head facing RIGHT, viewed from slightly ABOVE its brim, not from below. The base must be a CLOSED opaque curved lower edge with a narrow front band. No visible oval underside, black interior, hollow mouth or empty hole in the bottom. The complete hat sits over the forehead, its base approximately horizontal, a gently convex lower edge. Isolate ONLY this one accessory, centered, large, all tips and bells fully visible, generous transparent margin. No head, skull, hood, face, body, other hats, text or ground shadow. Genuine transparent background.",
+      "paths": [
+        "/workspace/scratch/7c3421bad065/horda-zumbi/monster-game/assets/art/cosmetics_v113/skeleton_head.png"
+      ],
+      "source": "/workspace/scratch/7c3421bad065/generated_images/exec-df2225bc-b3f7-4041-9162-808f46879be0.png"
+    },
+    {
+      "name": "s_striped",
+      "prompt": "Use case: precise-object-edit. Create a corrected standalone game accessory derived from the tall red-and-white striped top hat with charcoal brim in the TOP RIGHT of the reference atlas. Keep its recognizable colors, material, silhouette and richly shaded hand-painted cartoon game style with a clean dark outline. This replaces a buggy floating hat in a side-view game. Critical correction: show it as WORN on an invisible head facing RIGHT, viewed from slightly ABOVE its brim, not from below. The base must be a CLOSED opaque curved lower edge with a narrow front band. No visible oval underside, black interior, hollow mouth or empty hole in the bottom. The complete hat sits over the forehead, its base approximately horizontal, a gently convex lower edge. Isolate ONLY this one accessory, centered, large, all tips and bells fully visible, generous transparent margin. No head, skull, hood, face, body, other hats, text or ground shadow. Genuine transparent background.",
+      "paths": [
+        "/workspace/scratch/7c3421bad065/horda-zumbi/monster-game/assets/art/cosmetics_v113/skeleton_head.png"
+      ],
+      "source": "/workspace/scratch/7c3421bad065/generated_images/exec-fb0699e8-7aed-4ecb-9c9b-2115e500e5e5.png"
+    },
+    {
+      "name": "s_ice",
+      "prompt": "Use case: precise-object-edit. Create a corrected standalone game accessory derived from the jagged translucent blue ice crown with crystal points and blue gems in the BOTTOM LEFT of the reference atlas. Keep its recognizable colors, material, silhouette and richly shaded hand-painted cartoon game style with a clean dark outline. This replaces a buggy floating hat in a side-view game. Critical correction: show it as WORN on an invisible head facing RIGHT, viewed from slightly ABOVE its brim, not from below. The base must be a CLOSED opaque curved lower edge with a narrow front band. No visible oval underside, black interior, hollow mouth or empty hole in the bottom. The complete hat sits over the forehead, its base approximately horizontal, a gently convex lower edge. Isolate ONLY this one accessory, centered, large, all tips and bells fully visible, generous transparent margin. No head, skull, hood, face, body, other hats, text or ground shadow. Genuine transparent background.",
+      "paths": [
+        "/workspace/scratch/7c3421bad065/horda-zumbi/monster-game/assets/art/cosmetics_v113/skeleton_head.png"
+      ],
+      "source": "/workspace/scratch/7c3421bad065/generated_images/exec-6cd11cce-9f38-4caa-a737-fdcf8714f55b.png"
+    }
+  ]
+}
