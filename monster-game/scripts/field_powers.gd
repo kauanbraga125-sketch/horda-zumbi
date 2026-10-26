@@ -53,7 +53,7 @@ func drop_civilian(r) -> void:
 		for e in r.entities:
 			if not e.taken and (MonsterCatalog.VEHICLES.has(e.kind) or e.kind in ["bomb","spikes","collapse"]) and absf(candidate-float(e.x)) < float(e.width)*.5+75: blocked = true;break
 		if blocked: continue
-		var e = r.add_entity("civilian",candidate,r.ground_y(candidate)-220,0)
+		var e = r.add_entity("civilian",candidate,r.ground_y(candidate)-220,0,70,true)
 		e.airdrop = true;e.rescued_civil = true;e.drop_at = r.elapsed;e.drop_vy = -55.0;e.vx = 40.0;e.pose = "panic";e.speaker = false;e.speech_left = 0
 		deliveries += 1;r.events.append({"type":"civil_drop","x":candidate,"y":e.y});return
 

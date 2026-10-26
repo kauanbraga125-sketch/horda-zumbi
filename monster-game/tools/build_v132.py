@@ -36,7 +36,7 @@ def build(a):
         manifest,metadata=patch_manifest(base.read('AndroidManifest.xml'),VERSION,CODE)
         assert metadata['package']=='com.kauan.noitedahorda.reconstruida' and metadata['previousVersionCode']==134
         strings,_=string_pool(manifest,8)
-        manifest=bytes(replace_pool_string(bytearray(manifest),8,strings.index('Horda Zumbi R30'),'Horda Espaco R31'))
+        manifest=bytes(replace_pool_string(bytearray(manifest),8,strings.index('Horda Espaco R31'),'Horda Aventura R32'))
         a.output.parent.mkdir(parents=True,exist_ok=True)
         with tempfile.TemporaryDirectory(prefix='horda-v132-') as tmp:
             tmp=Path(tmp);unsigned=tmp/'unsigned.apk';aligned=tmp/'aligned.apk';signed=tmp/'signed.apk'
@@ -70,6 +70,7 @@ def build(a):
                 for e in audit['files']:assert digest(packed[e['path'][6:]])==e['sha256'],e['path']
                 assert all(packed['scripts/'+p.name]==p.read_bytes() for p in (a.source/'scripts').glob('*.gd'))
             shutil.copyfile(signed,a.output)
+            assert digest(a.output.read_bytes())==digest(signed.read_bytes()),'APK copy mismatch'
     report={'version':VERSION,'code':CODE,'package':metadata['package'],'bytes':a.output.stat().st_size,'sha256':digest(a.output.read_bytes()),'signing_certificate_sha256':CERT,'base_apk_sha256':BASE,'prior_media_entries_preserved':len(media),'original_character_pngs_changed':0,'source_matches_shipped_scripts':True,'startup_files':len(audit['files']),'class_count':audit['class_count'],'sparse_entries':count,'changed':changed,'layout':layout,'physical_device_tested':False}
     a.output.with_suffix('.json').write_text(json.dumps(report,indent=2));print(json.dumps(report))
 

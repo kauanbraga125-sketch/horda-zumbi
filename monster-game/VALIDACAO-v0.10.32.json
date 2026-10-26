@@ -1,0 +1,354 @@
+{
+  "version": "0.10.32",
+  "android": {
+    "code": 135,
+    "package": "com.kauan.noitedahorda.reconstruida",
+    "bytes": 120715755,
+    "sha256": "848db586b26f76f955535fe6d190400936b83e42debb0bf751e672f8bad24abe",
+    "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+    "base_apk_sha256": "32904dd23b00ada042be1eb49f8f145f0b4442d3d4315c347ac8fb41bda15e22",
+    "prior_media_entries_preserved": 274,
+    "original_character_pngs_changed": 0,
+    "source_matches_shipped_scripts": true,
+    "startup_files": 189,
+    "class_count": 55,
+    "sparse_entries": 899,
+    "layout": {
+      "min_sdk": 24,
+      "target_sdk": 35,
+      "extract_native_libs": true,
+      "resources_arsc_compression": 0,
+      "resources_arsc_offset": 28399636,
+      "resources_arsc_bytes": 59356
+    }
+  },
+  "adventure": {
+    "checks": 222,
+    "failures": [],
+    "ground_cases": [
+      {
+        "horde": 1,
+        "launch_points": [
+          345.083333333333
+        ],
+        "speed": 305.0,
+        "stage": 0,
+        "survived": 1
+      },
+      {
+        "horde": 1,
+        "launch_points": [
+          346.663213050833
+        ],
+        "speed": 399.79278305,
+        "stage": 4,
+        "survived": 1
+      },
+      {
+        "horde": 1,
+        "launch_points": [
+          349.345500996469
+        ],
+        "speed": 560.730059788147,
+        "stage": 9,
+        "survived": 1
+      },
+      {
+        "horde": 4,
+        "launch_points": [
+          345.083333333333,
+          343.916666666667,
+          342.75,
+          341.583333333333
+        ],
+        "speed": 305.0,
+        "stage": 0,
+        "survived": 4
+      },
+      {
+        "horde": 4,
+        "launch_points": [
+          346.663213050833,
+          341.305704406667,
+          342.611408813333,
+          343.91711322
+        ],
+        "speed": 399.79278305,
+        "stage": 4,
+        "survived": 4
+      },
+      {
+        "horde": 4,
+        "launch_points": [
+          349.345500996469,
+          344.073005978815,
+          348.14601195763,
+          342.873516939975
+        ],
+        "speed": 560.730059788147,
+        "stage": 9,
+        "survived": 4
+      },
+      {
+        "horde": 8,
+        "launch_points": [
+          345.083333333333,
+          346.05,
+          345.65,
+          345.25,
+          345.183333333334,
+          340.983333333334,
+          343.233333333334,
+          344.05
+        ],
+        "speed": 305.0,
+        "stage": 0,
+        "survived": 8
+      },
+      {
+        "horde": 8,
+        "launch_points": [
+          346.663213050833,
+          344.2091580225,
+          340.3884363275,
+          344.59759435,
+          341.110205988023,
+          343.229724858489,
+          345.349243728489,
+          341.1653089825
+        ],
+        "speed": 399.79278305,
+        "stage": 4,
+        "survived": 8
+      },
+      {
+        "horde": 8,
+        "launch_points": [
+          349.345500996469,
+          341.560838315679,
+          343.121676631358,
+          344.682514947037,
+          346.576685324483,
+          348.713190221239,
+          340.137525547511,
+          349.365029894074
+        ],
+        "speed": 560.730059788147,
+        "stage": 9,
+        "survived": 8
+      },
+      {
+        "horde": 16,
+        "launch_points": [
+          345.55,
+          342.216666666667,
+          342.583333333333,
+          343.45625,
+          344.722916666667,
+          343.95,
+          347.083333333334,
+          341.5,
+          347.357933181215,
+          344.85,
+          343.333333333333,
+          340.75,
+          341.25,
+          345.6,
+          343.75,
+          344.333333333333
+        ],
+        "speed": 305.0,
+        "stage": 0,
+        "survived": 16
+      },
+      {
+        "horde": 16,
+        "launch_points": [
+          347.1298797175,
+          344.81951887,
+          343.602250790833,
+          343.9536768925,
+          345.469742146667,
+          344.44759435,
+          340.770566835833,
+          340.620566835834,
+          343.91711322,
+          340.500446553333,
+          340.776872655,
+          349.0165118075,
+          343.9262712425,
+          344.9860306775,
+          346.523386420608,
+          346.528522033334
+        ],
+        "speed": 399.79278305,
+        "stage": 4,
+        "survived": 16
+      },
+      {
+        "horde": 16,
+        "launch_points": [
+          349.812167663136,
+          339.807668659605,
+          341.756339312148,
+          341.543506975284,
+          347.808844294494,
+          340.874846287432,
+          345.394682610173,
+          340.356850273308,
+          346.390183606642,
+          346.235684603111,
+          346.243353262716,
+          350.667688588987,
+          341.379856252123,
+          347.804191578395,
+          340.96635924153,
+          349.365029894074
+        ],
+        "speed": 560.730059788147,
+        "stage": 9,
+        "survived": 16
+      },
+      {
+        "horde": 24,
+        "launch_points": [
+          345.566111111111,
+          341.088777777778,
+          341.713444444444,
+          341.539710958993,
+          340.292111111111,
+          344.066777777778,
+          344.735444444445,
+          341.035444444445,
+          344.972777777778,
+          340.839444444445,
+          341.274777777778,
+          344.814111111111,
+          343.159444444444,
+          344.340111111111,
+          344.977444444444,
+          348.696111111111,
+          353.881444444445,
+          345.099152777778,
+          359.848111111111,
+          362.068777777778,
+          377.497777777778,
+          369.689444444445,
+          380.607444444444,
+          386.423444444444
+        ],
+        "speed": 305.0,
+        "stage": 0,
+        "survived": 24
+      },
+      {
+        "horde": 24,
+        "launch_points": [
+          347.145990828611,
+          340.983686771548,
+          343.16046878119,
+          341.379511460714,
+          345.337444641929,
+          345.556293470357,
+          341.090814810119,
+          346.524148143452,
+          341.774341994548,
+          339.842002816547,
+          342.242002816548,
+          346.618784826191,
+          345.971160839048,
+          344.982464188452,
+          349.500318861548,
+          343.675912864762,
+          366.359246198095,
+          353.651506867976,
+          342.001506867976,
+          369.52710087119,
+          380.1205495475,
+          385.404476884047,
+          395.14970757,
+          400.403271589286
+        ],
+        "speed": 399.79278305,
+        "stage": 4,
+        "survived": 24
+      },
+      {
+        "horde": 24,
+        "launch_points": [
+          349.828278774247,
+          341.006001992938,
+          342.076448430321,
+          344.2215228483,
+          347.3715228483,
+          347.318239126952,
+          343.548288738938,
+          341.581622072271,
+          341.181622072271,
+          349.263313544931,
+          345.045005017591,
+          345.60838796291,
+          344.471770908229,
+          348.065203465534,
+          343.596894938194,
+          361.49525307752,
+          357.843611216846,
+          347.143611216846,
+          372.625302689506,
+          384.899929324734,
+          395.068735246811,
+          402.867093386137,
+          415.318859276775,
+          422.653958500747
+        ],
+        "speed": 560.730059788147,
+        "stage": 9,
+        "survived": 24
+      }
+    ],
+    "physical_device_tested": false,
+    "version": "0.10.32"
+  },
+  "ordinary_packaged_startup": {
+    "new": {
+      "checks": 15,
+      "failures": [],
+      "fixture": "new",
+      "physical_device_tested": false,
+      "version": "0.10.32"
+    },
+    "existing": {
+      "checks": 16,
+      "failures": [],
+      "fixture": "existing",
+      "physical_device_tested": false,
+      "version": "0.10.32"
+    }
+  },
+  "historical_regressions": {
+    "v100_integration": "RESULT checks=56 failures=0",
+    "v101_integration": "RESULT checks=20 failures=0",
+    "v103_codex": "RESULT checks=38 failures=0",
+    "v104_integration": "RESULT checks=45 failures=0",
+    "v105_integration": "RESULT checks=47 failures=0",
+    "v103_apk_runtime": "passed after refreshing the final audit"
+  },
+  "currencies": "1,000,000 coins and 10,000 eyes; actual normal startup and existing save tested",
+  "native_cosmetic_transform_checks": 44,
+  "physical_device_tested": false,
+  "notes": [
+    "Native Godot renderer and actual signed-APK asset extraction tested. Physical Android installation is not available in this environment.",
+    "Ground case validation includes 1,4,8,16,24 members at three speeds.",
+    "Legacy v130 test expectations that meteors never remove zombies are intentionally superseded by v132 real losses.",
+    "The visual transform suite requires a real renderer; its headless invocation was replaced with a successful native render run."
+  ],
+  "native_visual_controls": {
+    "touch_dash": true,
+    "drag_steering": true,
+    "tablet": true,
+    "wide_screen": true,
+    "developer_power_cycle": true,
+    "screens": 20
+  },
+  "apk_runtime_bytes_checked": 189
+}

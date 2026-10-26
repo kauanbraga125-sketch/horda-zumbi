@@ -79,6 +79,11 @@ func run() -> void:
 		check(r.souls==r.blessings.deliveries and r.recruits==r.souls,"every delivered civilian captured exactly once")
 		check(r.active_count()==4+r.souls,"helper adds real captures to party")
 	var specter = road();specter.blessings.begin(specter,6)
+	var capped = road();capped.developer_kind = "";capped.souls = capped.early_soul_limit();var capped_souls = capped.souls
+	capped.blessings.begin(capped,5);capped.blessings.drop_civilian(capped)
+	check(capped.entities.any(func(e):return e.get("rescued_civil",false) and not e.taken),"helper delivery bypasses ordinary road population budget")
+	ticks(capped,120)
+	check(capped.souls>capped_souls and capped.active_count()>4,"helper remains useful after road soul limit")
 	for i in range(2): specter.hit_grace = 0;specter.damage(0,"bomb")
 	check(specter.active_count()==4 and specter.blessings.charges==0,"specter absorbs exactly two impacts")
 	specter.hit_grace = 0;specter.damage(0,"bomb");check(specter.active_count()==3,"third impact costs member")
@@ -151,9 +156,10 @@ func run() -> void:
 	check(eggs.space.objects.any(func(e):return e.kind=="parasite"),"alien nest egg hatches an animated threat")
 	g.start_lab("space");g.perform_action("lab_space_power");check(g.runner.space.battle.power_kind==7,"developer can preview space power")
 	g.perform_action("lab_space_power");check(g.runner.space.battle.power_kind==8,"developer cycles exclusive powers")
-	g.leave_lab();g.sound.set_enabled(false);g.queue_free();await process_frame
+	g.leave_lab();g.sound.set_enabled(false);g.queue_free();g = null
+	for i in range(8): await process_frame
 	var report = {"version":str(ProjectSettings.get_setting("application/config/version")),"checks":checks,"failures":failures,"ground_cases":observations,"physical_device_tested":false}
 	var folder = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not folder.is_empty():
 		DirAccess.make_dir_recursive_absolute(folder);var f = FileAccess.open(folder+"/adventure.json",FileAccess.WRITE);f.store_string(JSON.stringify(report,"  "));f.close()
-	print("ADVENTURE_INTEGRATION ",JSON.stringify(report));quit(0 if failures.is_empty() else 1)
+	print("ADVENTURE_INTEGRATION checks=",checks," failures=",failures," version=",report.version);quit(0 if failures.is_empty() else 1)

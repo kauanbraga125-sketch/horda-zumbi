@@ -269,7 +269,7 @@ func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(
 	if count_recruit:
 		recruits += 1;events.append({"type": "recruit", "x": slot_x(index), "y": FLOOR - 50})
 
-func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, width: float = 70) -> Dictionary:
+func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, width: float = 70, power_delivery: bool = false) -> Dictionary:
 
 	if kind == "recruit": kind = "civilian"
 	if y == FLOOR and (MonsterCatalog.VEHICLES.has(kind) or kind in ["civilian", "police", "soldier", "bomb", "crate", "spikes"]): y = ground_y(x)
@@ -310,7 +310,7 @@ func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, widt
 			if available < int(spec.rescue_min): entity.taken = true;return entity
 			passenger_count = rng.randi_range(int(spec.rescue_min), mini(int(spec.rescues), available))
 		for i in range(passenger_count): entity.passengers.append(rng.randi_range(0, 2))
-	if kind in ["civilian", "soldier", "police"] and remaining_soul_slots() <= 0:
+	if kind in ["civilian", "soldier", "police"] and not power_delivery and remaining_soul_slots() <= 0:
 		entity.taken = true;return entity
 	entity.budgeted_coin = kind == "coin" and generation_started and developer_kind.is_empty()
 	if entity.budgeted_coin: coin_credit -= 1

@@ -196,7 +196,7 @@ func help(g) -> void :
 		g.home_menu.slab(g, box, Color("2b1b39"), Color("896949"), 9, 2)
 		g.item_sprite(4, box.position + Vector2(27, box.size.y * 0.47), 39)
 		lines(g, "TOQUE PARA PULAR" if i == 0 else "SEGURE PARA IR MAIS ALTO", Rect2(box.position.x + 52, box.position.y + 7, box.size.x - 60, box.size.y - 14), 18, g.CREAM, true, 3)
-	lines(g, "SALTO DUPLO: MELHORIA NÍVEL 2", Rect2(r.position.x + 17, r.end.y - 59, r.size.x - 34, 44), 18, g.MINT)
+	lines(g, "SOLTE PARA ENCURTAR O SALTO", Rect2(r.position.x + 17, r.end.y - 59, r.size.x - 34, 44), 18, g.MINT)
 	r = d.cards[1]
 	g.home_menu.label(g, "Junte a força necessária.", r.position + Vector2(r.size.x * 0.5, 67), 18, g.MINT)
 	var vehicle_point = Vector2(r.get_center().x + 25, r.position.y + r.size.y * 0.36)
