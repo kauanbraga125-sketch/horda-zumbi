@@ -26,6 +26,11 @@ var reward_rng = RandomNumberGenerator.new()
 var run_seed = 0
 var bonus_director = HordeBonusDirector.new()
 var space = preload("res://scripts/space.gd").new()
+var blessings = preload("res://scripts/field_powers.gd").new()
+var coin_rows: Dictionary = {}
+var next_coin_row = 0
+var jump_buffer_hold = -1.0
+var jump_buffer_pressed_at = -1.0
 var course_history: Array[String] = []
 var generation_trace: Array[Dictionary] = []
 var next_challenge_level = 0
@@ -141,6 +146,8 @@ func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Arra
 	mission_stats.clear();last_loss_world=0.0
 	run_items.clear();rare_pending = false;opening_power = -1;eyes_collected = 0;loss_causes.clear()
 	levels = upgrades.duplicate(true)
+	levels.jump = 0;levels.magnet = 0
+	blessings.reset();coin_rows.clear();next_coin_row = 0;jump_buffer_hold = -1;jump_buffer_pressed_at = -1
 	owned = collection.duplicate();power_owned = powers.duplicate();power_levels = power_upgrades.duplicate(true)
 	route.assign([0, 1])
 	for area in areas:
@@ -227,24 +234,27 @@ func refresh_formation() -> void:
 	for i in range(order.size()): order[i].formation_rank = i
 
 func separate_members(dt: float) -> void:
-	var minimum = 38.0 if members.size() <= 6 else (24.0 if members.size() > 24 else 30.0)
+	# Adjacent neighbours per lane, instead of every pair testing every vehicle.
+	var lanes: Dictionary = {}
+	var minimum = 38.0 if members.size() <= 6 else 24.0 if members.size() > 24 else 30.0
 	for i in range(members.size()):
-		var a: Dictionary = members[i]
-		if a.falling: continue
-		for j in range(i + 1, members.size()):
-			var b: Dictionary = members[j]
-			if b.falling: continue
-			# Independent lanes avoid pushing a dense crowd out of view. They
-			# are drawn with grounded feet instead of a floating vertical stack.
-			var dy = float(a.y) - float(b.y) + (member_lane(j) - member_lane(i)) * 38.0
-			if absf(dy) >= minimum: continue
-			var required = sqrt(minimum * minimum - dy * dy)
-			var dx = float(a.x) - float(b.x)
-			if absf(dx) >= required: continue
-			var sign_x = 1.0 if int(a.formation_rank) < int(b.formation_rank) else -1.0
-			var correction = minf(required - absf(dx), dt * (HordeTuning.REFORM_AIR_SPEED if not HordeJump.grounded(self, a) or not HordeJump.grounded(self, b) else HordeTuning.REFORM_WALK_SPEED)) * 0.5
-			a.x = reform_x(a, float(a.x) + sign_x * correction, dt)
-			b.x = reform_x(b, float(b.x) - sign_x * correction, dt)
+		if members[i].falling: continue
+		var lane = member_lane(i)
+		if not lanes.has(lane): lanes[lane] = []
+		lanes[lane].append(members[i])
+	for lane in lanes:
+		var order: Array = lanes[lane]
+		order.sort_custom(func(a,b): return float(a.x)<float(b.x))
+		for i in range(1,order.size()):
+			var a: Dictionary = order[i-1];var b: Dictionary = order[i]
+			var dy = float(a.y)-float(b.y)
+			if absf(dy)>=minimum: continue
+			var required = sqrt(minimum*minimum-dy*dy)
+			var overlap = required-(float(b.x)-float(a.x))
+			if overlap<=0: continue
+			var correction = minf(overlap,dt*HordeTuning.REFORM_WALK_SPEED)*.5
+			a.x = reform_x(a,float(a.x)-correction,dt)
+			b.x = reform_x(b,float(b.x)+correction,dt)
 
 func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(INF, INF)) -> void :
 	if dead or ( not members.is_empty() and active_count() == 0): return
@@ -396,6 +406,7 @@ func invalidate_coins() -> void :
 	for e in entities:
 		if e.kind == "coin" and not e.taken and e.x > maxf(view_right, planning_right) + 80 and not HordeCourse.coin_clear(self, Vector2(world_px + e.x, e.y), false):
 			e.taken = true
+			miss_coin_row(e)
 			if e.get("budgeted_coin", false): coin_credit = minf(HordeTuning.COIN_CREDIT_LIMIT, coin_credit + 1)
 
 func moving_lane_safe(x: float, distance: float) -> bool:
@@ -480,11 +491,16 @@ func jump() -> void :
 	HordeJump.request(self)
 
 func release_jump() -> void :
+	if jump_buffer_until >= elapsed and jump_buffer_pressed_at >= 0 and jump_buffer_hold < 0: jump_buffer_hold = maxf(HordeTuning.MIN_TAP_HOLD,elapsed-jump_buffer_pressed_at)
 	if bool(wave_holds.get(jump_sequence, false)):
 		wave_durations[jump_sequence] = clampf(elapsed - float(wave_started.get(jump_sequence, elapsed)), 0, HordeBalance.MAX_HOLD)
 	wave_holds[jump_sequence] = false
 
 func grant_perk(kind: int) -> void :
+	if kind in [5,6]:
+		if not dead and not space.active and kind in power_owned:
+			blessings.begin(self,kind);mark_power_collected();bonuses += 1
+		return
 	var lead = leader_index()
 	if dead or space.active or lead < 0 or transform_left > 0 or kind not in power_owned: return
 	transform_from_kind = perk_kind if perk_left > 0 else -1
@@ -528,7 +544,7 @@ func register_loss() -> void :
 	while not loss_times.is_empty() and loss_times[0] < elapsed - 4.5: loss_times.pop_front()
 	if (loss_times.size() >= 3 or active_count() <= 3) and recovery_left <= 0 and active_count() > 0:
 		recovery_left = 3.0 if active_count() >= 24 else 7.0;recovery_speed = maxf(275, speed * 0.93);pressure = maxf(0, pressure - 0.35)
-		if developer_kind.is_empty(): spawn_civilians(spawn_left() - world_px + 100, 3 if active_count() <= 12 else 1, next_entity_id + 500000)
+		if developer_kind.is_empty() and not space.active: spawn_civilians(spawn_left() - world_px + 100, 3 if active_count() <= 12 else 1, next_entity_id + 500000)
 		events.append({"type": "recovery"})
 
 func remove_member(index: int, cause: String) -> void :
@@ -545,6 +561,7 @@ func damage(index: int, cause: String = "impact") -> bool:
 	if dead or index < 0 or index >= members.size() or members[index].falling: return false
 	if hit_grace > 0 or transform_left > 0 or boost_protected(): return false
 	hit_grace = 0.06;clean_air = false
+	if blessings.guard(self,Vector2(members[index].x,members[index].y-55)): return true
 	if shields > 0:
 		if (perk_kind if perk_left > 0 else int(members[index].kind)) == 2:
 			members[index].hurt_left = HordeMaskedApprovedSprite.DAMAGE_SECONDS
@@ -591,6 +608,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	update_meta_run()
 	cached_active = -1
 	if not jump_held: release_jump()
+	blessings.advance(self,dt)
 	elapsed += dt;voice_cooldown = maxf(0, voice_cooldown - dt)
 	speech_left = maxf(0, speech_left - dt);speech_cooldown = maxf(0, speech_cooldown - dt)
 	if space.active:
@@ -767,10 +785,10 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				e.taken = true;eyes_collected += 1;events.append({"type": "eye", "x": e.x, "y": e.y})
 			continue
 		if e.kind == "coin":
-			var radius = 54.0 + int(levels.get("magnet", 0)) * 65.0 + (30 if boost_left > 0 else 0)
-			if centre.distance_to(Vector2(e.x, e.y)) < radius:
+			var radius = 175.0 if run_items.has("coin_magnet") else 54.0 + (30 if boost_left > 0 else 0)
+			if coin_in_reach(Vector2(e.x,e.y),radius):
 				var amount = 2 if boost_left > 0 else 1
-				e.taken = true;coins += amount
+				e.taken = true;coins += amount;collect_coin_row(e)
 				mission_stats.clean_coin_current=int(mission_stats.get("clean_coin_current",0))+amount
 				mission_stats.clean_coins=maxi(int(mission_stats.get("clean_coins",0)),int(mission_stats.clean_coin_current))
 				if boost_left>0: mission_stats.frenzy_coins=int(mission_stats.get("frenzy_coins",0))+amount
@@ -784,12 +802,14 @@ func advance(dt: float, jump_held: bool = false) -> void :
 					if Vector2(m.x, m.y - 52).distance_to(Vector2(e.x, e.y - 50)) < 62:
 						begin_capture(e, m);break
 			continue
-		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain"]:
+		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain", "harvester", "spectral"]:
 			if e.kind == "mask" and 2 not in power_owned: continue
 			if not power_eligible(): e.taken = true;continue
 			if centre.distance_to(Vector2(e.x, e.y)) < 72:
 				e.taken = true
 				match e.kind:
+					"harvester": grant_perk(5)
+					"spectral": grant_perk(6)
 					"space_brain":
 						if space.begin(self): return
 					"crystal": grant_perk(3)
@@ -824,7 +844,33 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			break
 	update_power_warnings()
 	for i in range(entities.size() - 1, -1, -1):
-		if entities[i].x < -850 and entities[i].state != "capture": entities.remove_at(i)
+		if entities[i].x < -850 and entities[i].state != "capture":
+			miss_coin_row(entities[i]);entities.remove_at(i)
+
+func new_coin_row(count: int) -> int:
+	var id = next_coin_row;next_coin_row += 1
+	coin_rows[id] = {"total":count,"collected":0,"missed":false}
+	return id
+
+func coin_in_reach(point: Vector2, radius: float) -> bool:
+	for m in members:
+		if not m.falling and Vector2(m.x,m.y-48).distance_to(point)<radius: return true
+	return false
+
+func collect_coin_row(e: Dictionary) -> void:
+	var id = int(e.get("coin_row",-1))
+	if not coin_rows.has(id): return
+	var row: Dictionary = coin_rows[id]
+	row.collected += 1
+	if row.collected == row.total:
+		if not row.missed and int(row.total)>=3:
+			mission_stats.perfects = int(mission_stats.get("perfects",0))+1
+			events.append({"type":"perfect","x":e.x,"y":e.y,"count":row.total})
+		coin_rows.erase(id)
+
+func miss_coin_row(e: Dictionary) -> void:
+	var id = int(e.get("coin_row",-1))
+	if coin_rows.has(id): coin_rows.erase(id)
 
 func distance() -> int:
 	return int(world_px / 30.0)
@@ -973,6 +1019,11 @@ func update_civilians(dt: float) -> void :
 			if e.has("worker_clip"):
 				update_worker_civil(e, dt)
 				e.y = ground_y(e.x)
+				continue
+			if e.get("airdrop",false):
+				e.drop_vy = float(e.drop_vy)+1100*dt;e.y += float(e.drop_vy)*dt
+				if float(e.y)>=ground_y(e.x) and has_floor(e.x):
+					e.y = ground_y(e.x);e.airdrop = false;e.vy = 0.0
 				continue
 			if e.has("civil_key"):
 				update_blue_civil(e, dt)
@@ -1147,12 +1198,12 @@ func protect_civilian_path(e: Dictionary) -> void :
 
 func power_eligible() -> bool:
 
-	return not space.active and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
+	return not space.active and not blessings.active() and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
 
 func mark_power_collected() -> void :
 	bonus_director.collected(self)
 	for entity in entities:
-		if entity.kind in ["crystal", "mask", "shield", "boost", "space_brain"]: entity.taken = true
+		if entity.kind in ["crystal", "mask", "shield", "boost", "space_brain","harvester","spectral"]: entity.taken = true
 
 func try_spawn_power(x: float) -> bool:
 	var before = bonus_director.last_opportunity
@@ -1195,9 +1246,10 @@ func remaining_soul_slots() -> int:
 	return maxi(0, early_soul_limit() - souls - pending)
 
 func follower_delay(rank: int) -> float:
-	# A pair reacts together; a large crowd still visibly propagates the jump.
-	var n = maxi(0, rank)
-	return 0.065 * minf(n, 3) + maxf(0, n - 3) * 0.014
+	# Travel to the leader's launch point is handled by the jump command.
+	# Additional reaction delay starts in crowds of roughly 16-20 members.
+	var n = maxi(0,rank-15)
+	return minf(.55,n*jump_delay_step*2.2+maxi(0,n-13)*jump_delay_step*.35)
 
 func boost_protected() -> bool:
 	return boost_left > 0 and int(levels.get("frenzy", 0)) > 0
@@ -1285,6 +1337,8 @@ func configure_items(active: Dictionary, rare: bool) -> void:
 	run_items = active.duplicate();rare_pending = rare
 	if active.has("power_shield"): shields = maxi(shields,1)
 	if active.has("power_boost"): boost_left = HordeTuning.BOOST_SECONDS;mark_power_collected();bonuses += 1
+	if active.has("power_harvester"): blessings.begin(self,5)
+	elif active.has("power_spectral"): blessings.begin(self,6)
 	opening_power = 3 if active.has("power_fly") else 2 if active.has("power_mask") else -1
 	# A prize grants a single-run use without changing permanent ownership in the save.
 	if opening_power >= 0 and opening_power not in power_owned: power_owned.append(opening_power)

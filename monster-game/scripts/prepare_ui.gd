@@ -4,9 +4,9 @@ extends RefCounted
 # Never start/advance this runner: those methods generate encounters and rewards.
 const CAMERA_MULTIPLIER = 1.12
 const PAGE_SIZE = 5
-const ORDER = ["civil_pack", "coin_bombs", "coin_cars", "double_coins", "double_horde",
+const ORDER = ["coin_magnet","power_harvester","power_spectral","civil_pack", "coin_bombs", "coin_cars", "double_coins", "double_horde",
 	"bonus_time", "power_fly", "power_mask", "power_shield", "power_boost"]
-const TITLES = {"civil_pack":"CIVIS EXTRAS", "coin_bombs":"BOMBAS DE OURO", "coin_cars":"SUCATA VALIOSA",
+const TITLES = {"coin_magnet":"ÍMÃ NESTA PARTIDA","power_harvester":"CHAMADO DA COLHEITA","power_spectral":"MANTO DE EMERGÊNCIA","civil_pack":"CIVIS EXTRAS", "coin_bombs":"BOMBAS DE OURO", "coin_cars":"SUCATA VALIOSA",
 	"double_coins":"MOEDAS EM DOBRO", "double_horde":"HORDA EM DOBRO", "bonus_time":"MAIS 15 SEGUNDOS",
 	"power_fly":"MOSCA DE EMERGÊNCIA", "power_mask":"MÁSCARA DE EMERGÊNCIA",
 	"power_shield":"PROTEÇÃO DO ALÉM", "power_boost":"ARRANCADA MALDITA"}

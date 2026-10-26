@@ -3,7 +3,7 @@ extends RefCounted
 
 
 const GRAVITY = 1500.0
-const JUMP_IMPULSE = 580.0
+const JUMP_IMPULSE = 610.0
 const JUMP_UPGRADE = 24.0
 const HOLD_GRAVITY = 850.0
 const HOLD_FALL_GRAVITY = 850.0
@@ -23,7 +23,7 @@ const SPEECH_DURATION = 2.5
 static var profile_cache: Dictionary = {}
 
 static func launch(member: Dictionary, level: int = 0) -> void :
-	member.vy = - JUMP_IMPULSE - level * JUMP_UPGRADE
+	member.vy = - JUMP_IMPULSE # Fixed fair jump; height is no longer a permanent purchase.
 	member.air_time = 0.0
 	member.hold_open = true
 	member.release_left = 0.0

@@ -143,6 +143,8 @@ func object_icon(g, index: int, p: Vector2, height: float) -> void:
 	if index < 6:
 		polish.draw(g.paint_target,"objects",index,p,Vector2(height,height));return
 	match index:
+		10: g.scenery.sprite(g.paint_target,g.market.sprites.magnet,p,height*.85)
+		11,12: g.adventure_art.power(g.paint_target,5 if index==11 else 6,p,height,g.ui_time)
 		6,7: g.actor.paint(g.paint_target,3 if index == 6 else 2,p+Vector2(0,height*0.48),height,g.ui_time*0.7,"run",g.ui_time)
 		8:
 			g.paint_target.draw_circle(p,height*0.4,Color(0.45,0.9,1.0,0.16))

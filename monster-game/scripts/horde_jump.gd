@@ -13,7 +13,7 @@ static func available(run, first_touchdown: bool = false) -> int:
 	var first_landing = INF
 	for i in range(run.members.size()):
 		var m: Dictionary = run.members[i]
-		if not grounded(run, m): continue
+		if not grounded(run, m) or not m.jump_queue.is_empty(): continue
 		var landing = float(m.get("landed_at", -1))
 		if selected < 0: selected = i
 		if first_touchdown:
@@ -36,12 +36,9 @@ static func request(run) -> void :
 		run.events.append({"type": "wing", "x": run.members[lead].x, "y": run.members[lead].y - 50});return
 	var index = available(run)
 	var double = false
-	if index < 0 and int(run.levels.get("jump", 0)) >= 2:
-		for i in range(run.members.size()):
-			var m: Dictionary = run.members[i]
-			if not m.falling and int(m.air_jumps) < 2 and float(m.y) < float(run.member_floor(m).y): index = i;double = true;break
 	if index < 0:
 		run.jump_buffer_until = run.elapsed + HordeTuning.INPUT_BUFFER_SECONDS
+		run.jump_buffer_pressed_at = run.elapsed;run.jump_buffer_hold = -1
 		return
 	begin_wave(run, index, double)
 
@@ -58,11 +55,11 @@ static func begin_wave(run, index: int, double: bool = false) -> void :
 	followers.sort_custom(func(a, b): return float(a.x) > float(b.x))
 	var rank = 1
 	for m in followers:
-		var extra_delay = run.follower_delay(rank)
+		var extra_delay = maxf(0,float(origin.x)-float(m.x))/maxf(1,run.speed) + run.follower_delay(rank)
 		var due = run.elapsed + extra_delay
 		rank += 1
 		while m.jump_queue.size() >= 3: m.jump_queue.pop_front()
-		m.jump_queue.append({"due": due, "extra_delay": extra_delay, "expires": due + HordeTuning.FOLLOWER_INPUT_WINDOW, "id": wave, "double": double})
+		m.jump_queue.append({"due": due, "extra_delay": extra_delay, "world_at":run.world_px+float(origin.x)+run.follower_delay(rank-1)*run.speed,"expires":due+1.5, "id": wave, "double": double})
 		m.jump_delay = maxf(0, float(m.jump_queue[0].due) - run.elapsed)
 		m.jump_at = -1.0
 	run.jumped = true;run.clean_air = true
@@ -74,12 +71,18 @@ static func step(run, m: Dictionary, was_grounded: bool) -> void :
 	if m.jump_queue.is_empty(): m.jump_delay = -1.0;return
 	var command: Dictionary = m.jump_queue[0]
 	m.jump_delay = maxf(0, float(command.due) - run.elapsed)
-	if run.elapsed + 1e-05 < float(command.due): return
-	var double = bool(command.double) and int(m.air_jumps) < 2 and int(run.levels.get("jump", 0)) >= 2
+	if command.has("world_at"):
+		if run.world_px+float(m.x)+.01 < float(command.world_at): return
+	elif run.elapsed + 1e-05 < float(command.due): return
+	var double = false
 	if was_grounded or float(m.coyote) > 0 or double:
 		m.jump_queue.pop_front();launch(run, m, int(command.id))
 
 static func resolve_buffer(run) -> void :
 	if run.jump_buffer_until < run.elapsed: run.jump_buffer_until = -1.0;return
 	var index = available(run, true)
-	if index >= 0: begin_wave(run, index)
+	if index >= 0:
+		var hold = run.jump_buffer_hold
+		begin_wave(run,index)
+		if hold>=0: run.wave_holds[run.jump_sequence] = false;run.wave_durations[run.jump_sequence] = hold
+		run.jump_buffer_hold = -1;run.jump_buffer_pressed_at = -1

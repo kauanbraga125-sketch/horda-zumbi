@@ -8,6 +8,9 @@ const RELIC_NAMES = ["DENTE INFECTADO", "MÁSCARA RACHADA", "CRÂNIO MALDITO", "
 const EXPERIMENTS = ["SORO DO ACAMPAMENTO 13", "PLASMA DA FITA PERDIDA", "EXTRATO DO PORÃO", "ESSÊNCIA DO HOSPEDEIRO"]
 const COSMETICS = HordeCosmeticCatalog.ITEMS
 const OBJECTS = [
+	{"id":"coin_magnet","name":"ÍMÃ DE EXPEDIÇÃO","price":220,"icon":10,"description":"Atrai moedas só nesta partida. Compre e escolha antes de jogar."},
+	{"id":"power_harvester","name":"CHAMADO DA COLHEITA","price":400,"icon":11,"description":"Inicie uma partida com o caçador alado trazendo civis."},
+	{"id":"power_spectral","name":"MANTO DE EMERGÊNCIA","price":350,"icon":12,"description":"Comece com duas proteções do espectro. Buracos continuam perigosos."},
 	{"id": "coin_bombs", "name": "BOMBAS DE OURO", "price": 180, "icon": 0, "description": "25% das bombas terrestres viram 12 moedas nesta partida."},
 	{"id": "coin_cars", "name": "SUCATA VALIOSA", "price": 220, "icon": 1, "description": "25% dos veículos virados dão 25 moedas extras. Mantém passageiros e almas."},
 	{"id": "bonus_time", "name": "MAIS 15 SEGUNDOS", "price": 260, "icon": 2, "description": "+15 s em cada transformação desta partida."},

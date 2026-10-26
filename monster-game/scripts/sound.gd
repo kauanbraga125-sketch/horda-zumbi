@@ -81,6 +81,9 @@ func _ready() -> void :
 		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/space_v130/" + name + ".pcm")
 		if name == "music": stream.loop_mode = AudioStreamWAV.LOOP_FORWARD;stream.loop_begin = 0;stream.loop_end = stream.data.size() / 2
 		clips["space_" + name] = stream
+	for name in ["perfect","space_dash","space_boost","space_smash","creeper_wing"]:
+		var stream = AudioStreamWAV.new();stream.format = AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate = 32000;stream.stereo = false
+		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/adventure_v132/"+name+".pcm");clips[name] = stream
 	set_mix(mix_levels)
 
 func loop_player() -> AudioStreamPlayer:

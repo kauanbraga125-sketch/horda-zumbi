@@ -28,8 +28,6 @@ const MONSTERS = [
 ]
 const UPGRADES = [
 	{"id": "horde", "name": "PRIMEIRA HORDA", "icon": -1, "price": 350, "max": 3, "description": "Mais um zumbi no início de cada corrida."}, 
-	{"id": "jump", "name": "PULO ÁGIL", "icon": 4, "price": 420, "max": 3, "description": "Pulos mais altos. No nível 2, libera salto duplo."}, 
-	{"id": "magnet", "name": "ÍMÃ DE MOEDAS", "icon": 3, "price": 360, "max": 3, "description": "Atrai moedas de uma distância maior."}, 
 	{"id": "perk", "name": "METAMORFOSE", "icon": 0, "price": 500, "max": 3, "description": "Mais 2 segundos em cada transformação."}, 
 	{"id": "frenzy", "name": "FRENESI IMPLACÁVEL", "icon": 5, "price": 900, "max": 1, "description": "O Frenesi protege de buracos, bombas e impactos depois desta melhoria."}
 ]
@@ -41,6 +39,11 @@ const CHALLENGES = [
 
 const SKIN_PRICES = [0, 1000, 2800, 4500]
 const POWERS = [
+	{"kind":5,"name":"CAÇADOR NOTURNO","price":1800,"description":"Um único ajudante alado traz civis reais para a horda capturar."},
+	{"kind":6,"name":"MANTO ESPECTRAL","price":1600,"description":"Um espectro absorve dois impactos. Buracos ainda exigem saltos."},
+	{"kind":7,"name":"SIMBIONTE CÓSMICO","price":2200,"description":"Poder exclusivo do espaço: ácido e garras contra naves e ameaças."},
+	{"kind":8,"name":"ESCUDO ORBITAL","price":1600,"description":"Poder exclusivo do espaço: três cargas contra disparos e colisões."},
+
 	{"kind": 4, "name": "ABDUÇÃO MALDITA", "price": 0, "description": "A horda vai ao espaço por 30 segundos. A corrida e os túneis continuam lá embaixo."},
 	{"kind": 3, "name": "SUPER FLY", "price": 0, "description": "Suba sozinho. Segure a tela para mergulhar."}, 
 	{"kind": 2, "name": "MASCARADO", "price": 2800, "description": "Transforme a horda em uma força de destruição."}
@@ -52,7 +55,12 @@ const POWER_UPGRADES = [
 	{"id": "mask_force", "kind": 2, "name": "MAIS FORÇA", "price": 650, "max": 3, "description": "Cada membro empurra com força extra."}, 
 	{"id": "mask_shield", "kind": 2, "name": "ESCUDO", "price": 900, "max": 1, "description": "Absorve três impactos por transformação."}, 
 	{"id": "mask_size", "kind": 2, "name": "TITÃ MASCARADO", "price": 1600, "max": 1, "description": "Aumenta o tamanho e dobra a força."}, 
-	{"id": "mask_revive", "kind": 2, "name": "ÚLTIMO SUSPIRO", "price": 2500, "max": 1, "description": "Resgata a horda de um buraco uma vez por transformação."}
+	{"id": "mask_revive", "kind": 2, "name": "ÚLTIMO SUSPIRO", "price": 2500, "max": 1, "description": "Resgata a horda de um buraco uma vez por transformação."},
+	{"id":"creeper_time","kind":5,"name":"VOO DA COLHEITA","price":500,"max":3,"description":"Mais 4 s de ajuda por nível: 16 até 28 s."},
+	{"id":"creeper_rate","kind":5,"name":"PASSAGENS ÁGEIS","price":650,"max":3,"description":"Intervalo de 6 até 3,75 s. Uma criatura e um civil por passagem."},
+	{"id":"spectral_time","kind":6,"name":"VÉU DURADOURO","price":500,"max":3,"description":"Mais 2 s por nível. Mantém duas proteções, sem imunidade a buracos."},
+	{"id":"alien_time","kind":7,"name":"VÍNCULO ALIENÍGENA","price":650,"max":3,"description":"Mais 2 s de simbionte por nível no espaço."},
+	{"id":"orbital_time","kind":8,"name":"CAMPO ESTÁVEL","price":500,"max":3,"description":"Mais 2 s por nível no espaço. Mantém três cargas."}
 ]
 const CIVIL_PHRASES = ["HELP ME!", "ME AJUDE!", "¡AYUDA!", "SOCORRO!", "RUN, MARTY!", "¡CORRE!", "NOPE!", "I WANT TO LIVE!", "SALVE-SE!", "¡NO ME COMAS!", "WINTER IS COMING!", "CADÊ O HERÓI?", "THIS IS FINE!", "¡SOCORRO!", "GAME OVER?!", "ME TIRA DAQUI!", "NOT TODAY!", "¡VÁMONOS!", "HASTA LA VISTA!", "CORRE, FORREST!", "WHY ME?!", "NÃO HOJE!", "¡POR AQUÍ!", "HELP!"]
 const ARMY_PHRASES = ["CONTACT!", "MOVE! MOVE!", "RECUAR!", "¡ATRÁS!", "HOLD THE LINE!"]
@@ -94,6 +102,8 @@ static func active_missions(tier: int, context: Dictionary = {}) -> Array[Dictio
 static func defaults() -> Dictionary:
 	var data = {"version": 7, "tutorial_complete": false, "audio_levels": {"music": 0.75, "effects": 0.85, "voices": 1.0}, "wallet": 120, "best": 0, "runs": 0, "audio": true, "levels": {"horde": 0, "jump": 0, "magnet": 0, "perk": 0, "frenzy": 0}, "claimed": [], "owned": [0], "skin": 0, "areas": [0, 1], "power_owned": [3, 4], "power_levels": {"space_time": 0, "fly_time": 0, "mask_time": 0, "mask_force": 0, "mask_shield": 0, "mask_size": 0, "mask_revive": 0}, "mission_tier": 0, "mission_progress": {}, "missions_completed": 0, "player_level": 1, "level_souls": 0, "best_souls": 0, "total_souls": 0, "active_souls": 0, "ritual_progress": 0, "ritual_pending": [], "ritual_ready": false}
 
+	for item in POWER_UPGRADES: data.power_levels[item.id] = 0
+	data.balance_v132 = true
 	data.merge(HordeMeta.defaults())
 	HordeMissionCatalog.initialize(data)
 	return data

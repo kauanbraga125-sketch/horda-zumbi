@@ -155,3 +155,17 @@ func passenger(canvas: Node2D, kind: int, centre: Vector2, height: float, time: 
 	arm(canvas, kind, hip + Vector2(9, -8), -2.0 + cos(time * 17) * 0.35, tint, centre, scale)
 	part(canvas, kind, 0, hip + Vector2(3, -15), Vector2(44, 42), sin(time * 12) * 0.045, tint, centre, scale, Vector2(0.5, 1))
 	canvas.draw_set_transform(Vector2.ZERO);facing = 1;basis_angle = 0
+
+func paint_space(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,pose: String,vertical_speed: float,wear: Array,tint: Color = Color.WHITE) -> void:
+	var state = "rise" if sin(time*2.8)>0 else "fall"
+	var phase = fposmod(time*.55,1.0)
+	var air_age = .12+fposmod(time*.35,.34)
+	var angle = clampf(vertical_speed*.0004,-.12,.12)+sin(time*2.6)*.035
+	var stretch = Vector2(1+sin(time*3.1)*.012,1-sin(time*3.1)*.012)
+	if pose=="charge": state = "push";phase = fposmod(time*1.2,1);stretch = Vector2(1.08,.88);angle = -.12
+	elif pose=="launch": state = "rise";air_age = .25;stretch = Vector2(1.10,.94);angle = .30
+	elif pose=="board": state = "capture";phase = fposmod(time*1.4,1);angle = .12
+	elif pose=="hurt": state = "fall";angle = sin(time*25)*.23;stretch = Vector2(.97,1.02)
+	elif pose=="return": state = "fall";angle = -.16;stretch = Vector2(.95,1.04)
+	if not cosmetics.paint(canvas,kind,foot,height,phase,state,time,0,tint,false,air_age,vertical_speed,wear,true,angle,stretch):
+		paint(canvas,kind,foot,height,phase,state,time,0,tint,false,1,true,air_age,vertical_speed,wear)

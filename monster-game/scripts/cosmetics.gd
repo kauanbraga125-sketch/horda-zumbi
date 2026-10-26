@@ -459,8 +459,8 @@ func draw_expressions(canvas: Node2D, f: Dictionary, root: Transform2D, phase: f
 		canvas.draw_set_transform_matrix(root * Transform2D(0, vector(f.anchor)))
 		canvas.draw_mesh(meshes[cache], texture(path), Transform2D.IDENTITY, tint)
 
-func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String, time: float, landing: float, tint: Color, reverse: bool, air_age: float, vertical_speed: float, wear: Array) -> bool:
-	if kind not in [0, 1] or wear.is_empty(): return false
+func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String, time: float, landing: float, tint: Color, reverse: bool, air_age: float, vertical_speed: float, wear: Array, force_pose: bool = false, pose_angle: float = 0.0, pose_stretch: Vector2 = Vector2.ONE) -> bool:
+	if kind not in [0,1] or (wear.is_empty() and not force_pose): return false
 	ensure_data()
 	var key = "";var anchor = Vector2.ZERO;var angle = 0.0;var stretch = Vector2.ONE;var origin = foot
 	if kind == 0:
@@ -484,6 +484,7 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 	if not frames.has(key): return false
 	var f: Dictionary = frames[key]
 	if kind == 0: anchor = vector(f.anchor)
+	angle += pose_angle;stretch *= pose_stretch
 	var root = Transform2D(angle * (-1 if reverse else 1), origin)
 	root.x *= (-1 if reverse else 1) * stretch.x * height / float(f.height)
 	root.y *= stretch.y * height / float(f.height)

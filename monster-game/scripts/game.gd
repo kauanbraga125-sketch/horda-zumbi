@@ -42,6 +42,8 @@ var ritual_time = 4.0
 var ritual_particle_tick = 0.0
 var ritual_reward_played = false
 var coin_pulse = 0.0
+var perfect_left = 0.0
+var adventure_art = preload("res://scripts/adventure_art.gd").new()
 var sound: HordeSound
 var runner = HordeRun.new()
 var data: Dictionary = MonsterCatalog.defaults()
@@ -112,8 +114,8 @@ var lab_kind = "bomb"
 var lab_data: Dictionary = {}
 var lab_context: Dictionary = {}
 var lab_saved_runner: HordeRun
-const LAB_KINDS = ["space", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
-const LAB_LABELS = ["ESPAÇO • ABDUÇÃO MALDITA", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
+const LAB_KINDS = ["space", "harvester", "spectral", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
+const LAB_LABELS = ["ESPAÇO • ABDUÇÃO MALDITA", "CAÇADOR NOTURNO", "MANTO ESPECTRAL", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
 
 func _ready() -> void :
 	home_menu.attach(self)
@@ -156,8 +158,6 @@ func _process(dt: float) -> void :
 	if screen == "sprite_lab" and not sprite_paused: sprite_clock += dt
 	if screen == "item_lab": item_lab.update(dt)
 	if screen == "prepare" and not capture_freeze: prepare_ui.update(self, dt)
-	if screen == "run" and not capture_freeze:
-		update_camera(dt)
 	home_menu.set_visible(screen == "home")
 	configure_layout()
 	world_canvas.queue_redraw();foreground_canvas.queue_redraw()
@@ -177,6 +177,7 @@ func _process(dt: float) -> void :
 		shake = maxf(shake, 2.8)
 	flash = maxf(0, flash - dt * 1.7)
 	coin_pulse = maxf(0, coin_pulse - dt * 4)
+	if screen == "run": perfect_left = maxf(0,perfect_left-dt)
 	position = layout_origin + (Vector2(sin(ui_time * 83), cos(ui_time * 71)) * shake * 0.45 if screen == "run" else Vector2.ZERO)
 	if screen == "run" and not capture_freeze: update_run_visuals(dt)
 	if screen == "home": update_rewards(dt)
@@ -188,6 +189,7 @@ func _process(dt: float) -> void :
 func _physics_process(dt: float) -> void :
 	if screen != "run" or capture_freeze: return
 	runner.advance(dt, jump_held)
+	update_camera(dt)
 	if not lab_active: analytics.sample(runner)
 	consume_run_events()
 	check_challenges()
@@ -262,6 +264,13 @@ func consume_run_events() -> void :
 		if not lab_active and not test_mode and not capture_mode: analytics.record_event(runner, e)
 		var point = Vector2(float(e.get("x", HordeRun.ANCHOR)), float(e.get("y", HordeRun.FLOOR)))
 		match e.type:
+			"perfect":
+				perfect_left = 1.8;sound.play("perfect",-13);effects.spark(point,GOLD,18)
+			"field_power": sound.play("perk",-14);show_toast(str(e.title),2.1)
+			"civil_drop": sound.play("creeper_wing",-13)
+			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)
+			"space_boost": sound.play("space_boost",-13);effects.spark(point,MINT,24)
+			"space_smash": sound.play("space_smash",-12);effects.spark(point,CORAL,28);shake = 4
 			"space_begin":
 				passenger_captures.clear();effects.clear();sound.play("space_beam",-12)
 				show_toast("ABDUÇÃO MALDITA • " + str(int(e.duration)) + " SEGUNDOS",2.2)
@@ -450,7 +459,10 @@ func perform_action(action: String) -> void :
 	if codex.action(self,action): return
 	if hub.action(self, action): return
 	if item_lab.action(self, action): return
-	if action in ["lab_space_restart", "lab_space_time", "lab_space_zone", "lab_space_land"] and lab_active and lab_kind == "space":
+	if action == "space_dash" and screen == "run":
+		if runner.space.dash(): sound.play("space_dash",-15)
+		return
+	if action in ["lab_space_restart", "lab_space_time", "lab_space_zone", "lab_space_power", "lab_space_land"] and lab_active and lab_kind == "space":
 		if action == "lab_space_time":
 			runner.power_levels.space_time = (int(runner.power_levels.get("space_time",0)) + 1) % 4
 			runner.space.active = false;runner.space.begin(runner,true)
@@ -459,6 +471,8 @@ func perform_action(action: String) -> void :
 		elif action == "lab_space_zone":
 			runner.space.altitude = [900.0,1950.0,3150.0,0.0][runner.space.zone()]
 			runner.space.phase = "flight";runner.space.phase_age = 0;runner.space.left = maxf(15,runner.space.left)
+		elif action == "lab_space_power":
+			runner.space.battle.give_power(runner.space,runner,8 if runner.space.battle.power_kind == 7 else 7)
 		elif action == "lab_space_land":
 			runner.space.left = 0.01
 		return
@@ -649,6 +663,11 @@ func end_market_touch(point: Vector2, id: int) -> void :
 	release_touch(id)
 
 func _input(event: InputEvent) -> void :
+	if screen == "run" and runner.space.active:
+		if event is InputEventScreenDrag and jump_touches.has(event.index):
+			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative)).y/camera_zoom);return
+		if event is InputEventMouseMotion and jump_touches.has(-1):
+			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative)).y/camera_zoom);return
 	if codex.input(self,event): return
 	if hub.input(self, event): return
 	if screen == "market":
@@ -899,6 +918,7 @@ func draw_run() -> void :
 			draw_vehicle(e)
 			continue
 		match e.kind:
+			"harvester", "spectral": adventure_art.power(paint_target,5 if e.kind == "harvester" else 6,Vector2(e.x,e.y+bob),100,ui_time)
 			"space_brain": runner.space.paint_pickup(self,Vector2(e.x,e.y + bob))
 			"coin": floating_item(1, Vector2(e.x, e.y + bob), HordeBalance.COIN_DIAMETER)
 			"hump":
@@ -986,12 +1006,17 @@ func draw_run() -> void :
 			else:
 				actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy), runner.cosmetics_for(member, kind))
 	passenger_captures.paint(paint_target, art, runner, true)
+	runner.blessings.paint(self)
 	effects.paint(paint_target, art, actor)
 	if lab_active and lab_hitboxes: draw_collision_guides()
 
 func draw_run_hud() -> void :
 	gameplay_ui.hud(self)
 	if not runner.space.active: hub.draw_run_notice(self)
+	if perfect_left > 0:
+		var alpha = minf(1,perfect_left*3)
+		var centre = Vector2(full_rect().get_center().x,full_rect().position.y+(268 if runner.space.active else 234))
+		text("PERFECT!",centre+Vector2(0,sin((1.8-perfect_left)*5)*4),49,Color(GOLD,alpha),true,true,6)
 
 func draw_pause() -> void :
 	views.pause(self)
@@ -1066,6 +1091,15 @@ func validate_save(value) -> Dictionary:
 			if progress is Dictionary: result.mission_progress[challenge.id] = clampi(int(progress.get(challenge.id, 0)), 0, int(challenge.target))
 			if challenge.key in result.claimed: result.mission_progress[challenge.id] = int(challenge.target)
 	HordeMeta.migrate(result, value)
+	result.balance_v132 = true
+	if not bool(value.get("balance_v132",false)) and raw_levels is Dictionary:
+		var refund = 0
+		for key in ["jump","magnet"]:
+			for n in range(clampi(int(raw_levels.get(key,0)),0,3)): refund += (420 if key == "jump" else 360)*(n+1)*(n+1)
+		result.wallet = mini(9999999,int(result.wallet)+refund)
+	result.levels.jump = 0;result.levels.magnet = 0
+	for power in MonsterCatalog.POWERS:
+		if power.kind in power_owned and power.kind not in result.power_owned: result.power_owned.append(power.kind)
 	HordeMissionCatalog.migrate(result,value,MonsterCatalog.active_missions(result.mission_tier))
 	return result
 
@@ -1697,11 +1731,14 @@ func draw_transformation_title() -> void :
 	text(title, Vector2(640, 246 + sin(progress * PI) * 5), 53, Color(color.r, color.g, color.b, alpha), true, true, 8)
 
 func buy_power(kind: int) -> bool:
-	if kind not in [2, 3, 4]: return false
+	var entry: Dictionary = {}
+	for power in MonsterCatalog.POWERS:
+		if int(power.kind)==kind: entry = power;break
+	if entry.is_empty(): return false
 	if kind in data.power_owned: return true
-	var cost = 2800 if kind == 2 else 0
-	if int(data.wallet) < cost: sound.play("ui_denied");show_toast("Faltam " + str(cost - int(data.wallet)) + " moedas.");return false
-	data.wallet -= cost;data.power_owned.append(kind);sound.play("buy");save_game();show_toast("ABDUÇÃO MALDITA LIBERADA!" if kind == 4 else "MASCARADO LIBERADO!", 2);return true
+	var cost = int(entry.price)
+	if int(data.wallet)<cost: sound.play("ui_denied");show_toast("Faltam " + str(cost-int(data.wallet)) + " moedas.");return false
+	data.wallet -= cost;data.power_owned.append(kind);sound.play("buy");save_game();show_toast(str(entry.name)+" LIBERADO!",2);return true
 
 func buy_power_upgrade(index: int) -> bool:
 	if index < 0 or index >= MonsterCatalog.POWER_UPGRADES.size(): return false
@@ -1833,7 +1870,9 @@ func start_lab(kind: String) -> void :
 	lab_kind = kind;runner = HordeRun.new()
 	runner.start_developer(kind, lab_count, lab_stage)
 	runner.jump_delay_step = lab_delay;lab_hitboxes = kind == "collision"
-	if kind == "powers": runner.power_owned = [2, 3, 4];runner.levels.frenzy = 1
+	if kind == "powers": runner.power_owned = [2,3,4,5,6];runner.levels.frenzy = 1
+	if kind in ["harvester","spectral"]:
+		runner.developer_kind = "";runner.power_owned = [3,4,5,6];runner.blessings.begin(runner,5 if kind == "harvester" else 6)
 	if kind == "space":
 		runner.developer_kind = "";runner.active_cosmetics = []
 		for item in HordeMeta.COSMETICS: runner.active_cosmetics.append(item.id)
@@ -1841,8 +1880,9 @@ func start_lab(kind: String) -> void :
 		runner.ensure_tunnels(350000)
 		if lab_stage > 0 and runner.tunnels.size() >= lab_stage: runner.world_px = float(runner.tunnels[lab_stage - 1].entry) + float(runner.tunnels[lab_stage - 1].length) + 700
 		for i in range(lab_stage + 2): runner.update_tunnels()
+		runner.power_owned = [3,4,7,8]
 		runner.entities.clear();runner.events.clear();runner.space.begin(runner,true)
-	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0
+	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;perfect_left = 0
 	effects.clear();ui_effects.clear();scenery.reset();end_delay = -1
 	last_save = 0;last_stats.clear();run_challenges.clear();trail_tick = 0
 	change_screen("run")

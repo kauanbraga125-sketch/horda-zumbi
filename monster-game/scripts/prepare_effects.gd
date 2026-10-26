@@ -2,10 +2,10 @@ extends RefCounted
 
 # Cosmetic feedback only. These particles never enter the gameplay entity list.
 const LIFE = 3.25
-const COLORS = {"civil_pack":Color("8be5ff"), "coin_bombs":Color("ffc650"), "coin_cars":Color("c58aff"),
+const COLORS = {"coin_magnet":Color("ffe17b"),"power_harvester":Color("c59cff"),"power_spectral":Color("8befff"),"civil_pack":Color("8be5ff"), "coin_bombs":Color("ffc650"), "coin_cars":Color("c58aff"),
 	"double_coins":Color("ffe17b"), "double_horde":Color("8df1bd"), "bonus_time":Color("c5a0ff"),
 	"power_fly":Color("ff888f"), "power_mask":Color("ee777f"), "power_shield":Color("8befff"), "power_boost":Color("ff9460")}
-const LABELS = {"civil_pack":"ALMAS A CAMINHO", "coin_bombs":"BOMBAS DE OURO", "coin_cars":"SUCATA VALIOSA",
+const LABELS = {"coin_magnet":"ÍMÃ NESTA PARTIDA","power_harvester":"CAÇADOR A CAMINHO","power_spectral":"MANTO ATIVADO","civil_pack":"ALMAS A CAMINHO", "coin_bombs":"BOMBAS DE OURO", "coin_cars":"SUCATA VALIOSA",
 	"double_coins":"MOEDAS ×2", "double_horde":"HORDA DUPLICADA", "bonus_time":"+15 SEGUNDOS",
 	"power_fly":"MOSCA ATIVADA", "power_mask":"MASCARADO ATIVADO", "power_shield":"PROTEÇÃO ATIVADA", "power_boost":"ARRANCADA ATIVADA"}
 var events: Array[Dictionary] = []

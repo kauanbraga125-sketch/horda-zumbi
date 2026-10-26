@@ -465,9 +465,10 @@ static func create_jump_trail(run, command: Dictionary, speed: float, index: int
 	if run.generation_started:
 		for point in points:
 			if point.x - HordeBalance.COIN_CLEARANCE <= run.spawn_left(): return false
+	var row_id = run.new_coin_row(points.size())
 	for point in points:
 		var e = run.add_entity("coin", point.x - run.world_px, point.y)
-		e.formation = 7;e.group = index
+		e.formation = 7;e.group = index;e.coin_row = row_id
 	run.coin_groups.append({"start": launch, "speed": speed, "mode": 7, "points": points, "witness": witness})
 	while run.coin_groups.size() > 24: run.coin_groups.pop_front()
 	run.last_coin_group = launch
@@ -532,9 +533,10 @@ static func create_formation(run, launch: float, speed: float, index: int, force
 			for point in points:
 				if point.x - HordeBalance.COIN_CLEARANCE <= run.spawn_left(): valid = false;break
 		if valid:
+			var row_id = run.new_coin_row(points.size())
 			for point in points:
 				var coin = run.add_entity("coin", point.x - run.world_px, point.y)
-				coin.formation = mode;coin.group = index
+				coin.formation = mode;coin.group = index;coin.coin_row = row_id
 			run.coin_groups.append({"start": launch, "speed": speed, "mode": mode, "points": points, "witness": witness})
 			while run.coin_groups.size() > 24: run.coin_groups.pop_front()
 			run.last_coin_group = launch
@@ -572,8 +574,9 @@ static func create_reachable_grid(run, launch: float, speed: float, index: int, 
 			if reached: break
 		if not reached: return false
 	if not run.can_fund_coins(points.size()): return false
+	var row_id = run.new_coin_row(points.size())
 	for point in points:
-		var coin = run.add_entity("coin", point.x - run.world_px, point.y);coin.formation = mode;coin.group = index
+		var coin = run.add_entity("coin", point.x - run.world_px, point.y);coin.formation = mode;coin.group = index;coin.coin_row = row_id
 	run.coin_groups.append({"start": launch, "speed": speed, "mode": mode, "points": points, "witness": witness})
 	while run.coin_groups.size() > 24: run.coin_groups.pop_front()
 	run.last_coin_group = launch

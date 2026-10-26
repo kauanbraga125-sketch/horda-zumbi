@@ -82,6 +82,7 @@ func hud(g) -> void :
 	var effect: Rect2 = d.effect
 	if g.runner.space.active:
 		g.runner.space.paint_hud(g)
+	elif g.runner.blessings.active(): g.runner.blessings.paint_hud(g,effect)
 	elif g.runner.perk_left > 0:
 		g.home_menu.slab(g, effect, Color("33203f"), Color("a582bd"), 12, 3)
 		g.scenery.sprite(g, g.art.power(g.runner.perk_kind, g.ui_time), effect.position + Vector2(35, 41), 51)
@@ -106,7 +107,7 @@ func hud(g) -> void :
 			g.home_menu.label(g, "CARRO!  PULE!", warn.get_center() + Vector2(0, 10), 26, g.GOLD)
 			break
 
-	if g.runner.tutorial_hints() and g.runner.elapsed < 7:
+	if g.runner.tutorial_hints() and g.runner.elapsed < 7 and not g.runner.space.active:
 		g.home_menu.slab(g, Rect2(405, g.full_rect().position.y + 107, 711, 74), Color("241a32"), g.GOLD, 12, 2)
 		g.wrapped("TOQUE PARA PULAR. SEGURE PARA IR MAIS LONGE. TOQUE DE NOVO AO POUSAR.", Vector2(425, g.full_rect().position.y + 135), 670, 19, g.CREAM, 2)
 	elif g.runner.speech_left > 0 and not g.runner.speech_text.is_empty() and g.toast_left <= 0: dialogue(g)
