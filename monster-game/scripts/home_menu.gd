@@ -46,7 +46,7 @@ func layout(view: Rect2) -> Dictionary:
 	var ritual = Rect2(play.position.x+8,play.position.y-98,play.size.x-16,82)
 	var altar_height = clampf(ritual.position.y-top-130,170,250)
 	var altar = Vector2(play.get_center().x,ritual.position.y-altar_height*.47)
-	var wallet = Rect2(right-382,top,246,62)
+	var wallet = Rect2(right-420,top,284,62)
 	var level_left = view.position.x+view.size.x*.35
 	var title_width = minf(view.size.x*.29,415)
 	var title = Rect2(left-2,top-8,title_width,title_width*.49)

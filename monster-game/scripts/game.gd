@@ -112,8 +112,8 @@ var lab_kind = "bomb"
 var lab_data: Dictionary = {}
 var lab_context: Dictionary = {}
 var lab_saved_runner: HordeRun
-const LAB_KINDS = ["bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers", "space"]
-const LAB_LABELS = ["BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO", "ESPAÇO • ABDUÇÃO MALDITA"]
+const LAB_KINDS = ["space", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
+const LAB_LABELS = ["ESPAÇO • ABDUÇÃO MALDITA", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
 
 func _ready() -> void :
 	home_menu.attach(self)
@@ -444,6 +444,8 @@ func open_market(tab: int = 0) -> void :
 	market.open(tab);change_screen("market")
 
 func perform_action(action: String) -> void :
+	if action == "home_space_test" and screen == "home":
+		start_lab("space");return
 	if prepare_ui.action(self, action): return
 	if codex.action(self,action): return
 	if hub.action(self, action): return
@@ -460,7 +462,7 @@ func perform_action(action: String) -> void :
 		elif action == "lab_space_land":
 			runner.space.left = 0.01
 		return
-	if action == "developer_test_funds" and screen == "developer":
+	if action == "developer_test_funds" and screen in ["developer","home"]:
 		if apply_test_funds(): save_game()
 		show_toast("SALDO DE TESTE: 1.000.000 MOEDAS E 10.000 OLHOS",3.0)
 		return
@@ -820,6 +822,13 @@ func _draw() -> void :
 func draw_home() -> void :
 	home_menu.paint(self)
 	hub.home(self)
+	if bool(ProjectSettings.get_setting("testing/catalog_funds_enabled",false)):
+		var d = home_menu.layout(full_rect())
+		var left = d.level.position.x
+		var width = (d.help.end.x - left - 12) * 0.5
+		var top = d.level.end.y + 12
+		button(Rect2(left,top,width,52),"ESPAÇO • TESTE " + str(ProjectSettings.get_setting("application/config/version")),"home_space_test",Color("4c786a"),-2,21)
+		button(Rect2(left + width + 12,top,width,52),"REPOR 1.000.000 MOEDAS","developer_test_funds",Color("513c67"),-2,21)
 
 func draw_shop() -> void :
 	text("MELHORIAS DA HORDA", Vector2(67, 99), 39, GOLD, true, false, 5);currency()
@@ -1848,7 +1857,7 @@ func leave_lab() -> void :
 
 func draw_developer() -> void :
 	home_menu.label(self, "DESENVOLVEDOR TESTE", Vector2(69, 102), 38, GOLD, false, -1, true, 4)
-	text("Escolha uma família para testar suas variações.", Vector2(70, 143), 20, CREAM)
+	text("Versão " + str(ProjectSettings.get_setting("application/config/version")) + " • Escolha uma família para testar.", Vector2(70, 143), 20, CREAM)
 	for i in range(LAB_KINDS.size()):
 		button(Rect2(70 + (i % 3) * 386, 175 + int(i / 3) * 59, 369, 49), LAB_LABELS[i], "lab_kind_" + LAB_KINDS[i], Color("513c67"), -2, 18)
 	button(Rect2(70, 548, 369, 49), "HORDA: " + str(lab_count), "lab_count", Color("4c786a"), -2, 21)

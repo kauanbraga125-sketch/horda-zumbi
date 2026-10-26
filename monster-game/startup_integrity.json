@@ -1,5 +1,5 @@
 {
-  "version": "0.10.30",
+  "version": "0.10.31",
   "class_count": 55,
   "files": [
     {
@@ -169,8 +169,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 109801,
-      "sha256": "6663e5267b222219e81a117638dff02bf3e8f2d438aed3a538d8b3b9c7b6b4cc"
+      "bytes": 110465,
+      "sha256": "b23af63b82dfb14bd0dfdebf3c0473dc99f356cb0e09377b5203a91f45bfc5b2"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -185,7 +185,7 @@
     {
       "path": "res://scripts/home_menu.gd",
       "bytes": 17184,
-      "sha256": "a837627863709b72d74807addebcce700b68a829bc515f7842dc430e09caa6e3"
+      "sha256": "b265ad1d232bac5b286b5d4224750dd9dd7a041d836cd961c08eceec73880174"
     },
     {
       "path": "res://scripts/horda_analytics.gd",

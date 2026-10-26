@@ -1,0 +1,76 @@
+{
+  "version": "0.10.31",
+  "code": 134,
+  "apk": {
+    "version": "0.10.31",
+    "code": 134,
+    "package": "com.kauan.noitedahorda.reconstruida",
+    "bytes": 117347686,
+    "sha256": "32904dd23b00ada042be1eb49f8f145f0b4442d3d4315c347ac8fb41bda15e22",
+    "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+    "base_apk_sha256": "b50e9ef42b4e96ead84eb0d91e320e5dbb0129651ce1a345b2c79ad9d5c4d1c5",
+    "prior_media_entries_preserved": 274,
+    "original_character_pngs_changed": 0,
+    "source_matches_shipped_scripts": true,
+    "startup_files": 176,
+    "class_count": 55,
+    "sparse_entries": 886,
+    "changed": [
+      "project.binary",
+      "project.godot",
+      "scripts/game.gd",
+      "scripts/home_menu.gd",
+      "startup_integrity.json"
+    ],
+    "layout": {
+      "min_sdk": 24,
+      "target_sdk": 35,
+      "extract_native_libs": true,
+      "resources_arsc_compression": 0,
+      "resources_arsc_offset": 28399628,
+      "resources_arsc_bytes": 59356
+    },
+    "physical_device_tested": false
+  },
+  "ordinary_startup_new": {
+    "checks": 15,
+    "failures": [],
+    "fixture": "new",
+    "physical_device_tested": false,
+    "version": "0.10.31"
+  },
+  "ordinary_startup_existing": {
+    "checks": 16,
+    "failures": [],
+    "fixture": "existing",
+    "physical_device_tested": false,
+    "version": "0.10.31"
+  },
+  "currency_checks": 45,
+  "packaged_space": {
+    "checks": 96184,
+    "failures": [],
+    "physical_device_tested": false,
+    "version": "0.10.31"
+  },
+  "v130_investigation": {
+    "ordinary_startup_new_passed": true,
+    "ordinary_startup_existing_passed": true,
+    "symptoms_reproduced": false,
+    "device_cause_confirmed": false
+  },
+  "changes": [
+    "Visible 0.10.31 identity and Horda Espaco R31 Android label",
+    "Home shortcuts for space and currency refill",
+    "Space is first in the developer menu",
+    "Wider wallet avoids crowding large balances"
+  ],
+  "physical_device_tested": false,
+  "ordinary_startup_wide": {
+    "checks": 15,
+    "failures": [],
+    "fixture": "new",
+    "physical_device_tested": false,
+    "version": "0.10.31"
+  }
+}

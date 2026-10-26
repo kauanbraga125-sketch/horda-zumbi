@@ -130,7 +130,7 @@ func run() -> void:
 	game.leave_lab();game.sound.set_enabled(false);game.queue_free()
 	game = null;r = null;early = null;pending_capture = null
 	for i in range(8): await process_frame
-	var report = {"version":"0.10.30","checks":checks,"failures":failures,"physical_device_tested":false}
+	var report = {"version":str(ProjectSettings.get_setting("application/config/version")),"checks":checks,"failures":failures,"physical_device_tested":false}
 	var path = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not path.is_empty():
 		DirAccess.make_dir_recursive_absolute(path)
