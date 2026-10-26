@@ -276,6 +276,8 @@ func finish(r) -> void:
 	for e in objects:
 		if e.state == "capture" and not e.taken:
 			r.souls += 1;r.recruits += 1;captured += 1
+			r.mission_stats.civilians = int(r.mission_stats.get("civilians",0)) + 1
+			r.mission_stats.space_captures = int(r.mission_stats.get("space_captures",0)) + 1
 			var kind = r.recruit_kind();r.add_member(kind,false)
 			r.events.append({"type":"soul","kind":kind,"x":ANCHOR,"y":FLOOR - 70,"soldier":false,"from_vehicle":false})
 	objects.clear();starts.clear()
@@ -376,33 +378,35 @@ func paint(g) -> void:
 			var sy = 225 + fposmod(age * -185 + line * 58,350)
 			c.draw_arc(Vector2(centre.x,sy),50 + (sy - 220) * 0.45,0,PI,28,Color(0.55,1,0.7,0.25),2.4,true)
 		sprite(c,"props",1,centre,260)
+	var object_alpha = blend() if phase == "return" else 1.0
+	var object_tint = Color(1,1,1,object_alpha)
 	for e in objects:
 		var point = Vector2(e.x,e.y);var t = float(e.age)
 		match e.kind:
-			"coin": g.scenery.sprite(c,g.art.items[1],point,31,Color.WHITE,sin(t * 6) * 0.2)
-			"energy": sprite(c,"props",2 + posmod(int(t * 4),2),point,62,sin(t * 3) * 0.08)
+			"coin": g.scenery.sprite(c,g.art.items[1],point,31,object_tint,sin(t * 6) * 0.2)
+			"energy": sprite(c,"props",2 + posmod(int(t * 4),2),point,62,sin(t * 3) * 0.08,object_tint)
 			"astronaut":
 				var frame = (4 if e.state == "capture" or e.x < ANCHOR + 260 else 0) + posmod(int(t * 8),4)
 				var fade = 1.0 - smoothstep(0.4,0.72,t) if e.state == "capture" else 1.0
-				sprite(c,"npcs",frame,point,116,sin(t * 2) * 0.09,Color(1,1,1,fade))
+				sprite(c,"npcs",frame,point,116,sin(t * 2) * 0.09,Color(1,1,1,fade * object_alpha))
 			"parasite":
-				sprite(c,"npcs",(12 if e.state == "attack" else 8) + posmod(int(t * 9),4),point,117,sin(t * 3) * 0.08,Color.WHITE,true)
+				sprite(c,"npcs",(12 if e.state == "attack" else 8) + posmod(int(t * 9),4),point,117,sin(t * 3) * 0.08,object_tint,true)
 				if e.x > r.view_right - 150: _warning(g,point,Color("ffa67d"))
 			"meteor":
 				var points = PackedVector2Array([point + Vector2(18,-20),point + Vector2(115,-48),point + Vector2(66,-3),point + Vector2(150,10),point + Vector2(12,24)])
-				c.draw_colored_polygon(points,Color(1,0.34,0.08,0.2 + sin(t * 10) * 0.05))
-				sprite(c,"props",4 + int(e.variant),point,111,e.angle)
-			"satellite": sprite(c,"props",8 + posmod(int(t * 2),2),point,146,e.angle * 0.4)
-			"coffin": sprite(c,"props",7,point,88,e.angle)
-			"pod": sprite(c,"props",10 + posmod(int(t * 3),2),point,117,sin(t * 2) * 0.1)
-			"egg": sprite(c,"props",15 if e.state == "open" else 14,point,112,sin(t * 2) * 0.035)
+				c.draw_colored_polygon(points,Color(1,0.34,0.08,(0.2 + sin(t * 10) * 0.05) * object_alpha))
+				sprite(c,"props",4 + int(e.variant),point,111,e.angle,object_tint)
+			"satellite": sprite(c,"props",8 + posmod(int(t * 2),2),point,146,e.angle * 0.4,object_tint)
+			"coffin": sprite(c,"props",7,point,88,e.angle,object_tint)
+			"pod": sprite(c,"props",10 + posmod(int(t * 3),2),point,117,sin(t * 2) * 0.1,object_tint)
+			"egg": sprite(c,"props",15 if e.state == "open" else 14,point,112,sin(t * 2) * 0.035,object_tint)
 			"ghost_ship":
-				sprite(c,"props",12 + posmod(int(t * 1.6),2),point,330,sin(t * 0.4) * 0.035,Color(0.7,0.8,1,0.76))
+				sprite(c,"props",12 + posmod(int(t * 1.6),2),point,330,sin(t * 0.4) * 0.035,Color(0.7,0.8,1,0.76 * object_alpha))
 			"monolith":
 				c.draw_set_transform(point,sin(t * 0.5) * 0.14)
-				c.draw_rect(Rect2(-15,-48,30,96),Color("080810"))
-				c.draw_line(Vector2(-15,-48),Vector2(-15,48),Color("9c84d6"),2)
-				c.draw_circle(Vector2(0,-26),2.5,Color("ff796e"));c.draw_set_transform(Vector2.ZERO)
+				c.draw_rect(Rect2(-15,-48,30,96),Color(Color("080810"),object_alpha))
+				c.draw_line(Vector2(-15,-48),Vector2(-15,48),Color(Color("9c84d6"),object_alpha),2)
+				c.draw_circle(Vector2(0,-26),2.5,Color(Color("ff796e"),object_alpha));c.draw_set_transform(Vector2.ZERO)
 	var visible = HordeCrowdVisibility.visible(r);g.crowd_drawn = visible.size()
 	var order = visible.keys();order.reverse()
 	for i in order:

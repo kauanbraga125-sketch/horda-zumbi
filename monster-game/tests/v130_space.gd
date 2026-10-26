@@ -76,6 +76,14 @@ func run() -> void:
 	r.space.add_object("energy",centre.x,centre.y,{"speed":0.0,"seed":0.0})
 	r.advance(1.0/60.0,false)
 	check(r.space.left > 3.4,"energy extends remaining flight")
+	var pending_capture = course()
+	pending_capture.space.begin(pending_capture);pending_capture.space.phase = "flight"
+	pending_capture.space.left = 0.04;pending_capture.space.next_group = 1000000
+	var capturer = pending_capture.members[pending_capture.leader_index()]
+	pending_capture.space.add_object("astronaut",capturer.x,capturer.y - 57,{"speed":0.0,"seed":0.0})
+	for i in range(160): pending_capture.advance(1.0/60.0,false)
+	check(not pending_capture.space.active and pending_capture.souls == 1,"capture at expiry completes on landing")
+	check(int(pending_capture.mission_stats.get("civilians",0)) == 1 and int(pending_capture.mission_stats.get("space_captures",0)) == 1,"last capture advances missions once")
 	var early = course()
 	early.elapsed = 8
 	early.space.offer_test_pickup(early)
@@ -120,7 +128,7 @@ func run() -> void:
 	game.change_screen("run");game.runner.advance(.1,false)
 	check(game.runner.space.left < frozen_time,"resume continues power timer")
 	game.leave_lab();game.sound.set_enabled(false);game.queue_free()
-	game = null;r = null;early = null
+	game = null;r = null;early = null;pending_capture = null
 	for i in range(8): await process_frame
 	var report = {"version":"0.10.30","checks":checks,"failures":failures,"physical_device_tested":false}
 	var path = OS.get_environment("HORDA_VALIDATION_DIR")

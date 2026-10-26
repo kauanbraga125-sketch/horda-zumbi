@@ -31,6 +31,8 @@ def refresh(root: Path):
             paths.append(importer)
             imported = re.search(r'path="res://([^"]+)"', importer.read_text()).group(1)
             paths.append(root / imported)
+    paths += sorted(p for p in (root / 'assets/art/space_v130').glob('*') if p.suffix in ('.png', '.webp', '.json'))
+    paths += sorted(p for p in (root / 'assets/audio/space_v130').glob('*') if p.suffix in ('.pcm', '.json'))
     version = re.search(r'config/version="([^"]+)"', (root / 'project.godot').read_text()).group(1)
     manifest = {'version': version,
                 'class_count': len(re.findall(rb'"class":', cache.read_bytes())),

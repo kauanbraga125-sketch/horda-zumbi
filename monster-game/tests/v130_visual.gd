@@ -10,6 +10,7 @@ func step(seconds: float, held: bool = false) -> void:
 		game.update_camera(1.0/60.0);game.configure_layout()
 		game.runner.advance(1.0/60.0,held)
 		game.consume_run_events()
+		game.toast_left = maxf(0,game.toast_left - 1.0/60.0)
 	game.ui_time = game.runner.elapsed
 
 func snap(name: String) -> void:
@@ -64,7 +65,7 @@ func run() -> void:
 	game.runner.add_entity("space_brain",730,HordeRun.FLOOR - 66)
 	await snap("11_item_no_chao")
 	game.leave_lab();game.data.wallet = 1000000;game.data.power_levels.space_time = 3
-	game.open_market(1);await process_frame;await snap("12_mercado")
+	game.toast_left = 0;game.open_market(1);await process_frame;await snap("12_mercado")
 	game.change_screen("developer");await snap("13_laboratorio")
 	game.sound.set_enabled(false);game.set_process(false);game.queue_free();game = null
 	for i in range(8): await process_frame

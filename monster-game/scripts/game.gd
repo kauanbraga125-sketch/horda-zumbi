@@ -813,8 +813,9 @@ func _draw() -> void :
 	ui_effects.paint(paint_target, art, actor)
 	if toast_left > 0 and runner.transform_left <= 0:
 		var width = clampf(art.body_font.get_string_size(toast, HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x + 50, 320, 1130)
-		panel(Rect2(640 - width * 0.5, 108, width, 48), Color(0.13, 0.08, 0.19, 0.96), Color("c2ab82"), 15)
-		text(toast, Vector2(640, 138), 19, CREAM, false, true)
+		var toast_y = full_rect().position.y + 190 if runner.space.active and screen in ["run","pause"] else 108.0
+		panel(Rect2(640 - width * 0.5, toast_y, width, 48), Color(0.13, 0.08, 0.19, 0.96), Color("c2ab82"), 15)
+		text(toast, Vector2(640, toast_y + 30), 19, CREAM, false, true)
 
 func draw_home() -> void :
 	home_menu.paint(self)

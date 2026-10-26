@@ -1,0 +1,32 @@
+{
+  "version": "0.10.30",
+  "code": 133,
+  "source_space_checks": 96184,
+  "source_space_failures": [],
+  "previous_packaged_build": {
+    "sha256": "9fdedbd197e56147b26f169dc3992d8f2ff257db21f37a9d0a3adfc44c098dee",
+    "startup_files": 176,
+    "class_count": 55,
+    "space_checks": 96182,
+    "currency_checks": 45,
+    "native_captures": 13
+  },
+  "latest_local_apk": {
+    "bytes": 117347692,
+    "sha256": "b50e9ef42b4e96ead84eb0d91e320e5dbb0129651ce1a345b2c79ad9d5c4d1c5",
+    "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+    "prior_media_entries_preserved": 262,
+    "source_matches_shipped_scripts": true,
+    "final_packaged_recheck": "started; interrupted before results could be read"
+  },
+  "ground_parity": {
+    "courses": 6,
+    "snapshots": 3295,
+    "identical": true,
+    "sha256": "d9526066d9088db243adde3667d6503e88c47ca3c01f4f45709ce9fe80777794"
+  },
+  "physical_device_tested": false,
+  "apk_published": false,
+  "private_recovery_v130_saved": false,
+  "delivery_blocker": "Execution environment disconnected before saving or publishing the signed APK."
+}
