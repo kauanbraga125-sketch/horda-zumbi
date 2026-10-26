@@ -1,5 +1,5 @@
 {
-  "version": "0.10.29",
+  "version": "0.10.30",
   "class_count": 55,
   "files": [
     {
@@ -34,8 +34,8 @@
     },
     {
       "path": "res://scripts/bonus_director.gd",
-      "bytes": 3006,
-      "sha256": "06f37a877c6003a1face5de675c92702dfdb2123a54ba00eb5049cb796514808"
+      "bytes": 3098,
+      "sha256": "b57883186e991c9d9d4a09dea468a25bd096c23366688c1a37e57143532c72c4"
     },
     {
       "path": "res://scripts/book_cover.gdshader",
@@ -59,8 +59,8 @@
     },
     {
       "path": "res://scripts/catalog.gd",
-      "bytes": 9461,
-      "sha256": "ba4ed888b7e122a0fc656acc7b6c9fdace9f13fa740a5d5c0bbfc900309a10c0"
+      "bytes": 9836,
+      "sha256": "cd5b99281f47a5ce885ef4e951d93f48b9a8a1703b58f3247a8592868c6288e1"
     },
     {
       "path": "res://scripts/civil_sprite.gd",
@@ -169,13 +169,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 106374,
-      "sha256": "09517061b02ca972798f950d6654172bc06b09f11224c455b104bc46f5a84c9f"
+      "bytes": 109801,
+      "sha256": "6663e5267b222219e81a117638dff02bf3e8f2d438aed3a538d8b3b9c7b6b4cc"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 16048,
-      "sha256": "ab3805bc4ce7ea21c3baa0f8fefc80ae85853c26a8d02782dcd46296ab2e1a49"
+      "bytes": 16163,
+      "sha256": "74d4cca25eedaa939a1bffe6f5042356b849bdffa8072fedd7c06e5604e1ba2e"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -209,8 +209,8 @@
     },
     {
       "path": "res://scripts/market.gd",
-      "bytes": 18200,
-      "sha256": "b9953d108d82c01af4dc5ed12a7c4eee84b7d83254884ea65cdd77082a171726"
+      "bytes": 18608,
+      "sha256": "52659efcd39aa5fae1d095296ba37e5627670979c375cde4c69af54eea3c989a"
     },
     {
       "path": "res://scripts/masked_approved_sprite.gd",
@@ -299,8 +299,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 66602,
-      "sha256": "100264d079c4ba9bd32d2839c3ec3fdae1258cbcfcdc5e20f937a4f7fdab5cf2"
+      "bytes": 66938,
+      "sha256": "fca357b4e92d739f0eecbee7039b3895aa1fcc94c7130cf997b8ef7f04c5c998"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -329,8 +329,13 @@
     },
     {
       "path": "res://scripts/sound.gd",
-      "bytes": 14209,
-      "sha256": "73bbdfa2f7169a8e229e5b1c7b241f55714a4c90999f0f410cf588265ca8c605"
+      "bytes": 14829,
+      "sha256": "4db0011ae0cb9b75a3fc8f9d27356b40fd1feba8f3ebbcfc3943524efe7aeeb0"
+    },
+    {
+      "path": "res://scripts/space.gd",
+      "bytes": 23901,
+      "sha256": "da9887868b1a436c44ca33b30af73d7ade040257189c752746b618c6d40f17df"
     },
     {
       "path": "res://scripts/terrain.gd",
@@ -806,6 +811,76 @@
       "path": "res://.godot/imported/s_vest-v129-lossless.ctex",
       "bytes": 558966,
       "sha256": "43ea54f18b6bd9b05711f66584394606a7b8bde747a9017a625dd94484ea6531"
+    },
+    {
+      "path": "res://assets/art/space_v130/manifest.json",
+      "bytes": 4553,
+      "sha256": "d5c86dc7975e43449d57ae4f0397f26c0a2b70cc1045452921afb33317d3355d"
+    },
+    {
+      "path": "res://assets/art/space_v130/nebula.webp",
+      "bytes": 141076,
+      "sha256": "c525d68a6b15ecfdfdfed88037b998a812b613db2fdf468175ee559628a5b9da"
+    },
+    {
+      "path": "res://assets/art/space_v130/npcs.png",
+      "bytes": 1153687,
+      "sha256": "7360091eed103ac74b2082980e31acd015a4e286a130ab0ebd612b71eece0a0e"
+    },
+    {
+      "path": "res://assets/art/space_v130/orbit.webp",
+      "bytes": 205616,
+      "sha256": "bfd4c5071137b7dfb427c11e16b3bedf80ec6dab4e7329d848688e1e3c6d0abe"
+    },
+    {
+      "path": "res://assets/art/space_v130/props.png",
+      "bytes": 1289020,
+      "sha256": "91877c8ad69611e15c6bf16de6ec0b467ba478a5db149b0e137c103523b9c5f8"
+    },
+    {
+      "path": "res://assets/audio/space_v130/beam.pcm",
+      "bytes": 102400,
+      "sha256": "46d492886cac8266f4fc87cfb6339e5a93321529f6406b74118b117fd7662f49"
+    },
+    {
+      "path": "res://assets/audio/space_v130/capture.pcm",
+      "bytes": 35200,
+      "sha256": "b79afdccaead0e35c19a4926d598d8b0deaa6ad18e15d76e1e7af617c017a24b"
+    },
+    {
+      "path": "res://assets/audio/space_v130/discovery.pcm",
+      "bytes": 64000,
+      "sha256": "d098cfbce0c35033df0c620a3c97be756b0ecbbd948d089f250cf2bc3ab3f8c7"
+    },
+    {
+      "path": "res://assets/audio/space_v130/energy.pcm",
+      "bytes": 32000,
+      "sha256": "7d113813d0fbb1115df6a80394210cac85e7e4636efe13f5b1f2b52cdd4c60c9"
+    },
+    {
+      "path": "res://assets/audio/space_v130/hit.pcm",
+      "bytes": 24320,
+      "sha256": "325509750dc4a00f92567e5dfe0378e771403ec3333d9e5f9ee70215a2e86202"
+    },
+    {
+      "path": "res://assets/audio/space_v130/manifest.json",
+      "bytes": 1503,
+      "sha256": "dcd9acf1dc4910faa2edeb208ce0b0453b7970f2634035e2bdc2c0e94b6c1209"
+    },
+    {
+      "path": "res://assets/audio/space_v130/music.pcm",
+      "bytes": 1536000,
+      "sha256": "27036e3f17c78643e09b370e5d5a66a0ec9499db04f7e918d6fc1d65fae420ec"
+    },
+    {
+      "path": "res://assets/audio/space_v130/return.pcm",
+      "bytes": 96000,
+      "sha256": "9780f83701b31501017cf3b538329a8b7089e384dca25cd257f396b425bf2bf7"
+    },
+    {
+      "path": "res://assets/audio/space_v130/warning.pcm",
+      "bytes": 10240,
+      "sha256": "7b8560340280f0929a14728d2a245f03c7d3a599e8b88b87280853e95a318097"
     }
   ]
 }

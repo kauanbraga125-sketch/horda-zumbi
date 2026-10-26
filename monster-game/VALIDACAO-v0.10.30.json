@@ -1,23 +1,91 @@
 {
   "version": "0.10.30",
   "code": 133,
-  "source_space_checks": 96184,
-  "source_space_failures": [],
-  "previous_packaged_build": {
-    "sha256": "9fdedbd197e56147b26f169dc3992d8f2ff257db21f37a9d0a3adfc44c098dee",
-    "startup_files": 176,
-    "class_count": 55,
-    "space_checks": 96182,
-    "currency_checks": 45,
-    "native_captures": 13
-  },
-  "latest_local_apk": {
+  "status": "signed_apk_validated",
+  "apk": {
+    "version": "0.10.30",
+    "code": 133,
+    "package": "com.kauan.noitedahorda.reconstruida",
     "bytes": 117347692,
     "sha256": "b50e9ef42b4e96ead84eb0d91e320e5dbb0129651ce1a345b2c79ad9d5c4d1c5",
     "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+    "base_apk_sha256": "221ec982137efca60aac576a268f2ad3961ce038eb7d7cc6c27128f82f62469a",
     "prior_media_entries_preserved": 262,
+    "original_character_pngs_changed": 0,
     "source_matches_shipped_scripts": true,
-    "final_packaged_recheck": "started; interrupted before results could be read"
+    "startup_files": 176,
+    "class_count": 55,
+    "sparse_entries": 886,
+    "changed": [
+      "assets/art/space_v130/manifest.json",
+      "assets/art/space_v130/nebula.webp",
+      "assets/art/space_v130/npcs.png",
+      "assets/art/space_v130/orbit.webp",
+      "assets/art/space_v130/props.png",
+      "assets/audio/space_v130/beam.pcm",
+      "assets/audio/space_v130/capture.pcm",
+      "assets/audio/space_v130/discovery.pcm",
+      "assets/audio/space_v130/energy.pcm",
+      "assets/audio/space_v130/hit.pcm",
+      "assets/audio/space_v130/manifest.json",
+      "assets/audio/space_v130/music.pcm",
+      "assets/audio/space_v130/return.pcm",
+      "assets/audio/space_v130/warning.pcm",
+      "project.binary",
+      "project.godot",
+      "scripts/bonus_director.gd",
+      "scripts/catalog.gd",
+      "scripts/game.gd",
+      "scripts/gameplay_ui.gd",
+      "scripts/market.gd",
+      "scripts/runner.gd",
+      "scripts/sound.gd",
+      "scripts/space.gd",
+      "startup_integrity.json"
+    ],
+    "layout": {
+      "min_sdk": 24,
+      "target_sdk": 35,
+      "extract_native_libs": true,
+      "resources_arsc_compression": 0,
+      "resources_arsc_offset": 28399636,
+      "resources_arsc_bytes": 59356
+    },
+    "physical_device_tested": false
+  },
+  "packaged_space": {
+    "checks": 96184,
+    "failures": [],
+    "physical_device_tested": false,
+    "version": "0.10.30"
+  },
+  "packaged_boot": {
+    "passed": true,
+    "startup_files": 176,
+    "classes": 55
+  },
+  "packaged_currency": {
+    "passed": true,
+    "checks": 45,
+    "cosmetics": 35
+  },
+  "native_render": {
+    "passed": true,
+    "captures": 13,
+    "sizes": [
+      [
+        1280,
+        720
+      ],
+      [
+        1800,
+        810
+      ],
+      [
+        960,
+        720
+      ]
+    ]
   },
   "ground_parity": {
     "courses": 6,
@@ -25,8 +93,5 @@
     "identical": true,
     "sha256": "d9526066d9088db243adde3667d6503e88c47ca3c01f4f45709ce9fe80777794"
   },
-  "physical_device_tested": false,
-  "apk_published": false,
-  "private_recovery_v130_saved": false,
-  "delivery_blocker": "Execution environment disconnected before saving or publishing the signed APK."
+  "physical_device_tested": false
 }
