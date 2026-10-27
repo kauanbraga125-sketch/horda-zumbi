@@ -1,0 +1,210 @@
+{
+  "version": "0.10.36",
+  "code": 139,
+  "package": "com.kauan.noitedahorda.reconstruida",
+  "bytes": 129645437,
+  "sha256": "7cc2b329149e4ae7a9be4e56aab044be56ab1745ab420319ab2f32fbd9c3413f",
+  "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+  "base_apk_sha256": "64d5937e80131c3dffedf4414df1e6a53f60e98ed05652544d8c87d9956dcfb0",
+  "prior_media_entries_preserved": 292,
+  "original_character_pngs_changed": 0,
+  "source_matches_shipped_scripts": true,
+  "startup_files": 244,
+  "class_count": 55,
+  "sparse_entries": 954,
+  "changed": [
+    "assets/art/v136/agourinho.webp",
+    "assets/art/v136/barao.webp",
+    "assets/art/v136/barrel.webp",
+    "assets/art/v136/buoy.webp",
+    "assets/art/v136/egg.webp",
+    "assets/art/v136/egg_crack.webp",
+    "assets/art/v136/egg_open.webp",
+    "assets/art/v136/feather.webp",
+    "assets/art/v136/ferrugem.webp",
+    "assets/art/v136/fiapo.webp",
+    "assets/art/v136/fusion.webp",
+    "assets/art/v136/jetski.webp",
+    "assets/art/v136/layout.json",
+    "assets/art/v136/nest.webp",
+    "assets/art/v136/pipe.webp",
+    "assets/art/v136/pipoco.webp",
+    "assets/art/v136/ramp.webp",
+    "assets/art/v136/rubble.webp",
+    "assets/art/v136/sewer.webp",
+    "assets/art/v136/sewer_exit.webp",
+    "assets/audio/v136/bird_agourinho.pcm",
+    "assets/audio/v136/bird_barao.pcm",
+    "assets/audio/v136/bird_ferrugem.pcm",
+    "assets/audio/v136/bird_fiapo.pcm",
+    "assets/audio/v136/bird_pipoco.pcm",
+    "assets/audio/v136/egg_crack.pcm",
+    "assets/audio/v136/egg_hatch.pcm",
+    "assets/audio/v136/manifest.json",
+    "assets/audio/v136/sewer_splash.pcm",
+    "assets/audio/v136/sewer_water.pcm",
+    "project.binary",
+    "project.godot",
+    "scripts/actor.gd",
+    "scripts/bird_art.gd",
+    "scripts/bird_catalog.gd",
+    "scripts/bird_run.gd",
+    "scripts/birds_ui.gd",
+    "scripts/bonus_director.gd",
+    "scripts/catalog.gd",
+    "scripts/cosmetics.gd",
+    "scripts/game.gd",
+    "scripts/gameplay_ui.gd",
+    "scripts/market.gd",
+    "scripts/runner.gd",
+    "scripts/sewer.gd",
+    "scripts/sewer_visual.gd",
+    "scripts/sound.gd",
+    "scripts/space.gd",
+    "scripts/space_combat.gd",
+    "scripts/space_life.gd",
+    "scripts/space_routes.gd",
+    "scripts/space_visual.gd",
+    "startup_integrity.json"
+  ],
+  "layout": {
+    "min_sdk": 24,
+    "target_sdk": 35,
+    "extract_native_libs": true,
+    "resources_arsc_compression": 0,
+    "resources_arsc_offset": 28399644,
+    "resources_arsc_bytes": 59356
+  },
+  "physical_device_tested": false,
+  "same_bytes_as_previously_validated_build": true,
+  "packaged_runtime_integrity": {
+    "verified_files": 244,
+    "class_count": 55,
+    "all_match_source": true
+  },
+  "automated_tests": [
+    {
+      "suite": "v136_systems",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V136_SYSTEMS {\"base_rate_sample\":[6081,2472,936,396,115],\"checks\":66,\"failures\":[],\"physical_device_tested\":false}",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v135_contacts",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V135_CONTACTS checks=256 failures=[]",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v135_flight",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V135_FLIGHT checks=361 failures=[]",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v135_adventure",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V135_ADVENTURE_INTEGRATION checks=222 failures=[] version=0.10.36",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v135_readability",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V135_READABILITY checks=199 failures=[]",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v129_currency",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V129_CURRENCY_OK checks=45 all_cosmetics=35",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v100_integration",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V100_RESULT checks=56 failures=0",
+      "teardown_warnings": [
+        "ERROR: 18 resources still in use at exit"
+      ]
+    },
+    {
+      "suite": "v101_integration",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V101_RESULT checks=20 failures=0",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v103_codex",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V103_RESULT checks=38 failures=0",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v103_apk_runtime",
+      "returncode": 0,
+      "passed": true,
+      "summary": "APK103_RESULT checks=20 failures=0",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v104_integration",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V104_RESULT checks=45 failures=0",
+      "teardown_warnings": [
+        "ERROR: 4 resources still in use at exit"
+      ]
+    },
+    {
+      "suite": "v105_integration",
+      "returncode": 0,
+      "passed": true,
+      "summary": "V105_RESULT checks=47 failures=0",
+      "teardown_warnings": [
+        "ERROR: 6 resources still in use at exit"
+      ]
+    }
+  ],
+  "headless_checks": 1375,
+  "test_scope": "Functional assertions and exit status, matching source CI. Legacy UI suites may retain renderer resources until process shutdown; these messages are recorded separately.",
+  "ordinary_startup": [
+    {
+      "checks": 15,
+      "failures": [],
+      "fixture": "new",
+      "physical_device_tested": false,
+      "version": "0.10.36"
+    },
+    {
+      "checks": 16,
+      "failures": [],
+      "fixture": "existing",
+      "physical_device_tested": false,
+      "version": "0.10.36"
+    }
+  ],
+  "bird_transactions": {
+    "checks": 17,
+    "failures": [],
+    "physical_device_tested": false,
+    "real_disk_persistence": true
+  },
+  "native_visuals": {
+    "native_captures": 27,
+    "physical_device_tested": false,
+    "version": "0.10.36"
+  },
+  "prior_cosmetics_preserved": 35,
+  "original_art_sources": 9,
+  "new_runtime_webp_sheets_and_props": 19,
+  "new_pcm_clips": 9
+}

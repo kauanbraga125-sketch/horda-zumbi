@@ -9998,8 +9998,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 3092,
-      "sha256": "753cbc2f9bdbcfa12648061d6113df77e25f4ebce902f2b8b9f03580df1dc41a"
+      "bytes": 3226,
+      "sha256": "156c65ab0d8d8d423d7c6df4dcdfec71f55cf9ecf12f45935c2822f2d4df72d9"
     },
     {
       "path": "monster-game/.gitignore",
@@ -10295,6 +10295,11 @@
       "path": "monster-game/VALIDACAO-v0.10.35.json",
       "bytes": 6348,
       "sha256": "e73485f3853ef95796f51a6dbb1c93d88e872a5d574732f4c73763d5f6c9aa17"
+    },
+    {
+      "path": "monster-game/VALIDACAO-v0.10.36.json",
+      "bytes": 6097,
+      "sha256": "0fb3a6600d7af59b1289aa0e4ca866f0d44b26b24687b95ee397d796190282f3"
     },
     {
       "path": "monster-game/VALIDACAO-v0.10.4.json",
