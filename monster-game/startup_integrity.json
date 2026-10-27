@@ -1,5 +1,5 @@
 {
-  "version": "0.10.32",
+  "version": "0.10.33",
   "class_count": 55,
   "files": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "path": "res://scripts/actor.gd",
-      "bytes": 10580,
-      "sha256": "b1cc35562d1916ef111fb29c3c433af687795b22f6f85b2f28d8b146f4730031"
+      "bytes": 10749,
+      "sha256": "ebbc8755ef4416074ac1e9ea4dd6fea356586293c0ba165cb45e3d42e9de62b7"
     },
     {
       "path": "res://scripts/adventure_art.gd",
@@ -56,6 +56,11 @@
       "path": "res://scripts/boot_audit.gd",
       "bytes": 3026,
       "sha256": "c4d66083baf88b7b94382ea0db4a62ac01f80af02f533df79a77e23aeb7187b9"
+    },
+    {
+      "path": "res://scripts/cabin_mask.gdshader",
+      "bytes": 236,
+      "sha256": "8a1ea220ba38952f6f08e36f70ced43140e84e611e47a4c47783ccd62d66b545"
     },
     {
       "path": "res://scripts/capture_motion.gd",
@@ -179,13 +184,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 113393,
-      "sha256": "bdd3a1542433cd8dce3364b5326df4c49537d1e0fbd70f37714089c33cc830fa"
+      "bytes": 114192,
+      "sha256": "cd6cc8aec007820af69c3becaab4b3aec0d63f96bebea6b238ccf37329b43cf9"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 16267,
-      "sha256": "b18e31a6b8f0df573e4d842ae1ffaaa9a20ef872935d3715ed673228525112f1"
+      "bytes": 16482,
+      "sha256": "c3f4bae51e47fc9989a96de4e2b775c32843526a7327335aac70b450a4d884a0"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -344,13 +349,18 @@
     },
     {
       "path": "res://scripts/space.gd",
-      "bytes": 23862,
-      "sha256": "ad8d48154e410dd28df8540de82f0025eb8eafb2d98cca95fe7ac6d1a34274e7"
+      "bytes": 21148,
+      "sha256": "18d8538cab7eb17f487d10fb4fb1607618cf0772e4095036bad360e4f5ae4964"
     },
     {
       "path": "res://scripts/space_combat.gd",
-      "bytes": 13766,
-      "sha256": "70eacbcadc7968d1a2aaca20011888b42ad8589bfa170169503985779bbddfd3"
+      "bytes": 18421,
+      "sha256": "4dc9a5a5671ac8e80bd0c2a8f8c9a3ca5b05b2187ef3fc6b3a42a6d6e6b378b7"
+    },
+    {
+      "path": "res://scripts/space_visual.gd",
+      "bytes": 10040,
+      "sha256": "ebf7c611eccb1bd6f97ef4537ae366924fc2d70649b26a80264b019f2b1d3d80"
     },
     {
       "path": "res://scripts/terrain.gd",
@@ -946,6 +956,36 @@
       "path": "res://assets/audio/adventure_v132/space_smash.pcm",
       "bytes": 37120,
       "sha256": "ea83ec048a83c8a79c4bcff5f33e9459ea5fe9ad931f3896e328fc6b0f9a127b"
+    },
+    {
+      "path": "res://assets/art/space_v133/fighter-front.png",
+      "bytes": 235021,
+      "sha256": "1c0d0e874779c2e3863a43de5e6b5c6a26d0ed8125ad6292b2b9afda8c258009"
+    },
+    {
+      "path": "res://assets/art/space_v133/fighter-inside.png",
+      "bytes": 1907,
+      "sha256": "fcc021bec0b957a555dcda73d38c767f4e0742d6a8182787eea38f059dd1d4a6"
+    },
+    {
+      "path": "res://assets/art/space_v133/layout.json",
+      "bytes": 457,
+      "sha256": "5d1e94485a3fb0f4a7be8dd47b89deac4ff0e78af7fbeaa9ab87bb4d18b8253f"
+    },
+    {
+      "path": "res://assets/art/space_v133/tour_bus-front.png",
+      "bytes": 253623,
+      "sha256": "5de93268f7bedfca2496455f27f5a3afb38b8078603f4d0b0d80885bf319ee28"
+    },
+    {
+      "path": "res://assets/art/space_v133/tour_bus-inside.png",
+      "bytes": 2014,
+      "sha256": "90d4ad8d7d8283703ef0dcd0f6381036319b45eb44d42cd3dac0fe32320e2250"
+    },
+    {
+      "path": "res://assets/art/space_v133/vortex.png",
+      "bytes": 443885,
+      "sha256": "2d092b323640d09a499e8157c2623950c4791fee314b0e1c8928f6d54438cc57"
     }
   ]
 }

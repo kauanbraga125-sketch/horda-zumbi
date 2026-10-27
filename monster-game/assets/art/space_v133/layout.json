@@ -1,0 +1,33 @@
+{
+  "version": "0.10.33",
+  "ships": {
+    "tour_bus": {
+      "canvas": [
+        640,
+        400
+      ],
+      "window": [
+        349,
+        160,
+        170,
+        68
+      ],
+      "window_pixels": 12906,
+      "facing": "right"
+    },
+    "fighter": {
+      "canvas": [
+        640,
+        400
+      ],
+      "window": [
+        379,
+        132,
+        114,
+        52
+      ],
+      "window_pixels": 3525,
+      "facing": "right"
+    }
+  }
+}

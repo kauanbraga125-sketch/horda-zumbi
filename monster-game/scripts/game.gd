@@ -266,21 +266,24 @@ func consume_run_events() -> void :
 		match e.type:
 			"perfect":
 				perfect_left = 1.8;sound.play("perfect",-13);effects.spark(point,GOLD,18)
+				if runner.space.active: runner.space.visual.notify("PERFECT!",2,1.5)
 			"field_power": sound.play("perk",-14);show_toast(str(e.title),2.1)
 			"civil_drop": sound.play("creeper_wing",-13)
 			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)
 			"space_boost": sound.play("space_boost",-13);effects.spark(point,MINT,24)
-			"space_smash": sound.play("space_smash",-12);effects.spark(point,CORAL,28);shake = 4
+			"space_ship_hit": sound.play("space_hit",-17);effects.spark(point,CORAL,6)
+			"space_smash": sound.play("space_smash",-12);effects.spark(point,CORAL,14);shake = 3
 			"space_begin":
 				passenger_captures.clear();effects.clear();sound.play("space_beam",-12)
-				show_toast("ABDUÇÃO MALDITA • " + str(int(e.duration)) + " SEGUNDOS",2.2)
+				if not bool(data.get("space_controls_seen",false)) or lab_active:
+					runner.space.visual.controls_left = 7.5;data.space_controls_seen = true
 			"space_zone": sound.play("space_discovery",-18)
 			"space_hit": sound.play("space_hit",-13);shake = 4;effects.spark(point,CORAL,18)
 			"space_capture": sound.play("space_capture",-15);effects.spark(point,MINT,14)
 			"space_energy": sound.play("space_energy",-16);effects.ring(point,MINT)
 			"space_warning": sound.play("space_warning",-16)
-			"space_discovery": sound.play("space_discovery",-14);show_toast(str(e.title),2.7)
-			"space_return": sound.play("space_return",-12);show_toast("REENTRADA • PREPARE A HORDA",1.8)
+			"space_discovery": sound.play("space_discovery",-14);runner.space.visual.notify(str(e.title),2,1.8)
+			"space_return": sound.play("space_return",-12);runner.space.visual.notify("REENTRADA • PREPARE A HORDA",4,1.8)
 			"space_land":
 				effects.clear();sound.play("heavy_land",-12);shake = 6;effects.dust(Vector2(HordeRun.ANCHOR,HordeRun.FLOOR),26,1.5)
 				show_toast("DE VOLTA! +%d m • TÚNEL %d" % [e.metres,e.to_tunnel],2.5)
@@ -706,6 +709,8 @@ func burst(pos: Vector2, color: Color, count: int, glowing: bool = true) -> void
 	effects.spark(pos, color, count)
 
 func show_toast(message: String, duration: float = 2.8) -> void :
+	if runner.space.active and screen in ["run","pause"]:
+		runner.space.visual.notify(message,1,minf(duration,2.2));toast_left = 0;return
 	toast = message;toast_left = duration
 
 func text(value: String, pos: Vector2, size: int = 22, color: Color = CREAM, heading: bool = false, center: bool = false, outline: int = 0) -> void :
@@ -776,7 +781,7 @@ func currency() -> void :
 
 func backdrop() -> void :
 	if runner.space.active and screen in ["run","pause","results"]:
-		if runner.space.blend() < 0.999: scenery.paint(paint_target,runner,ui_time)
+		if runner.space.visual.ground_visible(runner.space): scenery.paint(paint_target,runner,ui_time)
 		runner.space.paint_background(self)
 		return
 	if screen in ["run", "pause", "results"]:
@@ -886,7 +891,7 @@ func draw_help() -> void :
 
 func draw_run() -> void :
 	if runner.space.active:
-		if runner.space.phase == "ascent" and runner.space.phase_age < 1.1 or runner.space.phase == "return" and runner.space.phase_age > 1.2: ground(runner.world_px)
+		if runner.space.visual.ground_visible(runner.space): ground(runner.world_px)
 		runner.space.paint(self)
 		effects.paint(paint_target,art,actor)
 		return
@@ -1014,7 +1019,7 @@ func draw_run() -> void :
 func draw_run_hud() -> void :
 	gameplay_ui.hud(self)
 	if not runner.space.active: hub.draw_run_notice(self)
-	if perfect_left > 0:
+	if perfect_left > 0 and not runner.space.active:
 		var alpha = minf(1,perfect_left*3)
 		var centre = Vector2(full_rect().get_center().x,full_rect().position.y+(268 if runner.space.active else 234))
 		text("PERFECT!",centre+Vector2(0,sin((1.8-perfect_left)*5)*4),49,Color(GOLD,alpha),true,true,6)
@@ -1339,6 +1344,8 @@ func animation_state(member: Dictionary) -> String:
 	return "run"
 
 func update_run_visuals(dt: float) -> void :
+	var cabin = get_node_or_null("SpaceCabin") as SubViewport
+	if is_instance_valid(cabin): cabin.render_target_update_mode = SubViewport.UPDATE_ALWAYS if runner.space.active and runner.space.battle.pilot_left>0 else SubViewport.UPDATE_DISABLED
 	if runner.space.active:
 		effects.update(dt,0);ui_effects.update(dt,0)
 		sound.update_course(runner,screen == "run" and not runner.dead)
@@ -1637,8 +1644,11 @@ func draw_credits() -> void :
 
 func update_camera(dt: float) -> void :
 	if runner.space.active:
-		camera_zoom = move_toward(camera_zoom,1.02,dt * 0.75)
-		camera_ground_shift = move_toward(camera_ground_shift,0,dt * 90)
+		var s = runner.space
+		var transition = s.visual.transition_progress(s)
+		var target = lerpf(CAMERA_BASE_ZOOM,1.02,smoothstep(0,1,transition))
+		camera_zoom = move_toward(camera_zoom,target,dt*.9)
+		camera_ground_shift = move_toward(camera_ground_shift,sin(transition*PI)*80 if s.phase in ["ascent","return"] else 0,dt*180)
 		return
 	camera_focus = move_toward(camera_focus, 1.0 if runner.transform_left > 0 else 0.0, dt * (1.8 if runner.transform_left > 0 else 1.2))
 	var desired = lerpf(CAMERA_BASE_ZOOM, CAMERA_TRANSFORM_ZOOM, smoothstep(0, 1, camera_focus))

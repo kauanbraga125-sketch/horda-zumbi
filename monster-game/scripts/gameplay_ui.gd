@@ -23,6 +23,9 @@ func hud_layout(view: Rect2) -> Dictionary:
 		"effect": Rect2(pause_rect.position.x - 332, top, 308, 78)}
 
 func counter_target(g, index: int) -> Vector2:
+	if g.runner.space.active:
+		var d = g.runner.space.visual.layout(g.full_rect())
+		return d.coins.get_center() if index==3 else d.horde.get_center()
 	var rect: Rect2 = hud_layout(g.full_rect()).counters[index]
 	return rect.position + Vector2(39, 52)
 
@@ -58,6 +61,9 @@ func glyph(g, kind: String, point: Vector2, size: float, color: Color) -> void :
 					if (row + col) % 2 == 0: g.draw_rect(Rect2(origin + Vector2(col, row) * cell, Vector2.ONE * cell), Color("31203f"))
 
 func hud(g) -> void :
+	if g.runner.space.active:
+		g.runner.space.paint_hud(g)
+		return
 	var d = hud_layout(g.full_rect())
 	var labels = ["DISTÂNCIA", "HORDA", "ALMAS", "MOEDAS"]
 	var values = [str(g.runner.distance()) + " m", str(g.runner.active_count()), str(g.runner.souls), str(g.runner.coins)]

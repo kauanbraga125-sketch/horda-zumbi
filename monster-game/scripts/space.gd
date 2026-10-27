@@ -39,8 +39,9 @@ var objects: Array[Dictionary] = []
 var starts: Dictionary = {}
 var random = RandomNumberGenerator.new()
 static var textures: Dictionary = {}
-var tiles: Dictionary = {}
+static var tiles: Dictionary = {}
 var battle = preload("res://scripts/space_combat.gd").new()
+var visual = preload("res://scripts/space_visual.gd").new()
 var charge = 0.0
 var wave_number = 1
 var dash_left = 0.0
@@ -56,7 +57,7 @@ var y_history: Array[Vector2] = []
 func reset(seed_value: int) -> void:
 	active = false;phase = "ground";objects.clear();starts.clear();discoveries.clear()
 	age = 0;flight_age = 0;phase_age = 0;altitude = 0;max_altitude = 0
-	battle.reset();charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;y_history.clear()
+	battle.reset();visual.reset();charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;y_history.clear()
 	completed_flights = 0;early_offered = false;captured = 0;collected = 0;hits = 0
 	random.seed = seed_value ^ 0x51ace
 
@@ -82,15 +83,15 @@ func begin(r, force: bool = false) -> bool:
 		if e.state == "capture" and e.kind in ["civilian", "police", "soldier"]: r.complete_capture(e)
 	for i in range(r.members.size() - 1, -1, -1):
 		if r.members[i].falling: r.remove_member(i, "fall")
-	battle.reset();charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;dash_serial = 0;aim_y = 420;manual_control = false;return_prepared = false;y_history.clear()
+	battle.reset();visual.reset();charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;dash_serial = 0;aim_y = 420;manual_control = true;return_prepared = false;y_history.clear()
 	if force:
 		for kind in [7,8]:
 			if kind not in r.power_owned: r.power_owned.append(kind)
-	ensure_art();battle.art.warm()
+	ensure_art();battle.art.warm();visual.warm()
 	active = true;phase = "ascent";age = 0;phase_age = 0;flight_age = 0
 	duration = seconds(int(r.power_levels.get("space_time", 0)));left = duration
 	altitude = 0;y = 420;vy = 0;hurt_left = 0;hit_cooldown = 0;thrust_flash = 0
-	next_group = 0.4;group_serial = 0;last_zone = -1;warning_second = 6
+	next_group = 1.0;group_serial = 0;last_zone = -1;warning_second = 6
 	start_world = r.world_px;start_tunnel = r.tunnel_number()
 	starts.clear();objects.clear();discoveries.clear()
 	for m in r.members:
@@ -116,7 +117,8 @@ func offer_test_pickup(r) -> void:
 		return
 
 func impulse() -> void:
-	if active and phase == "flight": vy = minf(vy, -175.0);thrust_flash = 0.28
+	# A tap starts a drag; it must not launch a second, unrelated vertical action.
+	if active and phase == "flight" and not manual_control: vy = minf(vy, -175.0);thrust_flash = 0.28
 
 func _world_step(r, dt: float) -> void:
 	var multiplier = lerpf(1.42,1.0,smoothstep(0,RETURN_SECONDS,phase_age)) if phase == "return" else 1.42
@@ -147,7 +149,11 @@ func drag_by(delta_y: float) -> void:
 func boost(r) -> void:
 	if phase!="flight": return
 	charge = 0;phase = "boost";phase_age = 0;wave_number += 1
-	boost_from = altitude;boost_to = [1100.0,2150.0,3400.0,4000.0][zone()]
+	boost_from = altitude;boost_to = [1100.0,2150.0,3400.0,maxf(4000.0,altitude+500.0)][zone()]
+	for e in objects:
+		if battle.hostile(e): e.taken = true
+	next_group = 1.3
+	visual.notify("A HORDA PEGA IMPULSO!",3,1.3)
 	r.events.append({"type":"space_boost","x":ANCHOR,"y":y-50})
 
 func prepare_landing(r) -> void:
@@ -159,7 +165,7 @@ func prepare_landing(r) -> void:
 
 func advance(r, dt: float, held: bool) -> void:
 	if not active: return
-	age += dt;phase_age += dt;_world_step(r,dt)
+	age += dt;phase_age += dt;visual.advance(dt);_world_step(r,dt)
 	hurt_left = maxf(0,hurt_left-dt);hit_cooldown = maxf(0,hit_cooldown-dt);thrust_flash = maxf(0,thrust_flash-dt)
 	dash_left = maxf(0,dash_left-dt);dash_cooldown = maxf(0,dash_cooldown-dt)
 	if phase=="ascent":
@@ -175,41 +181,59 @@ func advance(r, dt: float, held: bool) -> void:
 	if phase=="boost":
 		altitude = lerpf(boost_from,boost_to,smoothstep(.25,1.25,phase_age))
 		if phase_age>=1.25: phase = "flight";phase_age = 0
-	else: charge = minf(100,charge+8.0*dt)
+	else: charge = minf(100,charge+4.0*dt)
 	max_altitude = maxf(max_altitude,altitude)
 	r.mission_stats.space_altitude = maxi(int(r.mission_stats.get("space_altitude",0)),int(altitude))
-	var target_vy = clampf((aim_y-y)*5.5,-215,215) if manual_control else (-150.0 if held else 110.0)
+	var limits = steering_bounds(r)
+	aim_y = clampf(aim_y,limits.x,limits.y)
+	var target_vy = clampf((aim_y-y)*5.5,-225,225) if manual_control else (-150.0 if held else 110.0)
 	vy = move_toward(vy,target_vy,dt*850)
-	y = clampf(y+vy*dt,285,550)
-	if zone()==3: y += clampf((425-y)*.15,-25,25)*dt
+	y = clampf(y+vy*dt,limits.x,limits.y)
 	if zone()!=last_zone:
 		last_zone = zone();r.events.append({"type":"space_zone","zone":last_zone,"title":ZONES[last_zone]});_spawn_discovery(r,last_zone)
 	_update_members(r,dt)
 	next_group -= dt
 	if next_group<=0 and phase=="flight":
 		battle.spawn(self,r)
-		next_group = maxf(1.35,2.8-zone()*.15-maxi(0,r.active_count()-12)*.025)
+		next_group = maxf(2.7,4.1-zone()*.18-maxi(0,r.active_count()-16)*.018)
 	battle.advance(self,r,dt)
 	if r.dead: active = false;return
 	if charge>=100 and phase=="flight": boost(r)
 	var remaining = ceili(left)
 	if remaining<=5 and remaining<warning_second and remaining>0: warning_second = remaining;r.events.append({"type":"space_warning","seconds":remaining})
 	if left<=0:
-		phase = "return";phase_age = 0;return_prepared = false
+		phase = "return";phase_age = 0;return_prepared = false;battle.pilot_left = 0
 		for m in r.members: starts[int(m.id)] = Vector2(m.x,m.y)
 		r.events.append({"type":"space_return","tunnels":maxi(0,r.completed_tunnels-start_tunnel+1)})
+
+func member_height(r) -> float:
+	return clampf(104-maxi(0,r.active_count()-8)*.55,62,104)
+
+func formation(r) -> Dictionary:
+	var count = maxi(1,r.active_count())
+	var columns = mini(12,maxi(1,ceili(sqrt(count*1.8))))
+	var rows = ceili(float(count)/columns)
+	var height = member_height(r)
+	var gap_x = minf(height*.65,maxf(200,ANCHOR-r.view_left-45)/maxi(1,columns-1))
+	return {"columns":columns,"rows":rows,"gap_x":gap_x,"gap_y":minf(height*.57,230.0/maxi(1,rows-1))}
+
+func steering_bounds(r) -> Vector2:
+	var f = formation(r)
+	var half = (int(f.rows)-1)*float(f.gap_y)*.5
+	return Vector2(195+member_height(r)+half,570-half)
 
 func _update_members(r, dt: float) -> void:
 	y_history.append(Vector2(age,y))
 	while y_history.size()>150: y_history.pop_front()
+	var f = formation(r)
 	for i in range(r.members.size()):
-		var m = r.members[i];var row = r.member_lane(i)
-		var x = r.slot_x(i)
-		var lag = minf(.75,maxi(0,i-12)*.018)
+		var m = r.members[i];var row = int(i/int(f.columns))
+		var x = ANCHOR-(i%int(f.columns))*float(f.gap_x)+(row%2)*12
+		var lag = minf(.58,maxi(0,i-15)*.016)
 		var follow_y = y
 		for sample in y_history:
 			if sample.x>=age-lag: follow_y = sample.y;break
-		var target_y = clampf(follow_y+row*15+sin(age*2.2-i*.65)*4,245,575)
+		var target_y = clampf(follow_y+(row-(int(f.rows)-1)*.5)*float(f.gap_y)+sin(age*1.7-i*.65)*3,195+member_height(r),575)
 		if phase=="boost":
 			if phase_age<.3: x = lerpf(x,ANCHOR,(1-smoothstep(.0,.3,phase_age))*.18)
 			else: target_y -= sin(clampf((phase_age-.3)/.95,0,1)*PI)*42
@@ -222,7 +246,7 @@ func _update_members(r, dt: float) -> void:
 			m.x = lerpf(from.x,r.slot_x(i),t);m.y = lerpf(from.y,r.ground_y(r.slot_x(i)),t)
 		else:
 			m.x = move_toward(m.x,x,dt*(1100 if dash_left>0 else 235));m.y = lerpf(float(m.y),target_y,1-exp(-dt*8))
-		m.vy = vy;m.air_time += dt;m.run_phase += dt*.55;m.air_pose = 1
+		m.vy = vy;m.air_time += dt;m.run_phase += dt*.23;m.air_pose = 1
 		m.hurt_left = maxf(0,m.hurt_left-dt);m.attack_left = maxf(0,m.attack_left-dt)
 		m.push_left = 0;m.land_left = 0;m.arrival = 0;m.falling = false
 
@@ -236,15 +260,8 @@ func spawn_group(r) -> void:
 func _spawn_discovery(r, layer: int) -> void:
 	if discoveries.has(layer): return
 	discoveries[layer] = true
-	var right = r.view_right + 90
-	if layer == 1: add_object("pod", right, 400, {"speed":0.48,"radius":44.0})
-	if layer == 2:
-		add_object("egg", right + 170, 390, {"speed":0.55,"radius":39.0})
-		r.events.append({"type":"space_discovery","title":"UM PASSAGEIRO A MAIS..."})
-	if layer == 3:
-		battle.spawn_ship(self,r,"ghost_frigate",right+350,270)
-		add_object("monolith", right + 190, 430, {"speed":0.65,"radius":39.0})
-		r.events.append({"type":"space_discovery","title":"HORIZONTE PERDIDO • SINAL DESCONHECIDO"})
+	# The encounter director introduces the new family after the launch settles.
+	if layer==3: add_object("monolith",r.view_right+1050,510,{"speed":.8,"radius":32.0})
 
 func _update_objects(r,dt: float) -> void:
 	battle.advance(self,r,dt)
@@ -278,7 +295,7 @@ func finish(r) -> void:
 	r.events.append({"type":"space_land","from_tunnel":start_tunnel,"to_tunnel":r.tunnel_number(),"metres":int((r.world_px - start_world) / 30)})
 
 func ensure_art() -> void:
-	if not textures.is_empty(): return
+	if not tiles.is_empty(): return
 	for key in ["npcs", "props", "orbit", "nebula"]:
 		var path = "res://assets/art/space_v130/" + key + (".webp" if key in ["orbit","nebula"] else ".png")
 		var image = Image.new()
@@ -313,7 +330,8 @@ func paint_background(g) -> void:
 	ensure_art()
 	var c = g.paint_target;var r = g.runner
 	var rect = Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right - g.scenery.view_left,g.scenery.view_bottom - g.scenery.view_top)
-	var alpha = blend();var deep = smoothstep(650,1800,altitude)
+	if visual.ground_visible(self): return
+	var alpha = 1.0;var deep = smoothstep(650,1800,altitude)
 	for key in ["orbit","nebula"]:
 		if not textures.has(key): continue
 		var texture = textures[key];var scale = maxf((rect.size.x + 100) / texture.get_width(),(rect.size.y + 65) / texture.get_height())
@@ -322,7 +340,7 @@ func paint_background(g) -> void:
 		var destination = Rect2(rect.get_center() - size * 0.5 + drift,size)
 		c.draw_texture_rect(texture,destination,false,Color(1,1,1,alpha * (1 if key == "orbit" else deep)))
 	if alpha <= 0: return
-	for i in range(76):
+	for i in range(32):
 		var depth = 0.15 + float(i % 4) * 0.24
 		var x = rect.position.x + fposmod(i * 157.37 - r.world_px * depth * 0.12,rect.size.x)
 		var sy = rect.position.y + fposmod(i * 83.71 + altitude * depth * 0.055,rect.size.y)
@@ -333,35 +351,19 @@ func paint_background(g) -> void:
 	if altitude > 2600: _paint_black_hole(g,rect,alpha * smoothstep(2600,3300,altitude))
 
 func _paint_black_hole(g, rect: Rect2, alpha: float) -> void:
-	var c = g.paint_target;var point = rect.position + rect.size * Vector2(0.77,0.36)
-	var radius = minf(95,rect.size.y * 0.16)
-	for i in range(12,-1,-1):
-		c.draw_circle(point,radius + i * 5.0,Color(0.5,0.15,0.95,alpha * 0.008 * (13 - i)))
-	for layer in range(4):
-		var points = PackedVector2Array()
-		for j in range(81):
-			var a = j * TAU / 80.0 + age * (0.3 + layer * 0.12)
-			var radius_here = radius + 19 + sin(a * 3 + age * 1.4) * 4 + layer * 7
-			points.append(point + Vector2(cos(a) * radius_here * 1.7,sin(a) * radius_here * 0.38))
-		c.draw_polyline(points,Color(0.45 + layer * 0.12,0.25 + layer * 0.14,1,alpha * 0.6),3.5,true)
-	c.draw_circle(point,radius,Color(0.004,0.002,0.014,alpha))
-	c.draw_arc(point,radius + 1,0,TAU,80,Color(0.82,0.64,1,alpha * 0.9),2.0,true)
-	for i in range(4):
-		var a = age * 0.7 + i * TAU / 4
-		c.draw_arc(point,radius + 6 + sin(age * 2 + i) * 3,a,a + 0.6,20,Color(0.7,1,0.8,alpha * 0.65),3,true)
+	visual.vortex(g,self,rect.position+rect.size*Vector2(.80,.32),310,alpha*.72)
 
 func paint(g) -> void:
 	var r = g.runner;var c = g.paint_target
 	ensure_art()
-	if phase in ["ascent","return"]:
-		var centre = Vector2(ANCHOR - 40, 195 + sin(age * 3) * 4)
-		var pulse = 0.16 + sin(age * 8) * 0.035
-		var points = PackedVector2Array([centre + Vector2(-60,25),centre + Vector2(65,25),Vector2(centre.x + 240,FLOOR),Vector2(centre.x - 240,FLOOR)])
-		c.draw_colored_polygon(points,Color(0.4,1,0.6,pulse))
-		for line in range(7):
-			var sy = 225 + fposmod(age * -185 + line * 58,350)
-			c.draw_arc(Vector2(centre.x,sy),50 + (sy - 220) * 0.45,0,PI,28,Color(0.55,1,0.7,0.25),2.4,true)
-		sprite(c,"props",1,centre,260)
+	if phase=="ascent":
+		var t = visual.transition_progress(self)
+		if t<.42:
+			var centre = Vector2(ANCHOR+10,185-t*110)
+			sprite(c,"props",1,centre,170)
+			for i in range(6):
+				var at = Vector2(ANCHOR+(i%2-.5)*46,260+fposmod(age*-95+i*43,210))
+				c.draw_circle(at,2.5,Color(.55,1,.76,(1-t/.42)*.5))
 	var object_alpha = blend() if phase == "return" else 1.0
 	var object_tint = Color(1,1,1,object_alpha)
 	for e in objects:
@@ -373,14 +375,14 @@ func paint(g) -> void:
 			"astronaut":
 				var frame = (4 if e.state == "capture" or e.x < ANCHOR + 260 else 0) + posmod(int(t * 8),4)
 				var fade = 1.0 - smoothstep(0.4,0.72,t) if e.state == "capture" else 1.0
-				sprite(c,"npcs",frame,point,116,sin(t * 2) * 0.09,Color(1,1,1,fade * object_alpha))
+				sprite(c,"npcs",frame,point,98,sin(t * 2) * 0.09,Color(1,1,1,fade * object_alpha))
 			"parasite":
-				sprite(c,"npcs",(12 if e.state == "attack" else 8) + posmod(int(t * 9),4),point,117,sin(t * 3) * 0.08,object_tint,true)
+				sprite(c,"npcs",(12 if e.state == "attack" else 8) + posmod(int(t * 9),4),point,96,sin(t * 3) * 0.08,object_tint,true)
 				if e.x > r.view_right - 150: _warning(g,point,Color("ffa67d"))
 			"meteor":
-				var points = PackedVector2Array([point + Vector2(18,-20),point + Vector2(115,-48),point + Vector2(66,-3),point + Vector2(150,10),point + Vector2(12,24)])
+				var points = PackedVector2Array([point + Vector2(18,-20),point + Vector2(68,-32),point + Vector2(46,-3),point + Vector2(88,8),point + Vector2(12,24)])
 				c.draw_colored_polygon(points,Color(1,0.34,0.08,(0.2 + sin(t * 10) * 0.05) * object_alpha))
-				sprite(c,"props",4 + int(e.variant),point,111,e.angle,object_tint)
+				sprite(c,"props",4 + int(e.variant),point,86,e.angle,object_tint)
 			"satellite": sprite(c,"props",8 + posmod(int(t * 2),2),point,146,e.angle * 0.4,object_tint)
 			"coffin": sprite(c,"props",7,point,88,e.angle,object_tint)
 			"pod": sprite(c,"props",10 + posmod(int(t * 3),2),point,117,sin(t * 2) * 0.1,object_tint)
@@ -389,54 +391,29 @@ func paint(g) -> void:
 				sprite(c,"props",12 + posmod(int(t * 1.6),2),point,330,sin(t * 0.4) * 0.035,Color(0.7,0.8,1,0.76 * object_alpha))
 			"monolith":
 				c.draw_set_transform(point,sin(t * 0.5) * 0.14)
-				c.draw_rect(Rect2(-15,-48,30,96),Color(Color("080810"),object_alpha))
-				c.draw_line(Vector2(-15,-48),Vector2(-15,48),Color(Color("9c84d6"),object_alpha),2)
-				c.draw_circle(Vector2(0,-26),2.5,Color(Color("ff796e"),object_alpha));c.draw_set_transform(Vector2.ZERO)
+				c.draw_colored_polygon(PackedVector2Array([Vector2(-15,-42),Vector2(9,-49),Vector2(17,-39),Vector2(17,45),Vector2(-9,50),Vector2(-15,40)]),Color(Color("241c35"),object_alpha))
+				c.draw_colored_polygon(PackedVector2Array([Vector2(9,-49),Vector2(17,-39),Vector2(17,45),Vector2(9,39)]),Color(Color("443253"),object_alpha))
+				for j in range(3):
+					c.draw_line(Vector2(-7,-23+j*20),Vector2(5,-29+j*20),Color(.65,.5,.88,.6*object_alpha),2,true)
+				c.draw_circle(Vector2(-1,-29),2.5,Color(.6,1,.8,object_alpha));c.draw_set_transform(Vector2.ZERO)
 	battle.paint_party(g,self)
 	var visible = HordeCrowdVisibility.visible(r);g.crowd_drawn = visible.size()
-	var order = visible.keys();order.reverse()
+	var order = visible.keys()
+	order.sort_custom(func(a,b):return float(r.members[a].y)<float(r.members[b].y))
 	for i in order:
+		if battle.pilot_left>0: continue
 		var m = r.members[i];var foot = Vector2(m.x,m.y)
-		if battle.pilot_left>0:
-			if i>2: continue
-			foot = Vector2(ANCHOR-35+i*33,y-30)
-		var state = "capture" if m.attack_left > 0 else ("fall" if phase == "return" else "fly")
-		var anim_phase = (0.72 - m.attack_left) / 0.72 if m.attack_left > 0 else m.run_phase
-		var tint = Color(1,0.65,0.65,1) if hurt_left > 0 and int(age * 15) % 2 == 0 else Color.WHITE
+		var tint = Color(1,.72,.65,1) if m.hurt_left>0 and int(age*12)%2==0 else Color.WHITE
 		var pose = "board" if m.attack_left>0 else "hurt" if m.hurt_left>0 else "return" if phase=="return" else "charge" if phase=="boost" and phase_age<.3 else "launch" if phase=="boost" or dash_left>0 else "float"
-		g.actor.paint_space(c,int(m.kind),foot,48 if battle.pilot_left>0 else 112,r.elapsed+i*.073,pose,vy,r.cosmetics_for(m,int(m.kind)),tint)
-		if phase == "flight" and thrust_flash > 0:
-			c.draw_arc(foot + Vector2(0,4),19,0,PI,12,Color(0.5,1,0.65,thrust_flash),2,true)
-	if phase == "return":
-		var t = smoothstep(1.4,RETURN_SECONDS,phase_age)
-		c.draw_arc(Vector2(ANCHOR,FLOOR),35 + t * 100,PI,TAU,48,Color(0.5,1,0.65,t * 0.8),4,true)
+		var height = member_height(r)
+		if phase=="ascent": height = lerpf(112,height,visual.transition_progress(self))
+		elif phase=="return": height = lerpf(112,height,visual.transition_progress(self))
+		g.actor.paint_space(c,int(m.kind),foot,height,r.elapsed+i*.17,pose,vy,r.cosmetics_for(m,int(m.kind)),tint)
+	visual.transition(g,self)
 
 func _warning(g, point: Vector2, color: Color) -> void:
 	var c = g.paint_target
 	c.draw_arc(point,54,-0.7,0.7,16,Color(color,0.65 + sin(age * 8) * 0.15),2,true)
 
 func paint_hud(g) -> void:
-	var r = g.runner;var view = g.full_rect()
-	var rect = Rect2(view.end.x-425,view.position.y+20,308,78)
-	g.home_menu.slab(g,rect,Color("263047"),g.MINT,12,3)
-	sprite(g,"props",2,rect.position+Vector2(36,39),61)
-	g.home_menu.label(g,"ABDUÇÃO MALDITA",rect.position+Vector2(71,26),19,g.MINT,false,224)
-	var note = "SUBINDO..." if phase=="ascent" else "REENTRADA" if phase=="return" else "%d s • %d km" % [ceili(left),int(altitude)]
-	g.home_menu.label(g,note,rect.position+Vector2(71,53),20,g.CREAM,false,225)
-	var timer = Rect2(rect.position+Vector2(72,63),Vector2(215,6));g.draw_rect(timer,Color("172036"));timer.size.x *= clampf(left/duration,0,1);g.draw_rect(timer,g.MINT if left>5 else g.CORAL)
-	var top = view.position.y+139
-	g.home_menu.slab(g,Rect2(view.get_center().x-255,top,510,57),Color(.12,.08,.22,.88),Color("69568d"),12,2)
-	g.home_menu.label(g,ZONES[zone()] if phase not in ["ascent","return"] else "A CORRIDA CONTINUA LÁ EMBAIXO",Vector2(view.get_center().x,top+24),18,g.GOLD,true,490)
-	var bar = Rect2(view.get_center().x-230,top+37,460,10);g.draw_rect(bar,Color("151021"));bar.size.x *= charge/100;g.draw_rect(bar,g.MINT)
-	g.home_menu.label(g,"IMPULSO %d%% • ONDA %d" % [int(charge),wave_number],Vector2(view.get_center().x,top+75),16,g.MINT,true,460)
-	if phase in ["flight","boost"]:
-		var button_y = view.end.y-(174 if g.lab_active else 90)
-		g.button(Rect2(view.end.x-245,button_y,220,54),"INVESTIDA" if dash_cooldown<=0 else "RECARGA %.1f" % dash_cooldown,"space_dash",Color("4c786a") if dash_cooldown<=0 else Color("513c67"),-2,20)
-		g.home_menu.label(g,"ARRASTE PARA GUIAR • INVESTIDA QUEBRA NAVES • IMPACTOS CUSTAM MEMBROS",Vector2(view.get_center().x,view.end.y-24),16,g.CREAM,true,view.size.x-50)
-		if battle.power_left>0: g.home_menu.label(g,("SIMBIONTE" if battle.power_kind==7 else "ESCUDO %d" % battle.shield_charges)+" • %d s" % ceili(battle.power_left),Vector2(view.position.x+30,button_y+35),20,g.MINT,false,430)
-	if phase=="boost": g.home_menu.label(g,"A HORDA PEGA IMPULSO!",Vector2(view.get_center().x,top+109),23,g.GOLD,true,650)
-	if g.lab_active and g.lab_kind=="space":
-		var labels = ["RECOMEÇAR","TEMPO: %d s" % int(duration),"SUBIR CAMADA","TESTAR PODER","POUSAR"]
-		var actions = ["lab_space_restart","lab_space_time","lab_space_zone","lab_space_power","lab_space_land"]
-		var width = (view.size.x-90)/5
-		for i in range(5): g.button(Rect2(view.position.x+25+i*(width+10),view.end.y-102,width,43),labels[i],actions[i],Color("513c67"),-2,17)
+	visual.hud(g,self)

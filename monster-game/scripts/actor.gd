@@ -156,16 +156,20 @@ func passenger(canvas: Node2D, kind: int, centre: Vector2, height: float, time: 
 	part(canvas, kind, 0, hip + Vector2(3, -15), Vector2(44, 42), sin(time * 12) * 0.045, tint, centre, scale, Vector2(0.5, 1))
 	canvas.draw_set_transform(Vector2.ZERO);facing = 1;basis_angle = 0
 
+static func space_pose(pose: String,time: float,vertical_speed: float) -> Dictionary:
+	# Stable airborne clip. No periodic fall/takeoff switches and no running cycle.
+	var state = "fly";var phase = .45;var air_age = .24
+	var angle = .10+clampf(vertical_speed*.00028,-.08,.08)+sin(time*1.7)*.025
+	var stretch = Vector2.ONE
+	if pose=="charge": state = "rise";air_age = .08;stretch = Vector2(1.03,.93);angle = -.12
+	elif pose=="launch": angle = .38;stretch = Vector2(1.04,.98)
+	elif pose=="board": state = "capture";phase = fposmod(time*.7,1);angle = .09
+	elif pose=="hurt": state = "fall";angle = -.13+sin(time*20)*.10
+	elif pose=="return": state = "fall";angle = -.06
+	elif pose=="pilot": state = "idle";angle = 0
+	return {"state":state,"phase":phase,"air_age":air_age,"angle":angle,"stretch":stretch}
+
 func paint_space(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,pose: String,vertical_speed: float,wear: Array,tint: Color = Color.WHITE) -> void:
-	var state = "rise" if sin(time*2.8)>0 else "fall"
-	var phase = fposmod(time*.55,1.0)
-	var air_age = .12+fposmod(time*.35,.34)
-	var angle = clampf(vertical_speed*.0004,-.12,.12)+sin(time*2.6)*.035
-	var stretch = Vector2(1+sin(time*3.1)*.012,1-sin(time*3.1)*.012)
-	if pose=="charge": state = "push";phase = fposmod(time*1.2,1);stretch = Vector2(1.08,.88);angle = -.12
-	elif pose=="launch": state = "rise";air_age = .25;stretch = Vector2(1.10,.94);angle = .30
-	elif pose=="board": state = "capture";phase = fposmod(time*1.4,1);angle = .12
-	elif pose=="hurt": state = "fall";angle = sin(time*25)*.23;stretch = Vector2(.97,1.02)
-	elif pose=="return": state = "fall";angle = -.16;stretch = Vector2(.95,1.04)
-	if not cosmetics.paint(canvas,kind,foot,height,phase,state,time,0,tint,false,air_age,vertical_speed,wear,true,angle,stretch):
-		paint(canvas,kind,foot,height,phase,state,time,0,tint,false,1,true,air_age,vertical_speed,wear)
+	var p = space_pose(pose,time,vertical_speed)
+	if not cosmetics.paint(canvas,kind,foot,height,p.phase,p.state,time*.38,0,tint,false,p.air_age,vertical_speed,wear,true,p.angle,p.stretch):
+		paint(canvas,kind,foot,height,p.phase,p.state,time*.38,0,tint,false,1,true,p.air_age,vertical_speed,wear)

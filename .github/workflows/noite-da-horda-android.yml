@@ -35,7 +35,7 @@ jobs:
       - name: Validar abertura, saldo de testes e poder espacial
         run: |
           set -euo pipefail
-          for SUITE in verify_packaged_boot v129_currency v132_adventure; do
+          for SUITE in verify_packaged_boot v129_currency v133_adventure v133_readability; do
             /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --path monster-game --script "res://tests/${SUITE}.gd" -- --space-test 2>&1 | tee "/tmp/${SUITE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/${SUITE}.log"; then exit 1; fi
           done
@@ -45,6 +45,6 @@ jobs:
         run: |
           set -euo pipefail
           for FIXTURE in new existing; do
-            XDG_DATA_HOME="$RUNNER_TEMP/horda-startup-${FIXTURE}" HORDA_STARTUP_FIXTURE="$FIXTURE" HORDA_VALIDATION_DIR="$RUNNER_TEMP/startup-${FIXTURE}" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v131_startup.gd 2>&1 | tee "/tmp/startup-${FIXTURE}.log"
+            XDG_DATA_HOME="$RUNNER_TEMP/horda-startup-${FIXTURE}" HORDA_STARTUP_FIXTURE="$FIXTURE" HORDA_VALIDATION_DIR="$RUNNER_TEMP/startup-${FIXTURE}" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v133_startup.gd 2>&1 | tee "/tmp/startup-${FIXTURE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/startup-${FIXTURE}.log"; then exit 1; fi
           done
