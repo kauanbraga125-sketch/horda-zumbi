@@ -148,7 +148,7 @@ func destroy_ship(s,r,e: Dictionary) -> void:
 	r.events.append({"type":"space_smash","x":e.x,"y":e.y,"title":SHIPS[e.kind].label})
 	r.mission_stats.space_ships = int(r.mission_stats.get("space_ships",0))+1
 	s.add_object("wreck",e.x,e.y,{"ship":e.kind,"speed":.65,"radius":0.0})
-	for i in range(int(SHIPS[e.kind].crew)):
+	for i in range(maxi(0,int(SHIPS[e.kind].crew)-int(e.get("released_crew",0)))):
 		s.add_object("astronaut",e.x+65+i*56,clampf(e.y+(i%2)*65,270,525),{"radius":35.0,"speed":.65,"seed":i*1.4,"grace":.45})
 	# Piloting is an optional pickup in recovery encounters; destroying a target never changes controls.
 
@@ -344,6 +344,7 @@ func paint_object(g,s,e: Dictionary,alpha: float) -> bool:
 		s.atmosphere.exhaust(g,s,e,float(spec.size))
 		# Same hull registration at every HP; damage never replaces the whole geometry.
 		art.sprite(c,"fleet",int(spec.frame),p,float(spec.size),sin(float(e.age)*1.4+float(e.seed))*.045,Color(1,.78,.7,alpha) if flash else tint)
+		s.life.ship_details(g,s,e,float(spec.size),alpha)
 		if bool(e.get("counter",false)):
 			var open = bool(e.get("core_open",false))
 			if not open:

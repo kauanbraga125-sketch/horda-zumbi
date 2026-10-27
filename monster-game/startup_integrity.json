@@ -1,5 +1,5 @@
 {
-  "version": "0.10.35",
+  "version": "0.10.36",
   "class_count": 55,
   "files": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "path": "res://scripts/actor.gd",
-      "bytes": 10964,
-      "sha256": "0650f1148f29bd82692878a3b6874c6caffa6b6b132a0f1ba54495c92b195516"
+      "bytes": 11592,
+      "sha256": "0d6238a102b88a2d81bd2b987862cf96c853162dec0f160553e2f63f406c22b1"
     },
     {
       "path": "res://scripts/adventure_art.gd",
@@ -38,9 +38,29 @@
       "sha256": "e3c032961f3ff72591ed1269f9c7c5eee5d6d789e48ca4c212900eab7603d4c4"
     },
     {
+      "path": "res://scripts/bird_art.gd",
+      "bytes": 1732,
+      "sha256": "15fd744d03d334d1acb44538d150faedde392ab567a0437c5879278f77de019a"
+    },
+    {
+      "path": "res://scripts/bird_catalog.gd",
+      "bytes": 5222,
+      "sha256": "144bc63394346aa6c3ab0afe84352d06eaeee69b1290344263e75966ec80c6a4"
+    },
+    {
+      "path": "res://scripts/bird_run.gd",
+      "bytes": 4397,
+      "sha256": "d8d6d384387c35094325c2601d01e87f4cca4f3d88bc697d826e2d1587acd4b9"
+    },
+    {
+      "path": "res://scripts/birds_ui.gd",
+      "bytes": 10342,
+      "sha256": "e1eed383d40c636ebbffd173897b13f518cc1b1fc07d27c3215c481c0a11e826"
+    },
+    {
       "path": "res://scripts/bonus_director.gd",
-      "bytes": 3256,
-      "sha256": "177a67245db7572089a1d4ea3dfd849cf972578bc538549a3d42d04a4a7e710b"
+      "bytes": 3343,
+      "sha256": "a0f9942c7c85e99f8392b504a133d9a5d5ed1882b0efb7042274bced68db02ce"
     },
     {
       "path": "res://scripts/book_cover.gdshader",
@@ -69,8 +89,8 @@
     },
     {
       "path": "res://scripts/catalog.gd",
-      "bytes": 10934,
-      "sha256": "2fe6f08eac7b6e6afb6d063104c5ccc761833a6a46ab806d9708cea52e967f66"
+      "bytes": 11336,
+      "sha256": "0ff39108f717a627979e0993b3ffe70c9d4c62a4b7bc9cd65ab35aef2fa1904b"
     },
     {
       "path": "res://scripts/civil_sprite.gd",
@@ -184,13 +204,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 114426,
-      "sha256": "f8af87e3fefd15e5b2f95db531ca97c3bcd643a3896e9dfedc1d125277806eaa"
+      "bytes": 117540,
+      "sha256": "5b79c652d02454572c58fcfc88f1ece180bdc6c1d8849320a6a16c1f072a5aa7"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 16482,
-      "sha256": "c3f4bae51e47fc9989a96de4e2b775c32843526a7327335aac70b450a4d884a0"
+      "bytes": 16562,
+      "sha256": "84097073f15f8f38f76adce7a3bd2087e44ecee711a06ba315446f1479e2c98a"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -224,8 +244,8 @@
     },
     {
       "path": "res://scripts/market.gd",
-      "bytes": 18691,
-      "sha256": "f87e9ea178aec9a8dc206b5369d8fef8c231551299a709648d200cb22afd919f"
+      "bytes": 18828,
+      "sha256": "78f3033d7d881dc464a4141303de092c66072362cf959210cd12142ffddcb51f"
     },
     {
       "path": "res://scripts/masked_approved_sprite.gd",
@@ -314,8 +334,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 69330,
-      "sha256": "5571f8d52e6092b42c0080ef1ca14e09a24c44e4cbd95b91739b9e4203b8d9a5"
+      "bytes": 69981,
+      "sha256": "f9f69e9961f20c810e7e1cd7f0f9f4f0d6e6488e647538f8691a723437bb228d"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -326,6 +346,16 @@
       "path": "res://scripts/sequence_validator.gd",
       "bytes": 3358,
       "sha256": "a8084955a1f391441df5f0e66881259a65e4f52daa6b885f8a4cfca2edb89e19"
+    },
+    {
+      "path": "res://scripts/sewer.gd",
+      "bytes": 12512,
+      "sha256": "fcd04939d02de3d7265cff43c9da964023dda84f470ae0496ad33f9be93fc15c"
+    },
+    {
+      "path": "res://scripts/sewer_visual.gd",
+      "bytes": 10338,
+      "sha256": "204afcb122eaac1b82e74068feb26a211791cca40eab0e1d6aea1f3f21937927"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",
@@ -344,13 +374,13 @@
     },
     {
       "path": "res://scripts/sound.gd",
-      "bytes": 15155,
-      "sha256": "6c9ef94354625d07de4d446dd4e49b96a5d928d3e6146219314018270bbe7ba8"
+      "bytes": 15824,
+      "sha256": "fda3b44cdf1622f11cfc8a529dc44dab773493112b2224e1c46e2eebae8d3ca7"
     },
     {
       "path": "res://scripts/space.gd",
-      "bytes": 24238,
-      "sha256": "3ba044ea684c21e17a378789c0d500ea6b9e5ef17fe330c323d5615d54140623"
+      "bytes": 24269,
+      "sha256": "4dd5c73d21dfbc53c1fd8155b4992da3a02c5c839b43aab31c69794f5b095550"
     },
     {
       "path": "res://scripts/space_atmosphere.gd",
@@ -359,8 +389,8 @@
     },
     {
       "path": "res://scripts/space_combat.gd",
-      "bytes": 22833,
-      "sha256": "538b114b94fa6b21755d7a6975e0a848617ce60f93020b9820f3be43c90ed7d2"
+      "bytes": 22923,
+      "sha256": "68e3dc48e55b6fb94d15845ed4c9567f88fda51e3a777a71f10b41a3af39fbcc"
     },
     {
       "path": "res://scripts/space_contacts.gd",
@@ -368,14 +398,19 @@
       "sha256": "6d0bf3dac0aa2ed602c0e9a6d8fd839b993005a2187ece4d6a66372f9aa1f3b8"
     },
     {
+      "path": "res://scripts/space_life.gd",
+      "bytes": 1896,
+      "sha256": "da9daab8aedeb6148020baffff19165c264040c5e6d43ae6ffbfe9f80d0ef258"
+    },
+    {
       "path": "res://scripts/space_routes.gd",
-      "bytes": 4988,
-      "sha256": "f44ac6c1e419b3a6e9b340645c7a4a3d54cb2f4a0673bd04a05b4544d0fbdaf7"
+      "bytes": 5071,
+      "sha256": "ebf948d6b3b6ee2a8c5b61c4875390cdb611c9cbce9dbdd9046e9f2aa09af435"
     },
     {
       "path": "res://scripts/space_visual.gd",
-      "bytes": 13034,
-      "sha256": "4376fe161057dedd6801da80baf31be0862db22291b54639a90d4e801a3bd2db"
+      "bytes": 15393,
+      "sha256": "9ec6e8c2d4e9bf51e5d385b9a96a3a7c40de111ad823e901b55a29474f00f2a9"
     },
     {
       "path": "res://scripts/terrain.gd",
@@ -1036,6 +1071,156 @@
       "path": "res://assets/art/space_v135/mine.png",
       "bytes": 302574,
       "sha256": "273b76888a39da8ca96c19db862761d782985f6dd0f9c344711af5c185019e66"
+    },
+    {
+      "path": "res://assets/art/v136/agourinho.webp",
+      "bytes": 685512,
+      "sha256": "4bf68092734d1af8f4cf64b345a2f76c6d0ab3a4be4911beb3bafc466a4ada6b"
+    },
+    {
+      "path": "res://assets/art/v136/barao.webp",
+      "bytes": 709616,
+      "sha256": "7bcfc2233fdfc031ea8265278ea8f2162ae6acdaa6ee08de07bd168f0f2da86d"
+    },
+    {
+      "path": "res://assets/art/v136/barrel.webp",
+      "bytes": 173640,
+      "sha256": "e112422e227620cb1dd256ad4b51eddc03c3d3dc31129fe5bc75b0f4b79922af"
+    },
+    {
+      "path": "res://assets/art/v136/buoy.webp",
+      "bytes": 134316,
+      "sha256": "180b41b50fda847f5bd3ed82dc812beb0af24f88ca804333186f8711ec931418"
+    },
+    {
+      "path": "res://assets/art/v136/egg.webp",
+      "bytes": 182820,
+      "sha256": "55b33adfb63b15d40735da0522b9e9a14fcc46033c092c37012b2d0e01c0945d"
+    },
+    {
+      "path": "res://assets/art/v136/egg_crack.webp",
+      "bytes": 202868,
+      "sha256": "684f31ccf1e952121988841ee5f9786acd7b829410a4aee23585ded320536473"
+    },
+    {
+      "path": "res://assets/art/v136/egg_open.webp",
+      "bytes": 207132,
+      "sha256": "a3d837687fc950906e6a4f214a25be5ef674156333d17d77bca5deac3ddc2394"
+    },
+    {
+      "path": "res://assets/art/v136/feather.webp",
+      "bytes": 103654,
+      "sha256": "c26b14a086d104c5c1b55c7930eea684973cb404ee8efa8aebd07023aed69ef2"
+    },
+    {
+      "path": "res://assets/art/v136/ferrugem.webp",
+      "bytes": 671656,
+      "sha256": "9f6d7ab1c2b2bd4d85065ed27755506e9b0986e5bc9e403128cdfddefb72bab6"
+    },
+    {
+      "path": "res://assets/art/v136/fiapo.webp",
+      "bytes": 505950,
+      "sha256": "eb7d492337ccb0c1bb20ae759860efc70a9e491d267605777e7b54454d30c56c"
+    },
+    {
+      "path": "res://assets/art/v136/fusion.webp",
+      "bytes": 272372,
+      "sha256": "da622d044675c5f7d4e1ecf669317b589759e63a2c315f20a8522660f10ac143"
+    },
+    {
+      "path": "res://assets/art/v136/jetski.webp",
+      "bytes": 159452,
+      "sha256": "25e41e9c8b04cda3c9a240c5cfd12fbce1b253265a96fa06fb7553989fe86752"
+    },
+    {
+      "path": "res://assets/art/v136/layout.json",
+      "bytes": 3498,
+      "sha256": "eec76b12e417ac42c8a5e8215ce1512c39008b69ac4eba9dcb1e7f887f7af1dc"
+    },
+    {
+      "path": "res://assets/art/v136/nest.webp",
+      "bytes": 249080,
+      "sha256": "2223d6242b45ccafd6048f321f98a8bbab5eb5a8d7364418069e3405cd647cad"
+    },
+    {
+      "path": "res://assets/art/v136/pipe.webp",
+      "bytes": 208046,
+      "sha256": "9ba57b9577f11748ed3e9ba96090fa58929167f7577758040b0e944b7f773fce"
+    },
+    {
+      "path": "res://assets/art/v136/pipoco.webp",
+      "bytes": 642658,
+      "sha256": "bd1411ec5a872434d870dc2d1d3447a2328894a043b534d5f4997389c3311fea"
+    },
+    {
+      "path": "res://assets/art/v136/ramp.webp",
+      "bytes": 166724,
+      "sha256": "3d1722c8dbe74cf51a6e719a6a1411bd5944fe09ec34659f7eafbef16ab781ed"
+    },
+    {
+      "path": "res://assets/art/v136/rubble.webp",
+      "bytes": 106116,
+      "sha256": "d7e934bf529c19b053f572d453e17e2059da4f98eed70eb8a7a450f787d911d1"
+    },
+    {
+      "path": "res://assets/art/v136/sewer.webp",
+      "bytes": 305636,
+      "sha256": "45f7e873a305fcced56249e46b7dd5c4eb509d43c83eabcca6ca0804e8bcc85a"
+    },
+    {
+      "path": "res://assets/art/v136/sewer_exit.webp",
+      "bytes": 391226,
+      "sha256": "4f829cd4890a552c1417f7c11aa0c96336cc5b87e18355c87bed8ddab2897072"
+    },
+    {
+      "path": "res://assets/audio/v136/bird_agourinho.pcm",
+      "bytes": 35200,
+      "sha256": "421bf9d60e9ebb38e4869e65cec26ce57aeec3c7ebda26e446079390db928dd5"
+    },
+    {
+      "path": "res://assets/audio/v136/bird_barao.pcm",
+      "bytes": 54400,
+      "sha256": "4bb3d616bad926c18748ddeec04afc277db883a55db98957a2aa9ac30ff765fe"
+    },
+    {
+      "path": "res://assets/audio/v136/bird_ferrugem.pcm",
+      "bytes": 35200,
+      "sha256": "02788ec0ab0a27085b3482b2c8635572742e0552686c0bdc82594d25cf8c29d8"
+    },
+    {
+      "path": "res://assets/audio/v136/bird_fiapo.pcm",
+      "bytes": 35200,
+      "sha256": "937689805f2a58016c3f8ac3ea512c6550c2d2fdb4d1cc5f0f7c1bb71d22b4c7"
+    },
+    {
+      "path": "res://assets/audio/v136/bird_pipoco.pcm",
+      "bytes": 35200,
+      "sha256": "5f63467f2c37c94b70d4477a63421c160771e4eeae932ba33ef62b1420e0c5de"
+    },
+    {
+      "path": "res://assets/audio/v136/egg_crack.pcm",
+      "bytes": 19200,
+      "sha256": "61c04031c36ecf3193b55adc81b13b41f13305a77bc97dcac494043552494411"
+    },
+    {
+      "path": "res://assets/audio/v136/egg_hatch.pcm",
+      "bytes": 115200,
+      "sha256": "d3fe22fb1ceafd61c1ef2b2630c208c6cfef0e11143b55eff30fa1c6e67ecdcc"
+    },
+    {
+      "path": "res://assets/audio/v136/manifest.json",
+      "bytes": 2074,
+      "sha256": "06bb0313a03e04671e331617a51884849a4584fc4b2d71ca7d82d295114c9065"
+    },
+    {
+      "path": "res://assets/audio/v136/sewer_splash.pcm",
+      "bytes": 44800,
+      "sha256": "98e10e51f8357765c3071484d2e65097c491b635561d592225295adaa09bf6eb"
+    },
+    {
+      "path": "res://assets/audio/v136/sewer_water.pcm",
+      "bytes": 256000,
+      "sha256": "8c25aece4f33c1836eb902c3821cbad88238f8695884308a633e9b178cf56589"
     }
   ]
 }

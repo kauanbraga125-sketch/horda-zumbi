@@ -85,6 +85,11 @@ func _ready() -> void :
 		var stream = AudioStreamWAV.new();stream.format = AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate = 32000;stream.stereo = false
 		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/adventure_v132/"+name+".pcm");clips[name] = stream
 	set_mix(mix_levels)
+	for name in ["bird_pipoco","bird_fiapo","bird_ferrugem","bird_agourinho","bird_barao","sewer_water","sewer_splash","egg_crack","egg_hatch"]:
+		var stream = AudioStreamWAV.new();stream.format = AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate = 32000;stream.stereo = false
+		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/v136/"+name+".pcm")
+		if name=="sewer_water": stream.loop_mode = AudioStreamWAV.LOOP_FORWARD;stream.loop_end = stream.data.size()/2
+		clips[name] = stream
 
 func loop_player() -> AudioStreamPlayer:
 	var player = AudioStreamPlayer.new();player.bus = "HordeEffects";add_child(player);return player
@@ -176,6 +181,9 @@ func update_course(run: HordeRun, running: bool, burning: bool = false) -> void 
 		for p in [rotor, engine, fire, wings, footsteps, heavy_steps]: p.stop()
 		set_atmosphere("")
 		return
+	if run.sewer.active:
+		for p in [rotor,fire,wings,footsteps,heavy_steps]: p.stop()
+		set_music("midnight_late");set_atmosphere("");set_loop(engine,"sewer_water",true,-18);return
 	if run.space.active:
 		for p in [rotor,engine,fire,wings,footsteps,heavy_steps]: p.stop()
 		set_atmosphere("");set_music("space_music");return

@@ -43,10 +43,10 @@ func start(s,r,kind: String = "") -> void:
 	match current:
 		"rescue":
 			row(s,r,x,safe,-side*32)
-			object(s,"astronaut",x+150,risky,{"radius":35.0})
-			object(s,"meteor",x+90,risky+side*89,{"variant":serial%3,"radius":28.0,"speed":1.0})
+			var prey = object(s,"astronaut",x+150,risky,{"radius":35.0,"speed":.85,"panic":true})
+			object(s,"parasite",x+430,risky+side*35,{"radius":28.0,"speed":1.12,"prey":prey})
 			object(s,"pod" if s.zone()>0 else "astronaut",x+330,risky+side*38,{"radius":35.0})
-			if serial==1: s.visual.notify("ARRASTE LIVREMENTE • RESGATE ALMAS",1,2.4)
+			if serial==1: s.visual.notify("RESGATE O ASTRONAUTA ANTES DO PARASITA",1,2.6)
 		"gates","slalom":
 			for i in range(2 if current=="gates" else 3):
 				var centre = 350.0+side*(75 if i%2==0 else -75)
@@ -58,6 +58,7 @@ func start(s,r,kind: String = "") -> void:
 			for i in range(3 if current=="elite" else 2):
 				var ship = s.battle.spawn_ship(s,r,"ghost_frigate" if current=="elite" and i==2 else "fighter" if i==1 else "cargo" if s.zone()==1 else "tour_bus",x+i*235,355+side*i*43)
 				ship.encounter = serial;ship.speed = 1.0;ship.shot = 99.0;ship.chain_target = true
+				if ship.kind=="cargo": ship.distress = true
 			row(s,r,x+40,safe)
 			object(s,"orbital_power" if 8 in r.power_owned else "core",x-160,safe,{"radius":30.0})
 			s.visual.notify("COMBOIO • ACERTE E ENCADEIE INVESTIDAS",1,2.1)

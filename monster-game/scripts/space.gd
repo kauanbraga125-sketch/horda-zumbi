@@ -5,7 +5,7 @@ extends RefCounted
 const POWER = 4
 const ANCHOR = MonsterCatalog.ANCHOR
 const FLOOR = 574.0
-const ASCENT_SECONDS = 2.6
+const ASCENT_SECONDS = 3.4
 const RETURN_SECONDS = 2.4
 const BOOST_SECONDS = 2.05
 const CELL = 256.0
@@ -72,6 +72,7 @@ var sky_scroll = 0.0
 var climb_speed = 0.0
 var contacts = preload("res://scripts/space_contacts.gd").new()
 var atmosphere = preload("res://scripts/space_atmosphere.gd").new()
+var life = preload("res://scripts/space_life.gd").new()
 
 func reset(seed_value: int) -> void:
 	active = false;phase = "ground";objects.clear();starts.clear();discoveries.clear()
@@ -93,7 +94,7 @@ func blend() -> float:
 	return 1.0
 
 func begin(r, force: bool = false) -> bool:
-	if active or r.dead or r.active_count() <= 0: return false
+	if active or r.sewer.active or r.dead or r.active_count() <= 0: return false
 	if not force and (POWER not in r.power_owned or not r.power_eligible()): return false
 	if force:
 		r.perk_left = 0;r.perk_kind = -1;r.boost_left = 0;r.transform_left = 0
@@ -240,6 +241,7 @@ func advance(r, dt: float, held: bool) -> void:
 	next_group -= dt
 	if next_group<1e5 and next_group<=0: routes.advance(self,r,dt)
 	battle.advance(self,r,dt)
+	life.advance(self,r,dt)
 	if r.dead:
 		phase = "defeated";return
 
@@ -300,7 +302,7 @@ func _update_members(r, dt: float) -> void:
 			target_y += visual.rise_offset(lagged_age/BOOST_SECONDS);target_x += sin(clampf(lagged_age/BOOST_SECONDS,0,1)*PI)*76
 		if phase=="ascent":
 			var from = starts.get(int(m.id),Vector2(m.x,m.y));var t = smoothstep(.1+(i%8)*.035,ASCENT_SECONDS-.1,phase_age)
-			m.x = lerpf(from.x,target_x,t);m.y = lerpf(from.y,target_y,t)-visual.takeoff_shift(self)
+			m.x = maxf(r.view_left+45,lerpf(from.x,target_x,t));m.y = lerpf(from.y,target_y,t)-visual.takeoff_shift(self)
 		elif phase=="return":
 			var from = starts.get(int(m.id),Vector2(m.x,m.y));var t = smoothstep(0,RETURN_SECONDS-.15,phase_age)
 			m.x = lerpf(from.x,r.slot_x(i),t);m.y = lerpf(from.y,r.ground_y(r.slot_x(i)),t)
@@ -414,14 +416,7 @@ func _paint_black_hole(g, rect: Rect2, alpha: float) -> void:
 func paint(g) -> void:
 	var r = g.runner;var c = g.paint_target
 	ensure_art()
-	if phase=="ascent":
-		var t = visual.transition_progress(self)
-		if t<.42:
-			var centre = Vector2(ANCHOR+10,185-t*110)
-			sprite(c,"props",1,centre,170)
-			for i in range(6):
-				var at = Vector2(ANCHOR+(i%2-.5)*46,260+fposmod(age*-95+i*43,210))
-				c.draw_circle(at,2.5,Color(.55,1,.76,(1-t/.42)*.5))
+	visual.abduction(g,self,false)
 	var object_alpha = blend() if phase == "return" else 1.0
 	var object_tint = Color(1,1,1,object_alpha)
 	for e in objects:
@@ -431,11 +426,12 @@ func paint(g) -> void:
 			"coin": g.scenery.sprite(c,g.art.items[1],point,31,object_tint,sin(t * 6) * 0.2)
 			"energy": sprite(c,"props",2 + posmod(int(t * 4),2),point,62,sin(t * 3) * 0.08,object_tint)
 			"astronaut":
-				var frame = (4 if e.state == "capture" or e.x < ANCHOR + 260 else 0) + posmod(int(t * 8),4)
+				var frame = (4 if e.state == "capture" or e.get("panic",false) or e.x < ANCHOR + 260 else 0) + posmod(int(t * 8),4)
 				var fade = 1.0 - smoothstep(0.4,0.72,t) if e.state == "capture" else 1.0
 				sprite(c,"npcs",frame,point,98,sin(t * 2) * 0.09,Color(1,1,1,fade * object_alpha))
 			"parasite":
 				sprite(c,"npcs",(12 if e.state == "attack" else 8) + posmod(int(t * 9),4),point,96,sin(t * 3) * 0.08,object_tint,true)
+				if float(e.get("snatched_until",0))>t: sprite(c,"npcs",4+posmod(int(t*8),4),point+Vector2(-14,36),49,-.4,object_tint)
 				if e.x > r.view_right - 150: _warning(g,point,Color("ffa67d"))
 			"meteor":
 				atmosphere.meteor(g,point,t,object_alpha)
@@ -461,12 +457,12 @@ func paint(g) -> void:
 		if battle.pilot_left>0: continue
 		var m = r.members[i];var foot = Vector2(m.x,m.y)
 		var tint = Color(1,.72,.65,1) if m.hurt_left>0 and int(age*12)%2==0 else Color.WHITE
-		var pose = "return" if phase=="return" else "charge" if phase in ["boost","ascent"] and phase_age<.27 else "launch" if phase in ["boost","ascent"] else "bump" if float(m.get("space_contact",0))>0 else "board" if m.attack_left>0 else "hurt" if m.hurt_left>0 else "dash" if dash_left>0 else "float"
+		var pose = "return" if phase=="return" else "abduct" if phase=="ascent" else "charge" if phase=="boost" and phase_age<.27 else "launch" if phase=="boost" else "bump" if float(m.get("space_contact",0))>0 else "board" if m.attack_left>0 else "hurt" if m.hurt_left>0 else "dash" if dash_left>0 else "float"
 		var height = member_height(r)
 		if phase=="ascent": height = lerpf(112,height,visual.transition_progress(self))
 		elif phase=="return": height = lerpf(112,height,visual.transition_progress(self))
 		g.actor.paint_space(c,int(m.kind),foot,height,r.elapsed+i*.17,pose,float(m.vy),r.cosmetics_for(m,int(m.kind)),tint)
-	visual.paint_impacts(g);visual.transition(g,self)
+	visual.abduction(g,self,true);visual.paint_impacts(g);visual.transition(g,self)
 
 func _warning(g, point: Vector2, color: Color) -> void:
 	var c = g.paint_target

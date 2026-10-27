@@ -152,6 +152,45 @@ func transition_progress(s) -> float:
 	if s.phase=="return": return 1-clampf(s.phase_age/s.RETURN_SECONDS,0,1)
 	return 1.0
 
+func abduction_geometry(s,r) -> Dictionary:
+	var t = transition_progress(s);var left = INF;var right = -INF;var bottom = -INF
+	for m in r.members:
+		left = minf(left,float(m.x)-42);right = maxf(right,float(m.x)+48);bottom = maxf(bottom,float(m.y)+12)
+	if is_inf(left): left = s.x-80;right = s.x+80;bottom = s.y
+	var middle = (left+right)*.5
+	var shift = takeoff_shift(s)
+	var departure = smoothstep(.73,1,t)
+	var ship = Vector2(lerpf(s.ANCHOR+230,middle,smoothstep(0,.16,t))+departure*175,255-shift-departure*185)
+	return {"ship":ship,"apex":ship+Vector2(0,46),"left":left-20,"right":right+20,"bottom":bottom,"strength":smoothstep(.06,.20,t)*(1-smoothstep(.73,.97,t))}
+
+func abduction(g,s,front: bool) -> void:
+	if s.phase!="ascent": return
+	var d = abduction_geometry(s,g.runner);var c = g.paint_target;var strength = float(d.strength)
+	var mouth: Vector2 = d.apex;var bottom = float(d.bottom)
+	if not front:
+		for i in range(3):
+			var spread = i*9.0
+			var points = PackedVector2Array([mouth+Vector2(-13-spread,0),mouth+Vector2(13+spread,0),Vector2(d.right+spread,bottom),Vector2(d.left-spread,bottom)])
+			c.draw_polygon(points,PackedColorArray([Color(.36,1,.58,.11*strength),Color(.36,1,.58,.11*strength),Color(.22,.91,.61,.022*strength),Color(.22,.91,.61,.022*strength)]))
+		for i in range(18):
+			var u = fposmod(s.phase_age*.85+i*.137,1)
+			var base = Vector2(lerpf(d.left,d.right,float(i%7)/6),bottom)
+			var p = base.lerp(mouth,u)
+			c.draw_line(p,p+Vector2(0,9+(1-u)*9),Color(.64,1,.76,(1-u)*.36*strength),1.4,true)
+		var ship_alpha = 1-smoothstep(.88,1,transition_progress(s))
+		s.sprite(c,"props",1,d.ship,195,0,Color(1,1,1,ship_alpha))
+		for i in range(5,0,-1): c.draw_circle(mouth,i*4.6,Color(.47,1,.51,.016*strength))
+	else:
+		var middle = (float(d.left)+float(d.right))*.5
+		var radius = maxf(100,(float(d.right)-float(d.left))*.5)
+		c.draw_set_transform(Vector2(middle,bottom),0,Vector2(1,.12))
+		c.draw_arc(Vector2.ZERO,radius,s.phase_age*.7,s.phase_age*.7+TAU*.92,48,Color(.47,1,.69,.42*strength),3,true)
+		c.draw_set_transform(Vector2.ZERO)
+		var released = smoothstep(.72,.81,transition_progress(s))*(1-smoothstep(.84,1,transition_progress(s)))
+		for i in range(mini(8,g.runner.members.size())):
+			var m = g.runner.members[i]
+			c.draw_arc(Vector2(m.x,m.y-53),38+(s.phase_age*.8-i*.13)*8,0,TAU,22,Color(.46,1,.77,released*.48),2,true)
+
 func ground_visible(s) -> bool:
 	return s.phase in ["ascent","return"] and transition_progress(s)<.48
 

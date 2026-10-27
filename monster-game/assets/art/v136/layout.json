@@ -1,0 +1,277 @@
+{
+  "pipoco": {
+    "file": "pipoco.webp",
+    "columns": 3,
+    "rows": 2,
+    "cell": 384,
+    "frames": 6
+  },
+  "fiapo": {
+    "file": "fiapo.webp",
+    "columns": 3,
+    "rows": 2,
+    "cell": 384,
+    "frames": 6
+  },
+  "ferrugem": {
+    "file": "ferrugem.webp",
+    "columns": 3,
+    "rows": 2,
+    "cell": 384,
+    "frames": 6
+  },
+  "agourinho": {
+    "file": "agourinho.webp",
+    "columns": 3,
+    "rows": 2,
+    "cell": 384,
+    "frames": 6
+  },
+  "barao": {
+    "file": "barao.webp",
+    "columns": 3,
+    "rows": 2,
+    "cell": 384,
+    "frames": 6
+  },
+  "jetski": {
+    "file": "jetski.webp",
+    "source": "sewer_props.png",
+    "box": [
+      8,
+      108,
+      558,
+      420
+    ],
+    "trim": [
+      11,
+      43,
+      550,
+      296
+    ],
+    "size": [
+      539,
+      253
+    ]
+  },
+  "ramp": {
+    "file": "ramp.webp",
+    "source": "sewer_props.png",
+    "box": [
+      559,
+      100,
+      1098,
+      440
+    ],
+    "trim": [
+      0,
+      29,
+      527,
+      336
+    ],
+    "size": [
+      527,
+      307
+    ]
+  },
+  "rubble": {
+    "file": "rubble.webp",
+    "source": "sewer_props.png",
+    "box": [
+      1101,
+      200,
+      1536,
+      455
+    ],
+    "trim": [
+      10,
+      30,
+      416,
+      247
+    ],
+    "size": [
+      406,
+      217
+    ]
+  },
+  "pipe": {
+    "file": "pipe.webp",
+    "source": "sewer_props.png",
+    "box": [
+      8,
+      518,
+      655,
+      957
+    ],
+    "trim": [
+      20,
+      19,
+      631,
+      409
+    ],
+    "size": [
+      600,
+      383
+    ]
+  },
+  "barrel": {
+    "file": "barrel.webp",
+    "source": "sewer_props.png",
+    "box": [
+      674,
+      501,
+      1010,
+      977
+    ],
+    "trim": [
+      19,
+      21,
+      313,
+      447
+    ],
+    "size": [
+      294,
+      426
+    ]
+  },
+  "buoy": {
+    "file": "buoy.webp",
+    "source": "sewer_props.png",
+    "box": [
+      1074,
+      591,
+      1535,
+      952
+    ],
+    "trim": [
+      6,
+      40,
+      426,
+      322
+    ],
+    "size": [
+      420,
+      282
+    ]
+  },
+  "egg": {
+    "file": "egg.webp",
+    "source": "hatch_props.png",
+    "box": [
+      45,
+      0,
+      508,
+      524
+    ],
+    "trim": [
+      54,
+      70,
+      408,
+      523
+    ],
+    "size": [
+      354,
+      453
+    ]
+  },
+  "egg_crack": {
+    "file": "egg_crack.webp",
+    "source": "hatch_props.png",
+    "box": [
+      552,
+      0,
+      1018,
+      525
+    ],
+    "trim": [
+      30,
+      66,
+      396,
+      523
+    ],
+    "size": [
+      366,
+      457
+    ]
+  },
+  "egg_open": {
+    "file": "egg_open.webp",
+    "source": "hatch_props.png",
+    "box": [
+      1052,
+      0,
+      1536,
+      530
+    ],
+    "trim": [
+      41,
+      22,
+      412,
+      529
+    ],
+    "size": [
+      371,
+      507
+    ]
+  },
+  "nest": {
+    "file": "nest.webp",
+    "source": "hatch_props.png",
+    "box": [
+      0,
+      535,
+      590,
+      1019
+    ],
+    "trim": [
+      17,
+      74,
+      589,
+      446
+    ],
+    "size": [
+      572,
+      372
+    ]
+  },
+  "feather": {
+    "file": "feather.webp",
+    "source": "hatch_props.png",
+    "box": [
+      591,
+      525,
+      1018,
+      1018
+    ],
+    "trim": [
+      13,
+      35,
+      427,
+      438
+    ],
+    "size": [
+      414,
+      403
+    ]
+  },
+  "fusion": {
+    "file": "fusion.webp",
+    "source": "hatch_props.png",
+    "box": [
+      1020,
+      540,
+      1536,
+      1024
+    ],
+    "trim": [
+      0,
+      21,
+      502,
+      449
+    ],
+    "size": [
+      502,
+      428
+    ]
+  }
+}

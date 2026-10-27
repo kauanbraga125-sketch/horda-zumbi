@@ -170,9 +170,16 @@ static func space_pose(pose: String,time: float,vertical_speed: float) -> Dictio
 	elif pose=="hurt": state = "fall";angle = -.13+sin(time*20)*.10
 	elif pose=="return": state = "fall";angle = -.06
 	elif pose=="pilot": state = "idle";angle = 0
+	elif pose=="abduct": state = "idle";angle = -.035+sin(time*6)*.045;stretch = Vector2(.98,1.035)
 	return {"state":state,"phase":phase,"air_age":air_age,"angle":angle,"stretch":stretch}
 
 func paint_space(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,pose: String,vertical_speed: float,wear: Array,tint: Color = Color.WHITE) -> void:
 	var p = space_pose(pose,time,vertical_speed)
 	if not cosmetics.paint(canvas,kind,foot,height,p.phase,p.state,time*.85,0,tint,false,p.air_age,vertical_speed,wear,true,p.angle,p.stretch):
 		paint(canvas,kind,foot,height,p.phase,p.state,time*.38,0,tint,false,1,true,p.air_age,vertical_speed,wear)
+
+func paint_rider(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,angle: float,wear: Array,tint: Color = Color.WHITE) -> void:
+	# The original leaning/reaching upper body sits on the saddle. The hull is
+	# painted afterwards and occludes the legs below the hips, including clothes.
+	if not cosmetics.paint(canvas,kind,foot,height,fposmod(time*.42,1),"push",time,0,tint,false,.2,0,wear,true,angle+.035,Vector2(1,.97)):
+		paint(canvas,kind,foot,height,fposmod(time*.42,1),"push",time,0,tint,false,1,false,.2,0,wear)

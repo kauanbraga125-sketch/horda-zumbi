@@ -104,6 +104,7 @@ var sprite_paused = false
 var sprite_preview_from_state: String = ""
 var sprite_preview_from_clock: float = 0.0
 var item_lab = preload("res://scripts/item_lab.gd").new()
+var birds_ui = preload("res://scripts/birds_ui.gd").new()
 
 var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
@@ -114,8 +115,8 @@ var lab_kind = "bomb"
 var lab_data: Dictionary = {}
 var lab_context: Dictionary = {}
 var lab_saved_runner: HordeRun
-const LAB_KINDS = ["space", "harvester", "spectral", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
-const LAB_LABELS = ["ESPAÇO • ABDUÇÃO MALDITA", "CAÇADOR NOTURNO", "MANTO ESPECTRAL", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
+const LAB_KINDS = ["space", "sewer", "harvester", "spectral", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
+const LAB_LABELS = ["ESPAÇO • ABDUÇÃO MALDITA", "ESGOTO • FUGA DE JET SKI", "CAÇADOR NOTURNO", "MANTO ESPECTRAL", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
 
 func _ready() -> void :
 	home_menu.attach(self)
@@ -153,8 +154,13 @@ func _ready() -> void :
 	elif "--motion-preview" in OS.get_cmdline_user_args(): call_deferred("motion_preview")
 	elif "--space-test" in OS.get_cmdline_user_args(): pass
 	elif capture_mode: call_deferred("capture_preview")
+	if not test_mode and not capture_mode and not data.get("bird_pending",{}).is_empty(): call_deferred("resume_bird_receipt")
+
+func resume_bird_receipt() -> void:
+	if screen=="home": birds_ui.open(self)
 
 func _process(dt: float) -> void :
+	if not capture_freeze: birds_ui.update(self,dt)
 	if screen == "sprite_lab" and not sprite_paused: sprite_clock += dt
 	if screen == "item_lab": item_lab.update(dt)
 	if screen == "prepare" and not capture_freeze: prepare_ui.update(self, dt)
@@ -242,6 +248,7 @@ func start_run() -> void :
 	run_ritual_reports.clear();hub.result_ui.reset()
 	runner.start(data.levels, 0, 0, data.areas, data.owned, data.power_owned, data.power_levels)
 	runner.active_cosmetics = data.get("active_cosmetics", []).duplicate()
+	runner.bird.configure(data)
 	runner.configure_items(active_items, reward_rng.randf() < HordeMeta.EYE_RUN_CHANCE)
 	runner.tutorial_enabled = not bool(data.tutorial_complete) and int(data.runs) == 0
 	if not lab_active and not test_mode and not capture_mode: analytics.begin_run(runner, data.levels)
@@ -264,9 +271,21 @@ func consume_run_events() -> void :
 		if not lab_active and not test_mode and not capture_mode: analytics.record_event(runner, e)
 		var point = Vector2(float(e.get("x", HordeRun.ANCHOR)), float(e.get("y", HordeRun.FLOOR)))
 		match e.type:
+			"bird_chirp": sound.play("bird_"+runner.bird.id,-27)
+			"bird_warn": sound.play("bird_fiapo",-20)
+			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
+			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
+			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16);runner.sewer.visual.notify("TOQUE PARA SALTAR • PROTEJA OS PASSAGEIROS")
+			"sewer_encounter": runner.sewer.visual.notify(str(e.title))
+			"sewer_hit": sound.play("sewer_splash",-15);shake = 3
+			"sewer_exit": sound.play("space_boost",-14);runner.sewer.visual.notify("RAMPA À FRENTE • DE VOLTA À CORRIDA!")
+			"sewer_land":
+				effects.clear();sound.play("heavy_land",-12);shake = 4;show_toast("SAÍDA PERFEITA!" if e.clean else "ESCAPAMOS! • TÚNEL %d" % e.to_tunnel,2.3)
 			"perfect":
 				perfect_left = 1.8;sound.play("perfect",-13);effects.spark(point,GOLD,18)
 				if runner.space.active: runner.space.visual.notify("PERFECT!",2,1.5)
+				elif runner.sewer.active: runner.sewer.visual.notify("PERFECT!")
+				if runner.bird.id=="pipoco": sound.play("bird_pipoco",-22)
 			"field_power": sound.play("perk",-14);show_toast(str(e.title),2.1)
 			"civil_drop": sound.play("creeper_wing",-13)
 			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)
@@ -384,7 +403,7 @@ func consume_run_events() -> void :
 				shake = 2.5 if int(e.kind) == 3 else 5.0
 				var death_point: Vector2 = Vector2(float(e.get("foot_x", point.x)), float(e.get("foot_y", point.y))) if int(e.kind) in [2, 3] else point
 				if bool(e.get("in_space",false)): runner.space.visual.casualty(e)
-				else: effects.death(int(e.kind), death_point)
+				elif not bool(e.get("in_sewer",false)): effects.death(int(e.kind), death_point)
 			"shot": sound.play("gunshot", -17)
 			"explosion": sound.play("explosion", -14);effects.explosion(point);shake = 8
 			"tunnel": sound.play("tunnel", -18)
@@ -457,6 +476,13 @@ func open_market(tab: int = 0) -> void :
 	market.open(tab);change_screen("market")
 
 func perform_action(action: String) -> void :
+	if birds_ui.action(self,action): return
+	if action=="home_sewer_test" and screen=="home": start_lab("sewer");return
+	if action in ["lab_sewer_restart","lab_sewer_wave","lab_sewer_exit"] and lab_active and lab_kind=="sewer":
+		if action=="lab_sewer_restart": start_lab("sewer")
+		elif action=="lab_sewer_wave": runner.sewer.pressure = minf(1,runner.sewer.pressure+.25)
+		else: runner.sewer.left = .01
+		return
 	if action == "home_space_test" and screen == "home":
 		start_lab("space");return
 	if prepare_ui.action(self, action): return
@@ -781,6 +807,8 @@ func currency() -> void :
 	text(str(data.wallet), Vector2(1070, 77), 31, GOLD, true, false, 2)
 
 func backdrop() -> void :
+	if runner.sewer.active and screen in ["run","pause","results"]:
+		runner.sewer.visual.background(self,runner.sewer);return
 	if runner.space.active and screen in ["run","pause","results"]:
 		if runner.space.visual.ground_visible(runner.space): scenery.paint(paint_target,runner,ui_time)
 		runner.space.paint_background(self)
@@ -809,6 +837,7 @@ func _draw() -> void :
 	if screen not in ["run", "pause", "results", "revive", "prepare"]:
 		backdrop();paint_target.draw_rect(full_rect(), Color(0.035, 0.012, 0.065, 0.045 if screen == "home" else (0.1 if screen == "market" else 0.18)))
 	match screen:
+		"birds": birds_ui.paint(self)
 		"home": draw_home()
 		"market": market.paint(self)
 		"collection": draw_collection()
@@ -850,10 +879,14 @@ func draw_home() -> void :
 	if bool(ProjectSettings.get_setting("testing/catalog_funds_enabled",false)):
 		var d = home_menu.layout(full_rect())
 		var left = d.level.position.x
-		var width = (d.help.end.x - left - 12) * 0.5
+		var width = (d.help.end.x - left - 24) / 4
 		var top = d.level.end.y + 12
-		button(Rect2(left,top,width,52),"ESPAÇO • TESTE " + str(ProjectSettings.get_setting("application/config/version")),"home_space_test",Color("4c786a"),-2,21)
-		button(Rect2(left + width + 12,top,width,52),"REPOR 1.000.000 MOEDAS","developer_test_funds",Color("513c67"),-2,21)
+		var labels = ["ESPAÇO R36","ESGOTO","AVES MALDITAS","REPOR 1M"]
+		var actions = ["home_space_test","home_sewer_test","birds_open","developer_test_funds"]
+		for i in range(4): button(Rect2(left+i*(width+8),top,width,52),labels[i],actions[i],Color("4c786a") if i<3 else Color("513c67"),-2,18)
+	else:
+		var d = home_menu.layout(full_rect())
+		button(Rect2(d.profile.end.x+12,d.profile.position.y,210,51),"AVES MALDITAS","birds_open",Color("4c786a"),-2,21)
 
 func draw_shop() -> void :
 	text("MELHORIAS DA HORDA", Vector2(67, 99), 39, GOLD, true, false, 5);currency()
@@ -891,6 +924,8 @@ func draw_help() -> void :
 	pages.help(self)
 
 func draw_run() -> void :
+	if runner.sewer.active:
+		runner.sewer.visual.paint(self,runner.sewer);return
 	if runner.space.active:
 		if runner.space.visual.ground_visible(runner.space): ground(runner.world_px)
 		runner.space.paint(self)
@@ -927,6 +962,9 @@ func draw_run() -> void :
 		match e.kind:
 			"harvester", "spectral": adventure_art.power(paint_target,5 if e.kind == "harvester" else 6,Vector2(e.x,e.y+bob),100,ui_time)
 			"space_brain": runner.space.paint_pickup(self,Vector2(e.x,e.y + bob))
+			"sewer_key":
+				preload("res://scripts/bird_art.gd").prop(paint_target,"jetski",Vector2(e.x,e.y+bob),58,sin(ui_time*2)*.04)
+				text("ESGOTO",Vector2(e.x,e.y-60),15,MINT,true,true,2)
 			"coin": floating_item(1, Vector2(e.x, e.y + bob), HordeBalance.COIN_DIAMETER)
 			"hump":
 				var points = PackedVector2Array([Vector2(e.x - 60, HordeRun.FLOOR), Vector2(e.x - 44, HordeRun.FLOOR - 21), Vector2(e.x - 15, HordeRun.FLOOR - 61), Vector2(e.x + 20, HordeRun.FLOOR - 66), Vector2(e.x + 46, HordeRun.FLOOR - 28), Vector2(e.x + 60, HordeRun.FLOOR)])
@@ -1098,6 +1136,7 @@ func validate_save(value) -> Dictionary:
 			if progress is Dictionary: result.mission_progress[challenge.id] = clampi(int(progress.get(challenge.id, 0)), 0, int(challenge.target))
 			if challenge.key in result.claimed: result.mission_progress[challenge.id] = int(challenge.target)
 	HordeMeta.migrate(result, value)
+	result.merge(preload("res://scripts/bird_catalog.gd").migrate(value),true)
 	result.balance_v132 = true
 	if not bool(value.get("balance_v132",false)) and raw_levels is Dictionary:
 		var refund = 0
@@ -1347,7 +1386,7 @@ func animation_state(member: Dictionary) -> String:
 func update_run_visuals(dt: float) -> void :
 	var cabin = get_node_or_null("SpaceCabin") as SubViewport
 	if is_instance_valid(cabin): cabin.render_target_update_mode = SubViewport.UPDATE_ALWAYS if runner.space.active and runner.space.battle.pilot_left>0 else SubViewport.UPDATE_DISABLED
-	if runner.space.active:
+	if runner.space.active or runner.sewer.active:
 		effects.update(dt,0);ui_effects.update(dt,0)
 		sound.update_course(runner,screen == "run" and not runner.dead)
 		return
@@ -1644,6 +1683,8 @@ func draw_credits() -> void :
 	button(Rect2(69, 641, 240, 61), "VOLTAR", "back", Color("513c67"), -2, 23)
 
 func update_camera(dt: float) -> void :
+	if runner.sewer.active:
+		camera_zoom = move_toward(camera_zoom,1.04,dt*.8);camera_ground_shift = move_toward(camera_ground_shift,0,dt*600);return
 	if runner.space.active:
 		var s = runner.space
 		var transition = s.visual.transition_progress(s)
@@ -1717,7 +1758,9 @@ func paint_foreground() -> void :
 	if screen in ["pause", "results", "revive"]: ui_time = frozen_world_time
 	paint_target = foreground_canvas
 	if screen == "prepare": prepare_ui.paint_foreground(self)
-	else: draw_run()
+	else:
+		draw_run()
+		if screen in ["run","pause","results","revive"]: runner.bird.paint(self)
 	paint_target = self;ui_time = interface_time
 
 func animated_soul(point: Vector2, height: float, time: float, tint: Color = Color.WHITE) -> void :
@@ -1888,6 +1931,7 @@ func start_lab(kind: String) -> void :
 		lab_context = {"settings_from": settings_from, "stats": last_stats.duplicate(true), "challenges": run_challenges.duplicate(), "settled": run_settled, "report": run_report.duplicate(true)}
 	lab_kind = kind;runner = HordeRun.new()
 	runner.start_developer(kind, lab_count, lab_stage)
+	runner.bird.configure(data)
 	runner.jump_delay_step = lab_delay;lab_hitboxes = kind == "collision"
 	if kind == "powers": runner.power_owned = [2,3,4,5,6];runner.levels.frenzy = 1
 	if kind in ["harvester","spectral"]:
@@ -1901,6 +1945,10 @@ func start_lab(kind: String) -> void :
 		for i in range(lab_stage + 2): runner.update_tunnels()
 		runner.power_owned = [3,4,7,8]
 		runner.entities.clear();runner.events.clear();runner.space.begin(runner,true)
+	if kind == "sewer":
+		runner.developer_kind = "";runner.power_owned = [3,4,9];runner.active_cosmetics = data.get("active_cosmetics",[]).duplicate()
+		for i in range(runner.members.size()): runner.members[i].kind = 1 if i%3==1 else 0
+		runner.entities.clear();runner.events.clear();runner.sewer.begin(runner,true)
 	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;perfect_left = 0
 	effects.clear();ui_effects.clear();scenery.reset();end_delay = -1
 	last_save = 0;last_stats.clear();run_challenges.clear();trail_tick = 0
@@ -1918,7 +1966,8 @@ func draw_developer() -> void :
 	home_menu.label(self, "DESENVOLVEDOR TESTE", Vector2(69, 102), 38, GOLD, false, -1, true, 4)
 	text("Versão " + str(ProjectSettings.get_setting("application/config/version")) + " • Escolha uma família para testar.", Vector2(70, 143), 20, CREAM)
 	for i in range(LAB_KINDS.size()):
-		button(Rect2(70 + (i % 3) * 386, 175 + int(i / 3) * 59, 369, 49), LAB_LABELS[i], "lab_kind_" + LAB_KINDS[i], Color("513c67"), -2, 18)
+		button(Rect2(70 + (i % 4) * 289, 175 + int(i / 4) * 62, 274, 50), LAB_LABELS[i], "lab_kind_" + LAB_KINDS[i], Color("513c67"), -2, 16)
+	button(Rect2(70,492,369,43),"NINHO DAS AVES MALDITAS","birds_open",Color("4c786a"),-2,19)
 	button(Rect2(70, 548, 369, 49), "HORDA: " + str(lab_count), "lab_count", Color("4c786a"), -2, 21)
 	button(Rect2(456, 548, 369, 49), "TÚNEL: " + str(lab_stage), "lab_stage", Color("4c786a"), -2, 21)
 	button(Rect2(842, 548, 369, 49), "ATRASO: " + str(snappedf(lab_delay * 1000, 0.1)) + " ms / zumbi", "lab_delay", Color("4c786a"), -2, 19)

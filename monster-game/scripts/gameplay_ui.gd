@@ -61,6 +61,8 @@ func glyph(g, kind: String, point: Vector2, size: float, color: Color) -> void :
 					if (row + col) % 2 == 0: g.draw_rect(Rect2(origin + Vector2(col, row) * cell, Vector2.ONE * cell), Color("31203f"))
 
 func hud(g) -> void :
+	if g.runner.sewer.active:
+		g.runner.sewer.visual.hud(g,g.runner.sewer);return
 	if g.runner.space.active:
 		g.runner.space.paint_hud(g)
 		return

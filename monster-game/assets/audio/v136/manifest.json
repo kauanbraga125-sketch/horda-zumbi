@@ -1,0 +1,77 @@
+{
+  "sample_format": "s16le_mono",
+  "files": [
+    {
+      "name": "bird_pipoco",
+      "seconds": 0.55,
+      "rate": 32000,
+      "bytes": 35200,
+      "sha256": "5f63467f2c37c94b70d4477a63421c160771e4eeae932ba33ef62b1420e0c5de",
+      "original_synthesis": true
+    },
+    {
+      "name": "bird_fiapo",
+      "seconds": 0.55,
+      "rate": 32000,
+      "bytes": 35200,
+      "sha256": "937689805f2a58016c3f8ac3ea512c6550c2d2fdb4d1cc5f0f7c1bb71d22b4c7",
+      "original_synthesis": true
+    },
+    {
+      "name": "bird_ferrugem",
+      "seconds": 0.55,
+      "rate": 32000,
+      "bytes": 35200,
+      "sha256": "02788ec0ab0a27085b3482b2c8635572742e0552686c0bdc82594d25cf8c29d8",
+      "original_synthesis": true
+    },
+    {
+      "name": "bird_agourinho",
+      "seconds": 0.55,
+      "rate": 32000,
+      "bytes": 35200,
+      "sha256": "421bf9d60e9ebb38e4869e65cec26ce57aeec3c7ebda26e446079390db928dd5",
+      "original_synthesis": true
+    },
+    {
+      "name": "bird_barao",
+      "seconds": 0.85,
+      "rate": 32000,
+      "bytes": 54400,
+      "sha256": "4bb3d616bad926c18748ddeec04afc277db883a55db98957a2aa9ac30ff765fe",
+      "original_synthesis": true
+    },
+    {
+      "name": "sewer_water",
+      "seconds": 4,
+      "rate": 32000,
+      "bytes": 256000,
+      "sha256": "8c25aece4f33c1836eb902c3821cbad88238f8695884308a633e9b178cf56589",
+      "original_synthesis": true
+    },
+    {
+      "name": "sewer_splash",
+      "seconds": 0.7,
+      "rate": 32000,
+      "bytes": 44800,
+      "sha256": "98e10e51f8357765c3071484d2e65097c491b635561d592225295adaa09bf6eb",
+      "original_synthesis": true
+    },
+    {
+      "name": "egg_crack",
+      "seconds": 0.3,
+      "rate": 32000,
+      "bytes": 19200,
+      "sha256": "61c04031c36ecf3193b55adc81b13b41f13305a77bc97dcac494043552494411",
+      "original_synthesis": true
+    },
+    {
+      "name": "egg_hatch",
+      "seconds": 1.8,
+      "rate": 32000,
+      "bytes": 115200,
+      "sha256": "d3fe22fb1ceafd61c1ef2b2630c208c6cfef0e11143b55eff30fa1c6e67ecdcc",
+      "original_synthesis": true
+    }
+  ]
+}

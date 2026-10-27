@@ -215,6 +215,8 @@ func illustration(g, item: Dictionary, p: Vector2, height: float) -> void :
 		"monster":
 			g.actor.paint(g.paint_target, item.kind, p + Vector2(0, height * 0.48), height, g.ui_time * 0.7, "idle", g.ui_time, 0, Color.WHITE, false, 1, false)
 		"power":
+			if int(item.kind)==9:
+				preload("res://scripts/bird_art.gd").prop(g.paint_target,"jetski",p,height*.65,sin(g.ui_time*2)*.04);return
 			if int(item.kind)>=5:
 				g.adventure_art.power(g.paint_target,int(item.kind),p,height,g.ui_time);return
 			if int(item.kind) == 4:

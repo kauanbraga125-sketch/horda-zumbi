@@ -26,6 +26,8 @@ var reward_rng = RandomNumberGenerator.new()
 var run_seed = 0
 var bonus_director = HordeBonusDirector.new()
 var space = preload("res://scripts/space.gd").new()
+var sewer = preload("res://scripts/sewer.gd").new()
+var bird = preload("res://scripts/bird_run.gd").new()
 var blessings = preload("res://scripts/field_powers.gd").new()
 var coin_rows: Dictionary = {}
 var next_coin_row = 0
@@ -156,6 +158,7 @@ func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Arra
 	rng.seed = run_seed;course_rng.seed = run_seed ^ 3699770;reward_rng.seed = run_seed ^ 5556785
 	bonus_director.reset(run_seed)
 	space.reset(run_seed)
+	sewer.reset(run_seed);bird.configure(preload("res://scripts/bird_catalog.gd").defaults())
 	course_history.clear();generation_trace.clear();next_challenge_level = 0;next_helicopter_world = 0
 	mobile_slots = 0;helicopter_draws = 0;sequence_rejections = 0;next_rhythm_world = 0
 	members.clear();entities.clear();events.clear();loss_times.clear();tunnels.clear();group_captures.clear()
@@ -487,6 +490,7 @@ func grounded_strength() -> int:
 	return count
 
 func jump() -> void :
+	if sewer.active: sewer.request_jump(self);return
 	if space.active: space.impulse();return
 	HordeJump.request(self)
 
@@ -549,12 +553,15 @@ func register_loss() -> void :
 
 func remove_member(index: int, cause: String) -> void :
 	if index < 0 or index >= members.size(): return
+	if bird.prevent_loss(self,members[index],cause): return
 	loss_causes[cause] = int(loss_causes.get(cause, 0)) + 1
 	var old = members[index]
 	var shown = int(old.get("death_kind", old.kind)) if old.falling else (perk_kind if perk_left > 0 else int(old.kind))
 	var hit = {"type": "hit", "x": old.x, "y": minf(old.y - 45, FLOOR - 30), "foot_x": member_x(index), "foot_y": float(old.y) - member_depth(index), "kind": shown, "cause": cause}
 	if space.active:
 		hit.in_space = true;hit.foot_x = old.x;hit.foot_y = old.y;hit.space_height = space.member_height(self);hit.space_wear = cosmetics_for(old,shown).duplicate()
+	elif sewer.active:
+		hit.in_sewer = true;sewer.casualty(self,old,shown)
 	events.append(hit)
 	members.remove_at(index);cached_active = -1
 	clean_air = false;register_loss()
@@ -613,7 +620,12 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	if not jump_held: release_jump()
 	blessings.advance(self,dt)
 	elapsed += dt;voice_cooldown = maxf(0, voice_cooldown - dt)
+	bird.advance(self,dt)
 	speech_left = maxf(0, speech_left - dt);speech_cooldown = maxf(0, speech_cooldown - dt)
+	if sewer.active:
+		sewer.visual.notice_left = maxf(0,sewer.visual.notice_left-dt)
+		sewer.advance(self,dt,jump_held)
+		return
 	if space.active:
 		space.advance(self, dt, jump_held)
 		return
@@ -805,12 +817,14 @@ func advance(dt: float, jump_held: bool = false) -> void :
 					if Vector2(m.x, m.y - 52).distance_to(Vector2(e.x, e.y - 50)) < 62:
 						begin_capture(e, m);break
 			continue
-		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain", "harvester", "spectral"]:
+		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain", "harvester", "spectral", "sewer_key"]:
 			if e.kind == "mask" and 2 not in power_owned: continue
 			if not power_eligible(): e.taken = true;continue
 			if centre.distance_to(Vector2(e.x, e.y)) < 72:
 				e.taken = true
 				match e.kind:
+					"sewer_key":
+						if sewer.begin(self): return
 					"harvester": grant_perk(5)
 					"spectral": grant_perk(6)
 					"space_brain":
@@ -868,6 +882,7 @@ func collect_coin_row(e: Dictionary) -> void:
 	if row.collected == row.total:
 		if not row.missed and int(row.total)>=3:
 			mission_stats.perfects = int(mission_stats.get("perfects",0))+1
+			bird.on_perfect(self)
 			events.append({"type":"perfect","x":e.x,"y":e.y,"count":row.total})
 		coin_rows.erase(id)
 
@@ -1201,12 +1216,12 @@ func protect_civilian_path(e: Dictionary) -> void :
 
 func power_eligible() -> bool:
 
-	return not space.active and not blessings.active() and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
+	return not space.active and not sewer.active and not blessings.active() and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
 
 func mark_power_collected() -> void :
 	bonus_director.collected(self)
 	for entity in entities:
-		if entity.kind in ["crystal", "mask", "shield", "boost", "space_brain","harvester","spectral"]: entity.taken = true
+		if entity.kind in ["crystal", "mask", "shield", "boost", "space_brain","harvester","spectral","sewer_key"]: entity.taken = true
 
 func try_spawn_power(x: float) -> bool:
 	var before = bonus_director.last_opportunity
