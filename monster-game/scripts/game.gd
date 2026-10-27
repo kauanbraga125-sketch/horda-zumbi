@@ -383,7 +383,8 @@ func consume_run_events() -> void :
 				if str(e.get("cause", "")) not in ["fall", "camera"]: sound.play("hit", -17)
 				shake = 2.5 if int(e.kind) == 3 else 5.0
 				var death_point: Vector2 = Vector2(float(e.get("foot_x", point.x)), float(e.get("foot_y", point.y))) if int(e.kind) in [2, 3] else point
-				effects.death(int(e.kind), death_point)
+				if bool(e.get("in_space",false)): runner.space.visual.casualty(e)
+				else: effects.death(int(e.kind), death_point)
 			"shot": sound.play("gunshot", -17)
 			"explosion": sound.play("explosion", -14);effects.explosion(point);shake = 8
 			"tunnel": sound.play("tunnel", -18)
@@ -1647,8 +1648,10 @@ func update_camera(dt: float) -> void :
 		var s = runner.space
 		var transition = s.visual.transition_progress(s)
 		var target = lerpf(CAMERA_BASE_ZOOM,1.02,smoothstep(0,1,transition))
+		if s.phase=="boost": target -= .07*sin(clampf(s.phase_age/s.BOOST_SECONDS,0,1)*PI)
 		camera_zoom = move_toward(camera_zoom,target,dt*.9)
-		camera_ground_shift = move_toward(camera_ground_shift,sin(transition*PI)*80 if s.phase in ["ascent","return"] else 0,dt*180)
+		if s.phase=="ascent": camera_ground_shift = s.visual.takeoff_shift(s)*camera_zoom
+		else: camera_ground_shift = move_toward(camera_ground_shift,sin(transition*PI)*80 if s.phase=="return" else 0,dt*900)
 		return
 	camera_focus = move_toward(camera_focus, 1.0 if runner.transform_left > 0 else 0.0, dt * (1.8 if runner.transform_left > 0 else 1.2))
 	var desired = lerpf(CAMERA_BASE_ZOOM, CAMERA_TRANSFORM_ZOOM, smoothstep(0, 1, camera_focus))

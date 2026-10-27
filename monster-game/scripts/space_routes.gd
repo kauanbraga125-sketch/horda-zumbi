@@ -45,15 +45,15 @@ func start(s,r,kind: String = "") -> void:
 			row(s,r,x,safe,-side*32)
 			object(s,"astronaut",x+150,risky,{"radius":35.0})
 			object(s,"meteor",x+90,risky+side*89,{"variant":serial%3,"radius":28.0,"speed":1.0})
-			object(s,"astronaut",x+330,risky+side*38,{"radius":35.0})
+			object(s,"pod" if s.zone()>0 else "astronaut",x+330,risky+side*38,{"radius":35.0})
 			if serial==1: s.visual.notify("ARRASTE LIVREMENTE • RESGATE ALMAS",1,2.4)
 		"gates","slalom":
 			for i in range(2 if current=="gates" else 3):
 				var centre = 350.0+side*(75 if i%2==0 else -75)
-				object(s,"gate",x+i*340,centre,{"gap":178.0 if serial<=2 else 158.0,"motion":18.0 if s.zone()>0 else 0.0,"speed":1.0,"contacts":{},"damage_count":0})
+				object(s,"gate",x+i*340,centre,{"gap":178.0 if serial<=2 else 158.0,"motion":24.0 if s.zone()>0 else 10.0,"speed":1.0,"contacts":{},"damage_count":0})
 				row(s,r,x+i*340+35,centre,side*12)
 			object(s,"astronaut",x+420,350-side*65,{"radius":35.0})
-			s.visual.notify("PASSAGEM • PROTEJA A CAUDA",1,1.8)
+			s.visual.notify("MINAS À DERIVA • PROTEJA A CAUDA",1,1.8)
 		"convoy","elite":
 			for i in range(3 if current=="elite" else 2):
 				var ship = s.battle.spawn_ship(s,r,"ghost_frigate" if current=="elite" and i==2 else "fighter" if i==1 else "cargo" if s.zone()==1 else "tour_bus",x+i*235,355+side*i*43)
@@ -66,6 +66,7 @@ func start(s,r,kind: String = "") -> void:
 			ship.encounter = serial;ship.speed = 1.0;ship.shot = 99.0;ship.counter = true;ship.fired = false;ship.lock_y = s.y-s.member_height(r)*.5
 			row(s,r,x,safe)
 			if s.zone()>=2: object(s,"egg",x+380,safe-80,{"radius":30.0,"speed":1.0})
+			if s.zone()>=2: object(s,"parasite",x+620,risky-70,{"radius":29.0,"speed":1.18})
 			object(s,"astronaut",float(ship.x)+180,risky,{"radius":35.0})
 			s.visual.notify("DESVIE DO TIRO • ATAQUE O NÚCLEO VERDE",1,2.3)
 		"gravity":

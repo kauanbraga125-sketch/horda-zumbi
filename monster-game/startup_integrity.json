@@ -1,5 +1,5 @@
 {
-  "version": "0.10.34",
+  "version": "0.10.35",
   "class_count": 55,
   "files": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "path": "res://scripts/actor.gd",
-      "bytes": 10749,
-      "sha256": "ebbc8755ef4416074ac1e9ea4dd6fea356586293c0ba165cb45e3d42e9de62b7"
+      "bytes": 10964,
+      "sha256": "0650f1148f29bd82692878a3b6874c6caffa6b6b132a0f1ba54495c92b195516"
     },
     {
       "path": "res://scripts/adventure_art.gd",
@@ -184,8 +184,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 114188,
-      "sha256": "c30f179dfa08ea3a9350f960e894faabf23e1614654d4a303361c6f1778af08d"
+      "bytes": 114426,
+      "sha256": "f8af87e3fefd15e5b2f95db531ca97c3bcd643a3896e9dfedc1d125277806eaa"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -314,8 +314,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 69138,
-      "sha256": "9d52fb2fa9fd052999822447aeb850b102e13c90df1df68f42f22a733f3d660c"
+      "bytes": 69330,
+      "sha256": "5571f8d52e6092b42c0080ef1ca14e09a24c44e4cbd95b91739b9e4203b8d9a5"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -349,23 +349,33 @@
     },
     {
       "path": "res://scripts/space.gd",
-      "bytes": 23246,
-      "sha256": "e0ffe999b3bb08830659072770b0eec4c5692ffb28ede2fc1b24487c69cdbebb"
+      "bytes": 24238,
+      "sha256": "3ba044ea684c21e17a378789c0d500ea6b9e5ef17fe330c323d5615d54140623"
+    },
+    {
+      "path": "res://scripts/space_atmosphere.gd",
+      "bytes": 3981,
+      "sha256": "6d76162d2f373f6a41e78bf633459d39d1a0bd1aff01cc4834b1cf7da063e6cb"
     },
     {
       "path": "res://scripts/space_combat.gd",
-      "bytes": 22768,
-      "sha256": "39abe728cf74410a7afc9bfc393d02db4d5b06b5d2f4f65733dfde4632419403"
+      "bytes": 22804,
+      "sha256": "6a5c8d7c413ecf74bc81d329c9b050a4f71274abd181bf4ff4840a158fc6aef1"
+    },
+    {
+      "path": "res://scripts/space_contacts.gd",
+      "bytes": 2815,
+      "sha256": "dec24438a78e3d6bb55eb31392acfcd8a31382b7c5c5dc96bf67351cac22ede4"
     },
     {
       "path": "res://scripts/space_routes.gd",
-      "bytes": 4871,
-      "sha256": "f2d71fc28bfb3cb3815f512c8f10fc14bc06732997805ff0b71ef99545009790"
+      "bytes": 4988,
+      "sha256": "f44ac6c1e419b3a6e9b340645c7a4a3d54cb2f4a0673bd04a05b4544d0fbdaf7"
     },
     {
       "path": "res://scripts/space_visual.gd",
-      "bytes": 11119,
-      "sha256": "6424f38f4a06ca02c38d5e78a110339adcf088411a3ad3b910e024b26e6e09cd"
+      "bytes": 13034,
+      "sha256": "4376fe161057dedd6801da80baf31be0862db22291b54639a90d4e801a3bd2db"
     },
     {
       "path": "res://scripts/terrain.gd",
@@ -1016,6 +1026,16 @@
       "path": "res://assets/art/space_v134/rock.png",
       "bytes": 279569,
       "sha256": "628628a0cbab9617097d14dc8b3e40c611f9f051cce5f4c4ea0dc509ea7b2639"
+    },
+    {
+      "path": "res://assets/art/space_v135/layout.json",
+      "bytes": 253,
+      "sha256": "1215851d7131652a9d3d13573c9f15df8e07105f92e90f2413b6327f798fa6f1"
+    },
+    {
+      "path": "res://assets/art/space_v135/mine.png",
+      "bytes": 302574,
+      "sha256": "273b76888a39da8ca96c19db862761d782985f6dd0f9c344711af5c185019e66"
     }
   ]
 }

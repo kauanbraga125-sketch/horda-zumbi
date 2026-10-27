@@ -552,7 +552,10 @@ func remove_member(index: int, cause: String) -> void :
 	loss_causes[cause] = int(loss_causes.get(cause, 0)) + 1
 	var old = members[index]
 	var shown = int(old.get("death_kind", old.kind)) if old.falling else (perk_kind if perk_left > 0 else int(old.kind))
-	events.append({"type": "hit", "x": old.x, "y": minf(old.y - 45, FLOOR - 30), "foot_x": member_x(index), "foot_y": float(old.y) - member_depth(index), "kind": shown, "cause": cause})
+	var hit = {"type": "hit", "x": old.x, "y": minf(old.y - 45, FLOOR - 30), "foot_x": member_x(index), "foot_y": float(old.y) - member_depth(index), "kind": shown, "cause": cause}
+	if space.active:
+		hit.in_space = true;hit.foot_x = old.x;hit.foot_y = old.y;hit.space_height = space.member_height(self);hit.space_wear = cosmetics_for(old,shown).duplicate()
+	events.append(hit)
 	members.remove_at(index);cached_active = -1
 	clean_air = false;register_loss()
 	if members.is_empty(): finish()

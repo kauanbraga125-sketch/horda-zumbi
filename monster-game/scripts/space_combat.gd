@@ -174,46 +174,42 @@ func laser_segment(e: Dictionary) -> Vector2:
 	return Vector2(float(e.x)-float(e.get("length",650)),float(e.x)-26)
 
 func advance(s,r,dt: float) -> void:
-	power_left = maxf(0,power_left-dt);pilot_hit_left = maxf(0,pilot_hit_left-dt)
+	var play_dt = dt if s.phase=="flight" else 0.0
+	power_left = maxf(0,power_left-play_dt);pilot_hit_left = maxf(0,pilot_hit_left-dt)
 	var was_pilot = pilot_left>0
-	pilot_left = maxf(0,pilot_left-dt)
+	pilot_left = maxf(0,pilot_left-play_dt)
 	if was_pilot and pilot_left<=0:
 		r.hit_grace = maxf(r.hit_grace,.8);s.visual.notify("HORDA LIVRE",2,1.2)
 	if power_left<=0: power_kind = -1;shield_charges = 0
-	shot_clock -= dt
-	if (power_kind==7 or pilot_left>0) and shot_clock<=0:
+	shot_clock -= play_dt
+	if s.phase=="flight" and (power_kind==7 or pilot_left>0) and shot_clock<=0:
 		fire(s,r,power_kind==7);shot_clock = .7 if power_kind==7 else .6
 	var speed = scroll_speed(r)
 	for e in s.objects.duplicate():
 		if e.taken: continue
+		e.previous_x = e.x;e.previous_y = e.y
 		e.age += dt;e.angle += float(e.spin)*dt;e.flash = maxf(0,float(e.get("flash",0))-dt)
 		if e.kind in ["shot","acid","friendly_shot"]:
 			e.x += float(e.vx)*dt;e.base_y += float(e.vy)*dt;e.y = e.base_y
 		else:
 			e.x -= speed*float(e.speed)*dt
 			if e.kind=="meteor": e.base_y += float(e.get("vy",0))*dt
-			e.y = float(e.base_y)+sin(float(e.age)*1.6+float(e.seed))*(2 if e.kind=="coin" else 5)
+			if s.phase=="boost": e.base_y += s.climb_speed*dt*.55
+			e.y = float(e.base_y)+sin(float(e.age)*1.6+float(e.seed))*(2 if e.kind=="coin" else 19 if SHIPS.has(e.kind) else 5)
 		if e.kind=="gate":
 			e.y = float(e.base_y)+sin(float(e.age)*1.15+float(e.seed))*float(e.get("motion",0))
-			var limit = 3 if r.active_count()>=20 else 2
-			if s.phase=="flight" and int(e.damage_count)<limit:
-				for i in range(r.members.size()):
-					var centre = member_centre(r,i);var member = r.members[i]
-					if e.contacts.has(int(member.id)) or absf(centre.x-float(e.x))>43: continue
-					if absf(centre.y-float(e.y))>float(e.gap)*.5-19:
-						if hurt(s,r,i,"space_gate",centre,true): e.contacts[int(member.id)] = true;e.damage_count = int(e.damage_count)+1
-						break
+			for centre in s.contacts.gate_parts(e):
+				s.contacts.push(s,r,e,centre,63,"space_gate",3 if r.active_count()>=20 else 2)
 			continue
 		if e.kind=="rock":
-			var index = nearest_member(r,Vector2(e.x,e.y),float(e.radius)+18)
-			if hurt(s,r,index,"space_rock",Vector2(e.x,e.y),true): e.taken = true
+			s.contacts.push(s,r,e,Vector2(e.x,e.y),float(e.radius),"space_rock")
 			continue
 		if e.kind=="exit":
 			if s.phase=="flight" and s.charge>=100 and nearest_member(r,Vector2(e.x,e.y),65)>=0:
 				e.taken = true;s.boost(r)
 			continue
 		if e.kind=="wreck":
-			if e.age>1.0: e.taken = true
+			if e.age>.58: e.taken = true
 			continue
 		if e.kind=="vortex" and s.phase=="flight":
 			var pull = clampf(1-absf(float(e.x)-s.x)/420,0,1)
@@ -239,7 +235,7 @@ func advance(s,r,dt: float) -> void:
 			if bool(e.get("counter",false)):
 				e.core_open = e.age>=1.65 and e.age<4.15
 				if e.age<.8: e.lock_y = lerpf(float(e.lock_y),s.y-s.member_height(r)*.5,dt*2)
-				if e.age>=1.15 and not bool(e.fired):
+				if s.phase=="flight" and e.age>=1.15 and not bool(e.fired):
 					e.fired = true
 					for j in range(2):
 						s.add_object("shot",e.x-72+j*38,float(e.lock_y),{"vx":-390.0,"vy":0.0,"radius":13.0,"speed":0.0,"arm_left":.35})
@@ -263,9 +259,9 @@ func advance(s,r,dt: float) -> void:
 				else:
 					var damage = int(e.max_hp) if r.active_count()>=int(e.need) else 1
 					hit_ship(s,r,e,damage);s.chain_hit(r)
-			elif s.dash_left<=0 and e.age>1.0 and float(e.age)-float(e.hit_at)>.7:
-				var index = nearest_member(r,point,88)
-				if hurt(s,r,index,"space_ship",point): e.hit_at = e.age
+			if not e.taken:
+				s.contacts.push(s,r,e,point,76,"space_ship")
+
 			continue
 		if e.kind in ["acid","friendly_shot"]:
 			for ship in s.objects:
@@ -336,7 +332,7 @@ func advance(s,r,dt: float) -> void:
 		if r.dead: return
 	for i in range(s.objects.size()-1,-1,-1):
 		var e = s.objects[i]
-		if e.taken or e.x<r.view_left-220 or (e.kind in ["shot","friendly_shot","acid"] and e.age>4):
+		if e.taken or e.x<r.view_left-220 or e.y>720+240 or (e.kind in ["shot","friendly_shot","acid"] and e.age>4):
 			if not e.taken: r.miss_coin_row(e)
 			s.objects.remove_at(i)
 
@@ -345,8 +341,9 @@ func paint_object(g,s,e: Dictionary,alpha: float) -> bool:
 	if SHIPS.has(e.kind):
 		var spec: Dictionary = SHIPS[e.kind]
 		var flash = float(e.get("flash",0))>0
+		s.atmosphere.exhaust(g,s,e,float(spec.size))
 		# Same hull registration at every HP; damage never replaces the whole geometry.
-		art.sprite(c,"fleet",int(spec.frame),p,float(spec.size),sin(float(e.age)*1.4)*.025,Color(1,.78,.7,alpha) if flash else tint)
+		art.sprite(c,"fleet",int(spec.frame),p,float(spec.size),sin(float(e.age)*1.4+float(e.seed))*.045,Color(1,.78,.7,alpha) if flash else tint)
 		if bool(e.get("counter",false)):
 			var open = bool(e.get("core_open",false))
 			if not open:
@@ -368,13 +365,14 @@ func paint_object(g,s,e: Dictionary,alpha: float) -> bool:
 				c.draw_circle(p+Vector2(36+t*14,-32-t*48),4+t*6,Color(.32,.27,.36,(1-t)*.33*alpha))
 		return true
 	if e.kind=="gate":
-		var gap = float(e.gap)*.5;var top = float(e.y)-gap;var bottom = float(e.y)+gap
-		for rect in [Rect2(e.x-21,150,42,maxf(0,top-150)),Rect2(e.x-21,bottom,42,maxf(0,620-bottom))]:
-			c.draw_rect(rect,Color(.18,.12,.25,alpha));c.draw_rect(Rect2(rect.position,Vector2(4,rect.size.y)),Color(.95,.38,.28,.7*alpha))
-		s.visual.prop(g,"pylon",Vector2(e.x,top-64),128,alpha)
-		s.visual.prop(g,"pylon",Vector2(e.x,bottom+64),128,alpha,PI)
-		c.draw_line(Vector2(e.x-32,top),Vector2(e.x+32,top),Color(.4,1,.8,.65*alpha),2,true)
-		c.draw_line(Vector2(e.x-32,bottom),Vector2(e.x+32,bottom),Color(.4,1,.8,.65*alpha),2,true)
+		var parts = s.contacts.gate_parts(e)
+		for i in range(parts.size()):
+			var centre: Vector2 = parts[i]
+			var pulse = .14+maxf(0,sin(float(e.age)*7+i))* .10
+			c.draw_circle(centre,62,Color(1,.18,.11,pulse*alpha))
+			s.visual.prop(g,"mine",centre,136,alpha,sin(float(e.age)*.9+float(e.seed)+i)*.14)
+			# A small attached warning light breathes; no floating placeholder walls.
+			c.draw_circle(centre+Vector2(-5,30),3.5,Color(1,.35,.15,(.5+pulse)*alpha))
 		return true
 	if e.kind=="rock": s.visual.prop(g,"rock",p,134,alpha,e.angle*.1);return true
 	if e.kind=="exit":
@@ -390,8 +388,14 @@ func paint_object(g,s,e: Dictionary,alpha: float) -> bool:
 		g.home_menu.label(g,"PILOTAR",p+Vector2(0,-58),13,g.MINT,true,130)
 		return true
 	if e.kind=="wreck":
-		var spec: Dictionary = SHIPS[e.ship]
-		art.sprite(c,"fleet",int(spec.frame)+1,p,float(spec.size)*(1-float(e.age)*.08),float(e.age)*.35,Color(.7,.65,.7,(1-float(e.age))*alpha))
+		var spec: Dictionary = SHIPS[e.ship];var t = clampf(float(e.age)/.58,0,1)
+		var colour = Color(1,.64,.34,(1-t)*alpha)
+		if t<.35: c.draw_circle(p,22+t*65,Color(1,.8,.45,(1-t/.35)*.34*alpha))
+		art.sprite(c,"fleet",int(spec.frame)+1,p+Vector2(-t*25,t*t*90),float(spec.size)*(1-t*.25),t*.55,Color(.7,.65,.7,(1-t)*(1-t)*alpha))
+		for j in range(7):
+			var direction = Vector2.from_angle(j*TAU/7+float(e.seed))
+			var at = p+direction*(12+t*90)
+			c.draw_line(at,at+direction*7,colour,2.8,true)
 		return true
 	if e.kind=="beam":
 		var warning = float(e.age)<LASER_WARNING;var span = laser_segment(e)
@@ -437,5 +441,7 @@ func paint_party(g,s) -> void:
 			for i in range(g.runner.members.size()): bounds = bounds.expand(member_centre(g.runner,i))
 			bounds = bounds.grow(s.member_height(g.runner)*.57)
 		g.paint_target.draw_set_transform(bounds.get_center(),0,bounds.size/208)
-		g.paint_target.draw_arc(Vector2.ZERO,104,0,TAU,52,Color(.35,.8,1,.26),2.5,true)
+		for j in range(3):
+			var start = s.age*.65+j*TAU/3
+			g.paint_target.draw_arc(Vector2.ZERO,104,start,start+TAU*.20,18,Color(.35,.8,1,.22+sin(s.age*3+j)*.06),1.7,true)
 		g.paint_target.draw_set_transform(Vector2.ZERO)

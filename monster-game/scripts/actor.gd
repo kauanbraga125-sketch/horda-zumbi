@@ -159,11 +159,14 @@ func passenger(canvas: Node2D, kind: int, centre: Vector2, height: float, time: 
 static func space_pose(pose: String,time: float,vertical_speed: float) -> Dictionary:
 	# Stable airborne clip. No periodic fall/takeoff switches and no running cycle.
 	var state = "fly";var phase = .45;var air_age = .24
-	var angle = .10+clampf(vertical_speed*.00028,-.08,.08)+sin(time*1.7)*.025
+	var angle = .04+clampf(vertical_speed*.0004,-.22,.18)+sin(time*2.7)*.045
 	var stretch = Vector2.ONE
 	if pose=="charge": state = "rise";air_age = .08;stretch = Vector2(1.03,.93);angle = -.12
-	elif pose=="launch": angle = .38;stretch = Vector2(1.04,.98)
+	elif pose=="launch": angle = -.67+sin(time*7)*.035;stretch = Vector2(1.05,.97)
+	elif pose=="dash": angle = -.10;stretch = Vector2(1.08,.95)
+	elif pose=="bump": angle = -.18+sin(time*22)*.06;stretch = Vector2(.96,1.02)
 	elif pose=="board": state = "capture";phase = fposmod(time*.7,1);angle = .09
+	elif pose=="ejected": state = "fall";angle = -.2+time*2.5
 	elif pose=="hurt": state = "fall";angle = -.13+sin(time*20)*.10
 	elif pose=="return": state = "fall";angle = -.06
 	elif pose=="pilot": state = "idle";angle = 0
@@ -171,5 +174,5 @@ static func space_pose(pose: String,time: float,vertical_speed: float) -> Dictio
 
 func paint_space(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,pose: String,vertical_speed: float,wear: Array,tint: Color = Color.WHITE) -> void:
 	var p = space_pose(pose,time,vertical_speed)
-	if not cosmetics.paint(canvas,kind,foot,height,p.phase,p.state,time*.38,0,tint,false,p.air_age,vertical_speed,wear,true,p.angle,p.stretch):
+	if not cosmetics.paint(canvas,kind,foot,height,p.phase,p.state,time*.85,0,tint,false,p.air_age,vertical_speed,wear,true,p.angle,p.stretch):
 		paint(canvas,kind,foot,height,p.phase,p.state,time*.38,0,tint,false,1,true,p.air_age,vertical_speed,wear)

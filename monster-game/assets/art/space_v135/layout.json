@@ -1,0 +1,13 @@
+{
+  "source": "tools/art_sources/v135/orbital-mine-original.png",
+  "crop": [
+    0,
+    32,
+    1283,
+    1182
+  ],
+  "max_size": 512,
+  "render_height": 136,
+  "solid_radius": 63,
+  "art_style": "same brass and purple horror comic as existing fleet"
+}

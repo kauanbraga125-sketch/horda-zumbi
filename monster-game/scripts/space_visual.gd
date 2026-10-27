@@ -7,6 +7,8 @@ var current: Dictionary = {}
 var clock = 0.0
 var controls_left = 0.0
 static var props: Dictionary = {}
+var impacts: Array[Dictionary] = []
+var casualties: Array[Dictionary] = []
 
 func warm() -> void:
 	if not textures.is_empty(): return
@@ -18,9 +20,9 @@ func warm() -> void:
 
 func prop(g,key: String,point: Vector2,height: float,alpha: float = 1.0,angle: float = 0.0) -> void:
 	if props.is_empty():
-		for name in ["pylon","portal","rock","core"]:
+		for name in ["pylon","portal","rock","core","mine"]:
 			var im = Image.new()
-			assert(im.load_png_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/space_v134/"+name+".png"))==OK)
+			assert(im.load_png_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/"+("space_v135/" if name=="mine" else "space_v134/")+name+".png"))==OK)
 			props[name] = ImageTexture.create_from_image(im)
 	var tex: Texture2D = props[key];var size = tex.get_size()*height/tex.get_height()
 	g.paint_target.draw_set_transform(point,angle)
@@ -28,7 +30,7 @@ func prop(g,key: String,point: Vector2,height: float,alpha: float = 1.0,angle: f
 	g.paint_target.draw_set_transform(Vector2.ZERO)
 
 func reset() -> void:
-	notices.clear();current.clear();clock = 0;controls_left = 0
+	notices.clear();current.clear();impacts.clear();casualties.clear();clock = 0;controls_left = 0
 
 func notify(message: String, priority: int = 1, seconds: float = 1.8) -> void:
 	if message.is_empty(): return
@@ -42,6 +44,12 @@ func notify(message: String, priority: int = 1, seconds: float = 1.8) -> void:
 		notices.append(next)
 
 func advance(dt: float) -> void:
+	for i in range(casualties.size()-1,-1,-1):
+		casualties[i].age += dt
+		if float(casualties[i].age)>.72: casualties.remove_at(i)
+	for i in range(impacts.size()-1,-1,-1):
+		impacts[i].age += dt
+		if float(impacts[i].age)>.32: impacts.remove_at(i)
 	clock += dt;controls_left = maxf(0,controls_left-dt)
 	if not current.is_empty():
 		current.left = float(current.left)-dt
@@ -49,6 +57,37 @@ func advance(dt: float) -> void:
 	while current.is_empty() and not notices.is_empty():
 		var next = notices.pop_front()
 		if float(next.expires)>clock: current = next
+
+func takeoff_shift(s) -> float:
+	if s.phase!="ascent": return 0.0
+	var progress = transition_progress(s)
+	return 420*pow(clampf(progress/.48,0,1),1.8) if progress<.48 else 0.0
+
+func rise_offset(progress: float) -> float:
+	return -145*smoothstep(.10,.54,progress)*(1-smoothstep(.73,1,progress))
+
+func impact(point: Vector2,normal: Vector2,guarded: bool) -> void:
+	if impacts.size()>13: return
+	impacts.append({"p":point,"n":normal,"age":0.0,"guarded":guarded})
+
+func casualty(event: Dictionary) -> void:
+	if casualties.size()>=12: casualties.pop_front()
+	casualties.append({"kind":int(event.kind),"p":Vector2(event.foot_x,event.foot_y),"height":float(event.space_height),"wear":event.space_wear.duplicate(),"age":0.0})
+
+func paint_impacts(g) -> void:
+	var c = g.paint_target
+	for actor in casualties:
+		var age = float(actor.age)
+		var point = Vector2(actor.p)+Vector2(-90*age,65*age+45*age*age)
+		g.actor.paint_space(c,int(actor.kind),point,float(actor.height)*(1-age*.17),age,"ejected",80,actor.wear,Color(1,.86,.8,1-smoothstep(.25,.72,age)))
+	for hit in impacts:
+		var age = float(hit.age);var opacity = 1-age/.32
+		var color = Color(.5,.88,1,opacity) if hit.guarded else Color(1,.68,.32,opacity)
+		for j in range(4):
+			var direction = Vector2(hit.n).rotated((j-1.5)*.5)
+			var p = Vector2(hit.p)+direction*(4+age*90)
+			c.draw_line(p,p+direction*(4+opacity*6),color,1.4,true)
+		c.draw_arc(hit.p,5+age*24,Vector2(hit.n).angle()-.8,Vector2(hit.n).angle()+.8,10,Color(color,opacity*.6),2,true)
 
 func cabin_view(g) -> SubViewport:
 	var view = g.get_node_or_null("SpaceCabin") as SubViewport
@@ -148,7 +187,7 @@ func hud(g,s) -> void:
 		g.home_menu.label(g,str(r.active_count() if key=="horde" else r.coins),rect.position+Vector2(54,51),28,g.CREAM if key=="horde" else g.GOLD,false,64)
 	var timer: Rect2 = d.time
 	g.home_menu.label(g,"ESPAÇO",timer.position+Vector2(12,18),12,g.MINT,false)
-	var note = "SUBINDO" if s.phase=="ascent" else "POUSANDO" if s.phase=="return" else "%d s" % ceili(s.left)
+	var note = "SUBINDO ↑" if s.phase in ["ascent","boost"] else "POUSANDO" if s.phase=="return" else "%d s" % ceili(s.left)
 	g.home_menu.label(g,note,timer.position+Vector2(12,49),24,g.CREAM if s.left>5 else g.CORAL,false,126)
 	var impulse: Rect2 = d.impulse
 	var title = s.ZONES[s.zone()] if s.phase not in ["ascent","return"] else "DEIXANDO A TERRA" if s.phase=="ascent" else "RETORNO À CORRIDA"
