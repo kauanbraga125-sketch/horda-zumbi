@@ -1,0 +1,236 @@
+{
+  "version": "0.10.37",
+  "code": 140,
+  "package": "com.kauan.noitedahorda.reconstruida",
+  "bytes": 134127597,
+  "sha256": "5576bdb75599fe5bcd537e588f54ddc643a4cc1212fb0f1edcf2b9c57e0c4283",
+  "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+  "base_apk_sha256": "7cc2b329149e4ae7a9be4e56aab044be56ab1745ab420319ab2f32fbd9c3413f",
+  "prior_media_entries_preserved": 320,
+  "original_character_pngs_changed": 0,
+  "source_matches_shipped_scripts": true,
+  "startup_files": 258,
+  "class_count": 55,
+  "sparse_entries": 968,
+  "changed": [
+    "assets/art/v137/floating_barrel.webp",
+    "assets/art/v137/gate_mount.webp",
+    "assets/art/v137/layout.json",
+    "assets/art/v137/pipe_mount.webp",
+    "assets/art/v137/runners.webp",
+    "assets/art/v137/survivors.webp",
+    "assets/art/v137/wave.webp",
+    "assets/art/v137/wreck.webp",
+    "assets/audio/v137/manifest.json",
+    "assets/audio/v137/sewer_gate.pcm",
+    "assets/audio/v137/sewer_rush.pcm",
+    "project.binary",
+    "project.godot",
+    "scripts/actor.gd",
+    "scripts/bird_run.gd",
+    "scripts/cosmetics.gd",
+    "scripts/game.gd",
+    "scripts/sewer.gd",
+    "scripts/sewer_art.gd",
+    "scripts/sewer_life.gd",
+    "scripts/sewer_presentation.gd",
+    "scripts/sewer_visual.gd",
+    "scripts/sound.gd",
+    "startup_integrity.json"
+  ],
+  "layout": {
+    "min_sdk": 24,
+    "target_sdk": 35,
+    "extract_native_libs": true,
+    "resources_arsc_compression": 0,
+    "resources_arsc_offset": 28399632,
+    "resources_arsc_bytes": 59356
+  },
+  "physical_device_tested": false,
+  "packaged_runtime_integrity": {
+    "verified_files": 258,
+    "class_count": 55,
+    "all_match_source": true
+  },
+  "automated_tests": [
+    {
+      "suite": "v137_sewer",
+      "passed": true,
+      "summary": "V137_SEWER {\"checks\":147,\"failures\":[],\"physical_device_tested\":false,\"version\":\"0.10.37\"}",
+      "teardown_warnings": [],
+      "final_frozen_apk": true
+    },
+    {
+      "suite": "v136_systems",
+      "passed": true,
+      "summary": "V136_SYSTEMS {\"base_rate_sample\":[6081,2472,936,396,115],\"checks\":66,\"failures\":[],\"physical_device_tested\":false}",
+      "teardown_warnings": [],
+      "final_frozen_apk": true
+    },
+    {
+      "suite": "v135_contacts",
+      "passed": true,
+      "summary": "V135_CONTACTS checks=256 failures=[]",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v135_flight",
+      "passed": true,
+      "summary": "V135_FLIGHT checks=361 failures=[]",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v135_adventure",
+      "passed": true,
+      "summary": "V135_ADVENTURE_INTEGRATION checks=222 failures=[] version=0.10.37",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v135_readability",
+      "passed": true,
+      "summary": "V135_READABILITY checks=199 failures=[]",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v129_currency",
+      "passed": true,
+      "summary": "V129_CURRENCY_OK checks=45 all_cosmetics=35",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v100_integration",
+      "passed": true,
+      "summary": "V100_RESULT checks=56 failures=0",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v101_integration",
+      "passed": true,
+      "summary": "V101_RESULT checks=20 failures=0",
+      "teardown_warnings": [
+        "ERROR: 6 resources still in use at exit"
+      ]
+    },
+    {
+      "suite": "v103_codex",
+      "passed": true,
+      "summary": "V103_RESULT checks=38 failures=0",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v103_apk_runtime",
+      "passed": true,
+      "summary": "APK103_RESULT checks=20 failures=0",
+      "teardown_warnings": []
+    },
+    {
+      "suite": "v104_integration",
+      "passed": true,
+      "summary": "V104_RESULT checks=45 failures=0",
+      "teardown_warnings": [
+        "ERROR: 4 resources still in use at exit"
+      ]
+    },
+    {
+      "suite": "v105_integration",
+      "passed": true,
+      "summary": "V105_RESULT checks=47 failures=0",
+      "teardown_warnings": []
+    }
+  ],
+  "headless_checks": 1522,
+  "test_scope": "Functional assertions and exit status, matching source CI. Only two legacy UI suites retain renderer resources at shutdown; recorded separately. Final sewer physics and packaged boot rerun after final jump tuning.",
+  "ordinary_startup": [
+    {
+      "checks": 15,
+      "failures": [],
+      "fixture": "new",
+      "physical_device_tested": false,
+      "version": "0.10.37"
+    },
+    {
+      "checks": 16,
+      "failures": [],
+      "fixture": "existing",
+      "physical_device_tested": false,
+      "version": "0.10.37"
+    }
+  ],
+  "bird_transactions": {
+    "checks": 17,
+    "failures": [],
+    "physical_device_tested": false,
+    "real_disk_persistence": true
+  },
+  "native_visuals": {
+    "native_captures": 14,
+    "physical_device_tested": false,
+    "version": "0.10.37"
+  },
+  "native_replay": {
+    "captures": 4,
+    "completed": 1,
+    "encounters": [
+      {
+        "kind": "rubble",
+        "members": 10,
+        "time": 1.0
+      },
+      {
+        "kind": "pipe",
+        "members": 10,
+        "time": 5.01666666666665
+      },
+      {
+        "kind": "barrel",
+        "members": 10,
+        "time": 9.03333333333336
+      },
+      {
+        "kind": "rescue",
+        "members": 10,
+        "time": 13.0500000000002
+      },
+      {
+        "kind": "gate",
+        "members": 11,
+        "time": 16.866666666667
+      },
+      {
+        "kind": "rubble",
+        "members": 11,
+        "time": 20.8833333333334
+      },
+      {
+        "kind": "rescue",
+        "members": 11,
+        "time": 24.8999999999999
+      }
+    ],
+    "fps": 30,
+    "frames": 1140,
+    "losses": 1,
+    "members": 13,
+    "physical_device_tested": false,
+    "real_touch_inputs": true,
+    "safe_jumps": 4,
+    "souls": 4,
+    "version": "0.10.37"
+  },
+  "native_cosmetic_regression": {
+    "checks": 44,
+    "failures": [],
+    "legacy_teardown_warnings": [
+      "4 resources still in use at exit"
+    ]
+  },
+  "prior_cosmetics_preserved": 35,
+  "original_art_sources": 4,
+  "new_runtime_webp_sheets_and_props": 7,
+  "new_pcm_clips": 2,
+  "animation_cels": {
+    "wave": 8,
+    "survivors": 9,
+    "background_runners": 12
+  }
+}

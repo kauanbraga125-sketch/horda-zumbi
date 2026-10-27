@@ -190,3 +190,6 @@ A máquina vazia de bronze, 16 objetos isolados e 24 ilustrações de missões f
 `assets/art/results_v110/souls.png`: folha original RGBA 1536×1024, criada com imagegen integrado para o fim de partida aprovado. Pixels preservados, seis regiões de atlas e ciclo de cinco poses, metadados em `manifest.json`. Nova arte usada nos resultados; personagens e NPCs da corrida preservados.
 
 `assets/audio/results_v110/`: cinco PCM derivados apenas dos sons existentes. Fontes, hashes, duração e tratamento em `manifest.json`; reprodução em `sound.gd`. Recriação por `tools/prepare_v110_audio.py`. Referências e licenças originais permanecem em `assets/audio/`.
+# Esgoto vivo — 0.10.37
+
+Quatro folhas originais criadas com ImageGen integrado, sem sprites comerciais: sobreviventes na água (9 cels), pessoas e mutante correndo (12 cels), crista da enchente (8 cels) e obstáculos (4 elementos). Fontes e prompts: `tools/art_sources/v137/`. Preparação: `tools/prepare_v137_art.py`. Uso no jogo: `assets/art/v137/` e `scripts/sewer_art.gd`. Os PNGs antigos dos personagens permanecem intactos. Efeitos novos de correnteza e metal são síntese original em `tools/generate_v137_audio.py`.

@@ -50,14 +50,14 @@ func find_target(r) -> Dictionary:
 	var result: Dictionary = {};var best = 850.0
 	for e in candidates:
 		if e.taken or e.get("bird_weakened",false) or e.get("state","") not in ["normal",""]: continue
-		if e.kind not in ["bomb","air_bomb","crate","spikes","bullet","car","bus","truck","tank","plane","moto","meteor","rock","satellite","parasite","shot","fighter","cargo","saucer","tour_bus","ghost_frigate","rubble","barrel","pipe"]: continue
+		if e.kind not in ["bomb","air_bomb","crate","spikes","bullet","car","bus","truck","tank","plane","moto","meteor","rock","satellite","parasite","shot","fighter","cargo","saucer","tour_bus","ghost_frigate","rubble","barrel","pipe","gate"]: continue
 		var delta = float(e.x)-from
 		if delta>100 and delta<best and e.x<r.view_right-40: best = delta;result = e
 	return result
 
 func attack(r) -> bool:
 	var e = find_target(r)
-	if e.is_empty() or e.kind=="pipe": return false
+	if e.is_empty() or e.kind in ["pipe","gate"]: return false
 	target = Vector2(e.x,e.y);emotion_left = 1.0;beam_left = .38
 	if r.space.active and r.space.battle.SHIPS.has(e.kind): r.space.battle.hit_ship(r.space,r,e,1)
 	elif not r.sewer.active and MonsterCatalog.VEHICLES.has(e.kind):

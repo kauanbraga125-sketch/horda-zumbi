@@ -49,8 +49,8 @@
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 4397,
-      "sha256": "d8d6d384387c35094325c2601d01e87f4cca4f3d88bc697d826e2d1587acd4b9"
+      "bytes": 4415,
+      "sha256": "a617ee3d0eee82ba4ac3ba76c17bfdbb4f248b40ad2746933c54fd761a1ac988"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -349,8 +349,8 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 13931,
-      "sha256": "d04dea0d25cdc1effa0b0f3e6f71e1373bd57e0afddc4061bcebd30f7f7d6544"
+      "bytes": 14130,
+      "sha256": "7148ca0935fb0ce412b42b1706b59b2e4d497c2dbc629d05cff1e79eba8a2588"
     },
     {
       "path": "res://scripts/sewer_art.gd",
@@ -364,8 +364,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 12111,
-      "sha256": "5c30a71900efa55e8283f5fccdc379b87c3e94a496717556f47a178be17c9194"
+      "bytes": 11817,
+      "sha256": "18266be0c3890b4a7bb1b439979644502e665ca9ab6964765f45954388f34310"
     },
     {
       "path": "res://scripts/sewer_visual.gd",

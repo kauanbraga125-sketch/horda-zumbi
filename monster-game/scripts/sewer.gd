@@ -104,14 +104,15 @@ func request_jump(r) -> void:
 			b.hold_for = .08
 
 func add_object(kind: String,x: float,y: float,extra: Dictionary = {}) -> Dictionary:
-	var e = {"kind":kind,"x":x,"previous_x":x,"y":y,"taken":false,"state":"normal","age":0.0,"contacts":{},"row":-1,"width":65.0,"damaged":false,"passed":false}
+	var span = {"rubble":78.0,"barrel":36.0,"pipe":112.0,"gate":136.0}.get(kind,65.0)
+	var e = {"kind":kind,"x":x,"previous_x":x,"y":y,"taken":false,"state":"normal","age":0.0,"contacts":{},"row":-1,"width":span,"damaged":false,"passed":false}
 	e.merge(extra,true);objects.append(e);return e
 
 func spawn(r,kind: String = "") -> void:
 	serial += 1
 	var type = kind if not kind.is_empty() else ["rubble","pipe","barrel","rescue","gate","rubble","rescue","barrel"][posmod(serial-1,8)]
 	var speed = scroll_speed(r);var x = maxf(r.view_right+90,560+speed*2.15)
-	var e = add_object(type,x,WATER-35,{"width":94.0 if type in ["pipe","gate"] else 65.0,"encounter":serial,"variant":serial%3})
+	var e = add_object(type,x,WATER-35,{"encounter":serial,"variant":serial%3})
 	if type in ["pipe","gate"]: e.y = WATER-151;e.ceiling_attached = true
 	if type=="rescue": e.y = WATER-40;e.variant = serial%3
 	var row = r.new_coin_row(5)
@@ -167,10 +168,10 @@ func advance(r,dt: float,held: bool) -> void:
 		var floor_y = water_y(b.x)-24+float(b.depth)
 		b.x = lerpf(float(b.x),boat_x(r,i)+float(b.bump),1-exp(-dt*8));b.bump = move_toward(b.bump,0,dt*38);b.previous_y = b.y
 		if b.jump_at>=0 and age>=b.jump_at:
-			b.jump_at = -1;b.vy = -690;b.held = 0;splash(Vector2(b.x-38,b.y+27),false)
+			b.jump_at = -1;b.vy = -760;b.held = 0;splash(Vector2(b.x-38,b.y+27),false)
 		if b.y<floor_y-1 or b.vy<0:
 			b.held += dt
-			b.vy += (1250 if b.vy<0 and b.held<float(b.get("hold_for",.08)) else 1850)*dt
+			b.vy += (1250 if b.vy<0 and b.held<float(b.get("hold_for",.08)) else 1650)*dt
 			b.y += b.vy*dt
 			if b.y>=floor_y:
 				b.y = floor_y;b.vy = 0;splash(Vector2(b.x,b.y+28),false)
@@ -197,7 +198,9 @@ func _update_members(r,_dt: float) -> void:
 			if index<0: continue
 			var m = r.members[index]
 			var local = Vector2(4-seat*68,14);var foot = Vector2(b.x,b.y)+local.rotated(float(b.angle))
-			if phase=="entry": foot = Vector2(starts.get(int(m.id),foot)).lerp(foot,smoothstep(.15,ENTRY_SECONDS,phase_age))
+			if phase=="entry":
+				var board_t = smoothstep(.15,ENTRY_SECONDS,phase_age)
+				foot = Vector2(starts.get(int(m.id),foot)).lerp(foot,board_t)+Vector2(0,-sin(board_t*PI)*70)
 			elif phase=="exit":
 				var t = clampf(phase_age/EXIT_SECONDS,0,1);var start = Vector2(starts.get(int(m.id),foot))
 				foot = start.lerp(Vector2(r.slot_x(index),r.FLOOR),smoothstep(0,1,t))+Vector2(sin(t*PI)*150,-sin(t*PI)*215)
@@ -215,7 +218,8 @@ func _update_objects(r,dt: float) -> void:
 			continue
 		for b in boats:
 			if e.taken or r.dead: break
-			var cross = minf(e.previous_x,e.x)-e.width<=b.x and maxf(e.previous_x,e.x)+e.width>=b.x
+			var hazard = e.kind in ["rubble","barrel","pipe","gate"]
+			var cross = minf(e.previous_x,e.x)-e.width<=b.x+(80 if hazard else 0) and maxf(e.previous_x,e.x)+e.width>=b.x-(70 if hazard else 0)
 			if not cross: continue
 			if e.kind=="coin":
 				if absf(float(b.y)-42-float(e.y))<67:
@@ -226,8 +230,8 @@ func _update_objects(r,dt: float) -> void:
 				var depth = float(b.get("depth",0))
 				var lift = water_y(b.x)-24+depth-float(b.y)
 				var collide = lift>51+depth if e.kind in ["pipe","gate"] else lift<77
-				e.contacts[b.id] = true
 				if collide:
+					e.contacts[b.id] = true
 					e.damaged = true;b.bump = -23;b.vy = maxf(b.vy,190)
 					if e.kind in ["pipe","gate"]: b.y = maxf(b.y,WATER-69)
 					if int(e.get("damage_count",0))<2:

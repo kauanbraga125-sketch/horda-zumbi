@@ -1,14 +1,14 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.36 — aves malditas, jet-skis no esgoto e abdução conectada**.
+Versão de testes atual: **0.10.37 — esgoto vivo, duplas sentadas e perseguição**.
 
-- [Baixar o APK 0.10.36](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.36/Horda-Zumbi-v0.10.36-TESTE-1M-AVES-ESGOTO-ARM64.apk)
+- [Baixar o APK 0.10.37](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.37/Horda-Zumbi-v0.10.37-TESTE-1M-ESGOTO-VIVO-ARM64.apk)
 - [Projeto Godot completo](monster-game/)
-- [Mecânicas, referências e instruções](monster-game/AVES-ESGOTO-v0.10.36.md)
-- [Relatório de validação](monster-game/VALIDACAO-v0.10.36.json)
-- [Reconstruir o APK e os fontes a partir da cópia verificada](release-v0.10.36/)
+- [Mecânicas, referências e instruções](monster-game/ESGOTO-v0.10.37.md)
+- [Relatório de validação](monster-game/VALIDACAO-v0.10.37.json)
+- [Reconstruir o APK e os fontes a partir da cópia verificada](release-v0.10.37/)
 
-Cinco aves originais têm sorteio animado, evolução e fusão. A fuga no esgoto usa membros reais em jet-skis, com saltos, resgates e volta à rua. A subida conecta a nave à horda por um feixe de abdução. Minas animadas substituem os pilares provisórios. Contatos sólidos bloqueiam e recuam os membros mesmo durante proteção contra dano, e mortes no espaço usam uma saída flutuante com os acessórios do personagem. Tráfego distante, detritos, propulsores e escudos em movimento dão vida ao cenário. Rotas, combos, contra-ataques, almas e recordes continuam na mesma partida.
+A fuga do esgoto agora tem dois monstros sentados por jet-ski, onda com oito quadros, canos ancorados, sobreviventes próprios animados e perseguições na passarela. A saída usa o cenário real da corrida, sem mapa alternativo. Cinco aves originais têm sorteio animado, evolução e fusão. A fuga no esgoto usa membros reais em jet-skis, com saltos, resgates e volta à rua. A subida conecta a nave à horda por um feixe de abdução. Minas animadas substituem os pilares provisórios. Contatos sólidos bloqueiam e recuam os membros mesmo durante proteção contra dano, e mortes no espaço usam uma saída flutuante com os acessórios do personagem. Tráfego distante, detritos, propulsores e escudos em movimento dão vida ao cenário. Rotas, combos, contra-ataques, almas e recordes continuam na mesma partida.
 
 Os seguidores repetem o salto ao chegar ao mesmo ponto do mundo; o atraso extra começa em hordas grandes. O espaço tem camadas por barra de impulso, investida, naves destrutíveis e pilotáveis, perigos que retiram membros, ovos e parasitas, colecionáveis e poderes exclusivos. O Caçador Noturno traz civis reais, o Manto Espectral absorve impactos e os poderes espaciais são Simbionte Cósmico e Escudo Orbital.
 
@@ -18,7 +18,7 @@ Há acesso direto ao teste espacial e à reposição de moedas na tela inicial. 
 
 Esta edição repõe ao abrir o aplicativo um saldo mínimo de **1.000.000 de moedas e 10.000 olhos**, preservando valores maiores e o progresso anterior. Desative a opção `testing/catalog_funds_enabled` antes do lançamento comercial.
 
-APK ARM64, Godot 4.5.1, GL Compatibility, Android mínimo 24 e alvo 35. Mantém o pacote e a assinatura da **0.10.35** (`com.kauan.noitedahorda.reconstruida`), permitindo atualizar essa edição sem apagar os dados. Nome instalado: **Horda Aves Esgoto R36**.
+APK ARM64, Godot 4.5.1, GL Compatibility, Android mínimo 24 e alvo 35. Mantém o pacote e a assinatura da **0.10.36** (`com.kauan.noitedahorda.reconstruida`), permitindo atualizar essa edição sem apagar os dados. Nome instalado: **Horda Esgoto R37**.
 
 Os testes verificam os quadros, a bancada, as compras, a estabilidade dos itens nas transformações, a integridade e a inicialização do APK. A instalação em aparelho Android físico ainda precisa ser conferida pelo proprietário.
 

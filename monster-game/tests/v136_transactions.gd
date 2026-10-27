@@ -60,6 +60,7 @@ func run() -> void:
 	game.set_process(false);game.queue_free();game = null
 	for i in range(8): await process_frame
 	preload("res://scripts/bird_art.gd").textures.clear()
+	preload("res://scripts/sewer_art.gd").textures.clear()
 	var report = {"checks":checks,"failures":failures,"real_disk_persistence":true,"physical_device_tested":false}
 	var folder = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not folder.is_empty():

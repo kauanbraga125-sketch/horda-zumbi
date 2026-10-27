@@ -147,7 +147,9 @@ func paint(g,s) -> void:
 				var member_index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
 				if member_index<0: continue
 				var m = r.members[member_index];var wear = r.cosmetics_for(m,int(m.kind))
-				g.actor.paint_rider(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.31,float(b.angle),wear,Color.WHITE,seat)
+				if s.phase=="entry" and s.phase_age<s.ENTRY_SECONDS*.92:
+					g.actor.paint_space(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.13,"return" if s.phase_age>s.ENTRY_SECONDS*.65 else "launch",0,wear)
+				else: g.actor.paint_rider(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.31,float(b.angle),wear,Color.WHITE,seat)
 		if exit_t<.88: Old.prop(c,"jetski",p,100,angle,Color(1,1,1,1-smoothstep(.65,.88,exit_t)))
 		if b.bump<-.5: c.draw_arc(p+Vector2(65,-9),19,-1,1,12,Color(1,.75,.35,minf(.8,-float(b.bump)/25)),2,true)
 	if s.phase=="exit":
@@ -182,10 +184,6 @@ func flood(g,s) -> void:
 	if s.phase=="entry" and s.phase_age<.55: return
 	var c = g.paint_target;var view = view_rect(g);var edge = s.wave_edge()
 	var height = 247+s.pressure*85+sin(s.age*4)*5;var base = s.WATER+45
-	var points = PackedVector2Array([Vector2(view.position.x-250,view.end.y+100),Vector2(view.position.x-250,base-height*.63),Vector2(edge-100,base-height*.58),Vector2(edge-55,base-height*.37),Vector2(edge-15,base-height*.12),Vector2(edge+28,base+8),Vector2(edge+55,view.end.y+100)])
-	var uvs = PackedVector2Array()
-	for p in points: uvs.append(Vector2(.42+sin(p.x*.01+s.age)*.08,.8+clampf((p.y-base+height)/height,0,1)*.2))
-	c.draw_polygon(points,PackedColorArray([Color(.42,.78,.79,.96)]),uvs,Old.texture("sewer"))
 	Art.crest(c,Vector2(edge+15,base),height,s.age)
 	for i in range(23):
 		var t = fposmod(s.age*1.4+i*.071,1)
