@@ -1,0 +1,344 @@
+{
+  "version": "0.10.34",
+  "code": 137,
+  "package": "com.kauan.noitedahorda.reconstruida",
+  "bytes": 122662552,
+  "sha256": "68731a87750d79e696dbecd0ab459e940dafc5e836904f88d12fd2952ec2f9b8",
+  "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+  "base_apk_sha256": "b48aa9368244a2ea53f8064cb766e8a3111a74f060ad705ff19557c2ed3cb851",
+  "prior_media_entries_preserved": 287,
+  "original_character_pngs_changed": 0,
+  "source_matches_shipped_scripts": true,
+  "startup_files": 203,
+  "class_count": 55,
+  "sparse_entries": 913,
+  "changed": [
+    "assets/art/space_v134/core.png",
+    "assets/art/space_v134/layout.json",
+    "assets/art/space_v134/portal.png",
+    "assets/art/space_v134/pylon.png",
+    "assets/art/space_v134/rock.png",
+    "project.binary",
+    "project.godot",
+    "scripts/game.gd",
+    "scripts/space.gd",
+    "scripts/space_combat.gd",
+    "scripts/space_routes.gd",
+    "scripts/space_visual.gd",
+    "startup_integrity.json"
+  ],
+  "layout": {
+    "min_sdk": 24,
+    "target_sdk": 35,
+    "extract_native_libs": true,
+    "resources_arsc_compression": 0,
+    "resources_arsc_offset": 28399628,
+    "resources_arsc_bytes": 59356
+  },
+  "physical_device_tested": false,
+  "features": [
+    "independent two-axis leader control",
+    "recorded follower paths with stable ribbons",
+    "authored route fragments and recovery",
+    "dash chains and exposed alien core",
+    "solid hazards require dodging",
+    "active impulse and physical next-layer exit",
+    "real horde, souls, losses and records",
+    "road progress and protected landing",
+    "one million coins and ten thousand eyes on normal startup"
+  ],
+  "tests": {
+    "flight": {
+      "checks": 361,
+      "failures": 0,
+      "packaged_runtime": true
+    },
+    "adventure": {
+      "checks": 222,
+      "failures": 0,
+      "packaged_runtime": true
+    },
+    "readability": {
+      "checks": 199,
+      "failures": 0,
+      "packaged_runtime": true
+    },
+    "currency": {
+      "checks": 45,
+      "failures": 0,
+      "packaged_runtime": true
+    },
+    "startup_new": {
+      "checks": 15,
+      "failures": [],
+      "fixture": "new",
+      "physical_device_tested": false,
+      "version": "0.10.34"
+    },
+    "startup_existing": {
+      "checks": 16,
+      "failures": [],
+      "fixture": "existing",
+      "physical_device_tested": false,
+      "version": "0.10.34"
+    },
+    "cabins": {
+      "checks": 4,
+      "failures": []
+    },
+    "transforms": {
+      "checks": 44,
+      "failures": 0,
+      "native": true
+    },
+    "legacy": [
+      {
+        "suite": "v100_integration",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V100_RESULT checks=56 failures=0"
+        ]
+      },
+      {
+        "suite": "v101_integration",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V101_RESULT checks=20 failures=0"
+        ]
+      },
+      {
+        "suite": "v103_codex",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V103_RESULT checks=38 failures=0"
+        ]
+      },
+      {
+        "suite": "v103_apk_runtime",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "APK103_RESULT checks=20 failures=0"
+        ]
+      },
+      {
+        "suite": "v104_integration",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V104_RESULT checks=45 failures=0"
+        ]
+      },
+      {
+        "suite": "v105_integration",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V105_RESULT checks=47 failures=0"
+        ]
+      },
+      {
+        "suite": "v129_currency",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V129_CURRENCY_OK checks=45 all_cosmetics=35"
+        ]
+      },
+      {
+        "suite": "v134_adventure",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V134_ADVENTURE_INTEGRATION checks=222 failures=[] version=0.10.34"
+        ]
+      },
+      {
+        "suite": "v134_readability",
+        "exit": 0,
+        "fatal": false,
+        "results": [
+          "V134_READABILITY checks=199 failures=[]"
+        ]
+      }
+    ]
+  },
+  "native_visual": {
+    "motion_frames": 340,
+    "native_captures": 35,
+    "natural_encounters": [
+      {
+        "kind": "rescue",
+        "layer": 0,
+        "members": 20,
+        "time": 0.3
+      },
+      {
+        "kind": "convoy",
+        "layer": 0,
+        "members": 20,
+        "time": 5.41666666666665
+      },
+      {
+        "kind": "slalom",
+        "layer": 1,
+        "members": 24,
+        "time": 13.0666666666669
+      },
+      {
+        "kind": "convoy",
+        "layer": 1,
+        "members": 23,
+        "time": 19.4166666666668
+      },
+      {
+        "kind": "counterattack",
+        "layer": 2,
+        "members": 26,
+        "time": 27.0666666666664
+      }
+    ],
+    "physical_device_tested": false,
+    "samples": [
+      {
+        "charge": 6.0,
+        "frame": 29,
+        "members": 20,
+        "phase": "flight",
+        "souls": 0,
+        "x": 440.000010490251,
+        "y": 382.283915969509
+      },
+      {
+        "charge": 33.5,
+        "frame": 69,
+        "members": 20,
+        "phase": "flight",
+        "souls": 1,
+        "x": 440.000007228358,
+        "y": 296.497604724187
+      },
+      {
+        "charge": 0,
+        "frame": 119,
+        "members": 24,
+        "phase": "boost",
+        "souls": 5,
+        "x": 440.000010368732,
+        "y": 396.841886999924
+      },
+      {
+        "charge": 23.5,
+        "frame": 169,
+        "members": 23,
+        "phase": "flight",
+        "souls": 5,
+        "x": 440.000010366533,
+        "y": 476.876940892005
+      },
+      {
+        "charge": 100.0,
+        "frame": 219,
+        "members": 23,
+        "phase": "flight",
+        "souls": 6,
+        "x": 527.79818145965,
+        "y": 317.379328241435
+      },
+      {
+        "charge": 0,
+        "frame": 269,
+        "members": 26,
+        "phase": "flight",
+        "souls": 9,
+        "x": 435.440060783927,
+        "y": 404.194515506235
+      },
+      {
+        "charge": 17.5,
+        "frame": 309,
+        "members": 26,
+        "phase": "return",
+        "souls": 9,
+        "x": 440.000010304548,
+        "y": 298.487340700889
+      },
+      {
+        "charge": 17.5,
+        "frame": 339,
+        "members": 26,
+        "phase": "ground",
+        "souls": 9,
+        "x": 440.000010304548,
+        "y": 298.487340700889
+      }
+    ],
+    "version": "0.10.34"
+  },
+  "known_limits": [
+    "No physical Android device test in this session",
+    "Touch feel, frame rate on the phone, and final balance require device playtesting"
+  ],
+  "original_media_preserved": true,
+  "native_preview_30fps": {
+    "encounters": [
+      {
+        "kind": "rescue",
+        "layer": 0,
+        "members": 20,
+        "time": 0.3
+      },
+      {
+        "kind": "convoy",
+        "layer": 0,
+        "members": 21,
+        "time": 5.41666666666665
+      },
+      {
+        "kind": "slalom",
+        "layer": 1,
+        "members": 25,
+        "time": 13.0833333333336
+      },
+      {
+        "kind": "convoy",
+        "layer": 1,
+        "members": 21,
+        "time": 19.4333333333335
+      },
+      {
+        "kind": "counterattack",
+        "layer": 2,
+        "members": 24,
+        "time": 27.0999999999997
+      }
+    ],
+    "fps": 30,
+    "frames": 1020,
+    "max_horde": 25,
+    "members": 24,
+    "physical_device_tested": false,
+    "real_touch_inputs": true,
+    "souls": 10,
+    "video": {
+      "programs": [],
+      "streams": [
+        {
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1"
+        }
+      ],
+      "format": {
+        "duration": "34.000000",
+        "size": "13370512"
+      }
+    },
+    "apk_sha256": "68731a87750d79e696dbecd0ab459e940dafc5e836904f88d12fd2952ec2f9b8",
+    "automated_control": true
+  },
+  "sprite_preparation_reproducible": true
+}

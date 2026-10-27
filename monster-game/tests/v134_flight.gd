@@ -32,6 +32,8 @@ func run() -> void:
  var trail = flight(44);var ts = trail.space;ts.aim_y = 260;ticks(trail,18)
  check(absf(float(trail.members[0].y)-float(trail.members[-1].y))>45,"large tail replays earlier trajectory")
  check(ts.follower_lag(19,2)>ts.follower_lag(7,1),"extra reaction delay starts after sixteen")
+ var stable = flight(20);var ribbons = stable.space.formation(stable).strands
+ stable.add_member(0,false);check(stable.space.formation(stable).strands==ribbons,"rescue never reshuffles the entire horde")
  var idle = flight();ticks(idle,600)
  check(idle.space.charge==0 and idle.space.wave_number==1,"waiting alone grants no impulse")
  var soul = flight();var before = soul.active_count();var peak = soul.max_horde

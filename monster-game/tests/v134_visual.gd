@@ -58,7 +58,7 @@ func run() -> void:
 	root.size = Vector2i(1800,810);await process_frame;await snap("23_tela_larga")
 	root.size = Vector2i(1280,720);await process_frame
 	# Actual authored patterns, actual touch input. No scripted invulnerability or instant collection.
-	flight(20,true);s = game.runner.space;s.next_group = 0;s.left = 30
+	flight(20,true);s = game.runner.space;s.next_group = 0;s.left = 30;game.lab_active = false
 	DirAccess.make_dir_recursive_absolute(folder+"/motion")
 	var touch = InputEventScreenTouch.new();touch.index = 42;touch.position = Vector2(350,420);touch.pressed = true;game._input(touch)
 	var samples: Array = []
@@ -85,7 +85,7 @@ func run() -> void:
 		if frame in [29,69,119,169,219,269,309,339]:
 			await snap("24_partida_%03d" % frame)
 			samples.append({"frame":frame,"members":game.runner.active_count(),"souls":game.runner.souls,"charge":s.charge,"phase":s.phase,"x":s.x,"y":s.y})
-	var natural = s.routes.history.duplicate(true)
+	var natural = s.routes.history.duplicate(true);game.lab_active = true
 	flight(20,true);s = game.runner.space;s.routes.start(s,game.runner,"gates");step(1.8);await snap("25_passagem_nova")
 	flight(20,true);s = game.runner.space;s.altitude = 2150;s.routes.start(s,game.runner,"counterattack");step(.8);await snap("26_mira_alienigena")
 	step(1.0);await snap("27_nucleo_exposto")

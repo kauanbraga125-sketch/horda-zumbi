@@ -64,6 +64,7 @@ var chain_best = 0
 var dash_from = 340.0
 var dash_target = 340.0
 var perfect_rows: Dictionary = {}
+var ribbon_count = 1
 
 func reset(seed_value: int) -> void:
 	active = false;phase = "ground";objects.clear();starts.clear();discoveries.clear()
@@ -101,6 +102,7 @@ func begin(r, force: bool = false) -> bool:
 	ensure_art();battle.art.warm();visual.warm()
 	active = true;phase = "ascent";age = 0;phase_age = 0;flight_age = 0
 	duration = seconds(int(r.power_levels.get("space_time", 0)));left = duration
+	ribbon_count = 1 if r.active_count()<=8 else 2 if r.active_count()<=20 else 3 if r.active_count()<=50 else 4
 	altitude = 0;y = 420;vy = 0;x = clampf(340+maxi(0,r.active_count()-8)*4,340,540);aim_x = x;x = clampf(340+maxi(0,r.active_count()-8)*4,340,540);aim_x = x;hurt_left = 0;hit_cooldown = 0;thrust_flash = 0
 	next_group = 1.0;group_serial = 0;last_zone = -1;warning_second = 6
 	start_world = r.world_px;start_tunnel = r.tunnel_number()
@@ -239,7 +241,7 @@ func member_height(r) -> float:
 	return clampf(104-maxi(0,r.active_count()-8)*.55,62,104)
 
 func formation(r) -> Dictionary:
-	var strands = 1 if r.active_count()<=8 else 2 if r.active_count()<=20 else 3 if r.active_count()<=50 else 4
+	var strands = ribbon_count
 	return {"strands":strands,"columns":ceili(float(r.active_count())/strands),"rows":strands,"gap_x":22.0,"gap_y":30.0}
 
 func steering_bounds(_r) -> Vector2:
