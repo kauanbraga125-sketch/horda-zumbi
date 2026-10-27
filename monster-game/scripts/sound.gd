@@ -90,6 +90,11 @@ func _ready() -> void :
 		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/v136/"+name+".pcm")
 		if name=="sewer_water": stream.loop_mode = AudioStreamWAV.LOOP_FORWARD;stream.loop_end = stream.data.size()/2
 		clips[name] = stream
+	for name in ["sewer_rush","sewer_gate"]:
+		var stream = AudioStreamWAV.new();stream.format = AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate = 32000;stream.stereo = false
+		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/v137/"+name+".pcm")
+		if name=="sewer_rush": stream.loop_mode = AudioStreamWAV.LOOP_FORWARD;stream.loop_end = stream.data.size()/2
+		clips[name] = stream
 
 func loop_player() -> AudioStreamPlayer:
 	var player = AudioStreamPlayer.new();player.bus = "HordeEffects";add_child(player);return player
@@ -183,7 +188,7 @@ func update_course(run: HordeRun, running: bool, burning: bool = false) -> void 
 		return
 	if run.sewer.active:
 		for p in [rotor,fire,wings,footsteps,heavy_steps]: p.stop()
-		set_music("midnight_late");set_atmosphere("");set_loop(engine,"sewer_water",true,-18);return
+		set_music("midnight_late");set_atmosphere("");set_loop(engine,"sewer_rush",true,-20+run.sewer.pressure*8);return
 	if run.space.active:
 		for p in [rotor,engine,fire,wings,footsteps,heavy_steps]: p.stop()
 		set_atmosphere("");set_music("space_music");return

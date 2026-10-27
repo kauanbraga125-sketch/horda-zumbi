@@ -1,5 +1,5 @@
 {
-  "version": "0.10.36",
+  "version": "0.10.37",
   "class_count": 55,
   "files": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "path": "res://scripts/actor.gd",
-      "bytes": 11592,
-      "sha256": "fd60680ba8fdc2ddec0597195f91d68b697eeac72c32b1ce2b2c5ed22ed81847"
+      "bytes": 11724,
+      "sha256": "a50a14b47bf766f58a0f39cc62ebce64344d7080965810fff3449261c11c77bc"
     },
     {
       "path": "res://scripts/adventure_art.gd",
@@ -124,8 +124,8 @@
     },
     {
       "path": "res://scripts/cosmetics.gd",
-      "bytes": 33805,
-      "sha256": "7f03bcdfdc5f9c01cfa700d0e97088b72ce0f283a1e53ea5dfbc6c819066a085"
+      "bytes": 33930,
+      "sha256": "ec3bca2cdf16de1e8d26ae20ca88b8cdfc8364ee28179d68e2ff15bace8ca8a9"
     },
     {
       "path": "res://scripts/course.gd",
@@ -204,8 +204,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 117540,
-      "sha256": "5b79c652d02454572c58fcfc88f1ece180bdc6c1d8849320a6a16c1f072a5aa7"
+      "bytes": 117811,
+      "sha256": "8553c3b6fe1e130fee2be947c33f41c636d27f5cbe46e407d943b88da7fb9361"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -349,13 +349,28 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 12748,
-      "sha256": "7a8b710bf9f9ae6a3762e88f2665ae8c5964caabdab4660077e6b01843cddab7"
+      "bytes": 13931,
+      "sha256": "d04dea0d25cdc1effa0b0f3e6f71e1373bd57e0afddc4061bcebd30f7f7d6544"
+    },
+    {
+      "path": "res://scripts/sewer_art.gd",
+      "bytes": 2194,
+      "sha256": "b70253148f892f0ab690b013aaf99d3a7e5a91b90d2141a99f4bd19647eec97c"
+    },
+    {
+      "path": "res://scripts/sewer_life.gd",
+      "bytes": 2171,
+      "sha256": "5e32fa75e6faf76cef8cb4223e5b3262f9f141a94c20fbcb13bfae992df930c9"
+    },
+    {
+      "path": "res://scripts/sewer_presentation.gd",
+      "bytes": 12111,
+      "sha256": "5c30a71900efa55e8283f5fccdc379b87c3e94a496717556f47a178be17c9194"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
-      "bytes": 11214,
-      "sha256": "c9ce26aa3eae4f696dc28f8aa714e6be6d8774bd2ff29ae6547499fc59645a84"
+      "bytes": 2523,
+      "sha256": "19968fe28438f6ab7d7b75eb6af408ea69063536f38577c36c20af14901b4c37"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",
@@ -374,8 +389,8 @@
     },
     {
       "path": "res://scripts/sound.gd",
-      "bytes": 15824,
-      "sha256": "fda3b44cdf1622f11cfc8a529dc44dab773493112b2224e1c46e2eebae8d3ca7"
+      "bytes": 16233,
+      "sha256": "65ff952a0671c28470636654a83c1db3d40858da4634f0199c18cde7e46d4fc5"
     },
     {
       "path": "res://scripts/space.gd",
@@ -1171,6 +1186,61 @@
       "path": "res://assets/art/v136/sewer_exit.webp",
       "bytes": 391226,
       "sha256": "4f829cd4890a552c1417f7c11aa0c96336cc5b87e18355c87bed8ddab2897072"
+    },
+    {
+      "path": "res://assets/art/v137/floating_barrel.webp",
+      "bytes": 187196,
+      "sha256": "7d07f025e6d94f71b0a41eb0b4cd7e2e1a6d46e7caf8dde3477e7b9ea8dbf088"
+    },
+    {
+      "path": "res://assets/art/v137/gate_mount.webp",
+      "bytes": 288860,
+      "sha256": "bd53fb6517dd926fa17345b1765f3fc09087cae7aa8bac68bb899267e407e3d7"
+    },
+    {
+      "path": "res://assets/art/v137/layout.json",
+      "bytes": 1323,
+      "sha256": "125f2959a8f577b8d7de52f72ed542021f129fd4c3d237adc6e779b251711c15"
+    },
+    {
+      "path": "res://assets/art/v137/pipe_mount.webp",
+      "bytes": 258844,
+      "sha256": "faecd0b4a5da48a741b5be1a3e16dafb0eecf57eb3c9e9f52b5248b0362f5ac4"
+    },
+    {
+      "path": "res://assets/art/v137/runners.webp",
+      "bytes": 1023406,
+      "sha256": "2de5bc14771cc6b6b382553373d48b37258c0fd97e53f000c559e9c592f564e1"
+    },
+    {
+      "path": "res://assets/art/v137/survivors.webp",
+      "bytes": 964934,
+      "sha256": "0f74ee818460be12260416e4ab684c79f363adeb45c69ef287fa95b88ff51525"
+    },
+    {
+      "path": "res://assets/art/v137/wave.webp",
+      "bytes": 1302634,
+      "sha256": "72465da487a67ac92674e8cbb3039584e10150422a3e9bbafdf4a2b04223f565"
+    },
+    {
+      "path": "res://assets/art/v137/wreck.webp",
+      "bytes": 220296,
+      "sha256": "35d40f1ec88c3793a2fbde301f422caccd36d764f887d45594a1828fa2847eb3"
+    },
+    {
+      "path": "res://assets/audio/v137/manifest.json",
+      "bytes": 133,
+      "sha256": "6c7555d628bc37a33b5bfcd5f20ef7b9a3f0c68940b1d28a81112ca3a7908237"
+    },
+    {
+      "path": "res://assets/audio/v137/sewer_gate.pcm",
+      "bytes": 57600,
+      "sha256": "ae841d7c9cdbf33ee7a26be6398a3ca84ba9212c9f897d70feb46e7feb717107"
+    },
+    {
+      "path": "res://assets/audio/v137/sewer_rush.pcm",
+      "bytes": 192000,
+      "sha256": "f83ac3d73dd12240bd5410792a9442c437f6dae36c100a81ded2aea787362de5"
     },
     {
       "path": "res://assets/audio/v136/bird_agourinho.pcm",

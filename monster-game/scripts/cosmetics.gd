@@ -502,6 +502,7 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 	if kind not in [0,1] or (wear.is_empty() and not force_pose): return false
 	var seated = state=="ride"
 	if seated: state = "push"
+	var sample_time = (.075 if kind==0 else 0.0) if seated else time
 	ensure_data()
 	var key = "";var anchor = Vector2.ZERO;var angle = 0.0;var stretch = Vector2.ONE;var origin = foot
 	if kind == 0:
@@ -512,20 +513,21 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 			origin.y -= lift * height / 112.0
 			angle = .006 * sin((phase * 2.0 - .1) * TAU)
 		else:
-			key = "z_other_" + str(HordeZombieSprite.frame_index(state, phase, time, landing, air_age, vertical_speed))
+			key = "z_other_" + str(HordeZombieSprite.frame_index(state, phase, sample_time, landing, air_age, vertical_speed))
 			if state in ["idle", "aim"]:
 				var breath = sin(time * TAU / 2.4)
 				stretch = Vector2(1.0 - breath * .004, 1.0 + breath * .009);angle = sin(time * TAU / 4.8) * .004
 	else:
 		var clip = HordeSkeletonApprovedSprite.clip_for(state, landing)
 		if clip.is_empty(): return false
-		var index = HordeSkeletonApprovedSprite.frame_for(state, phase, time, landing, air_age, vertical_speed)
+		var index = HordeSkeletonApprovedSprite.frame_for(state, phase, sample_time, landing, air_age, vertical_speed)
 		key = "s_" + clip + "_" + str(index)
 		anchor = Vector2(frames[key].anchor[0], HordeSkeletonApprovedSprite.foot_anchor_for(clip, index, clip == "jump" and state == "run" and landing > 0))
 	if not frames.has(key): return false
 	var f: Dictionary = frames[key]
 	if seated: seated_cut = float(f.landmarks.hip[1])+float(f.head_width)*.22
 	if kind == 0: anchor = vector(f.anchor)
+	if seated: anchor = vector(f.landmarks.hip)
 	angle += pose_angle;stretch *= pose_stretch
 	var root = Transform2D(angle * (-1 if reverse else 1), origin)
 	root.x *= (-1 if reverse else 1) * stretch.x * height / float(f.height)

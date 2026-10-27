@@ -276,7 +276,9 @@ func consume_run_events() -> void :
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
 			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16);runner.sewer.visual.notify("TOQUE PARA SALTAR • PROTEJA OS PASSAGEIROS")
-			"sewer_encounter": runner.sewer.visual.notify(str(e.title))
+			"sewer_encounter":
+				runner.sewer.visual.notify(str(e.title))
+				if "COMPORTA" in str(e.title) or "CANO" in str(e.title): sound.play("sewer_gate",-20)
 			"sewer_hit": sound.play("sewer_splash",-15);shake = 3
 			"sewer_exit": sound.play("space_boost",-14);runner.sewer.visual.notify("RAMPA À FRENTE • DE VOLTA À CORRIDA!")
 			"sewer_land":
@@ -881,7 +883,7 @@ func draw_home() -> void :
 		var left = d.level.position.x
 		var width = (d.help.end.x - left - 24) / 4
 		var top = d.level.end.y + 12
-		var labels = ["ESPAÇO R36","ESGOTO","AVES MALDITAS","REPOR 1M"]
+		var labels = ["ESPAÇO R37","ESGOTO R37","AVES MALDITAS","REPOR 1M"]
 		var actions = ["home_space_test","home_sewer_test","birds_open","developer_test_funds"]
 		for i in range(4): button(Rect2(left+i*(width+8),top,width,52),labels[i],actions[i],Color("4c786a") if i<3 else Color("513c67"),-2,18)
 	else:
@@ -1684,7 +1686,9 @@ func draw_credits() -> void :
 
 func update_camera(dt: float) -> void :
 	if runner.sewer.active:
-		camera_zoom = move_toward(camera_zoom,1.04,dt*.8);camera_ground_shift = move_toward(camera_ground_shift,0,dt*600);return
+		var sewer_zoom = 1.04
+		if runner.sewer.phase=="exit": sewer_zoom = lerpf(1.04,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
+		camera_zoom = move_toward(camera_zoom,sewer_zoom,dt*1.1);camera_ground_shift = move_toward(camera_ground_shift,0,dt*600);return
 	if runner.space.active:
 		var s = runner.space
 		var transition = s.visual.transition_progress(s)

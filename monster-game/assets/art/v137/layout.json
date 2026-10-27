@@ -1,0 +1,108 @@
+{
+  "survivors": {
+    "file": "survivors.webp",
+    "columns": 3,
+    "rows": 3,
+    "cell": [
+      320,
+      320
+    ],
+    "frames": 9
+  },
+  "runners": {
+    "file": "runners.webp",
+    "columns": 4,
+    "rows": 3,
+    "cell": [
+      256,
+      342
+    ],
+    "frames": 12
+  },
+  "wave": {
+    "file": "wave.webp",
+    "columns": 4,
+    "rows": 2,
+    "cell": [
+      320,
+      426
+    ],
+    "frames": 8
+  },
+  "pipe_mount": {
+    "file": "pipe_mount.webp",
+    "size": [
+      603,
+      448
+    ],
+    "source_box": [
+      0,
+      0,
+      768,
+      512
+    ],
+    "trim": [
+      53,
+      0,
+      722,
+      497
+    ]
+  },
+  "wreck": {
+    "file": "wreck.webp",
+    "size": [
+      640,
+      324
+    ],
+    "source_box": [
+      768,
+      0,
+      1536,
+      512
+    ],
+    "trim": [
+      26,
+      136,
+      726,
+      490
+    ]
+  },
+  "gate_mount": {
+    "file": "gate_mount.webp",
+    "size": [
+      628,
+      448
+    ],
+    "source_box": [
+      0,
+      512,
+      768,
+      1024
+    ],
+    "trim": [
+      33,
+      3,
+      742,
+      509
+    ]
+  },
+  "floating_barrel": {
+    "file": "floating_barrel.webp",
+    "size": [
+      326,
+      428
+    ],
+    "source_box": [
+      768,
+      512,
+      1536,
+      1024
+    ],
+    "trim": [
+      237,
+      43,
+      563,
+      471
+    ]
+  }
+}
