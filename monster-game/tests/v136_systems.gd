@@ -67,7 +67,7 @@ func run() -> void:
 		check(seated.size()==count and seated.size()==ids.size() and seated.all(func(id):return id in ids),"every member has a stable seat "+str(count))
 		check(not r.space.begin(r,true),"space cannot overlap active sewer "+str(count))
 		r.jump();var pending: Array = s.boats.map(func(b):return float(b.jump_at)-s.age)
-		if count<=4: check(pending.max()<.05,"small convoy does not inherit large-horde delay")
+		if count<=4: check(absf(pending.max()-(float(s.boats[0].x)-float(s.boats[-1].x))/s.scroll_speed(r))<.02,"small convoy follows obstacle travel without added delay")
 		var lowest = s.boats[0].y
 		for i in range(35): r.advance(DT,i<12);lowest = minf(lowest,s.boats[0].y)
 		check(lowest<s.WATER-120,"jump clears visible low obstacles "+str(count))
@@ -79,6 +79,19 @@ func run() -> void:
 		check(not s.active and r.world_px>world and r.members.map(func(m):return int(m.id))==ids,"exit preserves identities and advancing run "+str(count))
 		check(r.members.all(func(m):return not m.falling and is_finite(float(m.x)) and is_finite(float(m.y))),"safe finite landing "+str(count))
 	var r = boat_run(4);var s = r.sewer
+	var jump_barrel = s.add_object("barrel",s.boats[0].x+s.scroll_speed(r)*.43,s.WATER-35)
+	r.jump()
+	for i in range(100): r.advance(DT,i<10)
+	check(r.losses==0 and not jump_barrel.damaged,"one timed tap clears a barrel for the entire small convoy")
+	s.objects.clear()
+	var compositor = HordeCosmetics.new();compositor.ensure_data()
+	var frame: Dictionary = compositor.frames.z_other_0
+	var mesh = compositor.source_mesh("z_other_0","hat")
+	var original_points = mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].duplicate()
+	var cutoff = float(frame.landmarks.hip[1])+float(frame.head_width)*.22
+	var seated = compositor.seated_mesh(mesh,"test_seated",cutoff)
+	check(seated!=null and Array(seated.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]).all(func(p):return p.y<=cutoff+.001),"seated rider clips only below measured hips")
+	check(mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]==original_points,"seated pose preserves approved source geometry")
 	var civilian = s.add_object("rescue",s.boats[0].x,s.WATER-40)
 	for i in range(40): r.advance(DT,false)
 	check(civilian.taken and r.souls==1 and r.recruits==1 and r.active_count()==5,"floating civilian becomes exactly one actual recruited soul")

@@ -61,7 +61,7 @@ def prepare():
             write_image(crop,OUT/(name+'.webp'),lossless=True,method=6)
             entries[name]={'file':name+'.webp','source':sheet+'.png','box':box,'trim':region,'size':list(crop.size)}
     (OUT/'layout.json').write_text(json.dumps(entries,indent=2)+'\n')
-    print(json.dumps({'assets':len(entries)+1,'bytes':sum(p.stat().st_size for p in OUT.iterdir())}))
+    print(json.dumps({'assets':len(list(OUT.glob('*.webp'))),'bytes':sum(p.stat().st_size for p in OUT.iterdir())}))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--inputs',type=Path);a=p.parse_args()

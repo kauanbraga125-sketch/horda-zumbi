@@ -10,6 +10,7 @@ var meshes: Dictionary = {}
 var item_meshes: Dictionary = {}
 var preview_cache: Dictionary = {}
 var skull_graphic: Dictionary = {}
+var seated_cut = INF
 
 func ensure_data() -> void:
 	if not frames.is_empty(): return
@@ -115,8 +116,45 @@ func source_mesh(key: String, cut: String) -> ArrayMesh:
 func draw_source(canvas: Node2D, key: String, cut: String, transform: Transform2D, tint: Color) -> void:
 	var value = source_mesh(key, cut)
 	if value == null: return
+	if is_finite(seated_cut) and not cut.begins_with("bat_cape_v129"):
+		value = seated_mesh(value,key+":"+cut,seated_cut)
+		if value == null: return
 	canvas.draw_set_transform_matrix(transform)
 	canvas.draw_mesh(value, texture(frames[key].file), Transform2D.IDENTITY, tint)
+
+func seated_mesh(source: ArrayMesh,key: String,cutoff: float) -> ArrayMesh:
+	var cache = key+":seated:"+str(cutoff)
+	if meshes.has(cache): return meshes[cache]
+	var original = source.surface_get_arrays(0)
+	var vertices: PackedVector3Array = original[Mesh.ARRAY_VERTEX]
+	var uvs: PackedVector2Array = original[Mesh.ARRAY_TEX_UV]
+	var indices: PackedInt32Array = original[Mesh.ARRAY_INDEX]
+	var colors: PackedColorArray = original[Mesh.ARRAY_COLOR] if original[Mesh.ARRAY_COLOR]!=null else PackedColorArray()
+	var points = PackedVector3Array();var samples = PackedVector2Array();var shades = PackedColorArray();var triangles = PackedInt32Array()
+	for i in range(0,indices.size(),3):
+		var polygon: Array = []
+		for j in range(3):
+			var index = indices[i+j]
+			polygon.append({"p":vertices[index],"uv":uvs[index],"color":colors[index] if not colors.is_empty() else Color.WHITE})
+		var clipped: Array = []
+		for j in range(polygon.size()):
+			var a: Dictionary = polygon[j];var b: Dictionary = polygon[(j+1)%polygon.size()]
+			var inside = float(a.p.y)<=cutoff;var next_inside = float(b.p.y)<=cutoff
+			if inside: clipped.append(a)
+			if inside!=next_inside:
+				var ratio = (cutoff-float(a.p.y))/(float(b.p.y)-float(a.p.y))
+				clipped.append({"p":Vector3(a.p).lerp(b.p,ratio),"uv":Vector2(a.uv).lerp(b.uv,ratio),"color":Color(a.color).lerp(b.color,ratio)})
+		if clipped.size()<3: continue
+		var first = points.size()
+		for point in clipped:
+			points.append(point.p);samples.append(point.uv);shades.append(point.color)
+		for j in range(1,clipped.size()-1): triangles.append_array(PackedInt32Array([first,first+j,first+j+1]))
+	if triangles.is_empty(): meshes[cache] = null;return null
+	var arrays = [];arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = points;arrays[Mesh.ARRAY_TEX_UV] = samples;arrays[Mesh.ARRAY_INDEX] = triangles
+	if not colors.is_empty(): arrays[Mesh.ARRAY_COLOR] = shades
+	var result = ArrayMesh.new();result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays);meshes[cache] = result
+	return result
 
 static func vector(value: Array) -> Vector2:
 	return Vector2(value[0], value[1])
@@ -460,7 +498,10 @@ func draw_expressions(canvas: Node2D, f: Dictionary, root: Transform2D, phase: f
 		canvas.draw_mesh(meshes[cache], texture(path), Transform2D.IDENTITY, tint)
 
 func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float, state: String, time: float, landing: float, tint: Color, reverse: bool, air_age: float, vertical_speed: float, wear: Array, force_pose: bool = false, pose_angle: float = 0.0, pose_stretch: Vector2 = Vector2.ONE) -> bool:
+	seated_cut = INF
 	if kind not in [0,1] or (wear.is_empty() and not force_pose): return false
+	var seated = state=="ride"
+	if seated: state = "push"
 	ensure_data()
 	var key = "";var anchor = Vector2.ZERO;var angle = 0.0;var stretch = Vector2.ONE;var origin = foot
 	if kind == 0:
@@ -483,6 +524,7 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 		anchor = Vector2(frames[key].anchor[0], HordeSkeletonApprovedSprite.foot_anchor_for(clip, index, clip == "jump" and state == "run" and landing > 0))
 	if not frames.has(key): return false
 	var f: Dictionary = frames[key]
+	if seated: seated_cut = float(f.landmarks.hip[1])+float(f.head_width)*.22
 	if kind == 0: anchor = vector(f.anchor)
 	angle += pose_angle;stretch *= pose_stretch
 	var root = Transform2D(angle * (-1 if reverse else 1), origin)
@@ -515,7 +557,10 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 	else:
 		# Full original source, same rectangle and same transform.
 		canvas.draw_set_transform_matrix(root)
-		if f.has("original_outline"):
+		if seated:
+			var crop = clampf(seated_cut,0,float(f.rect[3]))
+			canvas.draw_texture_rect_region(texture(f.file),Rect2(0,0,f.rect[2],crop),Rect2(f.rect[0],f.rect[1],f.rect[2],crop),tint)
+		elif f.has("original_outline"):
 			var outline = PackedVector2Array();var uvs = PackedVector2Array()
 			for point in f.original_outline:
 				var local = vector(point);outline.append(local)
@@ -549,4 +594,5 @@ func paint(canvas: Node2D, kind: int, foot: Vector2, height: float, phase: float
 		draw_item(canvas, id, f, root, tint,bool(graphics[id].get("layered_eyes",false)))
 		if graphics[id].has("reveal_source"): draw_source(canvas,key,str(graphics[id].reveal_source),root,tint)
 	canvas.draw_set_transform_matrix(Transform2D.IDENTITY)
+	seated_cut = INF
 	return true

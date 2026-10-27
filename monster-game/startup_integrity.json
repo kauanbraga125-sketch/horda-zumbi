@@ -20,7 +20,7 @@
     {
       "path": "res://scripts/actor.gd",
       "bytes": 11592,
-      "sha256": "0d6238a102b88a2d81bd2b987862cf96c853162dec0f160553e2f63f406c22b1"
+      "sha256": "fd60680ba8fdc2ddec0597195f91d68b697eeac72c32b1ce2b2c5ed22ed81847"
     },
     {
       "path": "res://scripts/adventure_art.gd",
@@ -44,8 +44,8 @@
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 5222,
-      "sha256": "144bc63394346aa6c3ab0afe84352d06eaeee69b1290344263e75966ec80c6a4"
+      "bytes": 5307,
+      "sha256": "37e622946dddffb11150209dcb2bdcf68250a69a93de84dc840016f6742030be"
     },
     {
       "path": "res://scripts/bird_run.gd",
@@ -124,8 +124,8 @@
     },
     {
       "path": "res://scripts/cosmetics.gd",
-      "bytes": 31246,
-      "sha256": "e30d19154c2a21d0c02982ad4dc93ec2e903abd50516ac23db8b535e4b1e3ae5"
+      "bytes": 33805,
+      "sha256": "7f03bcdfdc5f9c01cfa700d0e97088b72ce0f283a1e53ea5dfbc6c819066a085"
     },
     {
       "path": "res://scripts/course.gd",
@@ -349,13 +349,13 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 12512,
-      "sha256": "fcd04939d02de3d7265cff43c9da964023dda84f470ae0496ad33f9be93fc15c"
+      "bytes": 12748,
+      "sha256": "7a8b710bf9f9ae6a3762e88f2665ae8c5964caabdab4660077e6b01843cddab7"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
-      "bytes": 10338,
-      "sha256": "204afcb122eaac1b82e74068feb26a211791cca40eab0e1d6aea1f3f21937927"
+      "bytes": 11214,
+      "sha256": "c9ce26aa3eae4f696dc28f8aa714e6be6d8774bd2ff29ae6547499fc59645a84"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",

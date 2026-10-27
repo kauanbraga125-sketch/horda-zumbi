@@ -129,4 +129,5 @@ func run() -> void:
 	print("V105_RESULT checks=",checks," failures=",failures)
 	g.queue_free();g=null
 	for i in range(3): await process_frame
+	preload("res://scripts/bird_art.gd").textures.clear()
 	quit(1 if failures else 0)

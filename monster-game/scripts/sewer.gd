@@ -31,6 +31,7 @@ var splashes: Array[Dictionary] = []
 var history: Array[Dictionary] = []
 var visual = preload("res://scripts/sewer_visual.gd").new()
 var jump_buffer = 0.0
+var lane_count = 1
 var random = RandomNumberGenerator.new()
 
 func reset(seed_value: int) -> void:
@@ -48,7 +49,7 @@ func begin(r,force: bool = false) -> bool:
 	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 30+int(r.power_levels.get("sewer_time",0))*4;left = duration
 	pressure = .12;serial = 0;scroll = 0;next_encounter = 1.0;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
 	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number()
-	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear()
+	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();lane_count = 1
 	r.perk_left = 0;r.perk_kind = -1;r.transform_left = 0;r.boost_left = 0;r.blessings.reset()
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
 	for m in r.members:
@@ -72,9 +73,11 @@ func assign_boats(r) -> void:
 		if id in assigned: continue
 		if boats.is_empty() or boats[-1].ids.size()>=3:
 			boats.append({"id":id,"ids":[],"x":400.0,"y":WATER-24,"vy":0.0,"previous_y":WATER-24,"jump_at":-1.0,"held":0.0,"bump":0.0,"angle":0.0,"arrival":age})
+			lane_count = maxi(lane_count,1 if boats.size()<=3 else 2 if boats.size()<=12 else 3)
+			boats[-1].x = boat_x(r,boats.size()-1)
 		boats[-1].ids.append(id)
 
-func lanes() -> int: return 1 if boats.size()<=3 else 2 if boats.size()<=12 else 3
+func lanes() -> int: return lane_count
 
 func boat_x(r,index: int) -> float:
 	var rows = lanes();var columns = ceili(float(boats.size())/rows)
@@ -87,8 +90,9 @@ func request_jump(r) -> void:
 	for i in range(boats.size()):
 		var b = boats[i]
 		if b.jump_at<0 and b.y>=water_y(b.x)-29:
-			var delay = int(i/lanes())*(.032+maxi(0,r.active_count()-16)*.0014)
-			b.jump_at = age+minf(.50,delay)
+			var travel = maxf(0,float(boats[0].x)-float(b.x))/scroll_speed(r)
+			var delay = minf(.18,maxi(0,r.active_count()-16)*.003)*float(i)/maxi(1,boats.size()-1)
+			b.jump_at = age+travel+delay
 
 func add_object(kind: String,x: float,y: float,extra: Dictionary = {}) -> Dictionary:
 	var e = {"kind":kind,"x":x,"previous_x":x,"y":y,"taken":false,"state":"normal","age":0.0,"contacts":{},"row":-1,"width":65.0,"damaged":false,"passed":false}
@@ -136,7 +140,7 @@ func advance(r,dt: float,held: bool) -> void:
 		if next_encounter<=0 and left>3.6: spawn(r)
 	for i in range(boats.size()):
 		var b = boats[i];var floor_y = water_y(b.x)-24+(i%lanes())*12
-		b.x = boat_x(r,i)+float(b.bump);b.bump = move_toward(b.bump,0,dt*38);b.previous_y = b.y
+		b.x = lerpf(float(b.x),boat_x(r,i)+float(b.bump),1-exp(-dt*8));b.bump = move_toward(b.bump,0,dt*38);b.previous_y = b.y
 		if b.jump_at>=0 and age>=b.jump_at:
 			b.jump_at = -1;b.vy = -690;b.held = 0;splash(Vector2(b.x-38,b.y+27),false)
 		if b.y<floor_y-1 or b.vy<0:

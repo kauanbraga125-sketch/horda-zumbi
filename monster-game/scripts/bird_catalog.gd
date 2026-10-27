@@ -38,7 +38,9 @@ static func migrate(raw: Dictionary) -> Dictionary:
 	if receipt is Dictionary and receipt.get("id","") in IDS:
 		var id = str(receipt.id)
 		if copies(safe,id)>0:
-			safe.bird_pending = {"id":id,"serial":maxi(1,int(safe.bird_serial)),"level":level(safe,id),"new":bool(receipt.get("new",false)),"essence":clampi(int(receipt.get("essence",0)),0,1),"source":"fusion" if receipt.get("source","")=="fusion" else "draw"}
+			var essence = receipt.get("essence",0)
+			if not (essence is int or essence is float): essence = 0
+			safe.bird_pending = {"id":id,"serial":maxi(1,int(safe.bird_serial)),"level":level(safe,id),"new":bool(receipt.get("new",false)),"essence":clampi(int(essence),0,1),"source":"fusion" if receipt.get("source","")=="fusion" else "draw"}
 	return safe
 
 static func add_copy(data: Dictionary,id: String,source: String) -> Dictionary:

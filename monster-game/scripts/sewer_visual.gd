@@ -9,8 +9,9 @@ func background(g,s) -> void:
 	var c = g.paint_target
 	var view = Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
 	if s.phase=="exit":
-		g.scenery.paint(c,g.runner,g.ui_time)
 		var t = clampf(s.phase_age/s.EXIT_SECONDS,0,1)
+		if t>.84: g.scenery.paint(c,g.runner,g.ui_time)
+		else: c.draw_rect(view,Color("19112d"))
 		var tex = Art.texture("sewer_exit")
 		var width = view.size.x*2.5;var height = 800.0
 		var position = Vector2(view.position.x-view.size.x*(.20+1.30*smoothstep(0,.92,t)),lerpf(450,g.runner.FLOOR,smoothstep(0,1,t))-.565*height)
@@ -19,9 +20,10 @@ func background(g,s) -> void:
 	var alpha = 1.0-smoothstep(.50,1,s.phase_age/s.EXIT_SECONDS) if s.phase=="exit" else smoothstep(.06,.62,s.phase_age/s.ENTRY_SECONDS) if s.phase=="entry" else 1.0
 	if alpha<1: g.scenery.paint(c,g.runner,g.ui_time)
 	var tex = Art.texture("sewer");var height = maxf(760,view.size.y+40);var size = tex.get_size()*height/tex.get_height()
-	var offset = fposmod(s.scroll*.30,size.x)
+	var stride = size.x-140
+	var offset = fposmod(s.scroll*.30,stride)
 	for i in range(-1,3):
-		c.draw_texture_rect(tex,Rect2(view.position+Vector2(i*size.x-offset,-20),size),false,Color(1,1,1,alpha))
+		blend_tile(c,tex,Rect2(view.position+Vector2(i*stride-offset,-20),size),alpha)
 	if s.phase=="exit": return
 	for i in range(5):
 		var at = Vector2(view.position.x+fposmod(i*337-s.scroll*.42,view.size.x+100),view.position.y+105+(i%2)*31)
@@ -37,6 +39,14 @@ func background(g,s) -> void:
 		for i in range(5):
 			Art.prop(c,"rubble",point+Vector2(20+burst*(95+i*30),-20-burst*100+burst*burst*165+i*19),22+i*4,burst*(i-2),Color(1,1,1,a))
 
+func blend_tile(c,tex: Texture2D,rect: Rect2,alpha: float) -> void:
+	var fade = 140.0/rect.size.x
+	for band in range(2):
+		var a = 0.0 if band==0 else fade;var b = fade if band==0 else 1.0
+		var points = PackedVector2Array([rect.position+Vector2(a*rect.size.x,0),rect.position+Vector2(b*rect.size.x,0),rect.position+Vector2(b*rect.size.x,rect.size.y),rect.position+Vector2(a*rect.size.x,rect.size.y)])
+		var colors = PackedColorArray([Color(1,1,1,0 if band==0 else alpha),Color(1,1,1,alpha),Color(1,1,1,alpha),Color(1,1,1,0 if band==0 else alpha)])
+		c.draw_polygon(points,colors,PackedVector2Array([Vector2(a,0),Vector2(b,0),Vector2(b,1),Vector2(a,1)]),tex)
+
 func water(g,s,front: bool) -> void:
 	var c = g.paint_target
 	var left = g.scenery.view_left-30;var right = g.scenery.view_right+30;var bottom = g.scenery.view_bottom+80
@@ -44,13 +54,15 @@ func water(g,s,front: bool) -> void:
 	var tex = Art.texture("sewer");var width = 900.0;var offset = fposmod(s.scroll*(1.14 if front else .73),width)
 	for column in range(-1,4):
 		var x0 = left+column*width-offset
-		var points = PackedVector2Array([Vector2(x0,bottom)]);var uvs = PackedVector2Array([Vector2(0,1)]);var colors = PackedColorArray([Color(.72,.92,.95,.48 if front else 1)])
+		var sample_left = .30 if posmod(column,2)==0 else .95
+		var sample_right = .95 if posmod(column,2)==0 else .30
+		var points = PackedVector2Array([Vector2(x0,bottom)]);var uvs = PackedVector2Array([Vector2(sample_left,1)]);var colors = PackedColorArray([Color(.72,.92,.95,.48 if front else 1)])
 		var foam = PackedVector2Array()
 		for i in range(25):
 			var u = float(i)/24;var x = x0+u*width
 			var y = base+sin(x*.019+s.age*3.2)*5+sin(x*.037-s.age*4)*2
-			points.append(Vector2(x,y));uvs.append(Vector2(u,.735));colors.append(Color(1,1.08,1.05,.48 if front else .98));foam.append(Vector2(x,y))
-		points.append(Vector2(x0+width,bottom));uvs.append(Vector2(1,1));colors.append(Color(.72,.92,.95,.48 if front else 1))
+			points.append(Vector2(x,y));uvs.append(Vector2(lerpf(sample_left,sample_right,u),.735));colors.append(Color(1,1.08,1.05,.48 if front else .98));foam.append(Vector2(x,y))
+		points.append(Vector2(x0+width,bottom));uvs.append(Vector2(sample_right,1));colors.append(Color(.72,.92,.95,.48 if front else 1))
 		c.draw_polygon(points,colors,uvs,tex)
 		c.draw_polyline(foam,Color(.3,.86,.74,.22 if front else .3),2,true)
 	for i in range(33 if front else 12):
@@ -105,7 +117,7 @@ func paint(g,s) -> void:
 				if member_index<0: continue
 				var m = r.members[member_index];var foot = Vector2(m.x,m.y)
 				var wear = r.cosmetics_for(m,int(m.kind))
-					g.actor.paint_rider(c,int(m.kind),foot,102,r.elapsed+member_index*.31,float(b.angle),wear,Color.WHITE)
+				g.actor.paint_rider(c,int(m.kind),foot,102,r.elapsed+member_index*.31,float(b.angle),wear,Color.WHITE)
 		if exit_t<.93: Art.prop(c,"jetski",p,100,angle)
 		if b.bump<-.5:
 			c.draw_arc(p+Vector2(65,-9),19,-1,1,12,Color(1,.75,.35,minf(.8,-float(b.bump)/25)),2,true)

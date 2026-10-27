@@ -151,4 +151,5 @@ func run() -> void:
 	print("V103_RESULT checks=",checks," failures=",failures)
 	game.queue_free()
 	await process_frame
+	preload("res://scripts/bird_art.gd").textures.clear()
 	quit(1 if failures else 0)

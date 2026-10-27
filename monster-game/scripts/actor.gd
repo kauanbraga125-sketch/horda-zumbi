@@ -181,5 +181,5 @@ func paint_space(canvas: Node2D,kind: int,foot: Vector2,height: float,time: floa
 func paint_rider(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,angle: float,wear: Array,tint: Color = Color.WHITE) -> void:
 	# The original leaning/reaching upper body sits on the saddle. The hull is
 	# painted afterwards and occludes the legs below the hips, including clothes.
-	if not cosmetics.paint(canvas,kind,foot,height,fposmod(time*.42,1),"push",time,0,tint,false,.2,0,wear,true,angle+.035,Vector2(1,.97)):
+	if not cosmetics.paint(canvas,kind,foot,height,fposmod(time*.42,1),"ride",time,0,tint,false,.2,0,wear,true,angle+.035,Vector2(1,.97)):
 		paint(canvas,kind,foot,height,fposmod(time*.42,1),"push",time,0,tint,false,1,false,.2,0,wear)

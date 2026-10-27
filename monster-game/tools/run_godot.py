@@ -14,12 +14,14 @@ def main():
     if a.runtime_root:
         root=a.runtime_root.resolve();libs=root/'usr/lib/x86_64-linux-gnu'
         env['LD_LIBRARY_PATH']=str(libs)+':'+str(libs/'android')+':'+env.get('LD_LIBRARY_PATH','')
-        env['LIBGL_DRIVERS_PATH']=str(libs/'dri')
+        if (libs/'dri').exists(): env['LIBGL_DRIVERS_PATH']=str(libs/'dri')
         server=str(root/'usr/bin/Xvfb');fonts=str(root/'usr/share/fonts/X11/misc')
     else:
         server=shutil.which('Xvfb');fonts='/usr/share/fonts/X11/misc'
     if not server: raise SystemExit('Xvfb is required for native visual verification')
-    number=97;env['DISPLAY']='127.0.0.1:'+str(number);env['LIBGL_ALWAYS_SOFTWARE']='1'
+    number=next((n for n in range(97,180) if not Path('/tmp/.X%d-lock'%n).exists()),None)
+    if number is None: raise SystemExit('No free X display')
+    env['DISPLAY']='127.0.0.1:'+str(number);env['LIBGL_ALWAYS_SOFTWARE']='1'
     with open(os.devnull,'w') as log:
         xvfb=subprocess.Popen([server,':'+str(number),'-screen','0','1920x1080x24','-listen','tcp','-nolisten','unix','-nolisten','local','-ac','-fp',fonts],env=env,stdout=log,stderr=log)
         try:
