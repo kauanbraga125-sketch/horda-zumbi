@@ -31,14 +31,14 @@ func reset() -> void:
 
 func scroll_speed(r) -> float:
 	# Ground distance/tunnels continue independently. Space stays readable at high tunnels.
-	return clampf(r.speed*.72,205,325)
+	return clampf((r.view_right-r.view_left)*.27,280,460)
 
 func spawn_ship(s,r,kind: String,at_x: float,at_y: float) -> Dictionary:
 	var spec: Dictionary = SHIPS[kind]
-	return s.add_object(kind,at_x,at_y,{"hp":spec.hp,"max_hp":spec.hp,"need":spec.need,"radius":78.0,"speed":.82,"shot":2.4,"last_dash":-1,"hit_at":-10.0})
+	return s.add_object(kind,at_x,at_y,{"hp":spec.hp,"max_hp":spec.hp,"need":spec.need,"radius":78.0,"speed":1.0,"shot":2.4,"last_dash":-1,"hit_at":-10.0})
 
 func hostile(e: Dictionary) -> bool:
-	return SHIPS.has(e.kind) or e.kind in ["meteor","parasite","beam","satellite","egg","shot","vortex"]
+	return SHIPS.has(e.kind) or e.kind in ["meteor","parasite","beam","satellite","egg","shot","vortex","gate","rock"]
 
 func refill_deck(layer: int) -> void:
 	# Reward encounters between threats; later layers introduce a different family.
@@ -103,7 +103,7 @@ func member_centre(r,index: int) -> Vector2:
 
 func nearest_member(r,point: Vector2,radius: float) -> int:
 	if pilot_left>0:
-		var offset = point-Vector2(MonsterCatalog.ANCHOR+25,r.space.y-48)
+		var offset = point-Vector2(r.space.x+25,r.space.y-48)
 		if Vector2(offset.x/1.55,offset.y).length()<radius+38: return r.leader_index()
 		return -1
 	var index = -1;var best = radius
@@ -113,8 +113,8 @@ func nearest_member(r,point: Vector2,radius: float) -> int:
 		if d<best: best = d;index = i
 	return index
 
-func hurt(s,r,index: int,cause: String,point: Vector2) -> bool:
-	if index<0 or s.phase!="flight" or s.age-last_hit<.45 or s.dash_left>0: return false
+func hurt(s,r,index: int,cause: String,point: Vector2,ignores_dash: bool = false) -> bool:
+	if index<0 or s.phase!="flight" or s.age-last_hit<.45 or (s.dash_left>0 and not ignores_dash): return false
 	if shield_charges>0 and power_left>0:
 		shield_charges -= 1;last_hit = s.age
 		r.events.append({"type":"spectral_guard","x":point.x,"y":point.y})
@@ -137,8 +137,8 @@ func capture(s,r,e: Dictionary) -> void:
 	if e.taken: return
 	e.taken = true;s.captured += 1;r.souls += 1;r.recruits += 1
 	r.mission_stats.civilians = int(r.mission_stats.get("civilians",0))+1;r.mission_stats.space_captures = int(r.mission_stats.get("space_captures",0))+1
-	var kind = r.recruit_kind();r.add_member(kind,false,Vector2(MonsterCatalog.ANCHOR-35,s.y))
-	s.charge = minf(100,s.charge+12)
+	var kind = r.recruit_kind();r.add_member(kind,false,Vector2(s.x-35,s.y))
+	s.charge = minf(100,s.charge+16)
 	r.events.append({"type":"soul","kind":kind,"x":e.x,"y":e.y,"soldier":false,"from_vehicle":false})
 
 func destroy_ship(s,r,e: Dictionary) -> void:
@@ -150,9 +150,8 @@ func destroy_ship(s,r,e: Dictionary) -> void:
 	s.add_object("wreck",e.x,e.y,{"ship":e.kind,"speed":.65,"radius":0.0})
 	for i in range(int(SHIPS[e.kind].crew)):
 		s.add_object("astronaut",e.x+65+i*56,clampf(e.y+(i%2)*65,270,525),{"radius":35.0,"speed":.65,"seed":i*1.4,"grace":.45})
-	if e.kind in ["tour_bus","fighter"] and pilot_left<=0:
-		pilot_kind = e.kind;pilot_left = 8.0;pilot_hp = 3;shot_clock = .45
-		s.visual.notify("NAVE TOMADA • 3 PONTOS DE CASCO",3,2.0)
+	# Piloting is an optional pickup in recovery encounters; destroying a target never changes controls.
+
 	if e.kind=="cargo": s.add_object("core",e.x+155,e.y-55,{"radius":27.0,"speed":.7})
 	if e.kind=="saucer": s.add_object("core",e.x+65,e.y+60,{"radius":27.0,"speed":.7})
 
@@ -165,9 +164,9 @@ func hit_ship(s,r,e: Dictionary,force: int = 1) -> void:
 func fire(s,r,acid: bool) -> void:
 	var target: Dictionary = {};var nearest = INF
 	for e in s.objects:
-		if not e.taken and SHIPS.has(e.kind) and e.x>MonsterCatalog.ANCHOR+65 and e.x<nearest: target = e;nearest = e.x
+		if not e.taken and SHIPS.has(e.kind) and e.x>s.x+65 and e.x<nearest: target = e;nearest = e.x
 	if target.is_empty(): return
-	var origin = Vector2(MonsterCatalog.ANCHOR+133,s.y-48)
+	var origin = Vector2(s.x+85,s.y-48)
 	var direction = (Vector2(target.x,target.y)-origin).normalized()
 	s.add_object("acid" if acid else "friendly_shot",origin.x,origin.y,{"vx":direction.x*680,"vy":direction.y*680,"speed":0.0,"radius":12.0})
 
@@ -194,16 +193,35 @@ func advance(s,r,dt: float) -> void:
 			e.x -= speed*float(e.speed)*dt
 			if e.kind=="meteor": e.base_y += float(e.get("vy",0))*dt
 			e.y = float(e.base_y)+sin(float(e.age)*1.6+float(e.seed))*(2 if e.kind=="coin" else 5)
+		if e.kind=="gate":
+			e.y = float(e.base_y)+sin(float(e.age)*1.15+float(e.seed))*float(e.get("motion",0))
+			var limit = 3 if r.active_count()>=20 else 2
+			if s.phase=="flight" and int(e.damage_count)<limit:
+				for i in range(r.members.size()):
+					var centre = member_centre(r,i);var member = r.members[i]
+					if e.contacts.has(int(member.id)) or absf(centre.x-float(e.x))>43: continue
+					if absf(centre.y-float(e.y))>float(e.gap)*.5-19:
+						if hurt(s,r,i,"space_gate",centre,true): e.contacts[int(member.id)] = true;e.damage_count = int(e.damage_count)+1
+						break
+			continue
+		if e.kind=="rock":
+			var index = nearest_member(r,Vector2(e.x,e.y),float(e.radius)+18)
+			if hurt(s,r,index,"space_rock",Vector2(e.x,e.y),true): e.taken = true
+			continue
+		if e.kind=="exit":
+			if s.phase=="flight" and s.charge>=100 and nearest_member(r,Vector2(e.x,e.y),65)>=0:
+				e.taken = true;s.boost(r)
+			continue
 		if e.kind=="wreck":
 			if e.age>1.0: e.taken = true
 			continue
 		if e.kind=="vortex" and s.phase=="flight":
-			var pull = clampf(1-absf(float(e.x)-MonsterCatalog.ANCHOR)/420,0,1)
+			var pull = clampf(1-absf(float(e.x)-s.x)/420,0,1)
 			s.y += clampf(float(e.y)+42-s.y,-85,85)*dt*pull*.75
 			if nearest_member(r,Vector2(e.x,e.y),35)>=0:
 				hurt(s,r,nearest_member(r,Vector2(e.x,e.y),35),"space_vortex",Vector2(e.x,e.y))
 			continue
-		if e.kind=="parasite" and e.age>1 and e.x<MonsterCatalog.ANCHOR+320:
+		if e.kind=="parasite" and e.age>1 and e.x<s.x+320:
 			e.state = "attack";e.base_y = move_toward(e.base_y,s.y-45,dt*24)
 		if e.kind=="egg" and e.x<r.view_right-70:
 			if e.state=="normal": e.state = "opening";e.hatch_at = e.age+1.25
@@ -218,22 +236,33 @@ func advance(s,r,dt: float) -> void:
 			if e.age>=.72: capture(s,r,e)
 			continue
 		if SHIPS.has(e.kind):
+			if bool(e.get("counter",false)):
+				e.core_open = e.age>=1.65 and e.age<4.15
+				if e.age<.8: e.lock_y = lerpf(float(e.lock_y),s.y-s.member_height(r)*.5,dt*2)
+				if e.age>=1.15 and not bool(e.fired):
+					e.fired = true
+					for j in range(2):
+						s.add_object("shot",e.x-72+j*38,float(e.lock_y),{"vx":-390.0,"vy":0.0,"radius":13.0,"speed":0.0,"arm_left":.35})
 			e.shot -= dt
 			if e.shot<=0 and e.x<r.view_right-70 and e.x>MonsterCatalog.ANCHOR+200 and s.phase=="flight":
 				e.shot = 3.8 if r.active_count()<16 else 2.8
 				if e.kind in ["fighter","saucer","ghost_frigate"]:
 					var origin = Vector2(e.x-72,e.y)
-					var target = Vector2(MonsterCatalog.ANCHOR,s.y-45)
+					var target = Vector2(s.x,s.y-45)
 					var direction = (target-origin).normalized()
 					s.add_object("shot",origin.x,origin.y,{"vx":direction.x*260,"vy":direction.y*260,"radius":13.0,"speed":0.0,"arm_left":.55})
 			var lead = r.leader_index()
 			if lead<0: return
 			var point = Vector2(e.x,e.y)
-			var attack_point = Vector2(MonsterCatalog.ANCHOR+25,s.y-48) if pilot_left>0 else member_centre(r,lead)
+			var attack_point = Vector2(s.x+25,s.y-48) if pilot_left>0 else member_centre(r,lead)
 			if s.dash_left>0 and int(e.last_dash)!=s.dash_serial and point.distance_to(attack_point)<135:
 				e.last_dash = s.dash_serial
-				var damage = int(e.max_hp) if r.active_count()>=int(e.need) else 1
-				hit_ship(s,r,e,damage)
+				if bool(e.get("counter",false)) and not bool(e.get("core_open",false)):
+					hurt(s,r,lead,"space_shield",attack_point,true);s.dash_left = 0
+					s.visual.notify("ESCUDO FECHADO • ESPERE O NÚCLEO",3,1.4)
+				else:
+					var damage = int(e.max_hp) if r.active_count()>=int(e.need) else 1
+					hit_ship(s,r,e,damage);s.chain_hit(r)
 			elif s.dash_left<=0 and e.age>1.0 and float(e.age)-float(e.hit_at)>.7:
 				var index = nearest_member(r,point,88)
 				if hurt(s,r,index,"space_ship",point): e.hit_at = e.age
@@ -241,7 +270,8 @@ func advance(s,r,dt: float) -> void:
 		if e.kind in ["acid","friendly_shot"]:
 			for ship in s.objects:
 				if not ship.taken and SHIPS.has(ship.kind) and Vector2(e.x,e.y).distance_to(Vector2(ship.x,ship.y))<82:
-					hit_ship(s,r,ship);e.taken = true;break
+					if not bool(ship.get("counter",false)) or bool(ship.get("core_open",false)): hit_ship(s,r,ship)
+					e.taken = true;break
 			if e.age>2.5: e.taken = true
 			continue
 		if e.kind=="beam":
@@ -249,7 +279,7 @@ func advance(s,r,dt: float) -> void:
 			if e.age>=LASER_WARNING and e.age<=LASER_END and float(e.age)-float(e.hit_at)>.5 and int(e.get("damage_count",0))<hit_limit:
 				var span = laser_segment(e)
 				if pilot_left>0:
-					var hull = Vector2(MonsterCatalog.ANCHOR+25,s.y-48)
+					var hull = Vector2(s.x+25,s.y-48)
 					if hull.x+140>=span.x and hull.x-140<=span.y and absf(hull.y-float(e.y))<59 and not e.contacts.has("hull"):
 						if hurt(s,r,r.leader_index(),"space_laser",hull):
 							e.contacts.hull = true;e.hit_at = e.age;e.damage_count = hit_limit
@@ -270,7 +300,12 @@ func advance(s,r,dt: float) -> void:
 		if index<0: continue
 		match e.kind:
 			"coin":
-				e.taken = true;r.coins += 2;s.collected += 2;s.charge = minf(100,s.charge+1.5);r.collect_coin_row(e)
+				e.taken = true;r.coins += 2;s.collected += 2;s.charge = minf(100,s.charge+1.5)
+				var id = int(e.get("coin_row",-1));var row = r.coin_rows.get(id,{})
+				var completed = not row.is_empty() and int(row.total)>=3 and int(row.collected)+1>=int(row.total)
+				r.collect_coin_row(e)
+				if completed and not s.perfect_rows.has(id): s.perfect_rows[id] = true;s.charge = minf(100,s.charge+10)
+
 				r.events.append({"type":"coin","amount":2,"x":e.x,"y":e.y,"physical_pickup":true})
 			"astronaut","pod":
 				if e.age<float(e.get("grace",0)): continue
@@ -280,6 +315,9 @@ func advance(s,r,dt: float) -> void:
 				e.taken = true;s.charge = minf(100,s.charge+18)
 				if e.kind=="fuel": s.left = minf(s.duration+8-s.flight_age,s.left+1.5)
 				r.events.append({"type":"space_energy","x":e.x,"y":e.y})
+			"boarding":
+				e.taken = true;pilot_kind = str(e.get("ship","tour_bus"));pilot_left = 5.0;pilot_hp = 3;shot_clock = .45
+				r.hit_grace = maxf(r.hit_grace,.65);s.visual.notify("NAVE • MESMO CONTROLE • 3 DE CASCO",3,2.0)
 			"alien_power","orbital_power": e.taken = true;give_power(s,r,7 if e.kind=="alien_power" else 8)
 			"eye": e.taken = true;r.eyes_collected += 1;r.events.append({"type":"eye","x":e.x,"y":e.y})
 			"monolith":
@@ -291,7 +329,9 @@ func advance(s,r,dt: float) -> void:
 				s.visual.notify("REPARO ORBITAL",2,1.5)
 			"meteor","satellite","parasite","egg","shot":
 				if s.dash_left>0 or power_kind==7:
-					e.taken = true;s.charge = minf(100,s.charge+7);r.events.append({"type":"space_smash","x":e.x,"y":e.y})
+					e.taken = true;s.charge = minf(100,s.charge+7)
+					if s.dash_left>0: s.chain_hit(r)
+					r.events.append({"type":"space_smash","x":e.x,"y":e.y})
 				elif hurt(s,r,index,"space_"+str(e.kind),Vector2(e.x,e.y)): e.taken = true
 		if r.dead: return
 	for i in range(s.objects.size()-1,-1,-1):
@@ -307,6 +347,18 @@ func paint_object(g,s,e: Dictionary,alpha: float) -> bool:
 		var flash = float(e.get("flash",0))>0
 		# Same hull registration at every HP; damage never replaces the whole geometry.
 		art.sprite(c,"fleet",int(spec.frame),p,float(spec.size),sin(float(e.age)*1.4)*.025,Color(1,.78,.7,alpha) if flash else tint)
+		if bool(e.get("counter",false)):
+			var open = bool(e.get("core_open",false))
+			if not open:
+				c.draw_arc(p,88,-1.6,1.6,32,Color(.85,.35,.65,.55*alpha),4,true)
+				if float(e.age)<1.15:
+					for j in range(8):
+						var xx = p.x-90-j*50
+						c.draw_line(Vector2(xx,e.lock_y),Vector2(xx-19,e.lock_y),Color(1,.55,.36,.5*alpha),2,true)
+				s.visual.prop(g,"core",p+Vector2(-40,20),48,alpha*.38)
+			else:
+				s.visual.prop(g,"core",p+Vector2(-45,10),66,alpha)
+				c.draw_arc(p+Vector2(-45,10),39,s.age*2,s.age*2+TAU*.7,24,Color(.35,1,.7,.9*alpha),2,true)
 		var bar = Rect2(p+Vector2(-49,-float(spec.size)*.36),Vector2(98,5))
 		c.draw_rect(bar,Color(.1,.06,.15,alpha));bar.size.x *= float(e.hp)/float(e.max_hp);c.draw_rect(bar,Color(.97,.55,.38,alpha))
 		g.home_menu.label(g,"%d+" % int(spec.need),p+Vector2(0,-float(spec.size)*.40),16,g.CREAM,true,100)
@@ -314,6 +366,28 @@ func paint_object(g,s,e: Dictionary,alpha: float) -> bool:
 			for i in range(3):
 				var t = fposmod(float(e.age)*.8+i*.33,1)
 				c.draw_circle(p+Vector2(36+t*14,-32-t*48),4+t*6,Color(.32,.27,.36,(1-t)*.33*alpha))
+		return true
+	if e.kind=="gate":
+		var gap = float(e.gap)*.5;var top = float(e.y)-gap;var bottom = float(e.y)+gap
+		for rect in [Rect2(e.x-21,150,42,maxf(0,top-150)),Rect2(e.x-21,bottom,42,maxf(0,620-bottom))]:
+			c.draw_rect(rect,Color(.18,.12,.25,alpha));c.draw_rect(Rect2(rect.position,Vector2(4,rect.size.y)),Color(.95,.38,.28,.7*alpha))
+		s.visual.prop(g,"pylon",Vector2(e.x,top-64),128,alpha)
+		s.visual.prop(g,"pylon",Vector2(e.x,bottom+64),128,alpha,PI)
+		c.draw_line(Vector2(e.x-32,top),Vector2(e.x+32,top),Color(.4,1,.8,.65*alpha),2,true)
+		c.draw_line(Vector2(e.x-32,bottom),Vector2(e.x+32,bottom),Color(.4,1,.8,.65*alpha),2,true)
+		return true
+	if e.kind=="rock": s.visual.prop(g,"rock",p,134,alpha,e.angle*.1);return true
+	if e.kind=="exit":
+		s.visual.prop(g,"portal",p,225,alpha,PI*.5)
+		for j in range(6):
+			var angle = s.age*1.3+j*TAU/6
+			c.draw_circle(p+Vector2(cos(angle)*50,sin(angle)*86),2.5,Color(.55,1,.85,alpha*.7))
+		g.home_menu.label(g,"SUBIR",p+Vector2(0,-119),17,g.MINT,true,130)
+		return true
+	if e.kind=="boarding":
+		art.sprite(c,"fleet",0,p,135,0,tint)
+		c.draw_arc(p,62,0,TAU,32,Color(.4,.9,1,.65*alpha),2,true)
+		g.home_menu.label(g,"PILOTAR",p+Vector2(0,-58),13,g.MINT,true,130)
 		return true
 	if e.kind=="wreck":
 		var spec: Dictionary = SHIPS[e.ship]
@@ -353,7 +427,7 @@ func paint_object(g,s,e: Dictionary,alpha: float) -> bool:
 	return false
 
 func paint_party(g,s) -> void:
-	var point = Vector2(MonsterCatalog.ANCHOR+25,s.y-48)
+	var point = Vector2(s.x+25,s.y-48)
 	if pilot_left>0: s.visual.cabin(g,s)
 	if power_kind==7: art.sprite(g.paint_target,"helpers",12+posmod(int(s.age*5),4),point+Vector2(70,-72),76,sin(s.age*2)*.06)
 	if power_kind==8 and shield_charges>0:

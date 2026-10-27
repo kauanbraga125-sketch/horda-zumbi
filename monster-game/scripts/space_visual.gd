@@ -6,6 +6,7 @@ var notices: Array[Dictionary] = []
 var current: Dictionary = {}
 var clock = 0.0
 var controls_left = 0.0
+static var props: Dictionary = {}
 
 func warm() -> void:
 	if not textures.is_empty(): return
@@ -14,6 +15,17 @@ func warm() -> void:
 		assert(image.load_png_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/space_v133/"+key+".png"))==OK)
 		textures[key] = ImageTexture.create_from_image(image)
 	ship_layout = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/space_v133/layout.json")).ships
+
+func prop(g,key: String,point: Vector2,height: float,alpha: float = 1.0,angle: float = 0.0) -> void:
+	if props.is_empty():
+		for name in ["pylon","portal","rock","core"]:
+			var im = Image.new()
+			assert(im.load_png_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/space_v134/"+name+".png"))==OK)
+			props[name] = ImageTexture.create_from_image(im)
+	var tex: Texture2D = props[key];var size = tex.get_size()*height/tex.get_height()
+	g.paint_target.draw_set_transform(point,angle)
+	g.paint_target.draw_texture_rect(tex,Rect2(-size*.5,size),false,Color(1,1,1,alpha))
+	g.paint_target.draw_set_transform(Vector2.ZERO)
 
 func reset() -> void:
 	notices.clear();current.clear();clock = 0;controls_left = 0
@@ -69,7 +81,7 @@ func cabin(g,s) -> void:
 	var b = s.battle;var kind = str(b.pilot_kind)
 	if not ship_layout.has(kind): return
 	var c = g.paint_target;var spec: Dictionary = ship_layout[kind]
-	var centre = Vector2(s.ANCHOR+25,s.y-48)
+	var centre = Vector2(s.x+25,s.y-48)
 	var scale = 330.0/640.0;var angle = clampf(s.vy*.00018,-.045,.045)
 	var root = Transform2D(angle,centre)
 	var rect = Rect2(Vector2(-320,-200)*scale,Vector2(640,400)*scale)
@@ -143,7 +155,7 @@ func hud(g,s) -> void:
 	g.home_menu.label(g,title,impulse.position+Vector2(impulse.size.x*.5,21),15,g.GOLD,true,impulse.size.x-22)
 	var bar = Rect2(impulse.position+Vector2(13,31),Vector2(impulse.size.x-26,7))
 	g.draw_rect(bar,Color("171125"));bar.size.x *= float(s.charge)/100.0;g.draw_rect(bar,g.MINT)
-	var info = "IMPULSO • %d%%" % int(s.charge) if s.phase=="flight" else "PREPARANDO SALTO" if s.phase=="boost" else ""
+	var info = (("PORTAL À FRENTE" if s.routes.exit_spawned else "PRÓXIMO PORTAL") if s.charge>=100 else "IMPULSO • %d%%" % int(s.charge)) if s.phase=="flight" else "PREPARANDO SALTO" if s.phase=="boost" else ""
 	if not info.is_empty(): g.home_menu.label(g,"%d/4  •  %s" % [s.zone()+1,info],impulse.position+Vector2(impulse.size.x*.5,54),12,g.MINT,true,impulse.size.x-20)
 	var pause_rect: Rect2 = d.pause
 	g.home_menu.slab(g,pause_rect,Color("493053"),Color("bd915b"),12,3);g.gameplay_ui.glyph(g,"pause",pause_rect.get_center(),32,g.CREAM);g.home_menu.register(g,pause_rect,"pause")
@@ -152,6 +164,7 @@ func hud(g,s) -> void:
 		var perfect = str(current.text)=="PERFECT!"
 		g.home_menu.slab(g,rect,Color(.13,.08,.2,.95),g.GOLD if perfect else Color("80688e"),11,2)
 		g.home_menu.label(g,str(current.text),rect.get_center()+Vector2(0,8),26 if perfect else 19,g.GOLD if perfect else g.CREAM,true,rect.size.x-26)
+	g.home_menu.label(g,"ALMAS %d  •  MAIOR HORDA %d" % [r.souls,r.max_horde],Vector2(view.position.x+28,view.end.y-(180 if g.lab_active and g.lab_kind=="space" else 110)),15,g.MINT,false,360)
 	var bottom = view.end.y-(154 if g.lab_active and g.lab_kind=="space" else 85)
 	if s.phase=="flight" or s.phase=="boost":
 		var dash_ready = s.phase=="flight" and s.dash_cooldown<=0
@@ -162,8 +175,10 @@ func hud(g,s) -> void:
 				g.draw_circle(Vector2(view.position.x+37+i*20,bottom+37),5,g.MINT if i<s.battle.pilot_hp else Color("44344f"))
 		elif s.battle.power_left>0:
 			g.home_menu.label(g,("SIMBIONTE" if s.battle.power_kind==7 else "ESCUDO %d" % s.battle.shield_charges)+" • %d s" % ceili(s.battle.power_left),Vector2(view.position.x+28,bottom+29),18,g.MINT,false,300)
+		if s.chain_left>0 and s.chain>1:
+			g.home_menu.label(g,"COMBO x%d" % s.chain,Vector2(view.end.x-120,bottom-17),22,g.GOLD,true,180)
 		if controls_left>0:
-			g.home_menu.label(g,"ARRASTE PARA SUBIR/DESCER  •  INVESTIDA PARA ATACAR",Vector2(view.get_center().x,bottom-15),16,g.CREAM,true,view.size.x-60)
+			g.home_menu.label(g,"ARRASTE EM TODAS AS DIREÇÕES  •  INVESTIDA PARA ATACAR",Vector2(view.get_center().x,bottom-15),16,g.CREAM,true,view.size.x-60)
 	if g.lab_active and g.lab_kind=="space":
 		var labels = ["RECOMEÇAR","TEMPO: %d s" % int(s.duration),"CAMADA +","TESTAR PODER","POUSAR"]
 		var actions = ["lab_space_restart","lab_space_time","lab_space_zone","lab_space_power","lab_space_land"]

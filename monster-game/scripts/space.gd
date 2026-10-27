@@ -53,11 +53,22 @@ var boost_from = 0.0
 var boost_to = 0.0
 var return_prepared = false
 var y_history: Array[Vector2] = []
+var x = 340.0
+var aim_x = 340.0
+var vx = 0.0
+var path: Array[Dictionary] = []
+var routes = preload("res://scripts/space_routes.gd").new()
+var chain = 0
+var chain_left = 0.0
+var chain_best = 0
+var dash_from = 340.0
+var dash_target = 340.0
+var perfect_rows: Dictionary = {}
 
 func reset(seed_value: int) -> void:
 	active = false;phase = "ground";objects.clear();starts.clear();discoveries.clear()
 	age = 0;flight_age = 0;phase_age = 0;altitude = 0;max_altitude = 0
-	battle.reset();visual.reset();charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;y_history.clear()
+	battle.reset();visual.reset();routes.reset();path.clear();perfect_rows.clear();x = ANCHOR;aim_x = ANCHOR;vx = 0;chain = 0;chain_left = 0;chain_best = 0;charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;y_history.clear()
 	completed_flights = 0;early_offered = false;captured = 0;collected = 0;hits = 0
 	random.seed = seed_value ^ 0x51ace
 
@@ -83,14 +94,14 @@ func begin(r, force: bool = false) -> bool:
 		if e.state == "capture" and e.kind in ["civilian", "police", "soldier"]: r.complete_capture(e)
 	for i in range(r.members.size() - 1, -1, -1):
 		if r.members[i].falling: r.remove_member(i, "fall")
-	battle.reset();visual.reset();charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;dash_serial = 0;aim_y = 420;manual_control = true;return_prepared = false;y_history.clear()
+	battle.reset();visual.reset();routes.reset();path.clear();perfect_rows.clear();x = ANCHOR;aim_x = ANCHOR;vx = 0;chain = 0;chain_left = 0;chain_best = 0;charge = 0;wave_number = 1;dash_left = 0;dash_cooldown = 0;dash_serial = 0;aim_y = 420;manual_control = true;return_prepared = false;y_history.clear()
 	if force:
 		for kind in [7,8]:
 			if kind not in r.power_owned: r.power_owned.append(kind)
 	ensure_art();battle.art.warm();visual.warm()
 	active = true;phase = "ascent";age = 0;phase_age = 0;flight_age = 0
 	duration = seconds(int(r.power_levels.get("space_time", 0)));left = duration
-	altitude = 0;y = 420;vy = 0;hurt_left = 0;hit_cooldown = 0;thrust_flash = 0
+	altitude = 0;y = 420;vy = 0;x = clampf(340+maxi(0,r.active_count()-8)*4,340,540);aim_x = x;x = clampf(340+maxi(0,r.active_count()-8)*4,340,540);aim_x = x;hurt_left = 0;hit_cooldown = 0;thrust_flash = 0
 	next_group = 1.0;group_serial = 0;last_zone = -1;warning_second = 6
 	start_world = r.world_px;start_tunnel = r.tunnel_number()
 	starts.clear();objects.clear();discoveries.clear()
@@ -140,19 +151,33 @@ func _world_step(r, dt: float) -> void:
 	r.hit_grace = maxf(0, r.hit_grace - dt)
 
 func dash() -> bool:
-	if not active or phase!="flight" or dash_cooldown>0: return false
-	dash_serial += 1;dash_left = .48;dash_cooldown = 1.15;thrust_flash = .4;return true
+	if not active or phase!="flight" or dash_cooldown>0 or dash_left>0: return false
+	dash_serial += 1;dash_left = .42;dash_cooldown = 1.65;thrust_flash = .4
+	dash_from = x;dash_target = x+210
+	return true
 
-func drag_by(delta_y: float) -> void:
-	manual_control = true;aim_y = clampf(aim_y+delta_y,285,550)
+func drag_by(delta) -> void:
+	manual_control = true
+	if delta is Vector2:
+		aim_x += delta.x;aim_y += delta.y
+	else: aim_y += float(delta)
+
+func horizontal_bounds(r) -> Vector2:
+	return Vector2(maxf(r.view_left+170,210),minf(690,r.view_right-200))
+
+func chain_hit(r) -> void:
+	chain = chain+1 if chain_left>0 else 1;chain_left = 2.0;chain_best = maxi(chain_best,chain)
+	dash_cooldown = minf(dash_cooldown,.16)
+	charge = minf(100,charge+minf(12,4+chain*2))
+	r.mission_stats.space_combo = maxi(int(r.mission_stats.get("space_combo",0)),chain_best)
+	visual.notify("INVESTIDA PRONTA" if chain==1 else "COMBO x%d • INVESTIDA PRONTA" % chain,2,1.1)
 
 func boost(r) -> void:
 	if phase!="flight": return
 	charge = 0;phase = "boost";phase_age = 0;wave_number += 1
 	boost_from = altitude;boost_to = [1100.0,2150.0,3400.0,maxf(4000.0,altitude+500.0)][zone()]
-	for e in objects:
-		if battle.hostile(e): e.taken = true
-	next_group = 1.3
+	routes.next_layer();next_group = .5
+	r.hit_grace = maxf(r.hit_grace,1.25)
 	visual.notify("A HORDA PEGA IMPULSO!",3,1.3)
 	r.events.append({"type":"space_boost","x":ANCHOR,"y":y-50})
 
@@ -167,7 +192,7 @@ func advance(r, dt: float, held: bool) -> void:
 	if not active: return
 	age += dt;phase_age += dt;visual.advance(dt);_world_step(r,dt)
 	hurt_left = maxf(0,hurt_left-dt);hit_cooldown = maxf(0,hit_cooldown-dt);thrust_flash = maxf(0,thrust_flash-dt)
-	dash_left = maxf(0,dash_left-dt);dash_cooldown = maxf(0,dash_cooldown-dt)
+	dash_left = maxf(0,dash_left-dt);dash_cooldown = maxf(0,dash_cooldown-dt);chain_left = maxf(0,chain_left-dt)
 	if phase=="ascent":
 		_update_members(r,dt)
 		if phase_age>=ASCENT_SECONDS:
@@ -181,24 +206,28 @@ func advance(r, dt: float, held: bool) -> void:
 	if phase=="boost":
 		altitude = lerpf(boost_from,boost_to,smoothstep(.25,1.25,phase_age))
 		if phase_age>=1.25: phase = "flight";phase_age = 0
-	else: charge = minf(100,charge+4.0*dt)
+	else: pass # Impulse is earned through actions, never passive waiting.
 	max_altitude = maxf(max_altitude,altitude)
 	r.mission_stats.space_altitude = maxi(int(r.mission_stats.get("space_altitude",0)),int(altitude))
-	var limits = steering_bounds(r)
-	aim_y = clampf(aim_y,limits.x,limits.y)
-	var target_vy = clampf((aim_y-y)*5.5,-225,225) if manual_control else (-150.0 if held else 110.0)
-	vy = move_toward(vy,target_vy,dt*850)
-	y = clampf(y+vy*dt,limits.x,limits.y)
+	var limits = steering_bounds(r);var horizontal = horizontal_bounds(r)
+	aim_y = clampf(aim_y,limits.x,limits.y);aim_x = clampf(aim_x,horizontal.x,horizontal.y)
+	var target_vy = clampf((aim_y-y)*11.0,-650,650) if manual_control else (-150.0 if held else 110.0)
+	vy = move_toward(vy,target_vy,dt*4100)
+	vx = move_toward(vx,clampf((aim_x-x)*11,-650,650),dt*4100)
+	y = clampf(y+vy*dt,limits.x,limits.y);x = clampf(x+vx*dt,horizontal.x,horizontal.y)
+	if dash_left>0:
+		var progress = 1-dash_left/.42
+		x = minf(r.view_right-125,lerpf(dash_from,dash_target,smoothstep(0,.65,progress)))
+
 	if zone()!=last_zone:
 		last_zone = zone();r.events.append({"type":"space_zone","zone":last_zone,"title":ZONES[last_zone]});_spawn_discovery(r,last_zone)
 	_update_members(r,dt)
 	next_group -= dt
-	if next_group<=0 and phase=="flight":
-		battle.spawn(self,r)
-		next_group = maxf(2.7,4.1-zone()*.18-maxi(0,r.active_count()-16)*.018)
+	if next_group<1e5 and next_group<=0: routes.advance(self,r,dt)
 	battle.advance(self,r,dt)
-	if r.dead: active = false;return
-	if charge>=100 and phase=="flight": boost(r)
+	if r.dead:
+		phase = "defeated";return
+
 	var remaining = ceili(left)
 	if remaining<=5 and remaining<warning_second and remaining>0: warning_second = remaining;r.events.append({"type":"space_warning","seconds":remaining})
 	if left<=0:
@@ -210,42 +239,50 @@ func member_height(r) -> float:
 	return clampf(104-maxi(0,r.active_count()-8)*.55,62,104)
 
 func formation(r) -> Dictionary:
-	var count = maxi(1,r.active_count())
-	var columns = mini(12,maxi(1,ceili(sqrt(count*1.8))))
-	var rows = ceili(float(count)/columns)
-	var height = member_height(r)
-	var gap_x = minf(height*.65,maxf(200,ANCHOR-r.view_left-45)/maxi(1,columns-1))
-	return {"columns":columns,"rows":rows,"gap_x":gap_x,"gap_y":minf(height*.57,230.0/maxi(1,rows-1))}
+	var strands = 1 if r.active_count()<=8 else 2 if r.active_count()<=20 else 3 if r.active_count()<=50 else 4
+	return {"strands":strands,"columns":ceili(float(r.active_count())/strands),"rows":strands,"gap_x":22.0,"gap_y":30.0}
 
-func steering_bounds(r) -> Vector2:
-	var f = formation(r)
-	var half = (int(f.rows)-1)*float(f.gap_y)*.5
-	return Vector2(195+member_height(r)+half,570-half)
+func steering_bounds(_r) -> Vector2:
+	# The player's control range must never shrink when the horde grows.
+	return Vector2(249,579)
+
+func follower_lag(index: int, strands: int) -> float:
+	return float(int(index/strands))*.047+maxi(0,index-15)*.0045
+
+func path_point(at_time: float) -> Vector2:
+	if path.is_empty(): return Vector2(x,y)
+	var previous = path[0]
+	for sample in path:
+		if float(sample.t)>=at_time:
+			var fraction = clampf((at_time-float(previous.t))/maxf(.001,float(sample.t)-float(previous.t)),0,1)
+			return Vector2(previous.x,previous.y).lerp(Vector2(sample.x,sample.y),fraction)
+		previous = sample
+	return Vector2(previous.x,previous.y)
 
 func _update_members(r, dt: float) -> void:
+	path.append({"t":age,"x":x,"y":y})
+	while path.size()>240: path.pop_front()
 	y_history.append(Vector2(age,y))
 	while y_history.size()>150: y_history.pop_front()
-	var f = formation(r)
+	var f = formation(r);var strands = int(f.strands)
 	for i in range(r.members.size()):
-		var m = r.members[i];var row = int(i/int(f.columns))
-		var x = ANCHOR-(i%int(f.columns))*float(f.gap_x)+(row%2)*12
-		var lag = minf(.58,maxi(0,i-15)*.016)
-		var follow_y = y
-		for sample in y_history:
-			if sample.x>=age-lag: follow_y = sample.y;break
-		var target_y = clampf(follow_y+(row-(int(f.rows)-1)*.5)*float(f.gap_y)+sin(age*1.7-i*.65)*3,195+member_height(r),575)
-		if phase=="boost":
-			if phase_age<.3: x = lerpf(x,ANCHOR,(1-smoothstep(.0,.3,phase_age))*.18)
-			else: target_y -= sin(clampf((phase_age-.3)/.95,0,1)*PI)*42
-		if dash_left>0: x += sin((1-dash_left/.48)*PI)*225
+		var m = r.members[i];var rank = int(i/strands);var strand = i%strands
+		var sample = path_point(age-follower_lag(i,strands))
+		var target_x = sample.x-rank*(42.0 if strands==1 else 39.0 if strands==2 else 30.0 if strands==3 else 23.0)-strand*9
+		# Ribbons follow the recorded path, not a rectangular block. Small hordes react together.
+		var spread = 40.0 if strands>1 else 0.0
+		var target_y = sample.y+([0.0,-1.0,1.0,2.0][strand])*spread+sin(age*1.8-i*.87)*3
+		target_x = maxf(r.view_left+30,target_x)
+		target_y = clampf(target_y,225,607)
+		if phase=="boost": target_y -= sin(clampf((phase_age-.2)/1.05,0,1)*PI)*44
 		if phase=="ascent":
 			var from = starts.get(int(m.id),Vector2(m.x,m.y));var t = smoothstep(.1+(i%8)*.035,ASCENT_SECONDS-.1,phase_age)
-			m.x = lerpf(from.x,x,t);m.y = lerpf(from.y,target_y,t)
+			m.x = lerpf(from.x,target_x,t);m.y = lerpf(from.y,target_y,t)
 		elif phase=="return":
 			var from = starts.get(int(m.id),Vector2(m.x,m.y));var t = smoothstep(0,RETURN_SECONDS-.15,phase_age)
 			m.x = lerpf(from.x,r.slot_x(i),t);m.y = lerpf(from.y,r.ground_y(r.slot_x(i)),t)
 		else:
-			m.x = move_toward(m.x,x,dt*(1100 if dash_left>0 else 235));m.y = lerpf(float(m.y),target_y,1-exp(-dt*8))
+			m.x = lerpf(float(m.x),target_x,1-exp(-dt*22));m.y = lerpf(float(m.y),target_y,1-exp(-dt*22))
 		m.vy = vy;m.air_time += dt;m.run_phase += dt*.23;m.air_pose = 1
 		m.hurt_left = maxf(0,m.hurt_left-dt);m.attack_left = maxf(0,m.attack_left-dt)
 		m.push_left = 0;m.land_left = 0;m.arrival = 0;m.falling = false
@@ -261,7 +298,7 @@ func _spawn_discovery(r, layer: int) -> void:
 	if discoveries.has(layer): return
 	discoveries[layer] = true
 	# The encounter director introduces the new family after the launch settles.
-	if layer==3: add_object("monolith",r.view_right+1050,510,{"speed":.8,"radius":32.0})
+	if layer==3: add_object("monolith",routes.at(self,r,4.5),510,{"speed":1.0,"radius":32.0})
 
 func _update_objects(r,dt: float) -> void:
 	battle.advance(self,r,dt)

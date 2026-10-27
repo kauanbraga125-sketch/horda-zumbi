@@ -1,0 +1,30 @@
+{
+  "source": "tools/art_sources/v134/route-props-original.png",
+  "source_boxes": {
+    "pylon": [
+      0,
+      0,
+      495,
+      659
+    ],
+    "portal": [
+      495,
+      0,
+      1280,
+      659
+    ],
+    "rock": [
+      0,
+      659,
+      735,
+      1280
+    ],
+    "core": [
+      735,
+      659,
+      1280,
+      1280
+    ]
+  },
+  "usage": "raw PNG sprites; animation transforms and collisions are authored in space_combat.gd"
+}

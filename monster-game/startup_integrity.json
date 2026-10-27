@@ -1,5 +1,5 @@
 {
-  "version": "0.10.33",
+  "version": "0.10.34",
   "class_count": 55,
   "files": [
     {
@@ -184,8 +184,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 114192,
-      "sha256": "cd6cc8aec007820af69c3becaab4b3aec0d63f96bebea6b238ccf37329b43cf9"
+      "bytes": 114188,
+      "sha256": "c30f179dfa08ea3a9350f960e894faabf23e1614654d4a303361c6f1778af08d"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -349,18 +349,23 @@
     },
     {
       "path": "res://scripts/space.gd",
-      "bytes": 21148,
-      "sha256": "18d8538cab7eb17f487d10fb4fb1607618cf0772e4095036bad360e4f5ae4964"
+      "bytes": 23196,
+      "sha256": "1196fb41c9f3237ee9d6095a9e7ce9135250bf7cd050a95f935d98f958bf5083"
     },
     {
       "path": "res://scripts/space_combat.gd",
-      "bytes": 19006,
-      "sha256": "1328372580c3430e1835a1989b50bd6521a39c0d517e18f564ea7d867acb2144"
+      "bytes": 22768,
+      "sha256": "39abe728cf74410a7afc9bfc393d02db4d5b06b5d2f4f65733dfde4632419403"
+    },
+    {
+      "path": "res://scripts/space_routes.gd",
+      "bytes": 4871,
+      "sha256": "f2d71fc28bfb3cb3815f512c8f10fc14bc06732997805ff0b71ef99545009790"
     },
     {
       "path": "res://scripts/space_visual.gd",
-      "bytes": 10040,
-      "sha256": "ebf7c611eccb1bd6f97ef4537ae366924fc2d70649b26a80264b019f2b1d3d80"
+      "bytes": 11119,
+      "sha256": "6424f38f4a06ca02c38d5e78a110339adcf088411a3ad3b910e024b26e6e09cd"
     },
     {
       "path": "res://scripts/terrain.gd",
@@ -986,6 +991,31 @@
       "path": "res://assets/art/space_v133/vortex.png",
       "bytes": 443885,
       "sha256": "2d092b323640d09a499e8157c2623950c4791fee314b0e1c8928f6d54438cc57"
+    },
+    {
+      "path": "res://assets/art/space_v134/core.png",
+      "bytes": 265909,
+      "sha256": "6170681b67dc9923b7771d30fdfdfebf9f9337965e656d1a163ae613c27fdab0"
+    },
+    {
+      "path": "res://assets/art/space_v134/layout.json",
+      "bytes": 443,
+      "sha256": "4179c7f98e0d397a977e268ba8e8b17a1b7c9508ab591001c260d323d814ebdd"
+    },
+    {
+      "path": "res://assets/art/space_v134/portal.png",
+      "bytes": 291937,
+      "sha256": "2c61ecaacc111bbdc51b2785e44dcfbcd7701d0e12584a43d9709ce28971e6f0"
+    },
+    {
+      "path": "res://assets/art/space_v134/pylon.png",
+      "bytes": 163041,
+      "sha256": "29519f4a90c201627bceba24498eeae4e82f28f270b9052c25c5bd558239979a"
+    },
+    {
+      "path": "res://assets/art/space_v134/rock.png",
+      "bytes": 279569,
+      "sha256": "628628a0cbab9617097d14dc8b3e40c611f9f051cce5f4c4ea0dc509ea7b2639"
     }
   ]
 }

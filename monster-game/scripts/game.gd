@@ -668,9 +668,9 @@ func end_market_touch(point: Vector2, id: int) -> void :
 func _input(event: InputEvent) -> void :
 	if screen == "run" and runner.space.active:
 		if event is InputEventScreenDrag and jump_touches.has(event.index):
-			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative)).y/camera_zoom);return
+			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative))/camera_zoom);return
 		if event is InputEventMouseMotion and jump_touches.has(-1):
-			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative)).y/camera_zoom);return
+			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative))/camera_zoom);return
 	if codex.input(self,event): return
 	if hub.input(self, event): return
 	if screen == "market":
