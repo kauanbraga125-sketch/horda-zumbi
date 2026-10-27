@@ -55,6 +55,7 @@ func run() -> void:
 	beam.space.add_object("beam",c.x+180,c.y,{"speed":0.0,"length":420.0,"contacts":{},"hit_at":-10.0})
 	ticks(beam,70);check(beam.active_count()==initial,"laser warning cannot hurt the horde")
 	ticks(beam,25);check(beam.active_count()==initial-1,"warned laser causes one real loss")
+	ticks(beam,35);check(beam.active_count()==initial-1,"one laser cannot erase a small horde")
 	var safe = flight();c = safe.space.battle.member_centre(safe,0);initial = safe.active_count()
 	safe.space.add_object("beam",float(safe.members.map(func(m):return float(m.x)).min())-80,c.y,{"speed":0.0,"length":90.0,"contacts":{},"hit_at":-10.0})
 	ticks(safe,120);check(safe.active_count()==initial,"laser cannot hit behind its emitter")
@@ -76,6 +77,13 @@ func run() -> void:
 	s.age += .6;b.hurt(s,pilot,0,"space_ship",centre)
 	s.age += .6;b.hurt(s,pilot,0,"space_ship",centre)
 	check(b.pilot_left<=0 and pilot.active_count()==initial,"broken hull returns real party without deleting members")
+	var hidden = flight(8);hidden.space.battle.pilot_kind = "tour_bus";hidden.space.battle.pilot_left = 5;hidden.space.battle.pilot_hp = 3
+	var hidden_y = hidden.space.battle.member_centre(hidden,3).y
+	hidden.space.add_object("beam",180,hidden_y,{"speed":0.0,"length":200.0,"contacts":{},"hit_at":-10.0})
+	ticks(hidden,120);check(hidden.space.battle.pilot_hp==3,"laser ignores invisible tail behind captured hull")
+	var hull_laser = flight(8);hull_laser.space.battle.pilot_kind = "tour_bus";hull_laser.space.battle.pilot_left = 5;hull_laser.space.battle.pilot_hp = 3
+	hull_laser.space.add_object("beam",600,hull_laser.space.y-48,{"speed":0.0,"length":500.0,"contacts":{},"hit_at":-10.0})
+	ticks(hull_laser,120);check(hull_laser.space.battle.pilot_hp==2,"laser hits visible hull once instead of hidden members")
 	# Distinct layer decks and a threat budget, including quiet reward encounters.
 	var variety = flight(20);var kinds = {}
 	for layer in range(4):

@@ -1,0 +1,142 @@
+{
+  "version": "0.10.33",
+  "code": 136,
+  "package": "com.kauan.noitedahorda.reconstruida",
+  "bytes": 121658533,
+  "sha256": "b48aa9368244a2ea53f8064cb766e8a3111a74f060ad705ff19557c2ed3cb851",
+  "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+  "base_apk_sha256": "848db586b26f76f955535fe6d190400936b83e42debb0bf751e672f8bad24abe",
+  "prior_media_entries_preserved": 282,
+  "original_character_pngs_changed": 0,
+  "source_matches_shipped_scripts": true,
+  "startup_files": 197,
+  "class_count": 55,
+  "sparse_entries": 907,
+  "changed": [
+    "assets/art/space_v133/fighter-front.png",
+    "assets/art/space_v133/fighter-inside.png",
+    "assets/art/space_v133/layout.json",
+    "assets/art/space_v133/tour_bus-front.png",
+    "assets/art/space_v133/tour_bus-inside.png",
+    "assets/art/space_v133/vortex.png",
+    "project.binary",
+    "project.godot",
+    "scripts/actor.gd",
+    "scripts/cabin_mask.gdshader",
+    "scripts/game.gd",
+    "scripts/gameplay_ui.gd",
+    "scripts/space.gd",
+    "scripts/space_combat.gd",
+    "scripts/space_visual.gd",
+    "startup_integrity.json"
+  ],
+  "layout": {
+    "min_sdk": 24,
+    "target_sdk": 35,
+    "extract_native_libs": true,
+    "resources_arsc_compression": 0,
+    "resources_arsc_offset": 28399632,
+    "resources_arsc_bytes": 59356
+  },
+  "physical_device_tested": false,
+  "validation": {
+    "adventure": {
+      "checks": 222,
+      "failures": []
+    },
+    "readability": {
+      "checks": 1635,
+      "failures": []
+    },
+    "cabins": {
+      "checks": 4,
+      "failures": []
+    },
+    "startup_new": {
+      "checks": 15,
+      "failures": []
+    },
+    "startup_existing": {
+      "checks": 16,
+      "failures": []
+    },
+    "historical_suites": [
+      {
+        "suite": "v100_integration",
+        "result": "V100_RESULT checks=56 failures=0",
+        "teardown_resource_warning": true
+      },
+      {
+        "suite": "v101_integration",
+        "result": "V101_RESULT checks=20 failures=0",
+        "teardown_resource_warning": true
+      },
+      {
+        "suite": "v103_apk_runtime",
+        "result": "APK103_RESULT checks=20 failures=0",
+        "teardown_resource_warning": false
+      },
+      {
+        "suite": "v103_codex",
+        "result": "V103_RESULT checks=38 failures=0",
+        "teardown_resource_warning": false
+      },
+      {
+        "suite": "v104_integration",
+        "result": "V104_RESULT checks=45 failures=0",
+        "teardown_resource_warning": false
+      },
+      {
+        "suite": "v105_integration",
+        "result": "V105_RESULT checks=47 failures=0",
+        "teardown_resource_warning": true
+      },
+      {
+        "suite": "v129_currency",
+        "result": "V129_CURRENCY_OK checks=45 all_cosmetics=35",
+        "teardown_resource_warning": false
+      }
+    ],
+    "cosmetic_transforms": {
+      "checks": 44,
+      "failures": []
+    },
+    "native_visual": {
+      "motion_frames": 150,
+      "native_captures": 28,
+      "natural_encounters": [
+        {
+          "kind": "tour_bus",
+          "layer": 0,
+          "time": 0.4
+        },
+        {
+          "kind": "rescue",
+          "layer": 0,
+          "time": 4.51666666666666
+        },
+        {
+          "kind": "meteor",
+          "layer": 0,
+          "time": 8.63333333333334
+        },
+        {
+          "kind": "cargo",
+          "layer": 1,
+          "time": 11.3166666666668
+        },
+        {
+          "kind": "coins",
+          "layer": 1,
+          "time": 15.2500000000003
+        }
+      ],
+      "physical_device_tested": false,
+      "remaining_members": 11,
+      "version": "0.10.33",
+      "renderer": "Godot 4.5.1 / OpenGL Compatibility / llvmpipe"
+    },
+    "exact_apk_audited_files": 197,
+    "legacy_teardown_notes": "Some historical test harnesses retain resources until process exit; their checks pass. New adventure, readability, cabin and ordinary startup harnesses finish without those errors."
+  }
+}

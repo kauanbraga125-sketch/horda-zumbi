@@ -354,8 +354,8 @@
     },
     {
       "path": "res://scripts/space_combat.gd",
-      "bytes": 18421,
-      "sha256": "4dc9a5a5671ac8e80bd0c2a8f8c9a3ca5b05b2187ef3fc6b3a42a6d6e6b378b7"
+      "bytes": 19006,
+      "sha256": "1328372580c3430e1835a1989b50bd6521a39c0d517e18f564ea7d867acb2144"
     },
     {
       "path": "res://scripts/space_visual.gd",

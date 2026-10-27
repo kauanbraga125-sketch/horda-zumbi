@@ -229,7 +229,8 @@ func advance(s,r,dt: float) -> void:
 			var lead = r.leader_index()
 			if lead<0: return
 			var point = Vector2(e.x,e.y)
-			if s.dash_left>0 and int(e.last_dash)!=s.dash_serial and point.distance_to(member_centre(r,lead))<135:
+			var attack_point = Vector2(MonsterCatalog.ANCHOR+25,s.y-48) if pilot_left>0 else member_centre(r,lead)
+			if s.dash_left>0 and int(e.last_dash)!=s.dash_serial and point.distance_to(attack_point)<135:
 				e.last_dash = s.dash_serial
 				var damage = int(e.max_hp) if r.active_count()>=int(e.need) else 1
 				hit_ship(s,r,e,damage)
@@ -244,14 +245,22 @@ func advance(s,r,dt: float) -> void:
 			if e.age>2.5: e.taken = true
 			continue
 		if e.kind=="beam":
-			if e.age>=LASER_WARNING and e.age<=LASER_END and float(e.age)-float(e.hit_at)>.5:
+			var hit_limit = 2 if r.active_count()>=16 else 1
+			if e.age>=LASER_WARNING and e.age<=LASER_END and float(e.age)-float(e.hit_at)>.5 and int(e.get("damage_count",0))<hit_limit:
 				var span = laser_segment(e)
-				for i in range(r.members.size()):
-					var m = r.members[i];var centre = member_centre(r,i)
-					if e.contacts.has(int(m.id)) or centre.x<span.x or centre.x>span.y: continue
-					if absf(centre.y-float(e.y))<22:
-						if hurt(s,r,i,"space_laser",centre): e.contacts[int(m.id)] = true;e.hit_at = e.age
-						break
+				if pilot_left>0:
+					var hull = Vector2(MonsterCatalog.ANCHOR+25,s.y-48)
+					if hull.x+140>=span.x and hull.x-140<=span.y and absf(hull.y-float(e.y))<59 and not e.contacts.has("hull"):
+						if hurt(s,r,r.leader_index(),"space_laser",hull):
+							e.contacts.hull = true;e.hit_at = e.age;e.damage_count = hit_limit
+				else:
+					for i in range(r.members.size()):
+						var m = r.members[i];var centre = member_centre(r,i)
+						if e.contacts.has(int(m.id)) or centre.x<span.x or centre.x>span.y: continue
+						if absf(centre.y-float(e.y))<22:
+							if hurt(s,r,i,"space_laser",centre):
+								e.contacts[int(m.id)] = true;e.hit_at = e.age;e.damage_count = int(e.get("damage_count",0))+1
+							break
 			if e.age>LASER_END+.1: e.taken = true
 			continue
 		if e.kind=="shot" and e.age<float(e.get("arm_left",0)): continue

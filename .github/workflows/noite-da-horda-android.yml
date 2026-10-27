@@ -48,3 +48,10 @@ jobs:
             XDG_DATA_HOME="$RUNNER_TEMP/horda-startup-${FIXTURE}" HORDA_STARTUP_FIXTURE="$FIXTURE" HORDA_VALIDATION_DIR="$RUNNER_TEMP/startup-${FIXTURE}" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v133_startup.gd 2>&1 | tee "/tmp/startup-${FIXTURE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/startup-${FIXTURE}.log"; then exit 1; fi
           done
+      - name: Conferir recorte real dos ocupantes nas cabines
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "true"
+        run: |
+          set -euo pipefail
+          HORDA_VALIDATION_DIR="$RUNNER_TEMP/cabins" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v133_cabins.gd 2>&1 | tee /tmp/cabins.log
+          if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/cabins.log; then exit 1; fi
