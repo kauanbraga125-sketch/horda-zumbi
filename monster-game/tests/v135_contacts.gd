@@ -35,11 +35,11 @@ func run() -> void:
     if gate in s.objects:
      var minimum = INF;var bad = {}
      for m in r.members:
-      var point = Vector2(m.x,m.y-s.member_height(r)*.5)
+      var point = Vector2(m.x+s.member_height(r)*.12,m.y-s.member_height(r)*.5)
       for part in parts:
        var distance = point.distance_to(part)
        if distance<minimum: minimum = distance;bad = {"frame":frame,"point":str(point),"part":str(part),"in_scene":gate in s.objects,"root":str(Vector2(s.x,s.y))}
-     var required = 63+maxf(18,s.member_height(r)*.205)-1.5
+     var required = 63+maxf(18,s.member_height(r)*.26)-1.5
      if minimum<required and observations.size()<5: print("CONTACT_PROBE ",count," ",delta," ",bad," distance=",minimum," need=",required)
      check(minimum>=required,"survivors remain outside visible solids: %d dt %.3f" % [count,delta])
    check(r.active_count()==count,"damage grace and exhausted damage budget preserve count")

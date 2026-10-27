@@ -1,0 +1,280 @@
+{
+  "version": "0.10.35",
+  "code": 138,
+  "package": "com.kauan.noitedahorda.reconstruida",
+  "bytes": 122974168,
+  "sha256": "64d5937e80131c3dffedf4414df1e6a53f60e98ed05652544d8c87d9956dcfb0",
+  "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+  "base_apk_sha256": "68731a87750d79e696dbecd0ab459e940dafc5e836904f88d12fd2952ec2f9b8",
+  "prior_media_entries_preserved": 291,
+  "original_character_pngs_changed": 0,
+  "source_matches_shipped_scripts": true,
+  "startup_files": 207,
+  "class_count": 55,
+  "sparse_entries": 917,
+  "changed": [
+    "assets/art/space_v135/layout.json",
+    "assets/art/space_v135/mine.png",
+    "project.binary",
+    "project.godot",
+    "scripts/actor.gd",
+    "scripts/game.gd",
+    "scripts/runner.gd",
+    "scripts/space.gd",
+    "scripts/space_atmosphere.gd",
+    "scripts/space_combat.gd",
+    "scripts/space_contacts.gd",
+    "scripts/space_routes.gd",
+    "scripts/space_visual.gd",
+    "startup_integrity.json"
+  ],
+  "layout": {
+    "min_sdk": 24,
+    "target_sdk": 35,
+    "extract_native_libs": true,
+    "resources_arsc_compression": 0,
+    "resources_arsc_offset": 28399628,
+    "resources_arsc_bytes": 59356
+  },
+  "physical_device_tested": false,
+  "tests": [
+    {
+      "suite": "verify_packaged_boot",
+      "exit": 0,
+      "results": [
+        "HORDA_BOOT_START version=0.10.35 scripts=text",
+        "HORDA_BOOT_ASSETS_OK files=207 classes=55",
+        "HORDA_BOOT_READY scene=NoiteDaHorda",
+        "PACKAGED_BOOT_OK version=0.10.35 files=207.0"
+      ]
+    },
+    {
+      "suite": "v135_contacts",
+      "exit": 0,
+      "results": [
+        "V135_CONTACTS checks=256 failures=[]"
+      ]
+    },
+    {
+      "suite": "v135_flight",
+      "exit": 0,
+      "results": [
+        "V135_FLIGHT checks=361 failures=[]"
+      ]
+    },
+    {
+      "suite": "v135_adventure",
+      "exit": 0,
+      "results": [
+        "V135_ADVENTURE_INTEGRATION checks=222 failures=[] version=0.10.35"
+      ]
+    },
+    {
+      "suite": "v135_readability",
+      "exit": 0,
+      "results": [
+        "V135_READABILITY checks=199 failures=[]"
+      ]
+    },
+    {
+      "suite": "v129_currency",
+      "exit": 0,
+      "results": [
+        "V129_CURRENCY_OK checks=45 all_cosmetics=35"
+      ]
+    },
+    {
+      "suite": "v100_integration",
+      "exit": 0,
+      "results": [
+        "V100_RESULT checks=56 failures=0"
+      ]
+    },
+    {
+      "suite": "v101_integration",
+      "exit": 0,
+      "results": [
+        "V101_RESULT checks=20 failures=0"
+      ]
+    },
+    {
+      "suite": "v103_codex",
+      "exit": 0,
+      "results": [
+        "V103_RESULT checks=38 failures=0"
+      ]
+    },
+    {
+      "suite": "v103_apk_runtime",
+      "exit": 0,
+      "results": [
+        "HORDA_BOOT_START version=0.10.35 scripts=text",
+        "HORDA_BOOT_ASSETS_OK files=207 classes=55",
+        "HORDA_BOOT_READY scene=NoiteDaHorda",
+        "APK103_RESULT checks=20 failures=0"
+      ]
+    },
+    {
+      "suite": "v104_integration",
+      "exit": 0,
+      "results": [
+        "V104_RESULT checks=45 failures=0"
+      ]
+    },
+    {
+      "suite": "v105_integration",
+      "exit": 0,
+      "results": [
+        "V105_RESULT checks=47 failures=0"
+      ]
+    }
+  ],
+  "contact_properties": {
+    "checks": 256,
+    "failures": [],
+    "observations": [
+      {
+        "delta": 0.0166666666666667,
+        "members": 1,
+        "root_x": 177.618835449219,
+        "root_y": 429.700298709697
+      },
+      {
+        "delta": 0.1,
+        "members": 1,
+        "root_x": 340.0,
+        "root_y": 420.0
+      },
+      {
+        "delta": 0.0166666666666667,
+        "members": 4,
+        "root_x": 177.618835449219,
+        "root_y": 429.700298709697
+      },
+      {
+        "delta": 0.1,
+        "members": 4,
+        "root_x": 340.0,
+        "root_y": 420.0
+      },
+      {
+        "delta": 0.0166666666666667,
+        "members": 20,
+        "root_x": 522.166666666666,
+        "root_y": 420.000482765044
+      },
+      {
+        "delta": 0.1,
+        "members": 20,
+        "root_x": 388.0,
+        "root_y": 420.0
+      },
+      {
+        "delta": 0.0166666666666667,
+        "members": 44,
+        "root_x": 618.166666666666,
+        "root_y": 420.0
+      },
+      {
+        "delta": 0.1,
+        "members": 44,
+        "root_x": 484.0,
+        "root_y": 420.0
+      }
+    ]
+  },
+  "readability": {
+    "checks": 199,
+    "failures": [],
+    "formations": [],
+    "version": "0.10.35"
+  },
+  "native_visual": {
+    "native_captures": 13,
+    "physical_device_tested": false,
+    "version": "0.10.35"
+  },
+  "native_preview": {
+    "encounters": [
+      {
+        "kind": "rescue",
+        "layer": 0,
+        "members": 20,
+        "time": 1.0
+      },
+      {
+        "kind": "convoy",
+        "layer": 0,
+        "members": 21,
+        "time": 6.11666666666665
+      },
+      {
+        "kind": "slalom",
+        "layer": 1,
+        "members": 25,
+        "time": 12.5000000000002
+      },
+      {
+        "kind": "convoy",
+        "layer": 1,
+        "members": 22,
+        "time": 18.8500000000002
+      },
+      {
+        "kind": "counterattack",
+        "layer": 2,
+        "members": 25,
+        "time": 25.2333333333332
+      }
+    ],
+    "fps": 30,
+    "frames": 1260,
+    "max_horde": 28,
+    "members": 28,
+    "physical_device_tested": false,
+    "real_touch_inputs": true,
+    "souls": 13,
+    "video": {
+      "programs": [],
+      "streams": [
+        {
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1"
+        }
+      ],
+      "format": {
+        "duration": "42.000000",
+        "size": "17706707"
+      }
+    },
+    "apk_sha256": "64d5937e80131c3dffedf4414df1e6a53f60e98ed05652544d8c87d9956dcfb0"
+  },
+  "startup": [
+    {
+      "checks": 15,
+      "failures": [],
+      "fixture": "new",
+      "physical_device_tested": false,
+      "version": "0.10.35"
+    },
+    {
+      "checks": 16,
+      "failures": [],
+      "fixture": "existing",
+      "physical_device_tested": false,
+      "version": "0.10.35"
+    }
+  ],
+  "cabins": {
+    "checks": 4,
+    "failures": []
+  },
+  "transform_checks": 44,
+  "transform_failures": 0,
+  "sprite_preparation_reproducible": true,
+  "known_limits": [
+    "No physical Android device test",
+    "Touch feel, phone performance and subjective fun require player testing"
+  ]
+}

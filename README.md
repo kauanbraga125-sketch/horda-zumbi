@@ -1,14 +1,14 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.34 — voo livre, rotas e combos da horda**.
+Versão de testes atual: **0.10.35 — subida visível, contatos físicos e espaço vivo**.
 
-- [Baixar o APK 0.10.34](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.34/Horda-Zumbi-v0.10.34-TESTE-1M-ESPACO-ROTAS-ARM64.apk)
+- [Baixar o APK 0.10.35](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.35/Horda-Zumbi-v0.10.35-TESTE-1M-ESPACO-VIVO-ARM64.apk)
 - [Projeto Godot completo](monster-game/)
-- [Mecânicas, referências e instruções](monster-game/ESPACO-v0.10.34.md)
-- [Relatório de validação](monster-game/VALIDACAO-v0.10.34.json)
-- [Reconstruir o APK e os fontes a partir da cópia verificada](release-v0.10.34/)
+- [Mecânicas, referências e instruções](monster-game/ESPACO-v0.10.35.md)
+- [Relatório de validação](monster-game/VALIDACAO-v0.10.35.json)
+- [Reconstruir o APK e os fontes a partir da cópia verificada](release-v0.10.35/)
 
-O espaço foi refeito com controle do líder em duas direções e seguidores repetindo sua trajetória. A liberdade de movimento não diminui quando a horda cresce. O diretor alterna resgates, comboios, passagens e contra-ataques com janelas de núcleo exposto. Acertos permitem encadear investidas; obstáculos sólidos exigem desvio. A barra é ganha por ações e abre um portal ao final do encontro, sem apagar o combate. Almas, mortes e recordes continuam na mesma partida.
+A subida agora tem aceleração, postura voltada para cima e cenário passando para baixo. Minas animadas substituem os pilares provisórios. Contatos sólidos bloqueiam e recuam os membros mesmo durante proteção contra dano, e mortes no espaço usam uma saída flutuante com os acessórios do personagem. Tráfego distante, detritos, propulsores e escudos em movimento dão vida ao cenário. Rotas, combos, contra-ataques, almas e recordes continuam na mesma partida.
 
 Os seguidores repetem o salto ao chegar ao mesmo ponto do mundo; o atraso extra começa em hordas grandes. O espaço tem camadas por barra de impulso, investida, naves destrutíveis e pilotáveis, perigos que retiram membros, ovos e parasitas, colecionáveis e poderes exclusivos. O Caçador Noturno traz civis reais, o Manto Espectral absorve impactos e os poderes espaciais são Simbionte Cósmico e Escudo Orbital.
 
@@ -18,7 +18,7 @@ Há acesso direto ao teste espacial e à reposição de moedas na tela inicial. 
 
 Esta edição repõe ao abrir o aplicativo um saldo mínimo de **1.000.000 de moedas e 10.000 olhos**, preservando valores maiores e o progresso anterior. Desative a opção `testing/catalog_funds_enabled` antes do lançamento comercial.
 
-APK ARM64, Godot 4.5.1, GL Compatibility, Android mínimo 24 e alvo 35. Mantém o pacote e a assinatura da **0.10.33** (`com.kauan.noitedahorda.reconstruida`), permitindo atualizar essa edição sem apagar os dados. Nome instalado: **Horda Espaco R34**.
+APK ARM64, Godot 4.5.1, GL Compatibility, Android mínimo 24 e alvo 35. Mantém o pacote e a assinatura da **0.10.34** (`com.kauan.noitedahorda.reconstruida`), permitindo atualizar essa edição sem apagar os dados. Nome instalado: **Horda Espaco R35**.
 
 Os testes verificam os quadros, a bancada, as compras, a estabilidade dos itens nas transformações, a integridade e a inicialização do APK. A instalação em aparelho Android físico ainda precisa ser conferida pelo proprietário.
 

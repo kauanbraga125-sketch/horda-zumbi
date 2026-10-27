@@ -32,9 +32,9 @@ func push(s,r,e: Dictionary,centre: Vector2,radius: float,cause: String,damage_l
 	for i in indices:
 		if i<0 or i>=r.members.size(): continue
 		var m = r.members[i];var height = s.member_height(r)
-		var point = Vector2(s.x+25,s.y-48) if piloting else Vector2(m.x,m.y-height*.5)
-		var previous = Vector2(s.get("previous_x")+25,s.get("previous_y")-48) if piloting else Vector2(m.get("space_previous_x",m.x),m.get("space_previous_y",m.y))-Vector2(0,height*.5)
-		var reach = radius+(77.0 if piloting else maxf(18,height*.205))
+		var point = Vector2(s.x+25,s.y-48) if piloting else Vector2(m.x+height*.12,m.y-height*.5)
+		var previous = Vector2(s.get("previous_x")+25,s.get("previous_y")-48) if piloting else Vector2(m.get("space_previous_x",m.x),m.get("space_previous_y",m.y))-Vector2(-height*.12,height*.5)
+		var reach = radius+(77.0 if piloting else maxf(18,height*.26))
 		var result = sweep(previous,point,old_centre,centre,reach)
 		if result.is_empty(): continue
 		var displacement: Vector2 = result.point-point

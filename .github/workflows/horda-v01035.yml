@@ -1,0 +1,57 @@
+name: Horda Zumbi 0.10.35 — Subida, impactos e espaço vivo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'release-v0.10.35/**'
+      - '.github/workflows/horda-v01035.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horda-v01035-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Reconstruir e conferir APK e fontes
+        run: python3 release-v0.10.35/restore_release.py --package-source --out dist
+      - name: Conferir assinatura Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          SIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+          "$SIGNER" verify --verbose --print-certs dist/Horda-Zumbi-v0.10.35-TESTE-1M-ESPACO-VIVO-ARM64.apk > dist/Assinatura-v0.10.35.txt
+          grep -q 'a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d' dist/Assinatura-v0.10.35.txt
+          (cd dist && sha256sum Assinatura-v0.10.35.txt >> SHA256SUMS.txt)
+      - name: Publicar APK e cópia dos fontes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v0.10.35 >/dev/null 2>&1; then
+            mkdir -p existing
+            gh release download v0.10.35 --pattern Horda-Zumbi-v0.10.35-TESTE-1M-ESPACO-VIVO-ARM64.apk --dir existing
+            cmp existing/Horda-Zumbi-v0.10.35-TESTE-1M-ESPACO-VIVO-ARM64.apk dist/Horda-Zumbi-v0.10.35-TESTE-1M-ESPACO-VIVO-ARM64.apk
+            gh release upload v0.10.35 dist/Horda-Zumbi-v0.10.35-Projeto-Publico.zip dist/VALIDACAO-v0.10.35.json dist/SHA256SUMS.txt --clobber
+          else
+            gh release create v0.10.35 dist/* --target "$GITHUB_SHA" --title 'Horda Zumbi 0.10.35 — Subida, impactos e espaço vivo' --notes-file monster-game/ESPACO-v0.10.35.md --prerelease
+          fi
+      - name: Preservar diagnóstico se a publicação falhar
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horda-v01035-diagnostico
+          path: dist/*.txt
+          if-no-files-found: ignore

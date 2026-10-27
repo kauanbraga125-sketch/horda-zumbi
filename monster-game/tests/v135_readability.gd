@@ -107,5 +107,5 @@ func run() -> void:
 	var folder = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not folder.is_empty():
 		DirAccess.make_dir_recursive_absolute(folder);var file = FileAccess.open(folder+"/readability.json",FileAccess.WRITE)
-		file.store_string(JSON.stringify({"version":"0.10.34","checks":checks,"failures":failures,"formations":observations},"  "));file.close()
+		file.store_string(JSON.stringify({"version":"0.10.35","checks":checks,"failures":failures,"formations":observations},"  "));file.close()
 	print("V135_READABILITY checks=",checks," failures=",failures);quit(0 if failures.is_empty() else 1)

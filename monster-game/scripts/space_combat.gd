@@ -99,7 +99,7 @@ func give_power(s,r,kind: int) -> void:
 
 func member_centre(r,index: int) -> Vector2:
 	var m = r.members[index]
-	return Vector2(m.x,m.y-r.space.member_height(r)*.5)
+	return Vector2(m.x+r.space.member_height(r)*.12,m.y-r.space.member_height(r)*.5)
 
 func nearest_member(r,point: Vector2,radius: float) -> int:
 	if pilot_left>0:

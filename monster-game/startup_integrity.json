@@ -359,13 +359,13 @@
     },
     {
       "path": "res://scripts/space_combat.gd",
-      "bytes": 22804,
-      "sha256": "6a5c8d7c413ecf74bc81d329c9b050a4f71274abd181bf4ff4840a158fc6aef1"
+      "bytes": 22833,
+      "sha256": "538b114b94fa6b21755d7a6975e0a848617ce60f93020b9820f3be43c90ed7d2"
     },
     {
       "path": "res://scripts/space_contacts.gd",
-      "bytes": 2815,
-      "sha256": "dec24438a78e3d6bb55eb31392acfcd8a31382b7c5c5dc96bf67351cac22ede4"
+      "bytes": 2835,
+      "sha256": "6d0bf3dac0aa2ed602c0e9a6d8fd839b993005a2187ece4d6a66372f9aa1f3b8"
     },
     {
       "path": "res://scripts/space_routes.gd",
