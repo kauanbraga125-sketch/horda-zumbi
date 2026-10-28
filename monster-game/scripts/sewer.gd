@@ -1,10 +1,10 @@
 extends RefCounted
 ## A temporary chapter of the SAME run. Boats contain stable member IDs.
-const POWER = 9
 const WATER = 555.0
-const ENTRY_SECONDS = 2.2
+const ENTRY_SECONDS = 4.6
 const EXIT_SECONDS = 3.0
 const SEATS = 2
+const LEAD = 690.0
 var active = false
 var phase = "ground"
 var age = 0.0
@@ -38,30 +38,40 @@ var life = preload("res://scripts/sewer_life.gd").new()
 var braking = 0.0
 var jump_hold_until = -1.0
 var camera_left = 0.0
+var encounter = preload("res://scripts/sewer_event.gd").new()
+var duck_buffer = 0.0
+var clean_streak = 0
+var sequence: Array = []
+var rush_left = 0.0
+var layout_columns = 3
 
 func reset(seed_value: int) -> void:
 	active = false;phase = "ground";age = 0;phase_age = 0;ride_age = 0;completed = 0;captured = 0;hits = 0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();random.seed = seed_value^0x536e2
 	life.reset();braking = 0;jump_hold_until = -1
+	encounter.reset(seed_value);duck_buffer = 0;clean_streak = 0;sequence.clear();rush_left = 0;layout_columns = 3
 
 func begin(r,force: bool = false) -> bool:
 	if active or r.space.active or r.dead or r.active_count()<=0: return false
-	if not force and (POWER not in r.power_owned or not r.power_eligible()): return false
+	if not force and not r.power_eligible(): return false
 	for e in r.entities:
 		if e.state=="capture" and e.kind in ["civilian","police","soldier"]: r.complete_capture(e)
 	for i in range(r.members.size()-1,-1,-1):
 		if r.members[i].falling: r.remove_member(i,"fall")
 	if r.dead: return false
-	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 30+int(r.power_levels.get("sewer_time",0))*4;left = duration
-	pressure = .12;serial = 0;scroll = 0;next_encounter = 1.0;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
+	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 32.0;left = duration
+	pressure = .23;serial = 0;scroll = 0;next_encounter = .8;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
+	duck_buffer = 0;clean_streak = 0;rush_left = 0;encounter.pending = false
+	sequence.assign(["rubble","pipe","rescue","barrel","gate","rotor","collapse","rescue","rubble","gate","rescue","barrel"])
+	if random.randf()<.5: sequence[3] = "collapse";sequence[6] = "barrel"
 	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number()
-	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();lane_count = 1
+	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();lane_count = 1;layout_columns = 3
 	life.reset();braking = 0;jump_hold_until = -1
 	r.perk_left = 0;r.perk_kind = -1;r.transform_left = 0;r.boost_left = 0;r.blessings.reset()
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
 	for m in r.members:
 		starts[int(m.id)] = Vector2(m.x,m.y);m.jump_queue.clear();m.jump_at = -1;m.jump_delay = -1;m.falling = false;m.vy = 0;m.roof_id = -1
-	assign_boats(r);r.mark_power_collected();r.bonuses += 1
+	assign_boats(r)
 	r.mission_stats.sewer_trips = int(r.mission_stats.get("sewer_trips",0))+1
 	r.events.append({"type":"sewer_begin"})
 	return true
@@ -78,56 +88,82 @@ func assign_boats(r) -> void:
 	for b in boats: assigned.append_array(b.ids)
 	for id in living:
 		if id in assigned: continue
-		if boats.is_empty() or boats[-1].ids.size()>=SEATS:
-			boats.append({"id":id,"ids":[],"x":400.0,"y":WATER-24,"vy":0.0,"previous_y":WATER-24,"jump_at":-1.0,"held":0.0,"bump":0.0,"angle":0.0,"arrival":age})
-			lane_count = maxi(lane_count,1 if boats.size()<=3 else 2 if boats.size()<=12 else 3)
-			boats[-1].x = boat_x(r,boats.size()-1)
-		boats[-1].ids.append(id)
+		var seat: Dictionary = {}
+		for candidate in boats:
+			if candidate.ids.size()<SEATS: seat = candidate;break
+		if seat.is_empty():
+			var slot = 0
+			while boats.any(func(b):return int(b.slot)==slot): slot += 1
+			seat = {"id":id,"slot":slot,"ids":[],"x":400.0,"y":WATER-24,"vy":0.0,"previous_y":WATER-24,"jump_at":-1.0,"held":0.0,"bump":0.0,"angle":0.0,"arrival":age,"duck_at":-1.0,"duck_left":0.0}
+			boats.append(seat);lane_count = maxi(lane_count,slot_lane(slot)+1);layout_columns = maxi(layout_columns,slot_column(slot)+1)
+			seat.x = boat_x(r,boats.size()-1)
+		seat.ids.append(id)
+	boats.sort_custom(func(a,b):return slot_column(int(a.slot))*3+slot_lane(int(a.slot))<slot_column(int(b.slot))*3+slot_lane(int(b.slot)))
 
 func lanes() -> int: return lane_count
 
+func slot_column(slot: int) -> int: return slot%3 if slot<9 else 3+int((slot-9)/3)
+func slot_lane(slot: int) -> int: return int(slot/3) if slot<9 else (slot-9)%3
+
 func boat_x(r,index: int) -> float:
-	var rows = lanes();var columns = ceili(float(boats.size())/rows)
-	var space = minf(183,440.0/maxi(1,columns-1))
-	return maxf(r.view_left+115,560-int(index/rows)*space-(index%rows)*55)
+	var b = boats[index];var space = minf(215,430.0/maxi(1,layout_columns-1))
+	return maxf(r.view_left+180,minf(LEAD,r.view_right-250)-slot_column(int(b.slot))*space-slot_lane(int(b.slot))*42)
 
 func request_jump(r) -> void:
 	if not active or phase!="ride": return
+	if boats.is_empty() or boats[0].jump_at>=0 or boats[0].y<water_y(boats[0].x)-29+float(boats[0].get("depth",0)): return
 	jump_buffer = .15
 	jump_hold_until = age
 	for i in range(boats.size()):
 		var b = boats[i]
+		if b.duck_left>.15: b.duck_left = .15
 		if b.jump_at<0 and b.y>=water_y(b.x)-29+float(b.get("depth",0)):
 			var travel = maxf(0,float(boats[0].x)-float(b.x))/scroll_speed(r)
 			var delay = minf(.18,maxi(0,r.active_count()-16)*.003)*float(i)/maxi(1,boats.size()-1)
 			b.jump_at = age+travel+delay
 			b.hold_for = .08
 
+func request_duck(r) -> void:
+	if not active or phase!="ride": return
+	duck_buffer = .15
+	for b in boats:
+		var travel = maxf(0,float(boats[0].x)-float(b.x))/scroll_speed(r)
+		b.duck_at = age+travel;b.jump_at = -1
+	r.events.append({"type":"sewer_duck"})
+
+func entry_launch() -> float: return clampf((phase_age-2.05)/2.55,0,1)
+
+func reward_line() -> void:
+	if not active or phase!="ride": return
+	pressure = maxf(.12,pressure-.10);rush_left = 1.6
+
 func add_object(kind: String,x: float,y: float,extra: Dictionary = {}) -> Dictionary:
-	var span = {"rubble":78.0,"barrel":36.0,"pipe":112.0,"gate":136.0}.get(kind,65.0)
+	var span = {"rubble":78.0,"barrel":36.0,"pipe":112.0,"gate":118.0,"rotor":42.0,"collapse":65.0}.get(kind,65.0)
 	var e = {"kind":kind,"x":x,"previous_x":x,"y":y,"taken":false,"state":"normal","age":0.0,"contacts":{},"row":-1,"width":span,"damaged":false,"passed":false}
 	e.merge(extra,true);objects.append(e);return e
 
 func spawn(r,kind: String = "") -> void:
 	serial += 1
-	var type = kind if not kind.is_empty() else ["rubble","pipe","barrel","rescue","gate","rubble","rescue","barrel"][posmod(serial-1,8)]
-	var speed = scroll_speed(r);var x = maxf(r.view_right+90,560+speed*2.15)
+	var type = kind if not kind.is_empty() else sequence[posmod(serial-1,maxi(1,sequence.size()))]
+	var speed = scroll_speed(r);var x = maxf(r.view_right+90,boats[0].x+speed*1.85)
 	var e = add_object(type,x,WATER-35,{"encounter":serial,"variant":serial%3})
-	if type in ["pipe","gate"]: e.y = WATER-151;e.ceiling_attached = true
+	if type in ["pipe","gate"]: e.y = WATER-90;e.ceiling_attached = true
+	if type=="collapse": e.y = WATER-370;e.warning = 1.0;e.landed = false
 	if type=="rescue": e.y = WATER-40;e.variant = serial%3
 	var row = r.new_coin_row(5)
 	for i in range(5):
-		var height = (105+sin(i*PI/4)*35) if type in ["rubble","barrel"] else 54.0
+		var height = (120+sin(i*PI/4)*35) if type in ["rubble","barrel","rotor","collapse"] else 58.0
 		add_object("coin",x-125+i*54,WATER-height,{"coin_row":row})
 	history.append({"kind":type,"time":ride_age,"members":r.active_count()})
-	next_encounter = 4.0 if type!="rescue" else 3.8
-	r.events.append({"type":"sewer_encounter","title":"CANO PRESO AO TETO • FIQUE NA ÁGUA" if type=="pipe" else "COMPORTA BAIXANDO • PASSE POR BAIXO" if type=="gate" else "SOBREVIVENTE À FRENTE • RESGATE" if type=="rescue" else "BARCO NAUFRAGADO • SALTE" if type=="rubble" else "BARRIL EXPLOSIVO • SALTE"})
+	next_encounter = 2.65 if type!="rescue" else 2.25
+	var titles = {"pipe":"CANO BAIXO • ABAIXE!","gate":"COMPORTA FECHANDO • ABAIXE!","rescue":"SOBREVIVENTE À FRENTE • RESGATE","rubble":"NAUFRÁGIO • SALTE!","barrel":"BARRIL EXPLOSIVO • SALTE!","rotor":"BOMBA GIRATÓRIA • SEGURE O SALTO!","collapse":"TETO CEDENDO • SALTE O ENTULHO!"}
+	r.events.append({"type":"sewer_encounter","title":titles[type],"kind":type})
 
-func scroll_speed(r) -> float: return clampf((r.view_right-r.view_left)*.46,525,665)*(1-braking*.15)
+func scroll_speed(r) -> float: return clampf((r.view_right-r.view_left)*.49,565,705)*(1-braking*.15)*(1.055 if rush_left>0 else 1.0)
 
 func tail_x() -> float:
-	var tail = 560.0
-	for b in boats: tail = minf(tail,float(b.x)-74)
+	var tail = LEAD
+	for b in boats: tail = minf(tail,float(b.x)-130)
 	return tail
 
 func wave_edge() -> float: return maxf(camera_left+42,tail_x()-lerpf(160,-35,pressure))
@@ -142,9 +178,9 @@ func _world(r,dt: float) -> void:
 
 func advance(r,dt: float,held: bool) -> void:
 	if not active or r.dead: return
-	age += dt;phase_age += dt;_world(r,dt);assign_boats(r)
+	age += dt;phase_age += dt;_world(r,dt*(.3 if phase=="entry" and phase_age<1.8 else 1.0));assign_boats(r)
 	camera_left = r.view_left
-	braking = maxf(0,braking-dt*.85)
+	braking = maxf(0,braking-dt*.85);rush_left = maxf(0,rush_left-dt)
 	if held and jump_hold_until>=0:
 		var duration_held = clampf(age-jump_hold_until,.08,.19)
 		for b in boats:
@@ -160,18 +196,27 @@ func advance(r,dt: float,held: bool) -> void:
 		return
 	if phase=="ride":
 		ride_age += dt;left = maxf(0,left-dt);scroll += scroll_speed(r)*dt
-		next_encounter -= dt;pressure = move_toward(pressure,.19+ride_age/duration*.14,dt*.015);wave_cooldown = maxf(0,wave_cooldown-dt)
+		next_encounter -= dt;pressure = move_toward(pressure,.28+ride_age/duration*.16,dt*.018);wave_cooldown = maxf(0,wave_cooldown-dt)
 		if next_encounter<=0 and left>3.6: spawn(r)
 	for i in range(boats.size()):
 		var b = boats[i]
-		b.depth = lerpf(float(b.get("depth",0)),float(i%lanes())*40,1-exp(-dt*5))
+		b.depth = lerpf(float(b.get("depth",0)),float(slot_lane(int(b.slot)))*40,1-exp(-dt*5))
 		var floor_y = water_y(b.x)-24+float(b.depth)
 		b.x = lerpf(float(b.x),boat_x(r,i)+float(b.bump),1-exp(-dt*8));b.bump = move_toward(b.bump,0,dt*38);b.previous_y = b.y
+		b.duck_left = maxf(0,b.duck_left-dt)
+		if b.duck_at>=0 and age>=b.duck_at: b.duck_at = -1;b.duck_left = 1.25
+		if phase=="entry":
+			var launch = entry_launch()
+			b.y = lerpf(r.FLOOR-35,floor_y,smoothstep(0,1,launch))-sin(launch*PI)*55
+			if launch>.12 and launch<.82: b.duck_left = .7
+			b.vy = (float(b.y)-float(b.previous_y))/maxf(.001,dt)
+			b.angle = clampf(b.vy*.0008,-.20,.20)+sin(age*12+i)*.01
+			continue
 		if b.jump_at>=0 and age>=b.jump_at:
 			b.jump_at = -1;b.vy = -760;b.held = 0;splash(Vector2(b.x-38,b.y+27),false)
 		if b.y<floor_y-1 or b.vy<0:
 			b.held += dt
-			b.vy += (1250 if b.vy<0 and b.held<float(b.get("hold_for",.08)) else 1650)*dt
+			b.vy += (1250 if b.vy<0 and b.held<=float(b.get("hold_for",.08))+dt*.6 else 1650)*dt
 			b.y += b.vy*dt
 			if b.y>=floor_y:
 				b.y = floor_y;b.vy = 0;splash(Vector2(b.x,b.y+28),false)
@@ -197,10 +242,19 @@ func _update_members(r,_dt: float) -> void:
 			var index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
 			if index<0: continue
 			var m = r.members[index]
-			var local = Vector2(4-seat*68,14);var foot = Vector2(b.x,b.y)+local.rotated(float(b.angle))
+			var local = Vector2(18-seat*80,21);var foot = Vector2(b.x,b.y)+local.rotated(float(b.angle))
+			m.sewer_pose = "duck" if b.duck_left>.12 else "ride"
 			if phase=="entry":
-				var board_t = smoothstep(.15,ENTRY_SECONDS,phase_age)
-				foot = Vector2(starts.get(int(m.id),foot)).lerp(foot,board_t)+Vector2(0,-sin(board_t*PI)*70)
+				var board_begin = .72+seat*.07
+				var start = Vector2(starts.get(int(m.id),foot))
+				var run_t = smoothstep(0,board_begin,phase_age)
+				var near = Vector2(foot.x-42,r.FLOOR)
+				if phase_age<board_begin:
+					foot = start.lerp(near,run_t);foot.y = r.FLOOR;m.sewer_pose = "run"
+				elif phase_age<board_begin+.85:
+					var t = clampf((phase_age-board_begin)/.85,0,1)
+					foot = near.lerp(foot,smoothstep(0,1,t))+Vector2(0,-sin(t*PI)*74)
+					m.sewer_pose = "board";m.sewer_board = t
 			elif phase=="exit":
 				var t = clampf(phase_age/EXIT_SECONDS,0,1);var start = Vector2(starts.get(int(m.id),foot))
 				foot = start.lerp(Vector2(r.slot_x(index),r.FLOOR),smoothstep(0,1,t))+Vector2(sin(t*PI)*150,-sin(t*PI)*215)
@@ -211,6 +265,11 @@ func _update_objects(r,dt: float) -> void:
 	var step = scroll_speed(r)*dt
 	for e in objects:
 		e.previous_x = e.x;e.x -= step;e.age += dt
+		if e.kind=="collapse" and not e.taken:
+			var drop = maxf(0,float(e.age)-float(e.get("warning",1.0)))
+			e.y = minf(WATER-35,WATER-370+drop*drop*1100)
+			if e.y>=WATER-35 and not bool(e.get("landed",false)):
+				e.landed = true;splash(Vector2(e.x,WATER-20),false);r.events.append({"type":"sewer_collapse","x":e.x,"y":e.y})
 		if e.taken: continue
 		if e.state=="capture":
 			if e.age>=.55:
@@ -218,8 +277,8 @@ func _update_objects(r,dt: float) -> void:
 			continue
 		for b in boats:
 			if e.taken or r.dead: break
-			var hazard = e.kind in ["rubble","barrel","pipe","gate"]
-			var cross = minf(e.previous_x,e.x)-e.width<=b.x+(80 if hazard else 0) and maxf(e.previous_x,e.x)+e.width>=b.x-(70 if hazard else 0)
+			var hazard = e.kind in ["rubble","barrel","pipe","gate","rotor","collapse"]
+			var cross = minf(e.previous_x,e.x)-e.width<=b.x+(112 if hazard else 0) and maxf(e.previous_x,e.x)+e.width>=b.x-(115 if hazard else 0)
 			if not cross: continue
 			if e.kind=="coin":
 				if absf(float(b.y)-42-float(e.y))<67:
@@ -229,17 +288,22 @@ func _update_objects(r,dt: float) -> void:
 			elif not e.contacts.has(b.id):
 				var depth = float(b.get("depth",0))
 				var lift = water_y(b.x)-24+depth-float(b.y)
-				var collide = lift>51+depth if e.kind in ["pipe","gate"] else lift<77
+				var clearance = 77.0
+				if e.kind=="rotor": clearance = 123-minf(30,maxf(0,absf(float(e.x)-float(b.x))-50)*.3)
+				var collide = (b.duck_left<=.10 or lift>22) if e.kind in ["pipe","gate"] else lift<clearance
+				if e.kind=="collapse" and not bool(e.get("landed",false)): collide = false
 				if collide:
 					e.contacts[b.id] = true
 					e.damaged = true;b.bump = -23;b.vy = maxf(b.vy,190)
-					if e.kind in ["pipe","gate"]: b.y = maxf(b.y,WATER-69)
+					if e.kind in ["pipe","gate"]: b.y = maxf(b.y,WATER-29+depth);b.duck_left = .55
 					if int(e.get("damage_count",0))<2:
 						e.damage_count = int(e.get("damage_count",0))+1;damage_boat(r,b,"sewer_"+str(e.kind))
-					if e.kind not in ["pipe","gate"]: e.taken = true;splash(Vector2(e.x,WATER-25),e.kind=="barrel")
-		if not e.passed and e.kind in ["rubble","barrel","pipe","gate"] and not boats.is_empty() and e.x<tail_x()-70:
+					if e.kind not in ["pipe","gate"]:
+						e.taken = true;splash(Vector2(e.x,WATER-25),e.kind=="barrel")
+						if e.kind=="barrel": r.events.append({"type":"sewer_blast","x":e.x,"y":WATER-35})
+		if not e.passed and e.kind in ["rubble","barrel","pipe","gate","rotor","collapse"] and not boats.is_empty() and e.x<tail_x()-70:
 			e.passed = true
-			if not e.damaged: safe_jumps += 1;r.clean_jumps += 1;pressure = maxf(.12,pressure-.04)
+			if not e.damaged: safe_jumps += 1;r.clean_jumps += 1;clean_streak += 1;pressure = maxf(.12,pressure-.045)
 	for i in range(objects.size()-1,-1,-1):
 		if objects[i].x<r.view_left-180 or (objects[i].taken and objects[i].age>1):
 			if objects[i].kind=="coin" and not objects[i].taken: r.miss_coin_row(objects[i])
@@ -251,9 +315,9 @@ func damage_boat(r,b: Dictionary,cause: String) -> void:
 		var index = r.members.find_custom(func(m):return int(m.id)==int(id))
 		if index<0: continue
 		var before = r.losses;r.damage(index,cause)
-		r.hit_grace = maxf(r.hit_grace,.8);pressure = minf(1,pressure+.18);b.bump = -25;braking = 1
+		r.hit_grace = maxf(r.hit_grace,.8);pressure = minf(1,pressure+.21);b.bump = -25;braking = 1;clean_streak = 0
 		if r.losses>before: hits += 1;clean_exit = false
-		splash(Vector2(b.x,b.y),false);r.events.append({"type":"sewer_hit","x":b.x,"y":b.y});break
+		splash(Vector2(b.x,b.y),false);r.events.append({"type":"sewer_hit","x":b.x,"y":b.y,"cause":cause});break
 
 func complete_rescue(r,e: Dictionary) -> void:
 	if e.taken: return
@@ -272,7 +336,10 @@ func casualty(r,m: Dictionary,kind: int) -> void:
 
 func prepare_landing(r) -> void:
 	r.entities.clear();r.physics_surfaces.clear();r.physics_gaps.clear()
-	var end = r.world_px+r.generation_horizon()+3500
+	reserve_ground(r,r.world_px+r.generation_horizon()+3500)
+
+func reserve_ground(r,end: float) -> void:
+	r.physics_surfaces.clear();r.physics_gaps.clear()
 	r.terrain.segments.assign([{"start":r.world_px-100000.0,"end":end,"height":0.0,"state":HordeTerrain.State.NORMAL}])
 	r.terrain.generated_to = end;r.terrain.state = HordeTerrain.State.NORMAL
 	r.next_pattern_world = r.world_px+maxf(r.view_right,r.planning_right)+r.speed*1.5+300
@@ -284,5 +351,6 @@ func finish(r) -> void:
 	for i in range(r.members.size()):
 		var m = r.members[i];m.x = r.slot_x(i);m.y = r.ground_y(m.x);m.vy = 0;m.falling = false;m.air_time = 0;m.air_pose = 0;m.air_jumps = 0;m.roof_id = -1;m.land_left = .24;m.jump_queue.clear();m.jump_at = -1;m.jump_delay = -1
 	objects.clear();r.bonus_director.collected(r)
+	encounter.complete(r)
 	r.mission_stats.sewer_captures = int(r.mission_stats.get("sewer_captures",0))+captured
 	r.events.append({"type":"sewer_land","metres":int((r.world_px-start_world)/30),"to_tunnel":r.tunnel_number(),"clean":clean_exit})

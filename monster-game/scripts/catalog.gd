@@ -39,7 +39,6 @@ const CHALLENGES = [
 
 const SKIN_PRICES = [0, 1000, 2800, 4500]
 const POWERS = [
-	{"kind":9,"name":"FUGA PELO ESGOTO","price":0,"description":"A horda embarca nos jet skis. Salte, resgate passageiros e escape da enchente."},
 	{"kind":5,"name":"CAÇADOR NOTURNO","price":1800,"description":"Um único ajudante alado traz civis reais para a horda capturar."},
 	{"kind":6,"name":"MANTO ESPECTRAL","price":1600,"description":"Um espectro absorve dois impactos. Buracos ainda exigem saltos."},
 	{"kind":7,"name":"SIMBIONTE CÓSMICO","price":2200,"description":"Poder exclusivo do espaço: ácido e garras contra naves e ameaças."},
@@ -50,7 +49,6 @@ const POWERS = [
 	{"kind": 2, "name": "MASCARADO", "price": 2800, "description": "Transforme a horda em uma força de destruição."}
 ]
 const POWER_UPGRADES = [
-	{"id":"sewer_time","kind":9,"name":"MAIS UM TRECHO","price":650,"max":3,"description":"Mais 4 segundos de esgoto por nível, com novas oportunidades de resgate."},
 	{"id": "space_time", "kind": 4, "name": "ALÉM DA ATMOSFERA", "price": 650, "max": 3, "description": "Mais 10 segundos por nível: 40, 50 e 60 s. Alcance o ninho alienígena e o buraco negro."},
 	{"id": "fly_time", "kind": 3, "name": "VOO PROLONGADO", "price": 500, "max": 3, "description": "Mais 3 segundos de voo por nível."}, 
 	{"id": "mask_time", "kind": 2, "name": "MAIS TEMPO", "price": 500, "max": 3, "description": "Mais 3 segundos de transformação por nível."}, 
@@ -106,7 +104,7 @@ static func defaults() -> Dictionary:
 
 	for item in POWER_UPGRADES: data.power_levels[item.id] = 0
 	data.balance_v132 = true
-	data.power_owned.append(9)
+	data.sewer_event_v138 = true
 	data.merge(preload("res://scripts/bird_catalog.gd").defaults())
 	data.merge(HordeMeta.defaults())
 	HordeMissionCatalog.initialize(data)

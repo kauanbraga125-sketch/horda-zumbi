@@ -1,5 +1,5 @@
 {
-  "version": "0.10.37",
+  "version": "0.10.38",
   "class_count": 55,
   "files": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "path": "res://scripts/actor.gd",
-      "bytes": 11724,
-      "sha256": "a50a14b47bf766f58a0f39cc62ebce64344d7080965810fff3449261c11c77bc"
+      "bytes": 11420,
+      "sha256": "411c818bf649c7fa5acd0ee7fad6ca7b43bbf89abaf05ecd3ba6afe989d4bbed"
     },
     {
       "path": "res://scripts/adventure_art.gd",
@@ -59,8 +59,8 @@
     },
     {
       "path": "res://scripts/bonus_director.gd",
-      "bytes": 3343,
-      "sha256": "a0f9942c7c85e99f8392b504a133d9a5d5ed1882b0efb7042274bced68db02ce"
+      "bytes": 3319,
+      "sha256": "ee099cf86be524f62c509af8348bd104a32b53079b8107e47b90681ea0e62bd7"
     },
     {
       "path": "res://scripts/book_cover.gdshader",
@@ -89,8 +89,8 @@
     },
     {
       "path": "res://scripts/catalog.gd",
-      "bytes": 11336,
-      "sha256": "0ff39108f717a627979e0993b3ffe70c9d4c62a4b7bc9cd65ab35aef2fa1904b"
+      "bytes": 11029,
+      "sha256": "358417fb36158aa8a8038f4b145cf5b0f101207f73ffc3da6ad96b9b9762d464"
     },
     {
       "path": "res://scripts/civil_sprite.gd",
@@ -204,8 +204,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 117811,
-      "sha256": "8553c3b6fe1e130fee2be947c33f41c636d27f5cbe46e407d943b88da7fb9361"
+      "bytes": 118706,
+      "sha256": "02f2fa428a53553a2a8619e4b3164b1814d5df58ccd663ce11baf58ab2d19e3a"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -334,13 +334,13 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 69981,
-      "sha256": "f9f69e9961f20c810e7e1cd7f0f9f4f0d6e6488e647538f8691a723437bb228d"
+      "bytes": 70052,
+      "sha256": "8c223ff7a4e3b0321d0be0fc90a30e8bef0f0dcc9e0c969a8ecd6a321b541aa6"
     },
     {
       "path": "res://scripts/scene.gd",
-      "bytes": 11379,
-      "sha256": "417e2b4ca6dfab07a281597fae1e030d7c3538c58fc379a08c4fa4a6a326c2af"
+      "bytes": 11469,
+      "sha256": "45f00ed03cbe83ba82ce2af5f94678cf0948383c954b19dbeff9c2d3f3e55f8e"
     },
     {
       "path": "res://scripts/sequence_validator.gd",
@@ -349,28 +349,38 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 14130,
-      "sha256": "7148ca0935fb0ce412b42b1706b59b2e4d497c2dbc629d05cff1e79eba8a2588"
+      "bytes": 17699,
+      "sha256": "549b803ddb0429a4bc280144f22e09a502f0b6addb66c54abab74c73239f3f6a"
     },
     {
       "path": "res://scripts/sewer_art.gd",
-      "bytes": 2194,
-      "sha256": "b70253148f892f0ab690b013aaf99d3a7e5a91b90d2141a99f4bd19647eec97c"
+      "bytes": 5151,
+      "sha256": "cc2751f4157f5f7590869df52af99fd0834b0f79b07c42e8740e89fd38f2bcbc"
+    },
+    {
+      "path": "res://scripts/sewer_event.gd",
+      "bytes": 1632,
+      "sha256": "cc92c85080fd2e5b9a020390d7e864ff5c11cb6b949c82b9ec76a1f25ec7ebfd"
     },
     {
       "path": "res://scripts/sewer_life.gd",
-      "bytes": 2171,
-      "sha256": "5e32fa75e6faf76cef8cb4223e5b3262f9f141a94c20fbcb13bfae992df930c9"
+      "bytes": 2306,
+      "sha256": "2182585db446f6dddb310601aab8234c1ba2de392feb7fc8afc023c48320440a"
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 11817,
-      "sha256": "18266be0c3890b4a7bb1b439979644502e665ca9ab6964765f45954388f34310"
+      "bytes": 14043,
+      "sha256": "590dc911096c23495b5fb13ff473c421945d3a156b908f9a921bef8548e4024d"
+    },
+    {
+      "path": "res://scripts/sewer_riders.gd",
+      "bytes": 6736,
+      "sha256": "3d3fcab4fa5bb4ad4085ed0e26f4e3e63e9d3e07119c00132d367501eb6d4fb8"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
-      "bytes": 2523,
-      "sha256": "19968fe28438f6ab7d7b75eb6af408ea69063536f38577c36c20af14901b4c37"
+      "bytes": 2950,
+      "sha256": "6e0c9c3501604157b08f5b170b06e7dacd6fc75de03308ed98523c8562b636b1"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",
@@ -1226,6 +1236,51 @@
       "path": "res://assets/art/v137/wreck.webp",
       "bytes": 220296,
       "sha256": "35d40f1ec88c3793a2fbde301f422caccd36d764f887d45594a1828fa2847eb3"
+    },
+    {
+      "path": "res://assets/art/v138/flood.webp",
+      "bytes": 2441110,
+      "sha256": "499442e5cc008d7fad1da6245966a9b02fe5b36450d21f91aeca4c924b3cbf6e"
+    },
+    {
+      "path": "res://assets/art/v138/jetski.webp",
+      "bytes": 362784,
+      "sha256": "172381b903f2c723b2c33076d98b48529eceb169a98b3ff13ad25b66a1e148ae"
+    },
+    {
+      "path": "res://assets/art/v138/layout.json",
+      "bytes": 2456316,
+      "sha256": "7f42e35979b10e36088a91cb30d3140e1430e16c447fb39be36c79e10a9c99c9"
+    },
+    {
+      "path": "res://assets/art/v138/rotor.webp",
+      "bytes": 674572,
+      "sha256": "65b49d8fe20f5bb737da5408014998fa91f2ffd1fc2ee41959b4094e464f162a"
+    },
+    {
+      "path": "res://assets/art/v138/runner_woman.webp",
+      "bytes": 639708,
+      "sha256": "962623efb6b258cfca04053676a418b1ca4c1f7bcb9a5ca42d10c3ee5cdc43ff"
+    },
+    {
+      "path": "res://assets/art/v138/runner_worker.webp",
+      "bytes": 659716,
+      "sha256": "194c4cac6f7824a7f922a11f45f4bd1defad23c2d532e8f6cad410735c6512b9"
+    },
+    {
+      "path": "res://assets/art/v138/skeleton_riders.webp",
+      "bytes": 1911062,
+      "sha256": "9f7df1378a9da450aa2b51382632a539de0c193e8a723b95e9189c6bde8bf28b"
+    },
+    {
+      "path": "res://assets/art/v138/survivors.webp",
+      "bytes": 1648644,
+      "sha256": "72409c10f0e6b27dcb70c8094098a1fc8b263e1f6e2df06fb17600303955db18"
+    },
+    {
+      "path": "res://assets/art/v138/zombie_riders.webp",
+      "bytes": 1912590,
+      "sha256": "adb1c8ee328646ab86063b65915fcb60bb88513a80cfe203d44c7c3977e2fa7d"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

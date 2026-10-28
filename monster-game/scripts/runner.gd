@@ -694,6 +694,8 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	while next_segment < 99999 and next_pattern_world - world_px < generation_horizon():
 		spawn_next_pattern()
 	if developer_kind.is_empty():
+		sewer.encounter.tick(self)
+		if sewer.active: return
 		space.offer_test_pickup(self)
 		bonus_director.tick(self)
 	refresh_formation()
@@ -817,14 +819,13 @@ func advance(dt: float, jump_held: bool = false) -> void :
 					if Vector2(m.x, m.y - 52).distance_to(Vector2(e.x, e.y - 50)) < 62:
 						begin_capture(e, m);break
 			continue
-		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain", "harvester", "spectral", "sewer_key"]:
+		if e.kind=="sewer_key": e.taken = true;continue
+		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain", "harvester", "spectral"]:
 			if e.kind == "mask" and 2 not in power_owned: continue
 			if not power_eligible(): e.taken = true;continue
 			if centre.distance_to(Vector2(e.x, e.y)) < 72:
 				e.taken = true
 				match e.kind:
-					"sewer_key":
-						if sewer.begin(self): return
 					"harvester": grant_perk(5)
 					"spectral": grant_perk(6)
 					"space_brain":
@@ -1216,7 +1217,7 @@ func protect_civilian_path(e: Dictionary) -> void :
 
 func power_eligible() -> bool:
 
-	return not space.active and not sewer.active and not blessings.active() and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
+	return not space.active and not sewer.active and not sewer.encounter.pending and not blessings.active() and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
 
 func mark_power_collected() -> void :
 	bonus_director.collected(self)

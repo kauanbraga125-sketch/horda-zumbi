@@ -11,6 +11,14 @@ func run() -> void:
 	var game = load("res://main.tscn").instantiate();root.add_child(game);await process_frame
 	game.set_physics_process(false);game.capture_freeze = true;game.sound.set_enabled(false)
 	check(not game.test_mode and not game.capture_mode,"real persistence without test save bypass")
+	var legacy = MonsterCatalog.defaults();legacy.erase("sewer_event_v138");legacy.balance_v132 = true
+	legacy.wallet = 123;legacy.power_owned = [2,9];legacy.power_levels.sewer_time = 3
+	legacy.best = 8765;legacy.cosmetics = ["bruxa"];legacy.active_cosmetics = ["bruxa"]
+	var migrated = game.validate_save(legacy)
+	check(migrated.wallet==9223 and not migrated.power_owned.has(9) and not migrated.power_levels.has("sewer_time"),"retired sewer upgrades refund exactly9100 and leave the power catalogue")
+	check(migrated.best==8765 and migrated.active_cosmetics==["bruxa"],"event migration preserves record and equipped accessories")
+	game.data = migrated;check(game.save_game(),"migrated event save reaches disk")
+	check(game.read_save().wallet==9223 and game.validate_save(game.read_save()).wallet==9223,"refund persists and is never paid twice")
 	game.data = MonsterCatalog.defaults();game.data.wallet = 1000000;game.data.eyes = 10000
 	check(game.save_game(),"initial real save")
 	game.perform_action("birds_open");game.perform_action("bird_draw")
@@ -43,6 +51,9 @@ func run() -> void:
 	game.perform_action("back");game.start_run()
 	check(game.runner.bird.id=="fiapo" and game.runner.bird.level>=1,"ordinary run uses selected owned companion")
 	game.lab_count = 4;game.start_lab("sewer");game.capture_freeze = false
+	for i in range(600):
+		if game.runner.sewer.active: break
+		game.runner.advance(1.0/60,false)
 	game._physics_process(.1);var age = float(game.runner.sewer.age)
 	game.perform_action("pause");game._physics_process(.5)
 	check(game.screen=="pause" and game.runner.sewer.age==age,"pause freezes the sewer simulation")
@@ -51,12 +62,24 @@ func run() -> void:
 	while game.runner.sewer.phase=="entry": game.runner.advance(1.0/60,false)
 	game.configure_layout();game.press_at(Vector2(900,350),81);game.runner.advance(1.0/60,true);game.release_touch(81)
 	check(float(game.runner.sewer.boats[0].vy)<0,"real touch routing jumps leading jet-ski")
+	game.queue_redraw();await process_frame;await RenderingServer.frame_post_draw
+	var duck_buttons = game.buttons.filter(func(b):return b.action=="sewer_duck")
+	check(duck_buttons.size()==1,"one visible duck control during the event")
+	if not duck_buttons.is_empty():
+		game.press_at(duck_buttons[0].rect.get_center(),82);game.release_touch(82)
+		game.runner.advance(1.0/60,false)
+		check(game.runner.sewer.boats[0].duck_left>0 and not game.jump_held,"duck touch reaches actual pilot and clears held jump")
 	game.perform_action("birds_open")
 	check(not game.lab_active and game.screen=="birds" and game.data.bird_equipped=="fiapo","opening birds exits lab and preserves ordinary collection")
 	var r = HordeRun.new();r.start_developer("bomb",4,0,13622);r.developer_kind = "";r.power_owned = [9];r.entities.clear();r.events.clear()
 	var m = r.members[0];r.add_entity("sewer_key",m.x,m.y-50)
 	for i in range(5): r.advance(1.0/60,false)
-	check(r.sewer.active and r.bonuses==1,"real ground pickup starts sewer chapter")
+	check(not r.sewer.active and r.bonuses==0,"obsolete sewer pickup cannot activate an event or count as a power")
+	r.sewer.encounter.offer(r,true)
+	for i in range(600):
+		if r.sewer.active: break
+		r.advance(1.0/60,false)
+	check(r.sewer.active and r.bonuses==0,"actual running arrival at the dock starts the event")
 	game.set_process(false);game.queue_free();game = null
 	for i in range(8): await process_frame
 	preload("res://scripts/bird_art.gd").textures.clear()

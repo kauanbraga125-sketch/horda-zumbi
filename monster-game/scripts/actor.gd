@@ -10,6 +10,7 @@ var skeleton_approved: HordeSkeletonApprovedSprite
 var fly_approved: HordeFlyApprovedSprite
 var masked_approved: HordeMaskedApprovedSprite
 var cosmetics = HordeCosmetics.new()
+var sewer_riders = preload("res://scripts/sewer_riders.gd").new()
 
 func _init(source: HordeArt) -> void :
 	art = source
@@ -178,11 +179,5 @@ func paint_space(canvas: Node2D,kind: int,foot: Vector2,height: float,time: floa
 	if not cosmetics.paint(canvas,kind,foot,height,p.phase,p.state,time*.85,0,tint,false,p.air_age,vertical_speed,wear,true,p.angle,p.stretch):
 		paint(canvas,kind,foot,height,p.phase,p.state,time*.38,0,tint,false,1,true,p.air_age,vertical_speed,wear)
 
-func paint_rider(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,angle: float,wear: Array,tint: Color = Color.WHITE,seat: int = 0) -> void:
-	# The original leaning/reaching upper body sits on the saddle. The hull is
-	# painted afterwards and occludes the legs below the hips, including clothes.
-	var hip = foot-Vector2(0,30)
-	var lean = angle+.06+sin(time*6.8+seat)*.012
-	var breathing = Vector2(1,1+sin(time*4.6+seat)*.009)
-	if not cosmetics.paint(canvas,kind,hip,height,fposmod(time*.42,1),"ride",time,0,tint,false,.2,0,wear,true,lean,breathing):
-		paint(canvas,kind,foot,height,fposmod(time*.42,1),"push",time,0,tint,false,1,false,.2,0,wear)
+func paint_rider(canvas: Node2D,kind: int,foot: Vector2,height: float,time: float,angle: float,wear: Array,tint: Color = Color.WHITE,seat: int = 0,state: String = "ride",motion: float = 0) -> void:
+	sewer_riders.paint(canvas,cosmetics,kind,foot,height,time,angle,wear,tint,seat,state,motion)

@@ -193,3 +193,8 @@ A máquina vazia de bronze, 16 objetos isolados e 24 ilustrações de missões f
 # Esgoto vivo — 0.10.37
 
 Quatro folhas originais criadas com ImageGen integrado, sem sprites comerciais: sobreviventes na água (9 cels), pessoas e mutante correndo (12 cels), crista da enchente (8 cels) e obstáculos (4 elementos). Fontes e prompts: `tools/art_sources/v137/`. Preparação: `tools/prepare_v137_art.py`. Uso no jogo: `assets/art/v137/` e `scripts/sewer_art.gd`. Os PNGs antigos dos personagens permanecem intactos. Efeitos novos de correnteza e metal são síntese original em `tools/generate_v137_audio.py`.
+
+
+## Evento do esgoto — 0.10.38
+
+Oito originais feitos com ImageGen integrado: duas folhas de personagens com 16 poses sentadas/abaixando/embarcando cada, enchente com 16 cels, duas pessoas com oito cels de corrida cada, três sobreviventes com quatro poses cada, jet-ski com duas selas e bomba giratória com oito cels. PNGs e proveniência em `tools/art_sources/v138/`; atlas WebP e medições em `assets/art/v138/`. Preparação por `tools/prepare_v138_art.py`. As novas poses recebem os acessórios originais por pontos medidos de cabeça, pescoço e quadril. Os sprites antigos permanecem intactos.

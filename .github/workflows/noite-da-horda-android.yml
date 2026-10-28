@@ -35,7 +35,7 @@ jobs:
       - name: Validar abertura, saldo de testes e poder espacial
         run: |
           set -euo pipefail
-          for SUITE in verify_packaged_boot v129_currency v135_adventure v135_readability v135_flight v135_contacts v136_systems v137_sewer; do
+          for SUITE in verify_packaged_boot v129_currency v135_adventure v135_readability v135_flight v135_contacts v136_systems v138_sewer; do
             /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --path monster-game --script "res://tests/${SUITE}.gd" -- --space-test 2>&1 | tee "/tmp/${SUITE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/${SUITE}.log"; then exit 1; fi
           done
@@ -45,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           for FIXTURE in new existing; do
-            XDG_DATA_HOME="$RUNNER_TEMP/horda-startup-${FIXTURE}" HORDA_STARTUP_FIXTURE="$FIXTURE" HORDA_VALIDATION_DIR="$RUNNER_TEMP/startup-${FIXTURE}" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v137_startup.gd 2>&1 | tee "/tmp/startup-${FIXTURE}.log"
+            XDG_DATA_HOME="$RUNNER_TEMP/horda-startup-${FIXTURE}" HORDA_STARTUP_FIXTURE="$FIXTURE" HORDA_VALIDATION_DIR="$RUNNER_TEMP/startup-${FIXTURE}" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v138_startup.gd 2>&1 | tee "/tmp/startup-${FIXTURE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/startup-${FIXTURE}.log"; then exit 1; fi
           done
       - name: Conferir recorte real dos ocupantes nas cabines
@@ -62,3 +62,11 @@ jobs:
           set -euo pipefail
           XDG_DATA_HOME="$RUNNER_TEMP/horda-v136-transactions" HORDA_VALIDATION_DIR="$RUNNER_TEMP/transactions-v136" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v136_transactions.gd 2>&1 | tee /tmp/transactions-v136.log
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/transactions-v136.log; then exit 1; fi
+      - name: Conferir todas as poses novas e os 35 acessórios sentados
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "true"
+        run: |
+          set -euo pipefail
+          HORDA_VALIDATION_DIR="$RUNNER_TEMP/riders-v138" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v138_riders.gd 2>&1 | tee /tmp/riders-v138.log
+          if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/riders-v138.log; then exit 1; fi
+          grep -q 'V138_RIDERS_OK' /tmp/riders-v138.log

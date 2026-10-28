@@ -103,7 +103,7 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 		for i in range(5):
 			var x = fposmod(i * 313 - run.world_px * 0.48, 1565) - 90
 			if x > left and x < right: flame(canvas, Vector2(x, HordeRun.FLOOR - 26), time + i, 26)
-		for p in civilians:
+		for p in ([] if run.sewer.active and run.sewer.phase=="entry" or run.sewer.encounter.pending else civilians):
 			if p.x > left and p.x < right:
 				if int(p.variant) == 0:
 					art.civil.paint(canvas, {"state": "normal", "civil_clip": "corrida", "civil_time": time + p.phase, "civil_flip": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))

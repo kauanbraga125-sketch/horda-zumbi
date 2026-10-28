@@ -1,0 +1,60 @@
+{
+  "tool": "ImageGen integrado",
+  "version": "0.10.38",
+  "prompt_record": "Briefings reconstituídos após recuperar os oito originais; não são transcrição literal dos pedidos originais.",
+  "references": [
+    "personagens zumbi e esqueleto aprovados",
+    "jet-ski e cenário do esgoto do projeto",
+    "paleta roxa, verde e latão e contornos do jogo"
+  ],
+  "assets": [
+    {
+      "file": "zombie_riders.png",
+      "library_file_id": "libfile_a572e901d9d4819183cf1d265b9bf787",
+      "sha256": "bbe5c372a019c6658fa45135d6ff019ea5f8cbb01fa645a9287b46de6bad91c8",
+      "brief": "Folha transparente 4×4, zumbi verde aprovado do jogo, perfil para direita, cabeça grande e roupa roxa. Quatro poses de piloto sentado com pernas dobradas e mãos no guidão; quatro de passageiro; quatro de abaixar e recuperar; quatro de pular para o assento. Manter quadril consistente, silhueta completa e espaço entre células. Usar referências originais do zumbi e jet-ski."
+    },
+    {
+      "file": "skeleton_riders.png",
+      "library_file_id": "libfile_1cc5a8dbb45881919b876484a43dbf47",
+      "sha256": "e01fbd7e7569ecdf0eb2fcdf007a4035507fedc7d3f788bea6996e3473aead03",
+      "brief": "Folha transparente 4×4, esqueleto aprovado com olhos ciano e capa roxa. Quatro poses de piloto realmente sentado, quatro de passageiro, quatro de abaixamento, quatro de embarque. Joelhos dobrados, pés completos, mãos e cabeça consistentes, perfil para direita. Mesma escala e estilo gótico cartunesco do jogo."
+    },
+    {
+      "file": "flood.png",
+      "library_file_id": "libfile_a10542fde0ac819190e9b8ff59ac3f4c",
+      "sha256": "33e64ba72abf0e208695abffcf1c056bfb53570e768839a1ef4830293110933d",
+      "brief": "Folha transparente 4×4 de enchente imensa avançando para direita. Muralha de água verde escura, crista recurvada com espuma menta e branca, spray, movimento de massa e redemoinho em 16 fases distintas. Contornos desenhados e sombras roxas do jogo; borda orgânica, sem fotografia ou moldura."
+    },
+    {
+      "file": "runner_woman.png",
+      "library_file_id": "libfile_41ccc7584cec819197673670037dbbdc",
+      "sha256": "8fab9332f736b845b2d2d15540dd8ec5c6ca5e49d5bda01af41d6c16a6af08b2",
+      "brief": "Folha transparente 4×2 de oito fases de corrida de mulher do esgoto assustada, casaco amarelo/laranja, cabelo castanho curto, cabeça expressiva grande. Perfil direito; apoios, voo e extensão opostos diferentes; baseline dos pés comum; contornos fortes e estilo do jogo."
+    },
+    {
+      "file": "runner_worker.png",
+      "library_file_id": "libfile_bc82efba174c81919fd0ba1600ca6f2e",
+      "sha256": "df04bbc4d040afaefd32162c385d4df485e9bfc9e00f810eff5508aecfdaa38d",
+      "brief": "Folha transparente 4×2 com oito fases de corrida do operário assustado, capacete amarelo com luz, macacão escuro e corpo baixo robusto. Fases de contato e voo distintas, perfil direito, baseline consistente, detalhes legíveis em escala pequena e contornos do jogo."
+    },
+    {
+      "file": "survivors.png",
+      "library_file_id": "libfile_ac8f21a03f908191a115bd7ec366e97d",
+      "sha256": "97a8aece74b3c5fb935b737aa946ecafd7596bca7e0209b16c791694795c8b79",
+      "brief": "Folha transparente 4 colunas ×3 linhas. Mulher com casaco de chuva, operário de capacete e homem magro com capuz azul e óculos, cada um com quatro poses de boiar, remar e pedir socorro. Boias completas, grandes cabeças expressivas e membros consistentes. Sprites originais de esgoto no estilo das referências aprovadas."
+    },
+    {
+      "file": "jetski.png",
+      "library_file_id": "libfile_931e3e4fd0b881918cde55d6e3464c6a",
+      "sha256": "50e9546c6da9b0d8dc8087cd41db91f172254e8098d7101f94f3f237e6489ba2",
+      "brief": "Jet-ski original visto de lado apontado para direita, casco roxo com peças de latão, caveira na proa, duas selas distintas e guidão mais baixo. Sem passageiros; áreas dos assentos livres para sprites desenhados. Transparência real, contornos fortes, brilho molhado, mesma arte gótica cartunesca do jogo."
+    },
+    {
+      "file": "rotor.png",
+      "library_file_id": "libfile_dafb93b11ae481919359dbfba36be760",
+      "sha256": "11dbb0cbc6fb3f8497c92a42659f9e85b34b1402568ee33c15ed3d0fa800d622",
+      "brief": "Folha transparente 4×2 de bomba industrial giratória do esgoto em oito fases. Corpo roxo e latão, lâminas e eixo legíveis, rotação consistente, aparência presa à instalação industrial. Contornos escuros e detalhes no estilo aprovado; células com margem e sem fundo."
+    }
+  ]
+}

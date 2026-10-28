@@ -1,7 +1,7 @@
 extends "res://scripts/sewer_presentation.gd"
 var notice = ""
 var notice_left = 0.0
-func notify(message: String) -> void: notice = message;notice_left = 2.4
+func notify(message: String) -> void: notice = message;notice_left = 1.7
 
 func hud(g,s) -> void:
 	var view: Rect2 = g.full_rect();var o = view.position;var right = view.end.x
@@ -12,8 +12,10 @@ func hud(g,s) -> void:
 		g.home_menu.label(g,str(g.runner.active_count() if i==0 else g.runner.coins),box.position+Vector2(13,54),30,g.CREAM if i==0 else g.GOLD,false)
 	var centre = Rect2(o.x+345,o.y+19,maxf(240,view.size.x-690),68)
 	g.home_menu.slab(g,centre,Color("231b32"),Color("937894"),11,3)
-	g.home_menu.label(g,"FUGA PELO ESGOTO" if s.phase=="ride" else "SALTO DE SAÍDA" if s.phase=="exit" else "TODOS A BORDO!",centre.get_center()+Vector2(0,-9),20,g.GOLD,true,centre.size.x-20)
-	g.progress_bar(Rect2(centre.position+Vector2(16,43),Vector2(centre.size.x-32,9)),1-float(s.left)/s.duration,g.MINT)
+	var title = ["GALERIA INUNDADA","CASA DAS BOMBAS","TETO EM COLAPSO"][clampi(int(s.ride_age/11),0,2)] if s.phase=="ride" else "SALTO DE SAÍDA" if s.phase=="exit" else "CORRA ATÉ OS JET-SKIS!" if s.phase_age<.75 else "EMBARCANDO EM DUPLAS" if s.phase_age<1.7 else "SEGURE FIRME!"
+	g.home_menu.label(g,title,centre.get_center()+Vector2(0,-9),20,g.GOLD,true,centre.size.x-20)
+	var progress = s.phase_age/s.ENTRY_SECONDS if s.phase=="entry" else 1-float(s.left)/s.duration
+	g.progress_bar(Rect2(centre.position+Vector2(16,43),Vector2(centre.size.x-32,9)),progress,g.MINT)
 	var timer = Rect2(right-319,o.y+19,192,68)
 	g.home_menu.slab(g,timer,Color("231b32"),Color("937894"),11,3)
 	g.home_menu.label(g,"SAÍDA EM %d s" % ceili(s.left) if s.phase=="ride" else "SALTANDO!" if s.phase=="exit" else "EMBARCANDO",timer.get_center()+Vector2(0,9),23,g.CREAM,true,170)
@@ -24,7 +26,10 @@ func hud(g,s) -> void:
 	g.home_menu.label(g,"ONDA • %d KM/H" % roundi(s.scroll_speed(g.runner)*.12),Vector2(o.x+27,o.y+111),15,g.CORAL if s.pressure>.7 else g.MINT,false)
 	g.progress_bar(Rect2(o.x+27,o.y+118,190,8),s.pressure,g.CORAL if s.pressure>.65 else g.MINT)
 	g.home_menu.label(g,"ALMAS %d • MAIOR HORDA %d" % [g.runner.souls,g.runner.max_horde],Vector2(right-290,o.y+118),15,g.MINT,false,265)
-	if s.age<8 and notice_left<=0: g.home_menu.label(g,"TOQUE PARA SALTAR • SEGURE PARA ALONGAR",Vector2(view.get_center().x,o.y+158),19,g.CREAM,true,view.size.x-80)
+	if s.phase=="ride":
+		var duck = Rect2(right-233,view.end.y-(145 if g.lab_active else 91),206,65)
+		g.button(duck,"ABAIXAR","sewer_duck",Color("4b776a"),-2,23)
+		if s.ride_age<5 and notice_left<=0: g.home_menu.label(g,"TOQUE PARA SALTAR • ABAIXE NO BOTÃO",Vector2(view.get_center().x,o.y+158),18,g.CREAM,true,view.size.x-80)
 	if g.lab_active:
 		var labels = ["RECOMEÇAR","ENCHENTE +","IR PARA SAÍDA"]
 		for i in range(3):

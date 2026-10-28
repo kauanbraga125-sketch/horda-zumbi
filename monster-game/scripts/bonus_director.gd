@@ -22,7 +22,7 @@ func reschedule(at: float, speed: float) -> void :
 	misses = 0
 
 func active(run) -> bool:
-	if run.blessings.active() or run.space.active or run.sewer.active or run.transform_left > 0 or run.perk_left > 0 or run.boost_left > 0: return true
+	if run.blessings.active() or run.space.active or run.sewer.active or run.sewer.encounter.pending or run.transform_left > 0 or run.perk_left > 0 or run.boost_left > 0: return true
 	for entity in run.entities:
 		if not entity.taken and entity.kind in ["crystal", "mask", "shield", "boost", "space_brain","harvester","spectral","sewer_key"]: return true
 	return false
@@ -59,7 +59,6 @@ func tick(run) -> void :
 		if run.shields <= 0: choices.append("shield")
 		if 2 in run.power_owned: choices.append("mask")
 		if 4 in run.power_owned: choices.append("space_brain")
-		if 9 in run.power_owned: choices.append("sewer_key")
 		if 5 in run.power_owned: choices.append("harvester")
 		if 6 in run.power_owned: choices.append("spectral")
 		var entity = run.add_entity(choices[rng.randi_range(0, choices.size() - 1)], at - run.world_px, run.terrain.floor_at(at) - 65)

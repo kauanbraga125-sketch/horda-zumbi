@@ -275,18 +275,21 @@ func consume_run_events() -> void :
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
-			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16);runner.sewer.visual.notify("TOQUE PARA SALTAR • PROTEJA OS PASSAGEIROS")
+			"sewer_dock": show_toast("ÁGUA SUBINDO • PORTO À FRENTE",2.0)
+			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16)
 			"sewer_encounter":
 				runner.sewer.visual.notify(str(e.title))
 				if "COMPORTA" in str(e.title) or "CANO" in str(e.title): sound.play("sewer_gate",-20)
 			"sewer_hit": sound.play("sewer_splash",-15);shake = 3
+			"sewer_blast": effects.explosion(point);sound.play("explosion",-15);shake = 4
+			"sewer_collapse": effects.dust(point,10,1.3);sound.play("heavy_land",-20);shake = 2
 			"sewer_exit": sound.play("space_boost",-14);runner.sewer.visual.notify("RAMPA À FRENTE • DE VOLTA À CORRIDA!")
 			"sewer_land":
 				effects.clear();sound.play("heavy_land",-12);shake = 4;show_toast("SAÍDA PERFEITA!" if e.clean else "ESCAPAMOS! • TÚNEL %d" % e.to_tunnel,2.3)
 			"perfect":
 				perfect_left = 1.8;sound.play("perfect",-13);effects.spark(point,GOLD,18)
 				if runner.space.active: runner.space.visual.notify("PERFECT!",2,1.5)
-				elif runner.sewer.active: runner.sewer.visual.notify("PERFECT!")
+				elif runner.sewer.active: runner.sewer.reward_line();runner.sewer.visual.notify("PERFECT! • DISTÂNCIA DA ONDA +")
 				if runner.bird.id=="pipoco": sound.play("bird_pipoco",-22)
 			"field_power": sound.play("perk",-14);show_toast(str(e.title),2.1)
 			"civil_drop": sound.play("creeper_wing",-13)
@@ -480,6 +483,8 @@ func open_market(tab: int = 0) -> void :
 func perform_action(action: String) -> void :
 	if birds_ui.action(self,action): return
 	if action=="home_sewer_test" and screen=="home": start_lab("sewer");return
+	if action=="sewer_duck" and screen=="run" and runner.sewer.active:
+		jump_touches.clear();jump_held = false;runner.sewer.request_duck(runner);return
 	if action in ["lab_sewer_restart","lab_sewer_wave","lab_sewer_exit"] and lab_active and lab_kind=="sewer":
 		if action=="lab_sewer_restart": start_lab("sewer")
 		elif action=="lab_sewer_wave": runner.sewer.pressure = minf(1,runner.sewer.pressure+.25)
@@ -883,7 +888,7 @@ func draw_home() -> void :
 		var left = d.level.position.x
 		var width = (d.help.end.x - left - 24) / 4
 		var top = d.level.end.y + 12
-		var labels = ["ESPAÇO R37","ESGOTO R37","AVES MALDITAS","REPOR 1M"]
+		var labels = ["ESPAÇO R38","EVENTO ESGOTO","AVES MALDITAS","REPOR 1M"]
 		var actions = ["home_space_test","home_sewer_test","birds_open","developer_test_funds"]
 		for i in range(4): button(Rect2(left+i*(width+8),top,width,52),labels[i],actions[i],Color("4c786a") if i<3 else Color("513c67"),-2,18)
 	else:
@@ -927,7 +932,7 @@ func draw_help() -> void :
 
 func draw_run() -> void :
 	if runner.sewer.active:
-		runner.sewer.visual.paint(self,runner.sewer);return
+		runner.sewer.visual.paint(self,runner.sewer);effects.paint(paint_target,art,actor);return
 	if runner.space.active:
 		if runner.space.visual.ground_visible(runner.space): ground(runner.world_px)
 		runner.space.paint(self)
@@ -935,6 +940,7 @@ func draw_run() -> void :
 		return
 	var captured_by_id: Dictionary = {}
 	ground(runner.world_px)
+	if runner.sewer.encounter.pending: runner.sewer.visual.dock(self,runner.sewer)
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
 	effects.draw_trails(paint_target, actor, runner.elapsed)
@@ -1140,6 +1146,10 @@ func validate_save(value) -> Dictionary:
 	HordeMeta.migrate(result, value)
 	result.merge(preload("res://scripts/bird_catalog.gd").migrate(value),true)
 	result.balance_v132 = true
+	result.sewer_event_v138 = true
+	if not bool(value.get("sewer_event_v138",false)) and power_levels is Dictionary:
+		for level in range(clampi(int(power_levels.get("sewer_time",0)),0,3)):
+			result.wallet = mini(9999999,int(result.wallet)+650*(level+1)*(level+1))
 	if not bool(value.get("balance_v132",false)) and raw_levels is Dictionary:
 		var refund = 0
 		for key in ["jump","magnet"]:
@@ -1686,8 +1696,9 @@ func draw_credits() -> void :
 
 func update_camera(dt: float) -> void :
 	if runner.sewer.active:
-		var sewer_zoom = 1.04
-		if runner.sewer.phase=="exit": sewer_zoom = lerpf(1.04,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
+		var sewer_zoom = 1.0
+		if runner.sewer.phase=="entry": sewer_zoom = lerpf(CAMERA_BASE_ZOOM,1.0,smoothstep(.08,.84,runner.sewer.entry_launch()))
+		if runner.sewer.phase=="exit": sewer_zoom = lerpf(1.0,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
 		camera_zoom = move_toward(camera_zoom,sewer_zoom,dt*1.1);camera_ground_shift = move_toward(camera_ground_shift,0,dt*600);return
 	if runner.space.active:
 		var s = runner.space
@@ -1950,14 +1961,14 @@ func start_lab(kind: String) -> void :
 		runner.power_owned = [3,4,7,8]
 		runner.entities.clear();runner.events.clear();runner.space.begin(runner,true)
 	if kind == "sewer":
-		runner.developer_kind = "";runner.power_owned = [3,4,9];runner.active_cosmetics = data.get("active_cosmetics",[]).duplicate()
+		runner.developer_kind = "";runner.power_owned = [3,4];runner.active_cosmetics = data.get("active_cosmetics",[]).duplicate()
 		for i in range(runner.members.size()): runner.members[i].kind = 1 if i%3==1 else 0
-		runner.entities.clear();runner.events.clear();runner.sewer.begin(runner,true)
+		runner.entities.clear();runner.events.clear();runner.sewer.encounter.offer(runner,true)
 	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;perfect_left = 0
 	effects.clear();ui_effects.clear();scenery.reset();end_delay = -1
 	last_save = 0;last_stats.clear();run_challenges.clear();trail_tick = 0
 	change_screen("run")
-	show_toast("TESTE: " + LAB_LABELS[LAB_KINDS.find(kind)], 2.5)
+	if kind!="sewer": show_toast("TESTE: " + LAB_LABELS[LAB_KINDS.find(kind)], 2.5)
 
 func leave_lab() -> void :
 	if not lab_active: return
