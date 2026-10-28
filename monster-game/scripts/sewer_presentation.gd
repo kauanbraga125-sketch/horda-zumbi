@@ -13,18 +13,22 @@ func entry_boundary(g,s) -> float:
 	var view = view_rect(g)
 	return lerpf(minf(view.end.x+100,s.LEAD+380),view.position.x-750,smoothstep(0,.96,s.entry_launch()))
 
-func walls(g,s,left: float,right: float) -> void:
+func walls(g,s,left: float,right: float,alpha: float = 1.0) -> void:
 	var c = g.paint_target;var view = view_rect(g);var tex = Old.texture("sewer");var height = maxf(760,view.size.y+40)
 	var size = tex.get_size()*height/tex.get_height();var stride = size.x-140;var offset = fposmod(s.scroll*.45,stride)
-	for i in range(-1,ceili(view.size.x/stride)+2): blend_tile(c,tex,Rect2(view.position+Vector2(i*stride-offset,-20),size),1,left,right)
+	for i in range(-1,ceili(view.size.x/stride)+2): blend_tile(c,tex,Rect2(view.position+Vector2(i*stride-offset,-20),size),alpha,left,right)
 
 func background(g,s) -> void:
 	var c = g.paint_target;var view = view_rect(g)
-	if s.phase=="entry": g.scenery.paint(c,g.runner,g.ui_time);return
-	var clip_right = view.end.x
-	if s.phase=="exit": g.scenery.paint(c,g.runner,g.ui_time);clip_right = exit_boundary(g,s)
-	walls(g,s,view.position.x,clip_right)
-	if s.phase=="exit": return
+	if s.phase=="entry":
+		g.scenery.paint(c,g.runner,g.ui_time)
+		if s.entry_blend()>0: walls(g,s,view.position.x,view.end.x,s.entry_blend())
+		return
+	if s.phase=="exit":
+		g.scenery.paint(c,g.runner,g.ui_time)
+		if s.exit_blend()<1: walls(g,s,view.position.x,view.end.x,1-s.exit_blend())
+		return
+	walls(g,s,view.position.x,view.end.x)
 	var catwalk_y = view.position.y-20+maxf(760,view.size.y+40)*.588
 	s.life.paint(g,s,catwalk_y)
 	for i in range(7):
@@ -34,22 +38,27 @@ func background(g,s) -> void:
 			c.draw_line(at+Vector2(-t*28,t*287),at+Vector2(-t*28-2,t*287+12),Color(.42,.8,.74,.18),1.4,true)
 
 func dock_pool(g,s,lead: float) -> void:
-	var c = g.paint_target;var tex = Old.texture("sewer");var rect = Rect2(lead-640,g.runner.FLOOR-22,1040,maxf(190,view_rect(g).end.y-g.runner.FLOOR+110))
+	var c = g.paint_target;var view = view_rect(g);var edge = s.shore_edge()+lead-s.LEAD
+	if edge>view.end.x+80: return
+	var top = g.runner.FLOOR+12;var width = maxf(1,view.end.x+80-edge)
+	var rect = Rect2(edge,top,width,maxf(160,view.end.y-top+70));var tex = Old.texture("sewer")
 	c.draw_texture_rect_region(tex,rect,Rect2(60,720,1500,185),Color(.87,1,1))
-	for i in range(14):
-		var x = rect.position.x+fposmod(i*73-g.ui_time*110,rect.size.x)
-		c.draw_line(Vector2(x,rect.position.y+16+i%4*13),Vector2(x+28,rect.position.y+15+i%4*13),Color(.5,.9,.8,.3),1.5,true)
-	c.draw_line(Vector2(rect.position.x,rect.position.y-2),Vector2(rect.end.x,rect.position.y-2),Color("443941"),5,true)
-	c.draw_texture_rect_region(g.gameplay_ui.ground_texture.atlas,Rect2(rect.position.x-33,rect.position.y-4,33,rect.size.y),Rect2(50,94,90,210))
+	for i in range(17):
+		var x = edge+fposmod(i*73-g.ui_time*110,width)
+		c.draw_line(Vector2(x,top+16+i%4*13),Vector2(minf(rect.end.x,x+28),top+15+i%4*13),Color(.5,.9,.8,.3),1.5,true)
+	# A continuous solid quay supports every running foot before take-off.
+	c.draw_texture_rect_region(g.gameplay_ui.ground_texture.atlas,Rect2(edge-24,g.runner.FLOOR-5,24,view.end.y-g.runner.FLOOR+100),Rect2(50,94,90,210))
+	c.draw_line(Vector2(edge-27,g.runner.FLOOR-5),Vector2(edge-1,g.runner.FLOOR-5),Color("8c9276"),5,true)
 
 func dock(g,s) -> void:
 	var r = g.runner;var lead = float(s.encounter.dock_world)-r.world_px
 	if lead<r.view_left-600 or lead>r.view_right+700: return
 	dock_pool(g,s,lead)
-	var count = ceili(r.active_count()/2.0);var columns = maxi(3,s.slot_column(count-1)+1);var spacing = minf(215,430.0/(columns-1))
-	for i in range(count): Art.boat(g.paint_target,Vector2(lead-s.slot_column(i)*spacing-s.slot_lane(i)*42,r.FLOOR-35+s.slot_lane(i)*40),96,sin(g.ui_time*3+i)*.007)
-	g.scenery.sprite(g.paint_target,g.art.tunnel_mouths[1],Vector2(lead+350,r.FLOOR-215),430)
-	g.text("PORTO DO ESGOTO",Vector2(lead+245,r.FLOOR-375),19,g.MINT,true,true,2)
+	var count = ceili(r.active_count()/2.0)
+	for i in range(count):
+		var at = Vector2(s.dock_x(r,i)+lead-s.LEAD,s.dock_y(r,i))
+		Art.boat(g.paint_target,at,96,sin(g.ui_time*3+i)*.007)
+	g.text("PORTO DO ESGOTO",Vector2(lead+20,r.FLOOR-165),19,g.MINT,true,true,2)
 
 func blend_tile(c,tex: Texture2D,rect: Rect2,alpha: float,left: float,right: float) -> void:
 	var fade = 140.0/rect.size.x
@@ -105,11 +114,16 @@ func suspended(g,s,e: Dictionary) -> void:
 	var tex = Art.texture(id);var height = 193.0 if gate else 170.0
 	var bottom = float(e.y)+(1-smoothstep(.15,.80,e.age))*-85 if gate else float(e.y)
 	var size = tex.get_size()*height/tex.get_height();var top = bottom-height;var left = float(e.x)-size.x*.5
-	var ceiling = minf(g.scenery.view_top-25,top-80)
+	var ceiling = g.scenery.view_top-45
 	for u in [.17,.82]:
 		var x = left+size.x*u
-		var sample = Rect2(tex.get_width()*u-5,tex.get_height()*.16,10,tex.get_height()*.14)
-		c.draw_texture_rect_region(tex,Rect2(x-4.5,ceiling,9,top-ceiling+14),sample)
+		c.draw_line(Vector2(x,ceiling),Vector2(x,top+35),Color("100d18"),13,true)
+		c.draw_line(Vector2(x,ceiling),Vector2(x,top+35),Color("716744"),7,true)
+		c.draw_line(Vector2(x-2,ceiling),Vector2(x-2,top+35),Color("afa67d"),1.5,true)
+		for y in range(int(ceiling),int(top)+35,27):
+			c.draw_arc(Vector2(x,y),5,0,TAU,10,Color("161423"),3,true)
+			c.draw_circle(Vector2(x-2,y-2),1.2,Color("d6bf7c"))
+
 	Art.prop(c,id,Vector2(e.x,bottom-height*.5),height)
 	if not gate:
 		for i in range(13):
@@ -122,12 +136,23 @@ func suspended(g,s,e: Dictionary) -> void:
 func object(g,s,e: Dictionary) -> void:
 	var c = g.paint_target;var p = Vector2(e.x,e.y)
 	match e.kind:
-		"coin": g.scenery.sprite(c,g.art.items[1],p,31,Color.WHITE,sin(s.age*6+e.age)*.2)
+		"coin": g.scenery.sprite(c,g.art.items[1],p,HordeBalance.COIN_DIAMETER,Color.WHITE,0)
 		"rescue":
 			var t = clampf(e.age/.55,0,1) if e.state=="capture" else 0.0
-			var target = Vector2(s.boats[0].x,s.boats[0].y-30) if not s.boats.is_empty() else p
-			var at = p.lerp(target,smoothstep(0,1,t))+Vector2(0,-sin(t*PI)*65)
+			var surface = Vector2(e.x,s.water_y(e.x)+7)
+			var target = Vector2(s.boats[0].x,s.boats[0].y-30) if not s.boats.is_empty() else surface
+			var at = surface.lerp(target,smoothstep(0,1,t))+Vector2(0,-sin(t*PI)*65)
 			Art.survivor_new(c,int(e.get("variant",0)),at,118,s.age+e.age,Color(1,1,1,1-smoothstep(.75,1,t)))
+			if t<.2: ripple(c,surface+Vector2(0,2),55,s.age)
+		"fugitive":
+			var t = clampf(e.age/.55,0,1) if e.state=="capture" else 0.0
+			var at = Vector2(e.x-t*85,s.water_y(e.x)+9+t*t*48)
+			Art.fugitive(c,int(e.get("variant",2)),at,154,s.age+e.age,Color(1,1,1,1-smoothstep(.1,.95,t)))
+			if t<.3: ripple(c,at+Vector2(-70,0),94,s.age)
+			for i in range(8):
+				var trail = fposmod(s.age*2+i*.13,1)
+				c.draw_arc(at+Vector2(-115-trail*100,trail*14),7+trail*11,0,PI,8,Color(.7,1,.94,.5*(1-trail)),2,true)
+
 		"rubble":
 			Art.prop(c,"wreck",Vector2(e.x,s.WATER-17+sin(s.age*4+int(e.get("encounter",0)))*3),83,sin(s.age*2)*.025)
 			c.draw_arc(Vector2(e.x,s.WATER+5),70,0,PI,16,Color(.55,.95,.85,.22),2,true)
@@ -136,7 +161,11 @@ func object(g,s,e: Dictionary) -> void:
 			c.draw_circle(Vector2(e.x+12,s.WATER-80),3+sin(s.age*23),Color(1,.52,.14,.8))
 		"rotor":
 			var center = Vector2(e.x,s.WATER-50)
-			c.draw_texture_rect_region(g.gameplay_ui.ground_texture.atlas,Rect2(center.x-61,s.WATER-6,122,35),Rect2(80,94,200,80))
+			var pillar = Old.texture("sewer")
+			for y in range(int(s.WATER+14),int(view_rect(g).end.y+100),88):
+				c.draw_texture_rect_region(pillar,Rect2(center.x-52,y,104,88),Rect2(783,321,85,120),Color(.70,.83,.79))
+			c.draw_texture_rect_region(pillar,Rect2(center.x-74,s.WATER-7,148,47),Rect2(756,482,147,75),Color(.86,.92,.86))
+			ripple(c,Vector2(e.x,s.WATER+24),77,s.age)
 			Art.cel(c,"rotor",posmod(int(s.age*18),8),Rect2(center.x-65,center.y-68,130,130))
 		"collapse":
 			var point = Vector2(e.x,e.y)
@@ -147,56 +176,66 @@ func object(g,s,e: Dictionary) -> void:
 			for i in range(5): c.draw_texture_rect_region(g.gameplay_ui.ground_texture.atlas,Rect2(point.x+(i-2)*21-22,point.y-(i%2)*17-21,45,40),Rect2(40+i*32,94,90,90))
 		"pipe","gate": suspended(g,s,e)
 
+func ripple(c,at: Vector2,width: float,time: float) -> void:
+	for layer in range(2):
+		var points = PackedVector2Array()
+		for i in range(25):
+			var a = i*TAU/24;points.append(at+Vector2(cos(a)*(width+layer*9),sin(a)*(6+layer*3)+sin(time*5+i)*1.2))
+		c.draw_polyline(points,Color(.62,.92,.83,.38-layer*.13),1.6,true)
+
 func paint(g,s) -> void:
-	var r = g.runner;var c = g.paint_target;var exit_t = clampf(s.phase_age/s.EXIT_SECONDS,0,1) if s.phase=="exit" else 0.0
-	var boundary = exit_boundary(g,s) if s.phase=="exit" else INF
-	if s.phase in ["exit","entry"]: g.ground(r.world_px)
-	var entry_left = -INF
-	if s.phase=="entry":
-		dock_pool(g,s,s.LEAD);entry_left = entry_boundary(g,s);walls(g,s,entry_left,view_rect(g).end.x)
-	water(g,s,false,boundary,1-smoothstep(.64,.95,exit_t),entry_left)
+	var r = g.runner;var c = g.paint_target;var view = view_rect(g)
+	var exiting = s.phase=="exit";var entry = s.entry_blend() if s.phase=="entry" else 1.0
+	var exit_t = clampf(s.phase_age/s.EXIT_SECONDS,0,1) if exiting else 0.0
+	if s.phase=="entry" and entry<1:
+		g.ground(r.world_px);dock_pool(g,s,s.LEAD)
+	elif exiting: g.ground(r.world_px)
+	var water_alpha = 1-s.exit_blend() if exiting else entry
+	if s.phase!="entry" or entry>0: water(g,s,false,INF,water_alpha)
+	if exiting and s.phase_age<1.05:
+		var x = s.LEAD+240-s.phase_age*s.scroll_speed(r)*.65
+		var tex = g.gameplay_ui.ground_texture.atlas;var source = g.gameplay_ui.ground_texture.region
+		var ramp = PackedVector2Array([Vector2(x-190,s.WATER+40),Vector2(x+20,r.FLOOR-18),Vector2(x+20,r.FLOOR+85),Vector2(x-190,s.WATER+100)])
+		var uv = PackedVector2Array([source.position,Vector2(source.end.x,source.position.y),source.end,Vector2(source.position.x,source.end.y)])
+		for i in range(uv.size()):uv[i] /= tex.get_size()
+		c.draw_polygon(ramp,PackedColorArray([Color(1,1,1,1-smoothstep(.75,1.05,s.phase_age))]),uv,tex)
 	for e in s.objects:
 		if not e.taken and e.kind not in ["pipe","gate"]: object(g,s,e)
 	var order = range(s.boats.size());order.sort_custom(func(a,b):return float(s.boats[a].y)<float(s.boats[b].y))
 	for index in order:
 		var b = s.boats[index];var p = Vector2(b.x,b.y);var angle = float(b.angle)
-		if s.phase=="exit": p += Vector2(sin(exit_t*PI)*100,-sin(exit_t*PI)*95+smoothstep(.56,1,exit_t)*460);angle += exit_t*.55
-		if exit_t<.65: wake(g,s,b,index)
-		if exit_t<.88: Art.boat(c,p,96,angle,Color(1,1,1,1-smoothstep(.65,.88,exit_t)))
-		if s.phase!="exit":
-			# Whole seated drawings stay on their own saddles.
-			for seat in range(b.ids.size()-1,-1,-1):
-				var member_index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
-				if member_index<0: continue
-				var m = r.members[member_index];var wear = r.cosmetics_for(m,int(m.kind))
-				if str(m.get("sewer_pose","ride"))=="run":
-					g.actor.paint(c,int(m.kind),Vector2(m.x,m.y),108,fposmod(r.elapsed*1.9+member_index*.1,1),"run",r.elapsed,0,Color.WHITE,false,1,false,-1,0,wear)
-				else:
-					g.actor.paint_rider(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.31,float(b.angle),wear,Color.WHITE,seat,str(m.get("sewer_pose","ride")),float(m.get("sewer_board",0)) if m.get("sewer_pose","")=="board" else float(b.duck_left))
-		if exit_t<.88: Art.boat(c,p,96,angle,Color(1,1,1,1-smoothstep(.65,.88,exit_t)),true)
+		var opacity = 1.0
+		if exiting:
+			var launch = maxf(0,s.phase_age-.42)
+			p += Vector2(launch*95,-28*smoothstep(0,.42,s.phase_age)-sin(clampf(launch/.8,0,1)*PI)*32+launch*launch*240)
+			opacity = 1-smoothstep(.85,1.5,s.phase_age)
+		if opacity>.02: wake(g,s,b,index);Art.boat(c,p,96,angle,Color(1,1,1,opacity))
+		for seat in range(b.ids.size()-1,-1,-1):
+			var member_index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
+			if member_index<0: continue
+			var m = r.members[member_index];var wear = r.cosmetics_for(m,int(m.kind));var pose = str(m.get("sewer_pose","ride"))
+			if pose in ["run","land"]:
+				g.actor.paint(c,int(m.kind),Vector2(m.x,m.y),108,fposmod(r.elapsed*1.9+member_index*.1,1),"run",r.elapsed,.16 if pose=="land" else 0,Color.WHITE,false,1,false,-1,0,wear)
+			elif pose=="board":
+				g.actor.paint_space(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.13,"launch",0,wear)
+			elif pose=="return":
+				g.actor.paint_space(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.13,"return" if s.phase_age>1.45 else "launch",0,wear)
+			else:
+				g.actor.paint_rider(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.31,float(b.angle),wear,Color.WHITE,seat,pose,float(b.duck_left))
+		if opacity>.02: Art.boat(c,p,96,angle,Color(1,1,1,opacity),true)
 		if b.bump<-.5: c.draw_arc(p+Vector2(65,-9),19,-1,1,12,Color(1,.75,.35,minf(.8,-float(b.bump)/25)),2,true)
 	for e in s.objects:
 		if not e.taken and e.kind in ["pipe","gate"]: object(g,s,e)
-	if s.phase=="entry": g.scenery.sprite(c,g.art.tunnel_mouths[1],Vector2(entry_left-30,r.FLOOR-215),430)
-	if s.phase=="exit":
-		var source = g.gameplay_ui.ground_texture.region
-		var ramp = PackedVector2Array([Vector2(boundary-210,s.WATER+30),Vector2(boundary+45,r.FLOOR-22),Vector2(boundary+45,r.FLOOR+85),Vector2(boundary-210,s.WATER+85)])
-		var uvs = PackedVector2Array([Vector2(source.position.x,source.position.y),Vector2(source.end.x,source.position.y),Vector2(source.end.x,source.position.y+180),Vector2(source.position.x,source.position.y+180)])
-		for i in range(uvs.size()): uvs[i] /= g.gameplay_ui.ground_texture.atlas.get_size()
-		c.draw_polygon(ramp,PackedColorArray([Color.WHITE]),uvs,g.gameplay_ui.ground_texture.atlas)
-		g.scenery.sprite(c,g.art.tunnel_mouths[1],Vector2(boundary-30,r.FLOOR-215),430)
-		for i in range(r.members.size()):
-			var m = r.members[i]
-			g.actor.paint_space(c,int(m.kind),Vector2(m.x,m.y),107,r.elapsed+i*.13,"return" if exit_t>.55 else "launch",0,r.cosmetics_for(m,int(m.kind)))
 	for item in s.casualties:
-		var t = float(item.age);var p = Vector2(item.p)+Vector2(-t*200,-sin(t*PI)*55+t*t*145)
-		g.actor.paint_space(c,int(item.kind),p,84,t,"ejected",0,item.wear,Color(1,1,1,1-smoothstep(.5,1,t)))
+		var t = float(item.age);var at = Vector2(item.p)+Vector2(-t*200,-sin(t*PI)*55+t*t*145)
+		g.actor.paint_space(c,int(item.kind),at,84,t,"ejected",0,item.wear,Color(1,1,1,1-smoothstep(.5,1,t)))
 	for item in s.splashes: splash(g,s,item)
-	if s.phase!="exit":
-		water(g,s,true,INF,1,entry_left)
-		if s.phase!="entry" or s.entry_launch()>.65: flood(g,s)
-		if s.phase=="ride": speed_streaks(g,s)
-	else: water(g,s,true,boundary,1-smoothstep(.5,.90,exit_t))
+	if s.phase=="ride": flood(g,s);speed_streaks(g,s)
+	if s.phase!="entry" or entry>0: water(g,s,true,INF,water_alpha)
+	if s.phase=="entry":
+		if s.phase_age>2.8: flood(g,s)
+		var shadow = maxf(0,1-absf(s.phase_age-2.2)/.6)*.90
+		if shadow>0: c.draw_rect(view,Color(.015,.01,.025,shadow))
 
 func splash(g,_s,item: Dictionary) -> void:
 	var c = g.paint_target;var t = float(item.age);var p = Vector2(item.p)
@@ -210,7 +249,7 @@ func splash(g,_s,item: Dictionary) -> void:
 func flood(g,s) -> void:
 	if s.phase=="entry" and s.entry_launch()<.65: return
 	var c = g.paint_target;var view = view_rect(g);var edge = s.wave_edge()
-	var height = 445+s.pressure*95+sin(s.age*3)*9;var base = s.WATER+72
+	var height = 440+s.pressure*52+sin(s.age*2)*8;var base = s.WATER+25
 	Art.flood_new(c,Vector2(edge+21,base),height,s.age)
 	for i in range(23):
 		var t = fposmod(s.age*1.4+i*.071,1)

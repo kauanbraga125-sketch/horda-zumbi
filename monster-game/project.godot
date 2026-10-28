@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Horda Zumbi 0.10.38"
-config/version="0.10.38"
+config/name="Horda Zumbi 0.10.39"
+config/version="0.10.39"
 run/main_scene="res://boot.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 
@@ -48,4 +48,4 @@ environment/defaults/default_clear_color=Color(0.07, 0.035, 0.13, 1)
 [testing]
 
 catalog_funds_enabled=true
-space_early_pickup_enabled=true
+space_early_pickup_enabled=false

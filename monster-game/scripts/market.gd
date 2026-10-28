@@ -73,9 +73,6 @@ func items(data: Dictionary) -> Array[Dictionary]:
 				var chain = HordeMeta.chain(data, int(power.kind));var nxt: Dictionary = chain.next
 				var name = str(power.name)
 				var description = str(power.description) if not chain.owned else ("TODOS OS BENEFÍCIOS: " + str(chain.benefits) if chain.full else "PRÓXIMO: " + str(nxt.name) + ". " + str(nxt.description))
-				if power.kind == 4:
-					var seconds = 30 + int(data.power_levels.get("space_time",0)) * 10
-					description = "VOO ATUAL: %d s. %s Túneis e distância continuam avançando." % [seconds, "TEMPO MÁXIMO." if chain.full else "PRÓXIMO: %d s." % (seconds + 10)]
 				result.append({"key": "monster_chain_" + str(power.kind), "name": name + " · " + ("NÍVEL " + str(chain.level) if chain.owned else "BLOQUEADO"), "description": description, "status": "ATUAL: " + str(chain.benefits), "level_value": chain.level, "level_max": (7 if power.kind == 5 else 10 if power.kind == 2 else 4), "price": power.price if not chain.owned else int(nxt.get("price", 0)), "full": chain.full, "action": "power_buy_" + str(power.kind) if not chain.owned else "power_upgrade_" + str(nxt.get("index", 0)), "illustration": "power", "index": power.kind, "kind": power.kind})
 		2:
 			if accessory_filter == 2:

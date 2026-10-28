@@ -1,6 +1,6 @@
 extends RefCounted
 ## Abdução Maldita. The road keeps advancing while its collisions are suspended.
-## A separate power preserves the real monster identities and their cosmetics.
+## A temporary event preserves the real monster identities and their cosmetics.
 
 const POWER = 4
 const ANCHOR = MonsterCatalog.ANCHOR
@@ -95,7 +95,7 @@ func blend() -> float:
 
 func begin(r, force: bool = false) -> bool:
 	if active or r.sewer.active or r.dead or r.active_count() <= 0: return false
-	if not force and (POWER not in r.power_owned or not r.power_eligible()): return false
+	if not force and not r.power_eligible(): return false
 	if force:
 		r.perk_left = 0;r.perk_kind = -1;r.boost_left = 0;r.transform_left = 0
 	# Finish captures already earned before the beam takes the party away.
@@ -109,7 +109,7 @@ func begin(r, force: bool = false) -> bool:
 			if kind not in r.power_owned: r.power_owned.append(kind)
 	ensure_art();battle.art.warm();visual.warm()
 	active = true;phase = "ascent";age = 0;phase_age = 0;flight_age = 0
-	duration = seconds(int(r.power_levels.get("space_time", 0)));left = duration
+	duration = 30.0;left = duration
 	ribbon_count = 1 if r.active_count()<=8 else 2 if r.active_count()<=20 else 3 if r.active_count()<=50 else 4
 	altitude = 0;y = 420;vy = 0;x = clampf(340+maxi(0,r.active_count()-8)*4,340,540);aim_x = x;previous_x = x;previous_y = y;hurt_left = 0;hit_cooldown = 0;thrust_flash = 0
 	next_group = 1.0;group_serial = 0;last_zone = -1;warning_second = 6
@@ -119,23 +119,14 @@ func begin(r, force: bool = false) -> bool:
 		starts[int(m.id)] = Vector2(m.x, m.y)
 		m.jump_queue.clear();m.jump_at = -1.0;m.jump_delay = -1.0;m.vy = 0.0;m.roof_id = -1
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
-	r.mark_power_collected();r.bonuses += 1;r.flights += 1
+	r.flights += 1
 	r.mission_stats.space_flights = int(r.mission_stats.get("space_flights", 0)) + 1
 	r.events.append({"type":"space_begin","duration":duration})
 	return true
 
-func offer_test_pickup(r) -> void:
-	if active or early_offered or r.elapsed < 7.0 or POWER not in r.power_owned: return
-	if not bool(ProjectSettings.get_setting("testing/space_early_pickup_enabled", false)): return
-	if not r.developer_kind.is_empty() or not r.power_eligible() or r.bonus_director.active(r): return
-	for step in range(14):
-		var at = r.spawn_left() + 90.0 + step * 90.0
-		if not r.bonus_director.safe(r, at): continue
-		var e = r.add_entity("space_brain", at - r.world_px, r.terrain.floor_at(at) - 66.0)
-		e.bonus_world = at;early_offered = true
-		r.bonus_director.last_opportunity = at
-		r.bonus_director.reschedule(at, maxf(305.0, r.cruise_speed))
-		return
+func offer_test_pickup(_r) -> void:
+	# Compatibility entry point. The former space-brain pickup is retired.
+	return
 
 func impulse() -> void:
 	# A tap starts a drag; it must not launch a second, unrelated vertical action.
@@ -331,6 +322,7 @@ func _update_objects(r,dt: float) -> void:
 func finish(r) -> void:
 	prepare_landing(r)
 	active = false;phase = "ground";left = 0;completed_flights += 1
+	r.sewer.encounter.complete(r,"space")
 	r.cruise_speed = HordeDirector.stage_speed(r.tunnel_number());r.speed = r.cruise_speed;r.time_scale = 1;r.last_effective_speed = r.speed
 	# All pending astronaut captures count before the party lands.
 	for e in objects:

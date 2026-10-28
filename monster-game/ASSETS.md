@@ -198,3 +198,8 @@ Quatro folhas originais criadas com ImageGen integrado, sem sprites comerciais: 
 ## Evento do esgoto — 0.10.38
 
 Oito originais feitos com ImageGen integrado: duas folhas de personagens com 16 poses sentadas/abaixando/embarcando cada, enchente com 16 cels, duas pessoas com oito cels de corrida cada, três sobreviventes com quatro poses cada, jet-ski com duas selas e bomba giratória com oito cels. PNGs e proveniência em `tools/art_sources/v138/`; atlas WebP e medições em `assets/art/v138/`. Preparação por `tools/prepare_v138_art.py`. As novas poses recebem os acessórios originais por pontos medidos de cabeça, pescoço e quadril. Os sprites antigos permanecem intactos.
+
+
+## Jornadas aleatórias — 0.10.39
+
+Quatro PNGs originais criados com ImageGen integrado: zumbi com 12 poses, esqueleto com 12 poses, onda monstruosa com 16 quadros e atlas com 12 quadros de fugitivos de jet-ski (agente, jovem e dupla). As cabeças e os 35 acessórios continuam vindo das artes originais aprovadas. Fontes e prompts completos em `tools/art_sources/v139/`; atlas e medidas em `assets/art/v139/`; preparação mecânica em `tools/prepare_v139_art.py`. A referência comercial de RE4 é apenas uma referência visual externa e não entra no aplicativo.

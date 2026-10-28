@@ -283,6 +283,7 @@ func consume_run_events() -> void :
 			"sewer_hit": sound.play("sewer_splash",-15);shake = 3
 			"sewer_blast": effects.explosion(point);sound.play("explosion",-15);shake = 4
 			"sewer_collapse": effects.dust(point,10,1.3);sound.play("heavy_land",-20);shake = 2
+			"sewer_fugitives": runner.sewer.visual.notify("JET-SKI ALCANÇADO • +%d ALMAS" % int(e.count))
 			"sewer_exit": sound.play("space_boost",-14);runner.sewer.visual.notify("RAMPA À FRENTE • DE VOLTA À CORRIDA!")
 			"sewer_land":
 				effects.clear();sound.play("heavy_land",-12);shake = 4;show_toast("SAÍDA PERFEITA!" if e.clean else "ESCAPAMOS! • TÚNEL %d" % e.to_tunnel,2.3)
@@ -501,8 +502,9 @@ func perform_action(action: String) -> void :
 		return
 	if action in ["lab_space_restart", "lab_space_time", "lab_space_zone", "lab_space_power", "lab_space_land"] and lab_active and lab_kind == "space":
 		if action == "lab_space_time":
-			runner.power_levels.space_time = (int(runner.power_levels.get("space_time",0)) + 1) % 4
+			var seconds = 30+((int(runner.space.duration)-30)/10+1)%4*10
 			runner.space.active = false;runner.space.begin(runner,true)
+			runner.space.duration = seconds;runner.space.left = seconds
 		elif action == "lab_space_restart":
 			runner.space.active = false;runner.space.begin(runner,true)
 		elif action == "lab_space_zone":
@@ -888,7 +890,7 @@ func draw_home() -> void :
 		var left = d.level.position.x
 		var width = (d.help.end.x - left - 24) / 4
 		var top = d.level.end.y + 12
-		var labels = ["ESPAÇO R38","EVENTO ESGOTO","AVES MALDITAS","REPOR 1M"]
+		var labels = ["EVENTO ESPAÇO","EVENTO ESGOTO","AVES MALDITAS","REPOR 1M"]
 		var actions = ["home_space_test","home_sewer_test","birds_open","developer_test_funds"]
 		for i in range(4): button(Rect2(left+i*(width+8),top,width,52),labels[i],actions[i],Color("4c786a") if i<3 else Color("513c67"),-2,18)
 	else:
@@ -1147,6 +1149,10 @@ func validate_save(value) -> Dictionary:
 	result.merge(preload("res://scripts/bird_catalog.gd").migrate(value),true)
 	result.balance_v132 = true
 	result.sewer_event_v138 = true
+	result.journey_events_v139 = true
+	if not bool(value.get("journey_events_v139",false)) and power_levels is Dictionary:
+		for level in range(clampi(int(power_levels.get("space_time",0)),0,3)):
+			result.wallet = mini(9999999,int(result.wallet)+650*(level+1)*(level+1))
 	if not bool(value.get("sewer_event_v138",false)) and power_levels is Dictionary:
 		for level in range(clampi(int(power_levels.get("sewer_time",0)),0,3)):
 			result.wallet = mini(9999999,int(result.wallet)+650*(level+1)*(level+1))

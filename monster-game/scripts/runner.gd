@@ -695,8 +695,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		spawn_next_pattern()
 	if developer_kind.is_empty():
 		sewer.encounter.tick(self)
-		if sewer.active: return
-		space.offer_test_pickup(self)
+		if sewer.active or space.active: return
 		bonus_director.tick(self)
 	refresh_formation()
 	for i in range(members.size() - 1, -1, -1):
@@ -829,7 +828,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 					"harvester": grant_perk(5)
 					"spectral": grant_perk(6)
 					"space_brain":
-						if space.begin(self): return
+						e.taken = true # Retired pickup; abduction is scheduled by the journey director.
 					"crystal": grant_perk(3)
 					"mask": grant_perk(2)
 					"shield": mark_power_collected();shields = 1;bonuses += 1;events.append({"type": "guard", "x": e.x, "y": e.y})

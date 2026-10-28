@@ -2,16 +2,22 @@ extends RefCounted
 ## Shared native texture cache; new civilians have actual drawn animation cels.
 static var textures: Dictionary = {}
 static var layout: Dictionary = {}
+static var newer: Dictionary = {}
 
 static func data() -> Dictionary:
-	if layout.is_empty(): layout = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/v138/layout.json"))
+	if layout.is_empty():
+		layout = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/v138/layout.json"))
+		newer = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/v139/layout.json"))
+		layout.merge(newer,true)
 	return layout
 
 static func fresh(id: String) -> Texture2D:
-	var key = "138/"+id
+	data()
+	var family = "v139" if newer.has(id) else "v138"
+	var key = family+"/"+id
 	if not textures.has(key):
 		var im = Image.new()
-		assert(im.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v138/"+id+".webp"))==OK)
+		assert(im.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/"+family+"/"+id+".webp"))==OK)
 		textures[key] = ImageTexture.create_from_image(im)
 	return textures[key]
 
@@ -30,9 +36,18 @@ static func boat(c,p: Vector2,height: float,angle: float = 0,tint: Color = Color
 
 static func survivor_new(c,variant: int,p: Vector2,height: float,time: float,tint: Color = Color.WHITE) -> void:
 	var index = posmod(int(time*7),4)+posmod(variant,3)*4
-	var bob = sin(time*5.3+variant)*height*.02
-	c.draw_set_transform(p+Vector2(0,bob),sin(time*2.9+variant)*.025)
-	cel(c,"survivors",index,Rect2(-height*.5,-height*.78,height,height),tint)
+	var line = float(data().survivor_anchors[index].waterline)/320*height
+	c.draw_set_transform(p+Vector2(0,sin(time*5.3+variant)*.7),sin(time*2.9+variant)*.015)
+	cel(c,"survivors",index,Rect2(-height*.5,-line,height,height),tint)
+	c.draw_set_transform(Vector2.ZERO)
+
+static func fugitive(c,variant: int,p: Vector2,height: float,time: float,tint: Color = Color.WHITE) -> void:
+	var index = posmod(variant,3)*4+posmod(int(time*8),4)
+	var spec: Dictionary = data().fugitives
+	var box: Array = spec.bounds[index];var scale = height*2.05/512.0
+	var size = Vector2(512,384)*scale;var waterline = (float(box[3])-10)*scale
+	c.draw_set_transform(p,sin(time*4)*.018)
+	cel(c,"fugitives",index,Rect2(-size.x*.5,-waterline,size.x,size.y),tint)
 	c.draw_set_transform(Vector2.ZERO)
 
 static func runner_new(c,variant: int,foot: Vector2,height: float,time: float,tint: Color = Color.WHITE,angle: float = 0) -> void:
@@ -44,16 +59,15 @@ static func runner_new(c,variant: int,foot: Vector2,height: float,time: float,ti
 	c.draw_set_transform(Vector2.ZERO)
 
 static func flood_new(c,point: Vector2,height: float,time: float) -> void:
-	var frame = fposmod(time*16,16);var index = floori(frame);var blend = frame-index
+	var frame = fposmod(time*7.5,16);var index = floori(frame);var blend = frame-index
+	var width = height*.57;var origin = point-Vector2(width,height)
 	for i in range(2):
-		var which = posmod(index+i,16);var origin = point-Vector2.ONE*height*.96
-		var uv_origin = Vector2(which%4,int(which/4))*.25
-		var points = PackedVector2Array([origin+Vector2(0,height),origin]);var uvs = PackedVector2Array([uv_origin+Vector2(0,.25),uv_origin])
+		var which = posmod(index+i,16);var uv_origin = Vector2(which%4,int(which/4))*.25
+		var points = PackedVector2Array([origin+Vector2(0,height),origin]);var uv = PackedVector2Array([uv_origin+Vector2(0,.25),uv_origin])
 		for row in range(33):
-			var v = float(row)/32
-			var flow = sin(v*15+time*6)*8+sin(v*27-time*10)*4
-			points.append(origin+Vector2(height+flow,v*height));uvs.append(uv_origin+Vector2(.25,v*.25))
-		c.draw_polygon(points,PackedColorArray([Color(1,1,1,1-blend if i==0 else blend)]),uvs,fresh("flood"))
+			var v = float(row)/32;var flow = sin(v*15+time*5)*5+sin(v*27-time*7)*3
+			points.append(origin+Vector2(width+flow,v*height));uv.append(uv_origin+Vector2(.25,v*.25))
+		c.draw_polygon(points,PackedColorArray([Color(1,1,1,1 if i==0 else blend)]),uv,fresh("flood"))
 
 static func texture(id: String) -> Texture2D:
 	if not textures.has(id):
