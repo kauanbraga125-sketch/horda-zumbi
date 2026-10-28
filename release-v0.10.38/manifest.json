@@ -10528,8 +10528,8 @@
   "source_files": [
     {
       "path": ".github/workflows/horda-v01038.yml",
-      "bytes": 2299,
-      "sha256": "b26780a11ce6680ba2dfd06ad201ebbd3b3c0957fe753705faafee445a1e5e8e"
+      "bytes": 2336,
+      "sha256": "f81104da534056359eecdd32cfe7f3f4f9b8476c4b850703a97bd04bf45349cf"
     },
     {
       "path": ".github/workflows/noite-da-horda-android.yml",
