@@ -1,0 +1,74 @@
+name: Horda Zumbi 0.10.40 — Descida ao esgoto, pilotagem e saída pela rampa
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'release-v0.10.40/**'
+      - '.github/workflows/horda-v01040.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: horda-v01040-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Reconstruir e conferir APK e fontes
+        run: python3 release-v0.10.40/restore_release.py --package-source --out dist
+      - name: Conferir assinatura Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          SIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+          "$SIGNER" verify --verbose --print-certs dist/Horda-Zumbi-v0.10.40-TESTE-1M-ESGOTO-ARM64.apk > dist/Assinatura-v0.10.40.txt
+          grep -q 'a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d' dist/Assinatura-v0.10.40.txt
+          (cd dist && sha256sum Assinatura-v0.10.40.txt >> SHA256SUMS.txt)
+      - name: Gravar demonstração da mesma versão
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "true"
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip
+          echo '02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  /tmp/godot.zip' | sha256sum -c -
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          chmod +x /tmp/godot/Godot_v4.5.1-stable_linux.x86_64
+          /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --path monster-game --editor --import > /tmp/import-video.log 2>&1
+          if grep -E 'SCRIPT ERROR|Parse Error|ERROR: Failed to load' /tmp/import-video.log; then exit 1; fi
+          XDG_DATA_HOME="$RUNNER_TEMP/video-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/frames" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v140_preview.gd | tee /tmp/preview.log
+          grep -q V140_PREVIEW_OK /tmp/preview.log
+          ffmpeg -hide_banner -loglevel warning -framerate 30 -i "$RUNNER_TEMP/frames/frame-%04d.jpg" -c:v libx264 -preset fast -crf 21 -pix_fmt yuv420p -movflags +faststart dist/Horda-Zumbi-v0.10.40-Previa.mp4
+          cp "$RUNNER_TEMP/frames/replay.json" dist/Demonstracao-v0.10.40.json
+          (cd dist && sha256sum Horda-Zumbi-v0.10.40-Previa.mp4 Demonstracao-v0.10.40.json >> SHA256SUMS.txt)
+      - name: Publicar APK e cópia dos fontes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v0.10.40 >/dev/null 2>&1; then
+            mkdir -p existing
+            gh release download v0.10.40 --pattern Horda-Zumbi-v0.10.40-TESTE-1M-ESGOTO-ARM64.apk --dir existing
+            cmp existing/Horda-Zumbi-v0.10.40-TESTE-1M-ESGOTO-ARM64.apk dist/Horda-Zumbi-v0.10.40-TESTE-1M-ESGOTO-ARM64.apk
+            gh release upload v0.10.40 dist/Horda-Zumbi-v0.10.40-Projeto-Publico.zip dist/VALIDACAO-v0.10.40.json dist/Horda-Zumbi-v0.10.40-Previa.png dist/Horda-Zumbi-v0.10.40-Previa.mp4 dist/Demonstracao-v0.10.40.json dist/SHA256SUMS.txt --clobber
+          else
+            gh release create v0.10.40 dist/* --target "$GITHUB_SHA" --title 'Horda Zumbi 0.10.40 — Descida ao esgoto, pilotagem e saída pela rampa' --notes-file monster-game/EVENTOS-v0.10.40.md --prerelease
+          fi
+      - name: Preservar diagnóstico se a publicação falhar
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: horda-v01040-diagnostico
+          path: dist/*.txt
+          if-no-files-found: ignore

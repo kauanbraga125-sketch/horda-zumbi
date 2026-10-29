@@ -216,6 +216,8 @@ func ground(g, offset: float, terrain_run: HordeRun = null) -> void :
 	for segment in run.terrain.segments:
 		var start = maxf(left, float(segment.start) - offset)
 		var end = minf(right, float(segment.end) - offset)
+		if run.sewer.encounter.pending: end = minf(end,run.sewer.encounter.dock_world-offset-232)
+		if run.sewer.active and run.sewer.phase=="entry": end = minf(end,run.sewer.shore_edge())
 		if start >= end: continue
 		var floor_y = HordeRun.FLOOR - float(segment.height)
 		g.paint_target.draw_rect(Rect2(start, floor_y, end - start, g.scenery.view_bottom - floor_y), Color("20172f"))

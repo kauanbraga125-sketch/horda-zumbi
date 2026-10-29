@@ -203,3 +203,7 @@ Oito originais feitos com ImageGen integrado: duas folhas de personagens com 16 
 ## Jornadas aleatórias — 0.10.39
 
 Quatro PNGs originais criados com ImageGen integrado: zumbi com 12 poses, esqueleto com 12 poses, onda monstruosa com 16 quadros e atlas com 12 quadros de fugitivos de jet-ski (agente, jovem e dupla). As cabeças e os 35 acessórios continuam vindo das artes originais aprovadas. Fontes e prompts completos em `tools/art_sources/v139/`; atlas e medidas em `assets/art/v139/`; preparação mecânica em `tools/prepare_v139_art.py`. A referência comercial de RE4 é apenas uma referência visual externa e não entra no aplicativo.
+
+## Artes da 0.10.40
+
+Novas sequências de pilotos e passageiros, poses de abaixar, rampa, espinho, pedestal de bomba, comporta, ocupantes em captura e jet ski civil foram criadas com o image_gen integrado. Fontes e todos os prompts, incluindo correção de variante, ficam em tools/art_sources/v140/. PROMPTS.json registra a proveniência. prepare_v140_art.py apenas extrai componentes reais, registra os quadris e prepara texturas; nenhuma parte é redesenhada por esse script. A enchente e os fugitivos originais foram preservados e seus quadros reextraídos com limites reais em assets/art/v140/, eliminando vazamentos de células. Os NPCs de fundo usam sequências completas já presentes no projeto. Nenhuma arte comercial de Resident Evil foi distribuída.

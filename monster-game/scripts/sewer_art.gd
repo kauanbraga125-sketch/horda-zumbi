@@ -1,29 +1,51 @@
 extends RefCounted
 ## Shared native texture cache; new civilians have actual drawn animation cels.
 static var textures: Dictionary = {}
+static var images: Dictionary = {}
 static var layout: Dictionary = {}
 static var newer: Dictionary = {}
+static var latest: Dictionary = {}
 
 static func data() -> Dictionary:
 	if layout.is_empty():
 		layout = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/v138/layout.json"))
 		newer = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/v139/layout.json"))
 		layout.merge(newer,true)
+		latest = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/v140/layout.json"))
+		layout.merge(latest,true)
 	return layout
 
-static func fresh(id: String) -> Texture2D:
+static func image_for(id: String) -> Image:
 	data()
-	var family = "v139" if newer.has(id) else "v138"
-	var key = family+"/"+id
-	if not textures.has(key):
+	if not images.has(id):
+		var base_id = id.trim_suffix("_body").trim_suffix("_arms")
+		var family = "v140" if latest.has(base_id) else "v139" if newer.has(id) else "v138"
 		var im = Image.new()
 		assert(im.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/"+family+"/"+id+".webp"))==OK)
-		textures[key] = ImageTexture.create_from_image(im)
+		images[id] = im
+	return images[id]
+
+static func fresh(id: String) -> Texture2D:
+	var key = "atlas:"+id
+	if not textures.has(key): textures[key] = ImageTexture.create_from_image(image_for(id))
+	return textures[key]
+
+static func cell_texture(id: String,index: int) -> Texture2D:
+	var key = "cel:"+id+":"+str(index)
+	if not textures.has(key):
+		var base_id = id.trim_suffix("_body").trim_suffix("_arms")
+		var spec: Dictionary = data()[base_id];var cell = Vector2i(spec.cell[0],spec.cell[1]);var columns = int(spec.columns)
+		var source = image_for(id).get_region(Rect2i(Vector2i(index%columns,int(index/columns))*cell,cell))
+		if base_id=="flood": source = source.get_region(Rect2i(0,0,320,432))
+		textures[key] = ImageTexture.create_from_image(source)
 	return textures[key]
 
 static func cel(c,id: String,index: int,rect: Rect2,tint: Color = Color.WHITE) -> void:
-	var spec: Dictionary = data()[id];var cell = Vector2(spec.cell[0],spec.cell[1]);var col = int(spec.columns)
-	c.draw_texture_rect_region(fresh(id),rect,Rect2(Vector2(index%col,int(index/col))*cell,cell),tint)
+	c.draw_texture_rect(cell_texture(id,index),rect,false,tint)
+
+static func new_prop(c,id: String,at: Vector2,width: float,angle: float = 0.0,tint: Color = Color.WHITE) -> void:
+	var tex = fresh(id);var size = tex.get_size()*width/tex.get_width()
+	c.draw_set_transform(at,angle);c.draw_texture_rect(tex,Rect2(-size*.5,size),false,tint);c.draw_set_transform(Vector2.ZERO)
 
 static func boat(c,p: Vector2,height: float,angle: float = 0,tint: Color = Color.WHITE,front: bool = false) -> void:
 	var tex = fresh("jetski");var size = tex.get_size()*height/tex.get_height()
@@ -50,6 +72,19 @@ static func fugitive(c,variant: int,p: Vector2,height: float,time: float,tint: C
 	cel(c,"fugitives",index,Rect2(-size.x*.5,-waterline,size.x,size.y),tint)
 	c.draw_set_transform(Vector2.ZERO)
 
+static func captive(c,variant: int,p: Vector2,height: float,progress: float,tint: Color = Color.WHITE) -> void:
+	var index = posmod(variant,2)*4+clampi(int(progress*4),0,3)
+	var tex = cell_texture("captives",index)
+	c.draw_set_transform(p,sin(progress*TAU)*.24)
+	c.draw_texture_rect(tex,Rect2(-height*.5,-height*.5,height,height),false,tint)
+	c.draw_set_transform(Vector2.ZERO)
+
+static func flipping_boat(c,p: Vector2,progress: float) -> void:
+	var tex = fresh("civil_boat");var size = tex.get_size()*225/tex.get_width()
+	c.draw_set_transform(p,-progress*PI*1.6)
+	c.draw_texture_rect(tex,Rect2(-size*.5,size),false,Color(1,1,1,1-smoothstep(.65,1,progress)))
+	c.draw_set_transform(Vector2.ZERO)
+
 static func runner_new(c,variant: int,foot: Vector2,height: float,time: float,tint: Color = Color.WHITE,angle: float = 0) -> void:
 	var id = "runner_woman" if variant==0 else "runner_worker"
 	var spec: Dictionary = data()[id];var index = posmod(int(time*13),8)
@@ -59,15 +94,17 @@ static func runner_new(c,variant: int,foot: Vector2,height: float,time: float,ti
 	c.draw_set_transform(Vector2.ZERO)
 
 static func flood_new(c,point: Vector2,height: float,time: float) -> void:
-	var frame = fposmod(time*7.5,16);var index = floori(frame);var blend = frame-index
-	var width = height*.57;var origin = point-Vector2(width,height)
-	for i in range(2):
-		var which = posmod(index+i,16);var uv_origin = Vector2(which%4,int(which/4))*.25
-		var points = PackedVector2Array([origin+Vector2(0,height),origin]);var uv = PackedVector2Array([uv_origin+Vector2(0,.25),uv_origin])
+	# Each frame is a standalone GPU texture: no atlas neighbor can leak or repeat.
+	var frame = fposmod(time*9,16);var index = floori(frame);var blend = smoothstep(0,1,frame-index)
+	var width = height*.65;var base = point-Vector2(width,height)
+	for layer in range(1):
+		var tex = cell_texture("flood",index)
+		var alpha = 1.0
+		var uv = PackedVector2Array([Vector2(0,1),Vector2(0,0)]);var points = PackedVector2Array([base+Vector2(0,height),base])
 		for row in range(33):
-			var v = float(row)/32;var flow = sin(v*15+time*5)*5+sin(v*27-time*7)*3
-			points.append(origin+Vector2(width+flow,v*height));uv.append(uv_origin+Vector2(.25,v*.25))
-		c.draw_polygon(points,PackedColorArray([Color(1,1,1,1 if i==0 else blend)]),uv,fresh("flood"))
+			var v = float(row)/32;var flow = (sin(v*15+time*5)*4+sin(v*27-time*7)*2)*sin(v*PI)
+			points.append(base+Vector2(width+flow,v*height));uv.append(Vector2(.999,v))
+		c.draw_polygon(points,PackedColorArray([Color(1,1,1,alpha)]),uv,tex)
 
 static func texture(id: String) -> Texture2D:
 	if not textures.has(id):

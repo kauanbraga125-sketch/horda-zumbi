@@ -81,6 +81,7 @@ var camera_focus = 0.0
 var camera_ground_shift = 0.0
 var frozen_world_time = 0.0
 var foreground_canvas: Node2D
+var sewer_street_canvas: Node2D
 var market_clip: Control
 var market_canvas: Node2D
 var views = HordeViews.new()
@@ -124,6 +125,7 @@ func _ready() -> void :
 	paint_target = self
 	world_canvas = Node2D.new();world_canvas.z_index = -1
 	add_child(world_canvas);world_canvas.draw.connect(paint_world)
+	sewer_street_canvas = Node2D.new();sewer_street_canvas.z_index = -1;world_canvas.add_child(sewer_street_canvas);sewer_street_canvas.draw.connect(paint_sewer_street)
 	foreground_canvas = Node2D.new();world_canvas.add_child(foreground_canvas);foreground_canvas.draw.connect(paint_foreground)
 	var outline = ShaderMaterial.new();outline.shader = preload("res://scripts/foreground.gdshader");foreground_canvas.material = outline
 	market_clip = Control.new();market_clip.z_index = 3;market_clip.position = Vector2(339, 179);market_clip.size = Vector2(853, 435)
@@ -275,7 +277,7 @@ func consume_run_events() -> void :
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
-			"sewer_dock": show_toast("ÁGUA SUBINDO • PORTO À FRENTE",2.0)
+			"sewer_dock": show_toast("O CHÃO CEDEU • ESGOTO ABAIXO",2.0)
 			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16)
 			"sewer_encounter":
 				runner.sewer.visual.notify(str(e.title))
@@ -1749,6 +1751,10 @@ func configure_layout() -> void :
 	world_canvas.scale = Vector2.ONE * zoom
 	world_canvas.position = CAMERA_ANCHOR + Vector2(0, 0 if screen == "prepare" else camera_ground_shift) - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * zoom
 	world_canvas.visible = screen in ["run", "pause", "results", "revive", "prepare"]
+	if is_instance_valid(sewer_street_canvas):
+		sewer_street_canvas.visible = runner.sewer.active and runner.sewer.phase in ["entry","exit"]
+		sewer_street_canvas.position.y = -runner.sewer.entry_drop() if runner.sewer.active and runner.sewer.phase=="entry" else 0.0
+		sewer_street_canvas.queue_redraw()
 	scenery.view_left = ( - layout_origin.x - world_canvas.position.x) / zoom
 	scenery.view_right = (1280 + layout_origin.x - world_canvas.position.x) / zoom
 	scenery.view_top = ( - layout_origin.y - world_canvas.position.y) / zoom
@@ -1764,6 +1770,13 @@ func full_rect() -> Rect2:
 
 func world_to_ui(point: Vector2) -> Vector2:
 	return world_canvas.transform * point
+
+func paint_sewer_street() -> void:
+	if not runner.sewer.active or runner.sewer.phase not in ["entry","exit"]: return
+	var target = paint_target;paint_target = sewer_street_canvas
+	scenery.paint(paint_target,runner,frozen_world_time if screen=="pause" else ui_time)
+	if runner.sewer.phase=="exit": ground(runner.world_px)
+	paint_target = target
 
 func paint_world() -> void :
 	var interface_time = ui_time

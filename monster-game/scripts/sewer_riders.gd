@@ -23,9 +23,9 @@ func pose(cosmetics,kind: int,index: int) -> Dictionary:
 	var old_near = Vector2(old.landmarks.near[0],old.landmarks.near[1]);var old_far = Vector2(old.landmarks.far[0],old.landmarks.far[1])
 	var from = old_far-old_near;var to = far-near
 	var head = Transform2D(to.angle()-from.angle(),Vector2.ZERO)
-	var head_scale = (144.0 if kind==0 else 126.0)/float(old.head_width)
+	var head_scale = float(measured.head_width)/float(old.head_width)
 	head.x *= head_scale;head.y *= head_scale
-	head.origin = Vector2(measured.neck[0],measured.neck[1])-head.basis_xform(Vector2(old.landmarks.neck[0],old.landmarks.neck[1]))
+	head.origin = near-head.basis_xform(old_near)
 	for name in f.landmarks:
 		var p = head*Vector2(old.landmarks[name][0],old.landmarks[name][1]);f.landmarks[name] = [p.x,p.y]
 	f.landmarks.neck = measured.neck;f.landmarks.hip = measured.hip
@@ -43,9 +43,9 @@ func pose(cosmetics,kind: int,index: int) -> Dictionary:
 			if value is Array and value.size()==2:
 				var point = fitted*Vector2(value[0],value[1]);f.body_v129[name] = [point.x,point.y]
 	var right = to.normalized();f.right = [right.x,right.y];f.down = [-right.y,right.x]
-	f.head_width = 144.0 if kind==0 else 126.0
-	f.anchor = measured.hip;f.height = measured.height;f.rect = [(index%4)*384,int(index/4)*384,384,384]
-	f.file = "v139/"+id+".webp";f.key = "rider_"+key;f.source_key = source_key;f.head_transform = head
+	f.head_width = measured.head_width
+	f.anchor = measured.hip;f.height = measured.height;f.rect = [(index%4)*448,int(index/4)*448,448,448]
+	f.file = "v140/"+id+".webp";f.key = "rider_"+key;f.source_key = source_key;f.head_transform = head
 	poses[key] = f;return f
 
 func head_mesh(cosmetics,key: String,cut: String) -> ArrayMesh:
@@ -53,7 +53,7 @@ func head_mesh(cosmetics,key: String,cut: String) -> ArrayMesh:
 	if heads.has(cache): return heads[cache]
 	var f: Dictionary = cosmetics.frames[key]
 	var w = float(f.head_width)
-	var bounds = Rect2(float(f.box[0])-w*.48,0,float(f.box[2])-float(f.box[0])+w*.70,float(f.landmarks.neck[1])+w*.08)
+	var hull = PackedVector2Array([Vector2(128,0),Vector2(386,0),Vector2(386,192),Vector2(322,199),Vector2(246,207),Vector2(193,181),Vector2(128,153)]) if key.begins_with("z_") else PackedVector2Array([Vector2(185,0),Vector2(384,0),Vector2(384,147),Vector2(265,155),Vector2(223,147),Vector2(195,127),Vector2(185,112)])
 	var mesh: ArrayMesh
 	if cut=="whole":
 		mesh = cosmetics.read_mesh({"points":[[0,0],[f.rect[2],0],[f.rect[2],f.rect[3]],[0,f.rect[3]]],"indices":[0,1,2,0,2,3]},f.rect,cosmetics.texture(f.file).get_size())
@@ -65,17 +65,14 @@ func head_mesh(cosmetics,key: String,cut: String) -> ArrayMesh:
 		var poly: Array = []
 		for j in range(3):
 			var n = indices[i+j];poly.append({"p":vertices[n],"uv":uv[n]})
-		for side in range(4):
-			var clipped: Array = []
+		for side in range(hull.size()):
+			var clipped: Array = [];var aa = hull[side];var bb = hull[(side+1)%hull.size()]
 			for j in range(poly.size()):
 				var a: Dictionary = poly[j];var b: Dictionary = poly[(j+1)%poly.size()]
-				var axis = 0 if side<2 else 1;var edge = bounds.position[axis] if side%2==0 else bounds.end[axis]
-				var inside = float(a.p[axis])>=edge if side%2==0 else float(a.p[axis])<=edge
-				var next_inside = float(b.p[axis])>=edge if side%2==0 else float(b.p[axis])<=edge
-				if inside: clipped.append(a)
-				if inside!=next_inside:
-					var t = (edge-float(a.p[axis]))/(float(b.p[axis])-float(a.p[axis]))
-					clipped.append({"p":Vector3(a.p).lerp(b.p,t),"uv":Vector2(a.uv).lerp(b.uv,t)})
+				var da = (bb-aa).cross(Vector2(a.p.x,a.p.y)-aa);var db = (bb-aa).cross(Vector2(b.p.x,b.p.y)-aa)
+				if da>=-.0001: clipped.append(a)
+				if (da>=-.0001)!=(db>=-.0001):
+					var t = da/(da-db);clipped.append({"p":Vector3(a.p).lerp(b.p,t),"uv":Vector2(a.uv).lerp(b.uv,t)})
 			poly = clipped
 			if poly.is_empty(): break
 		if poly.size()<3: continue
@@ -111,33 +108,22 @@ func paint(c,cosmetics,kind: int,foot: Vector2,height: float,time: float,angle: 
 	for item in clothes:
 		if cosmetics.item(item).fit in ["cape","scarf"]: cosmetics.draw_item(c,item,f,root,tint)
 	c.draw_set_transform_matrix(root)
-	if not body_meshes.has(f.key): body_meshes[f.key] = cosmetics.read_mesh(Art.data()[id].poses[index].body_mesh,f.rect,Art.fresh(id).get_size())
-	c.draw_mesh(body_meshes[f.key],Art.fresh(id),Transform2D.IDENTITY,tint)
+	# One complete drawn anatomy. No head, shoulder, or arm from a running pose.
+	c.draw_texture_rect(Art.cell_texture(id if hats.is_empty() else id+"_body",index),Rect2(0,0,448,448),false,tint)
+	if not hats.is_empty():
+		var cut = str(cosmetics.graphics[hats[0]].get("source_mesh","hat" if cosmetics.item(hats[0]).fit=="hat" else "bare"))
+		original_head(c,cosmetics,f.source_key,cut,head_root,tint)
 	for item in clothes:
 		if bool(cosmetics.graphics[item].get("native_cape",false)):
 			c.draw_set_transform_matrix(root)
-			c.draw_texture_rect_region(Art.fresh(id),Rect2(0,f.landmarks.neck[1],f.anchor[0]-25,384-f.landmarks.neck[1]),Rect2(f.rect[0],f.rect[1]+f.landmarks.neck[1],f.anchor[0]-25,384-f.landmarks.neck[1]),tint*Color(.32,.65,.60))
+			var region = Rect2(0,f.landmarks.neck[1],maxf(1,f.landmarks.neck[0]-35),448-f.landmarks.neck[1])
+			c.draw_texture_rect_region(Art.cell_texture(id,index),region,region,tint*Color(.32,.65,.60))
 		else: cosmetics.draw_item(c,item,f,root,tint,cosmetics.item(item).fit=="cape" or bool(cosmetics.graphics[item].get("layered_neck",false)))
 	for item in hats:
-		if bool(cosmetics.graphics[item].get("behind_body",false)): cosmetics.draw_item(c,item,source,head_root,tint)
-	var bare_face = hats.is_empty() and faces.any(func(item):return bool(cosmetics.graphics[item].get("expose_cranium",false)))
-	var cut = "skull_base_v127" if bare_face else "whole"
-	if not hats.is_empty() and not bool(cosmetics.graphics[hats[0]].get("preserve_source",false)):
-		cut = str(cosmetics.graphics[hats[0]].get("source_mesh","hat" if cosmetics.item(hats[0]).fit=="hat" else "bare"))
-	original_head(c,cosmetics,f.source_key,cut,head_root,tint)
-	if bare_face: cosmetics.draw_skull(c,source,head_root,tint)
-	for item in hats:
 		var graphic: Dictionary = cosmetics.graphics[item]
-		if bool(graphic.get("behind_body",false)):
-			if graphic.has("front_mesh"): cosmetics.draw_item(c,item,source,head_root,tint,true)
-			if item=="z_clown": original_head(c,cosmetics,f.source_key,"clown_details",head_root,tint)
-			continue
-		if bool(graphic.get("skull_underlay",false)): cosmetics.draw_skull(c,source,head_root,tint)
-		cosmetics.draw_item(c,item,source,head_root,tint)
-		if graphic.has("reveal_source"): original_head(c,cosmetics,f.source_key,str(graphic.reveal_source),head_root,tint)
-		elif cosmetics.item(item).fit!="hat" and not bool(graphic.get("preserve_source",false)) and not graphic.has("registered_head"): original_head(c,cosmetics,f.source_key,"face",head_root,tint)
-	cosmetics.draw_expressions(c,source,head_root,fposmod(time,1),time,tint)
-	for item in faces:
-		cosmetics.draw_item(c,item,source,head_root,tint,bool(cosmetics.graphics[item].get("layered_eyes",false)))
-		if cosmetics.graphics[item].has("reveal_source"): original_head(c,cosmetics,f.source_key,str(cosmetics.graphics[item].reveal_source),head_root,tint)
+		if not bool(graphic.get("behind_body",false)): cosmetics.draw_item(c,item,source,head_root,tint)
+		if graphic.has("front_mesh") and bool(graphic.get("behind_body",false)): cosmetics.draw_item(c,item,source,head_root,tint,true)
+	if not hats.is_empty() and index>=8:
+		c.draw_set_transform_matrix(root);c.draw_texture_rect(Art.cell_texture(id+"_arms",index),Rect2(0,0,448,448),false,tint)
+	for item in faces: cosmetics.draw_item(c,item,source,head_root,tint,bool(cosmetics.graphics[item].get("layered_eyes",false)))
 	c.draw_set_transform_matrix(Transform2D.IDENTITY)

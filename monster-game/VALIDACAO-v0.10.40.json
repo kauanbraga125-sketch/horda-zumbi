@@ -1,0 +1,393 @@
+{
+  "version": "0.10.40",
+  "base_version": "0.10.39",
+  "build": {
+    "version": "0.10.40",
+    "code": 143,
+    "package": "com.kauan.noitedahorda.reconstruida",
+    "bytes": 165202446,
+    "sha256": "9d92fd2ffedeb5f806e67092b7d80e6cd7a507582918ad7de3c547313fad45f1",
+    "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+    "base_apk_sha256": "8491f397977c9abeaeb8d8274bfbe813d071f811c76491f75879f84947013f81",
+    "prior_media_entries_preserved": 341,
+    "original_character_pngs_changed": 0,
+    "source_matches_shipped_scripts": true,
+    "startup_files": 289,
+    "class_count": 55,
+    "sparse_entries": 999,
+    "changed": [
+      "assets/art/v140/captives.webp",
+      "assets/art/v140/civil_boat.webp",
+      "assets/art/v140/flood.webp",
+      "assets/art/v140/fugitives.webp",
+      "assets/art/v140/gate.webp",
+      "assets/art/v140/layout.json",
+      "assets/art/v140/pump_base.webp",
+      "assets/art/v140/ramp.webp",
+      "assets/art/v140/skeleton_riders.webp",
+      "assets/art/v140/skeleton_riders_arms.webp",
+      "assets/art/v140/skeleton_riders_body.webp",
+      "assets/art/v140/spike.webp",
+      "assets/art/v140/zombie_riders.webp",
+      "assets/art/v140/zombie_riders_arms.webp",
+      "assets/art/v140/zombie_riders_body.webp",
+      "project.binary",
+      "project.godot",
+      "scripts/game.gd",
+      "scripts/gameplay_ui.gd",
+      "scripts/sewer.gd",
+      "scripts/sewer_art.gd",
+      "scripts/sewer_life.gd",
+      "scripts/sewer_presentation.gd",
+      "scripts/sewer_riders.gd",
+      "scripts/sewer_visual.gd",
+      "startup_integrity.json"
+    ],
+    "layout": {
+      "min_sdk": 24,
+      "target_sdk": 35,
+      "extract_native_libs": true,
+      "resources_arsc_compression": 0,
+      "resources_arsc_offset": 28399636,
+      "resources_arsc_bytes": 59356
+    },
+    "physical_device_tested": false
+  },
+  "tests": [
+    {
+      "name": "verify_packaged_boot",
+      "suite": "verify_packaged_boot",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/verify_packaged_boot/result.log"
+    },
+    {
+      "name": "v140_journeys",
+      "suite": "v140_journeys",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v140_journeys/result.log"
+    },
+    {
+      "name": "startup-new",
+      "suite": "v140_startup",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/startup-new/result.log"
+    },
+    {
+      "name": "v140_sewer",
+      "suite": "v140_sewer",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v140_sewer/result.log"
+    },
+    {
+      "name": "v140_systems",
+      "suite": "v140_systems",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v140_systems/result.log"
+    },
+    {
+      "name": "startup-existing",
+      "suite": "v140_startup",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/startup-existing/result.log"
+    },
+    {
+      "name": "v135_contacts",
+      "suite": "v135_contacts",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v135_contacts/result.log"
+    },
+    {
+      "name": "v135_flight",
+      "suite": "v135_flight",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v135_flight/result.log"
+    },
+    {
+      "name": "v135_adventure",
+      "suite": "v135_adventure",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v135_adventure/result.log"
+    },
+    {
+      "name": "startup-wide",
+      "suite": "v140_startup",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/startup-wide/result.log"
+    },
+    {
+      "name": "v135_readability",
+      "suite": "v135_readability",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v135_readability/result.log"
+    },
+    {
+      "name": "v129_currency",
+      "suite": "v129_currency",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v129_currency/result.log"
+    },
+    {
+      "name": "v140_transactions",
+      "suite": "v140_transactions",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v140_transactions/result.log"
+    },
+    {
+      "name": "v100_integration",
+      "suite": "v100_integration",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v100_integration/result.log"
+    },
+    {
+      "name": "v101_integration",
+      "suite": "v101_integration",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v101_integration/result.log"
+    },
+    {
+      "name": "v140_riders",
+      "suite": "v140_riders",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v140_riders/result.log"
+    },
+    {
+      "name": "v140_faces",
+      "suite": "v140_faces",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v140_faces/result.log"
+    },
+    {
+      "name": "v140_atlas",
+      "suite": "v140_atlas",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v140_atlas/result.log"
+    },
+    {
+      "name": "v103_codex",
+      "suite": "v103_codex",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v103_codex/result.log"
+    },
+    {
+      "name": "v103_apk_runtime",
+      "suite": "v103_apk_runtime",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v103_apk_runtime/result.log"
+    },
+    {
+      "name": "v104_integration",
+      "suite": "v104_integration",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v104_integration/result.log"
+    },
+    {
+      "name": "v105_integration",
+      "suite": "v105_integration",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": false,
+      "log": "packaged-tests/v105_integration/result.log"
+    },
+    {
+      "name": "v140_visual",
+      "suite": "v140_visual",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v140_visual/result.log"
+    },
+    {
+      "name": "v133_cabins",
+      "suite": "v133_cabins",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v133_cabins/result.log"
+    },
+    {
+      "name": "v129_transform",
+      "suite": "v129_transform",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v129_transform/result.log"
+    },
+    {
+      "name": "v140_preview",
+      "suite": "v140_preview",
+      "passed": true,
+      "exit_code": 0,
+      "native_renderer": true,
+      "log": "packaged-tests/v140_preview/result.log"
+    }
+  ],
+  "all_tests_passed": true,
+  "suites": 26,
+  "face_opacity": {
+    "accessories": 35,
+    "checks": 1260,
+    "failures": [],
+    "poses": 12,
+    "transparent_render_target": true,
+    "version": "0.10.40"
+  },
+  "isolated_wave_frames": {
+    "checks": 80,
+    "frames": 16,
+    "leaks_above_wave": 0,
+    "physical_device_tested": false,
+    "version": "0.10.40"
+  },
+  "visual": {
+    "native_captures": 28,
+    "physical_device_tested": false,
+    "version": "0.10.40"
+  },
+  "replay": {
+    "captures": 6,
+    "completed": 1,
+    "contacts": [
+      {
+        "cause": "sewer_barrel",
+        "members": 7,
+        "time": 10.7166666666668
+      }
+    ],
+    "controlled_obstacles": 7,
+    "dock_arrival": true,
+    "duck_inputs": 3,
+    "encounters": [
+      {
+        "kind": "rubble",
+        "members": 6,
+        "time": 0.800000000000001
+      },
+      {
+        "kind": "pipe",
+        "members": 6,
+        "time": 3.46666666666666
+      },
+      {
+        "kind": "fugitive",
+        "members": 6,
+        "time": 6.13333333333332
+      },
+      {
+        "kind": "barrel",
+        "members": 6,
+        "time": 9.05000000000003
+      },
+      {
+        "kind": "gate",
+        "members": 7,
+        "time": 11.7166666666668
+      },
+      {
+        "kind": "rotor",
+        "members": 7,
+        "time": 14.3833333333336
+      },
+      {
+        "kind": "collapse",
+        "members": 7,
+        "time": 17.0500000000003
+      },
+      {
+        "kind": "rescue",
+        "members": 7,
+        "time": 19.7166666666668
+      },
+      {
+        "kind": "rubble",
+        "members": 9,
+        "time": 22.6333333333333
+      },
+      {
+        "kind": "gate",
+        "members": 9,
+        "time": 25.2999999999998
+      },
+      {
+        "kind": "fugitive",
+        "members": 9,
+        "time": 27.9666666666664
+      }
+    ],
+    "fps": 30,
+    "frames": 1650,
+    "fugitive_variants": [
+      {
+        "kind": "fugitive",
+        "members": 6,
+        "time": 6.13333333333332
+      },
+      {
+        "kind": "fugitive",
+        "members": 9,
+        "time": 27.9666666666664
+      }
+    ],
+    "losses": 1,
+    "members": 13,
+    "physical_device_tested": false,
+    "real_touch_inputs": true,
+    "safe_passes": 7,
+    "souls": 8,
+    "version": "0.10.40"
+  },
+  "prior_character_pngs_modified": 0,
+  "physical_device_tested": false,
+  "video_audio": false,
+  "legacy_test_teardown_resource_warnings": [
+    "v101_integration",
+    "v103_apk_runtime",
+    "v129_transform"
+  ],
+  "notes": [
+    "Full game assertions pass, including migrated saves, funds, birds, space, sewer inputs, captures, boarding and return.",
+    "Legacy integration suites retain resource cleanup warnings at process exit; recorded separately from assertion results.",
+    "Preview is a native Godot execution of the packaged APK contents, not footage from a physical Android device."
+  ]
+}

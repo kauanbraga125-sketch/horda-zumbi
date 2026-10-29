@@ -33,7 +33,8 @@ func paint(g,s,catwalk_y: float) -> void:
 			var t = clampf(float(p.fall_age)/.80,0,1);foot += Vector2(t*52,t*t*(s.WATER-catwalk_y-35))
 			Art.runner_new(c,int(p.variant),foot,110,p.age,Color.WHITE,t*.70)
 		elif p.variant==2: g.actor.paint(c,0,foot,108,fposmod(p.age*1.72,1),"run",p.age,0,Color(.84,.94,.89),false,1,false)
-		else: Art.runner_new(c,int(p.variant),foot,110,p.age,Color(.96,.98,1))
+		elif p.variant==0: g.art.woman.paint(c,{"woman_clip":"run","woman_time":p.age,"woman_reverse":false},foot,98,Color(.96,.98,1))
+		else: g.art.civil.paint(c,{"civil_clip":"corrida","civil_time":p.age,"civil_flip":false,"state":"normal"},foot,103,Color(.96,.98,1))
 		if p.variant==1: c.draw_circle(foot-Vector2(-10,85),22,Color(1,.69,.22,.05))
 	if collapse_left>0:
 		var age = 1.1-collapse_left

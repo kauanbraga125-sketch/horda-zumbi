@@ -1,5 +1,5 @@
 {
-  "version": "0.10.39",
+  "version": "0.10.40",
   "class_count": 55,
   "files": [
     {
@@ -204,13 +204,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 119114,
-      "sha256": "ae73a54fb76f225c48f876786b36af7ff330e00397a12fe89f68d58086ad9398"
+      "bytes": 119957,
+      "sha256": "3f8012a42a4951037af91172db50a663c54c2513f1bfe74c16f6b579f143cce9"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 16562,
-      "sha256": "84097073f15f8f38f76adce7a3bd2087e44ecee711a06ba315446f1479e2c98a"
+      "bytes": 16745,
+      "sha256": "8442b05f533156bb286c7b103d6a603c263de693a739e5b820acc590bfd8e756"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -349,13 +349,13 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 18936,
-      "sha256": "b4458ae88bd651843ec8b7ee1ecc3fcdec7f946e2e5d813b89ee20ed9854df84"
+      "bytes": 20512,
+      "sha256": "f250c951963ded282a10f7da5a6d8c323ca1dec13343cfbf875f4b53158fe893"
     },
     {
       "path": "res://scripts/sewer_art.gd",
-      "bytes": 5929,
-      "sha256": "29e8d37b9be94c0e2f11b5f5ae534501bd1abdac3ab79bdbfba86561214ee117"
+      "bytes": 7778,
+      "sha256": "72df9aec9e9119b0f3e3b95b8f257a2d8b2182dcf6e6a5a57ad17296e2ab6820"
     },
     {
       "path": "res://scripts/sewer_event.gd",
@@ -364,23 +364,23 @@
     },
     {
       "path": "res://scripts/sewer_life.gd",
-      "bytes": 2306,
-      "sha256": "2182585db446f6dddb310601aab8234c1ba2de392feb7fc8afc023c48320440a"
+      "bytes": 2497,
+      "sha256": "ac95dd60664242c5c9b54cb2179ea6e0886bf2c02ea78d7403ffdb83594924c5"
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 15357,
-      "sha256": "bee53745d069e1cd74247bb2c0bf1a7f16e5a17742c7b18d3bfeb27f89c1b2b5"
+      "bytes": 16143,
+      "sha256": "cb90d64a6d88b2775e25555f14aa1465fbd5211a37ab3eb7a6515e2f08d33d00"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
-      "bytes": 9386,
-      "sha256": "56c8360e04793b215153de876b29769df82d1f07533a08ae28f403d241a6c875"
+      "bytes": 8325,
+      "sha256": "ba60a43da7723b4920277929fbe1f4196cfc4b7933070a4d1da1917466852901"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
-      "bytes": 2950,
-      "sha256": "6e0c9c3501604157b08f5b170b06e7dacd6fc75de03308ed98523c8562b636b1"
+      "bytes": 2935,
+      "sha256": "6dd133f557474f4938547da4dd86147ba44f49d02df3d90b023c2b089e2765d1"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",
@@ -1306,6 +1306,81 @@
       "path": "res://assets/art/v139/zombie_riders.webp",
       "bytes": 1511542,
       "sha256": "eea8b76a2af109ce1cc3a4d8a688fae17369ba7d539b19af2acb93ad0179dc72"
+    },
+    {
+      "path": "res://assets/art/v140/captives.webp",
+      "bytes": 518122,
+      "sha256": "18ce54a7a16d02a81b02a9ed4649fb356980d6ad99ef6d958e52eb08f1f4a5a6"
+    },
+    {
+      "path": "res://assets/art/v140/civil_boat.webp",
+      "bytes": 1528040,
+      "sha256": "76cc929d671a0784848f47f49dcc689874f452bdb45dce9b8d54870e6ef4199a"
+    },
+    {
+      "path": "res://assets/art/v140/flood.webp",
+      "bytes": 2826284,
+      "sha256": "aa2920ab4cf30f444daf0926e31bd096ef276c7284e0a59a6ea2d81d42aef4ff"
+    },
+    {
+      "path": "res://assets/art/v140/fugitives.webp",
+      "bytes": 2013692,
+      "sha256": "c2f69e8eafbf6aa6f52f432c77d1777a72099bb5ad2527507d0131bc8036e705"
+    },
+    {
+      "path": "res://assets/art/v140/gate.webp",
+      "bytes": 222064,
+      "sha256": "f5546085958f04aa3d0c351738bf8494102f89424e77bfeb56a212946850d23f"
+    },
+    {
+      "path": "res://assets/art/v140/layout.json",
+      "bytes": 5029,
+      "sha256": "8a0fd489ebdabd4d9e0f998fad1e5e60e5eeda2ff084f2085c4f23796afcf0e6"
+    },
+    {
+      "path": "res://assets/art/v140/pump_base.webp",
+      "bytes": 340942,
+      "sha256": "376dcb3d2069c5f83c4d549ea38639f40c72e1d4805ba0ec963181396329e9bb"
+    },
+    {
+      "path": "res://assets/art/v140/ramp.webp",
+      "bytes": 333340,
+      "sha256": "26c512f58bccad7956678ef9bf01b422e898f55f12f7ef9fc4710303c0ea8c19"
+    },
+    {
+      "path": "res://assets/art/v140/skeleton_riders.webp",
+      "bytes": 1090512,
+      "sha256": "0cfc918c4892bda4edb518f2ddc9df6ef02f5ea8ee52937daecf55a39d61630a"
+    },
+    {
+      "path": "res://assets/art/v140/skeleton_riders_arms.webp",
+      "bytes": 35062,
+      "sha256": "c2bebe5635f3a078303f5cdd054182ac17fe1b7ef45918b216771ad0388ff245"
+    },
+    {
+      "path": "res://assets/art/v140/skeleton_riders_body.webp",
+      "bytes": 678020,
+      "sha256": "136ddf99367fcd97fd1ea86d55dabb51be93cfb2c1f0dac2df28e5f4be304345"
+    },
+    {
+      "path": "res://assets/art/v140/spike.webp",
+      "bytes": 88640,
+      "sha256": "b651b65d1f39be2fd4ba25bdb1d7546a651ae9abf5526cea91b28fd8891ea820"
+    },
+    {
+      "path": "res://assets/art/v140/zombie_riders.webp",
+      "bytes": 1055712,
+      "sha256": "cb9a60d1f42539f435b6ef80b78ee39bc130a862e75ea706693d3dc2453cc90b"
+    },
+    {
+      "path": "res://assets/art/v140/zombie_riders_arms.webp",
+      "bytes": 24082,
+      "sha256": "42a2e036922fe300e44bb943dbd974505b87c774a10320701c1637f9006df314"
+    },
+    {
+      "path": "res://assets/art/v140/zombie_riders_body.webp",
+      "bytes": 323726,
+      "sha256": "27f7b4c579c935ce971c3580b8b5bf850a6bf9d70badba042dcb5ef9f0f1c3bf"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

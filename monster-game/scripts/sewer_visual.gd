@@ -12,13 +12,13 @@ func hud(g,s) -> void:
 		g.home_menu.label(g,str(g.runner.active_count() if i==0 else g.runner.coins),box.position+Vector2(13,54),30,g.CREAM if i==0 else g.GOLD,false)
 	var centre = Rect2(o.x+345,o.y+19,maxf(240,view.size.x-690),68)
 	g.home_menu.slab(g,centre,Color("231b32"),Color("937894"),11,3)
-	var title = ["GALERIA INUNDADA","CASA DAS BOMBAS","TETO EM COLAPSO"][clampi(int(s.ride_age/11),0,2)] if s.phase=="ride" else "SALTO DE SAÍDA" if s.phase=="exit" else "CORRA ATÉ OS JET-SKIS!" if s.phase_age<.75 else "EMBARCANDO EM DUPLAS" if s.phase_age<1.7 else "SEGURE FIRME!"
+	var title = ["GALERIA INUNDADA","CASA DAS BOMBAS","TETO EM COLAPSO"][clampi(int(s.ride_age/11),0,2)] if s.phase=="ride" else "SALTO DE SAÍDA" if s.phase=="exit" else "O CHÃO CEDEU!" if s.phase_age<1 else "DESCENDO AO ESGOTO" if s.phase_age<3.5 else "SEGURE FIRME!"
 	g.home_menu.label(g,title,centre.get_center()+Vector2(0,-9),20,g.GOLD,true,centre.size.x-20)
 	var progress = s.phase_age/s.ENTRY_SECONDS if s.phase=="entry" else 1-float(s.left)/s.duration
 	g.progress_bar(Rect2(centre.position+Vector2(16,43),Vector2(centre.size.x-32,9)),progress,g.MINT)
 	var timer = Rect2(right-319,o.y+19,192,68)
 	g.home_menu.slab(g,timer,Color("231b32"),Color("937894"),11,3)
-	g.home_menu.label(g,"SAÍDA EM %d s" % ceili(s.left) if s.phase=="ride" else "SALTANDO!" if s.phase=="exit" else "EMBARCANDO",timer.get_center()+Vector2(0,9),23,g.CREAM,true,170)
+	g.home_menu.label(g,"SAÍDA EM %d s" % ceili(s.left) if s.phase=="ride" else "SALTANDO!" if s.phase=="exit" else "DESCENDO",timer.get_center()+Vector2(0,9),23,g.CREAM,true,170)
 	var pause = Rect2(right-105,o.y+19,73,68)
 	g.home_menu.slab(g,pause,Color("493053"),Color("bd915b"),11,3);g.gameplay_ui.glyph(g,"pause",pause.get_center(),34,g.CREAM);g.home_menu.register(g,pause,"pause")
 	if notice_left>0:
