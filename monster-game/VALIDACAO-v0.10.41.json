@@ -1,0 +1,281 @@
+{
+  "version": "0.10.41",
+  "apk": {
+    "version": "0.10.41",
+    "code": 144,
+    "package": "com.kauan.noitedahorda.reconstruida",
+    "bytes": 165206550,
+    "sha256": "bd7581e252a8992b131e17e003feb495323a6e2637512a4a0d862b20ccaf766e",
+    "signing_certificate_sha256": "a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d",
+    "base_apk_sha256": "9d92fd2ffedeb5f806e67092b7d80e6cd7a507582918ad7de3c547313fad45f1",
+    "prior_media_entries_preserved": 355,
+    "original_character_pngs_changed": 0,
+    "source_matches_shipped_scripts": true,
+    "startup_files": 289,
+    "class_count": 55,
+    "sparse_entries": 999,
+    "changed": [
+      "project.binary",
+      "project.godot",
+      "scripts/game.gd",
+      "scripts/gameplay_ui.gd",
+      "scripts/runner.gd",
+      "scripts/scene.gd",
+      "scripts/sewer.gd",
+      "scripts/sewer_presentation.gd",
+      "startup_integrity.json"
+    ],
+    "layout": {
+      "min_sdk": 24,
+      "target_sdk": 35,
+      "extract_native_libs": true,
+      "resources_arsc_compression": 0,
+      "resources_arsc_offset": 28399636,
+      "resources_arsc_bytes": 59356
+    },
+    "physical_device_tested": false
+  },
+  "validation": {
+    "version": "0.10.41",
+    "apk_sha256": "bd7581e252a8992b131e17e003feb495323a6e2637512a4a0d862b20ccaf766e",
+    "tests": [
+      {
+        "name": "verify_packaged_boot",
+        "suite": "verify_packaged_boot",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/verify_packaged_boot/result.log"
+      },
+      {
+        "name": "v141_journeys",
+        "suite": "v141_journeys",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v141_journeys/result.log"
+      },
+      {
+        "name": "v140_sewer",
+        "suite": "v140_sewer",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v140_sewer/result.log"
+      },
+      {
+        "name": "startup-new",
+        "suite": "v141_startup",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": true,
+        "log": "packaged-tests/startup-new/result.log"
+      },
+      {
+        "name": "v140_systems",
+        "suite": "v140_systems",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v140_systems/result.log"
+      },
+      {
+        "name": "v135_contacts",
+        "suite": "v135_contacts",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v135_contacts/result.log"
+      },
+      {
+        "name": "v135_flight",
+        "suite": "v135_flight",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v135_flight/result.log"
+      },
+      {
+        "name": "startup-existing",
+        "suite": "v141_startup",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": true,
+        "log": "packaged-tests/startup-existing/result.log"
+      },
+      {
+        "name": "v129_currency",
+        "suite": "v129_currency",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v129_currency/result.log"
+      },
+      {
+        "name": "v100_integration",
+        "suite": "v100_integration",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v100_integration/result.log"
+      },
+      {
+        "name": "startup-wide",
+        "suite": "v141_startup",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": true,
+        "log": "packaged-tests/startup-wide/result.log"
+      },
+      {
+        "name": "v103_apk_runtime",
+        "suite": "v103_apk_runtime",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v103_apk_runtime/result.log"
+      },
+      {
+        "name": "v105_integration",
+        "suite": "v105_integration",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": false,
+        "log": "packaged-tests/v105_integration/result.log"
+      },
+      {
+        "name": "v141_transitions",
+        "suite": "v141_transitions",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": true,
+        "log": "packaged-tests/v141_transitions/result.log"
+      },
+      {
+        "name": "v141_preview",
+        "suite": "v141_preview",
+        "passed": true,
+        "exit_code": 0,
+        "native_renderer": true,
+        "log": "packaged-tests/v141_preview/result.log"
+      }
+    ],
+    "physical_device_tested": false,
+    "preview_frames": 1440,
+    "preview_seconds": 48
+  },
+  "transition": {
+    "checks": 32642,
+    "failures": [],
+    "native_captures": 51,
+    "physical_device_tested": false,
+    "version": "0.10.41"
+  },
+  "viewport_formats": [
+    "(1280, 720)",
+    "(1800, 810)",
+    "(960, 720)"
+  ],
+  "replay": {
+    "captures": 5,
+    "completed": 1,
+    "contacts": [
+      {
+        "cause": "sewer_barrel",
+        "members": 7,
+        "time": 18.6500000000002
+      }
+    ],
+    "controlled_obstacles": 7,
+    "dock_arrival": true,
+    "duck_inputs": 3,
+    "encounters": [
+      {
+        "kind": "rubble",
+        "members": 6,
+        "time": 0.800000000000001
+      },
+      {
+        "kind": "pipe",
+        "members": 6,
+        "time": 3.46666666666666
+      },
+      {
+        "kind": "fugitive",
+        "members": 6,
+        "time": 6.13333333333332
+      },
+      {
+        "kind": "collapse",
+        "members": 6,
+        "time": 9.05000000000003
+      },
+      {
+        "kind": "gate",
+        "members": 8,
+        "time": 11.7166666666668
+      },
+      {
+        "kind": "rotor",
+        "members": 8,
+        "time": 14.3833333333336
+      },
+      {
+        "kind": "barrel",
+        "members": 8,
+        "time": 17.0500000000003
+      },
+      {
+        "kind": "rescue",
+        "members": 7,
+        "time": 19.7166666666668
+      },
+      {
+        "kind": "rubble",
+        "members": 9,
+        "time": 22.6333333333333
+      },
+      {
+        "kind": "gate",
+        "members": 9,
+        "time": 25.2999999999998
+      },
+      {
+        "kind": "fugitive",
+        "members": 9,
+        "time": 27.9666666666664
+      }
+    ],
+    "fps": 30,
+    "frames": 1440,
+    "fugitive_variants": [
+      {
+        "kind": "fugitive",
+        "members": 6,
+        "time": 6.13333333333332
+      },
+      {
+        "kind": "fugitive",
+        "members": 9,
+        "time": 27.9666666666664
+      }
+    ],
+    "losses": 1,
+    "members": 10,
+    "physical_device_tested": false,
+    "real_touch_inputs": true,
+    "run_seed": 14142,
+    "safe_passes": 7,
+    "souls": 5,
+    "version": "0.10.41"
+  },
+  "video": {
+    "frames": 1440,
+    "fps": 30,
+    "seconds": 48,
+    "captured_from_final_apk_files": true,
+    "real_touch_controls": true,
+    "silent_capture": true
+  },
+  "physical_device_tested": false
+}

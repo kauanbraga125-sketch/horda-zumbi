@@ -1,14 +1,14 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.40 — espaço e esgoto como eventos aleatórios**.
+Versão de testes atual: **0.10.41 — espaço e esgoto como eventos aleatórios**.
 
-- [Baixar o APK 0.10.40](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.40/Horda-Zumbi-v0.10.40-TESTE-1M-ESGOTO-ARM64.apk)
+- [Baixar o APK 0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.41/Horda-Zumbi-v0.10.41-TESTE-1M-ESGOTO-ARM64.apk)
 - [Projeto Godot completo](monster-game/)
-- [Mecânicas, referências e instruções](monster-game/EVENTOS-v0.10.40.md)
-- [Relatório de validação](monster-game/VALIDACAO-v0.10.40.json)
-- [Reconstruir o APK e os fontes a partir da cópia verificada](release-v0.10.40/)
+- [Mecânicas, referências e instruções](monster-game/EVENTOS-v0.10.41.md)
+- [Relatório de validação](monster-game/VALIDACAO-v0.10.41.json)
+- [Reconstruir o APK e os fontes a partir da cópia verificada](release-v0.10.41/)
 
-Espaço e esgoto agora são eventos aleatórios da mesma corrida. A nave abduz a horda diretamente; o esgoto começa por um porto com margem sólida e embarque em duplas. Os eventos saíram da loja e das melhorias de duração, com reembolso único das compras antigas. O diretor impede sobreposição e dá intervalo entre jornadas.
+Espaço e esgoto agora são eventos aleatórios da mesma corrida. A nave abduz a horda diretamente; o esgoto começa pelo fim da rua: cada personagem cai ao passar pela borda e chega ao seu próprio assento. Os eventos saíram da loja e das melhorias de duração, com reembolso único das compras antigas. O diretor impede sobreposição e dá intervalo entre jornadas.
 
 Os pilotos e passageiros têm 24 corpos desenhados para montar a sela, com uma perna do lado visível e cabeças originais opacas. A enchente monstruosa tem 16 quadros, aparece perto da cauda e se mistura à água. Boias ficam na superfície, suportes alcançam o teto, a bomba tem base de pedra e as moedas mantêm o tamanho da corrida. Dois fugitivos inspirados em Leon e Ashley aparecem sozinhos ou juntos em outro jet-ski, com animação própria e captura real. A entrada e a saída preservam uma trajetória contínua, sem a fachada de pedra atravessando os personagens.
 
@@ -20,10 +20,10 @@ Há acesso direto ao teste espacial e à reposição de moedas na tela inicial. 
 
 Esta edição repõe ao abrir o aplicativo um saldo mínimo de **1.000.000 de moedas e 10.000 olhos**, preservando valores maiores e o progresso anterior. Desative a opção `testing/catalog_funds_enabled` antes do lançamento comercial.
 
-APK ARM64, Godot 4.5.1, GL Compatibility, Android mínimo 24 e alvo 35. Mantém o pacote e a assinatura da **0.10.38** (`com.kauan.noitedahorda.reconstruida`), permitindo atualizar essa edição sem apagar os dados. Nome instalado: **Horda Eventos R39**.
+APK ARM64, Godot 4.5.1, GL Compatibility, Android mínimo 24 e alvo 35. Mantém o pacote e a assinatura da **0.10.40** (`com.kauan.noitedahorda.reconstruida`), permitindo atualizar essa edição sem apagar os dados. Nome instalado: **Horda Esgoto R41**.
 
 Os testes verificam os quadros, a bancada, as compras, a estabilidade dos itens nas transformações, a integridade e a inicialização do APK. A instalação em aparelho Android físico ainda precisa ser conferida pelo proprietário.
 
 As artes, fontes, áudios, licenças, medições, ferramentas e testes estão incluídos. A chave de assinatura permanece no backup privado do proprietário. As versões anteriores e as demais pastas históricas continuam preservadas no Git.
 
-Na 0.10.40 a entrada desce por uma abertura na rua; a saída usa rampa e salto até o próprio cenário normal. Detalhes, limitações e validação: `monster-game/EVENTOS-v0.10.40.md` e `monster-game/VALIDACAO-v0.10.40.json`.
+Na 0.10.41 todas as camadas da rua terminam na borda da abertura e cada membro cai por uma trajetória própria; a saída usa rampa e salto até o próprio cenário normal. Detalhes, limitações e validação: `monster-game/EVENTOS-v0.10.41.md` e `monster-game/VALIDACAO-v0.10.41.json`.

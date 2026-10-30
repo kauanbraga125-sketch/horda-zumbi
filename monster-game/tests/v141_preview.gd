@@ -4,11 +4,13 @@ func run() -> void:
 	root.size = Vector2i(1280,720);game = load("res://main.tscn").instantiate();root.add_child(game);await process_frame
 	game.test_mode = true;game.capture_freeze = true;game.set_physics_process(false);game.sound.set_enabled(false)
 	game.data = MonsterCatalog.defaults();game.data.wallet = 1000000;game.data.eyes = 10000
-	game.lab_count = 6;game.start_lab("sewer");game.lab_active = false
+	game.lab_count = 6;game.start_lab("sewer")
+	game.runner.start_developer("sewer",6,0,14142);game.runner.developer_kind = "";game.runner.power_owned = [3,4]
+	game.runner.entities.clear();game.runner.events.clear();game.runner.sewer.encounter.offer(game.runner,true);game.lab_active = false
 	for i in range(game.runner.members.size()):
 		var m = game.runner.members[i];m.kind = i%2;m.cosmetics_0 = ["z_plumber"] if i==0 else [];m.cosmetics_1 = ["s_ice"] if i==1 else []
 	var s = game.runner.sewer;var acted: Dictionary = {};var held_until = -1.0;var missed_barrel = -1;var duck_inputs = 0;var contacts: Array = []
-	for frame in range(1650):
+	for frame in range(1440):
 		if s.active and s.phase=="ride" and not game.runner.dead:
 			for e in s.objects:
 				if e.taken or e.kind not in ["rubble","barrel","rotor","collapse","pipe","gate"] or acted.has(e.get("encounter",-1)): continue
@@ -31,10 +33,10 @@ func run() -> void:
 		await process_frame;await RenderingServer.frame_post_draw
 		assert(root.get_texture().get_image().save_jpg(folder+"/frame-%04d.jpg" % frame,.94)==OK)
 		if frame%180==0: print("V141_PREVIEW_FRAME ",frame)
-	var report = {"version":"0.10.41","frames":1650,"fps":30,"souls":game.runner.souls,"members":game.runner.active_count(),"losses":game.runner.losses,"captures":s.captured,"fugitive_variants":s.history.filter(func(h):return h.kind=="fugitive"),"completed":s.completed,"safe_passes":s.safe_jumps,"duck_inputs":duck_inputs,"controlled_obstacles":acted.size(),"encounters":s.history,"contacts":contacts,"real_touch_inputs":true,"dock_arrival":true,"physical_device_tested":false}
+	var report = {"version":"0.10.41","frames":1440,"run_seed":game.runner.run_seed,"fps":30,"souls":game.runner.souls,"members":game.runner.active_count(),"losses":game.runner.losses,"captures":s.captured,"fugitive_variants":s.history.filter(func(h):return h.kind=="fugitive"),"completed":s.completed,"safe_passes":s.safe_jumps,"duck_inputs":duck_inputs,"controlled_obstacles":acted.size(),"encounters":s.history,"contacts":contacts,"real_touch_inputs":true,"dock_arrival":true,"physical_device_tested":false}
 	var file = FileAccess.open(folder+"/replay.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  "));file.close()
-	assert(s.completed==1 and not s.active and duck_inputs>=2)
+	assert(s.completed==1 and not s.active and duck_inputs>=2 and not game.runner.dead and game.runner.active_count()>0)
 	game.set_process(false);game.queue_free();game = null
 	for i in range(8): await process_frame
 	preload("res://scripts/bird_art.gd").textures.clear();preload("res://scripts/sewer_art.gd").textures.clear()
-	print("V141_PREVIEW_OK 1650 native frames");quit()
+	print("V141_PREVIEW_OK 1440 native frames");quit()
