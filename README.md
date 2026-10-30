@@ -2,6 +2,8 @@
 
 Versão de testes atual: **0.10.41 — espaço e esgoto como eventos aleatórios**.
 
+**Para editar e compilar pelo próprio GitHub:** [guia de continuação](CONTINUAR-NO-GITHUB.md) · [compilar novo APK dos fontes no Actions](https://github.com/kauanbraga125-sketch/horda-zumbi/actions/workflows/horda-compilar-apk.yml). Alterações em `monster-game/` geram uma compilação de teste automaticamente; o botão **Run workflow** permite escolher a branch. Baixe o APK em **Artifacts** da execução concluída.
+
 - [Baixar o APK 0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.41/Horda-Zumbi-v0.10.41-TESTE-1M-ESGOTO-ARM64.apk)
 - [Projeto Godot completo](monster-game/)
 - [Mecânicas, referências e instruções](monster-game/EVENTOS-v0.10.41.md)

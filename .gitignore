@@ -1,9 +1,12 @@
 build/
 bin/
+dist/
 *.o
 *.elf
 *.oelf
 .DS_Store
+__pycache__/
+*.pyc
 
 # Never commit Android signing credentials or restored keystores.
 *.jks

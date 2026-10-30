@@ -1,0 +1,93 @@
+name: Horda Zumbi — compilar APK dos fontes
+
+on:
+  push:
+    branches: [main]
+    paths: ['monster-game/**', '.github/workflows/horda-compilar-apk.yml']
+  pull_request:
+    paths: ['monster-game/**', '.github/workflows/horda-compilar-apk.yml']
+  workflow_dispatch:
+    inputs:
+      assinatura:
+        description: 'Teste funciona sem Secrets; oficial exige a chave original nos Secrets.'
+        type: choice
+        options: [teste, oficial]
+        default: teste
+
+permissions:
+  contents: read
+
+concurrency:
+  group: horda-compile-${{ github.ref }}-${{ inputs.assinatura || 'teste' }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      HORDA_BUILD_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.assinatura == 'oficial' && 'oficial' || 'teste' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Preservar identidade da instalação de teste
+        if: env.HORDA_BUILD_MODE == 'teste'
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/horda-debug-key
+          key: horda-github-test-key-v1
+      - name: Instalar Godot 4.5.1 oficial
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip
+          echo "02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  $RUNNER_TEMP/godot.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64"
+      - name: Compilar fontes atuais e testar o conteúdo do APK
+        env:
+          HORDA_TEST_KEYSTORE: ${{ runner.temp }}/horda-debug-key/github-test.keystore
+          HORDA_ANDROID_KEYSTORE_BASE64: ${{ env.HORDA_BUILD_MODE == 'oficial' && secrets.HORDA_ANDROID_KEYSTORE_BASE64 || '' }}
+          HORDA_ANDROID_KEY_ALIAS: ${{ env.HORDA_BUILD_MODE == 'oficial' && secrets.HORDA_ANDROID_KEY_ALIAS || '' }}
+          HORDA_ANDROID_KEYSTORE_PASSWORD: ${{ env.HORDA_BUILD_MODE == 'oficial' && secrets.HORDA_ANDROID_KEYSTORE_PASSWORD || '' }}
+          HORDA_ANDROID_KEY_PASSWORD: ${{ env.HORDA_BUILD_MODE == 'oficial' && secrets.HORDA_ANDROID_KEY_PASSWORD || '' }}
+        run: python3 monster-game/tools/ci_android_build.py --engine "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --mode "$HORDA_BUILD_MODE" --out dist/android
+      - name: Disponibilizar APK e verificação
+        uses: actions/upload-artifact@v4
+        with:
+          name: Horda-Zumbi-APK-${{ env.HORDA_BUILD_MODE }}-${{ github.run_number }}
+          path: |
+            dist/android/*.apk
+            dist/android/compilacao.json
+            dist/android/assinatura.txt
+            dist/android/SHA256SUMS.txt
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 90
+      - name: Mostrar onde baixar
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path('dist/android/compilacao.json').read_text())
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write(f"## APK compilado dos fontes\n\n{r['apk']}\n\n")
+              f.write("Baixe o ZIP em **Artifacts** nesta execução e extraia o APK.\n\n")
+              f.write(f"Modo: **{r['mode']}**. Commit: `{os.environ['BUILD_COMMIT']}`.\n\n")
+              f.write("Assinatura, integridade e abertura dos arquivos extraídos do APK verificadas.\n\n")
+              if r['mode'] == 'teste':
+                  f.write("Instala como **Horda GitHub Teste**, com progresso próprio. A assinatura de teste fica no cache do Actions; se esse cache expirar, remova somente a instalação de teste antes de instalar a nova.\n\n")
+              f.write(f"SHA256: `{r['sha256']}`\n")
+          PY
+      - name: Guardar logs se houver falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Horda-Zumbi-diagnostico-${{ github.run_number }}
+          path: dist/android/*.log
+          if-no-files-found: ignore
