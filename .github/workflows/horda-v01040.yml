@@ -33,6 +33,11 @@ jobs:
           "$SIGNER" verify --verbose --print-certs dist/Horda-Zumbi-v0.10.40-TESTE-1M-ESGOTO-ARM64.apk > dist/Assinatura-v0.10.40.txt
           grep -q 'a641a59f39561af0210f2f1cd246f58c5bfd9ab05462bf5b0635e626d681d15d' dist/Assinatura-v0.10.40.txt
           (cd dist && sha256sum Assinatura-v0.10.40.txt >> SHA256SUMS.txt)
+      - name: Instalar conversor de vídeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          ffmpeg -version
       - name: Gravar demonstração da mesma versão
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
