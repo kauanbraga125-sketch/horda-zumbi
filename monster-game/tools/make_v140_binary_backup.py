@@ -48,7 +48,7 @@ def main(a):
     source=[]
     for name in sorted(paths):
         p=repo/name
-        if not p.is_file() or p.name=='project.binary' or any(part.startswith('.') for part in Path(name).parts if part not in ['.github']):continue
+        if not p.is_file() or p.name=='project.binary' or '__pycache__' in Path(name).parts or p.suffix=='.pyc' or any(part.startswith('.') for part in Path(name).parts if part not in ['.github']):continue
         data=p.read_bytes();source.append({'path':name,'bytes':len(data),'sha256':sha(data)})
     manifest['source_files']=source
     assert len(source)>600,'Public recovery must include the full Godot project'

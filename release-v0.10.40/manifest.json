@@ -17477,21 +17477,6 @@
       "sha256": "5c96da8f17ff29927de6b779d991652c3afbb45dc9f14f9d4df81b3b373d10d6"
     },
     {
-      "path": "monster-game/tools/__pycache__/apk_format.cpython-312.pyc",
-      "bytes": 12109,
-      "sha256": "a3dd9f326f87a0c2c0d6cea15c2ca719fd10a6d56bf5d877e209a4a4ee89c61d"
-    },
-    {
-      "path": "monster-game/tools/__pycache__/prepare_v139_art.cpython-312.pyc",
-      "bytes": 12091,
-      "sha256": "7e9ad2f5b961e9de7a09b6b554566a073f1dae4a5858e5163b9ecfdeda7c74a2"
-    },
-    {
-      "path": "monster-game/tools/__pycache__/sparse_index.cpython-312.pyc",
-      "bytes": 4064,
-      "sha256": "24a07408973b3e25312039ea6529729f3ffd44e73915ec51b91a42b4dfa74a9e"
-    },
-    {
       "path": "monster-game/tools/apk_format.py",
       "bytes": 7478,
       "sha256": "f52100e3074f4714cb06d972fdf49212463e1028e1954fd99b3dacc303010873"
@@ -18273,8 +18258,8 @@
     },
     {
       "path": "monster-game/tools/make_v140_binary_backup.py",
-      "bytes": 3792,
-      "sha256": "082721c35f3824c739018ce5d40c13346f38a8f1ef35eacbff1bb9c01bf751c0"
+      "bytes": 3849,
+      "sha256": "812a562a75d4f276ac6061e4430f8dcf7e70f48ec3a021411c44e386c9612407"
     },
     {
       "path": "monster-game/tools/optimize_v113_images.py",
