@@ -1,5 +1,5 @@
 {
-  "version": "0.10.40",
+  "version": "0.10.41",
   "class_count": 55,
   "files": [
     {
@@ -204,13 +204,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 119957,
-      "sha256": "3f8012a42a4951037af91172db50a663c54c2513f1bfe74c16f6b579f143cce9"
+      "bytes": 120639,
+      "sha256": "e5bba53bbd72498fd06210f66b494650b21969fd748d928952ce297b26ee8ada"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 16745,
-      "sha256": "8442b05f533156bb286c7b103d6a603c263de693a739e5b820acc590bfd8e756"
+      "bytes": 17425,
+      "sha256": "4b39a9421513ecb1c3a5dee2f9aec5c83e31fccae1fb40856ae8ecb8880f19f6"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -334,13 +334,13 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 70088,
-      "sha256": "38d69ef630a242c8152711a2aa93e9515e79b50942c405dbdb4cb33137c3c192"
+      "bytes": 70157,
+      "sha256": "9ffdca7e17b7f6976a28cc878d40ef10293e54568bd8d78651fc9243909ba27c"
     },
     {
       "path": "res://scripts/scene.gd",
-      "bytes": 11469,
-      "sha256": "45f00ed03cbe83ba82ce2af5f94678cf0948383c954b19dbeff9c2d3f3e55f8e"
+      "bytes": 12755,
+      "sha256": "3129d8f3968703b64e2e862ef8fe882d64ac58487531af5627ed788eff6acf31"
     },
     {
       "path": "res://scripts/sequence_validator.gd",
@@ -349,8 +349,8 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 20512,
-      "sha256": "f250c951963ded282a10f7da5a6d8c323ca1dec13343cfbf875f4b53158fe893"
+      "bytes": 21329,
+      "sha256": "3857fd790a12503b66e657ea9f77ccceb97637a7825964c04804e228caf83982"
     },
     {
       "path": "res://scripts/sewer_art.gd",
@@ -369,8 +369,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 16143,
-      "sha256": "cb90d64a6d88b2775e25555f14aa1465fbd5211a37ab3eb7a6515e2f08d33d00"
+      "bytes": 17657,
+      "sha256": "162c75466d1f82116c3b7eec35c1b317e8c4a7dbcae220cd0a798e8700a9be01"
     },
     {
       "path": "res://scripts/sewer_riders.gd",

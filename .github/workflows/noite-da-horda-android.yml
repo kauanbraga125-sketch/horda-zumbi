@@ -35,7 +35,7 @@ jobs:
       - name: Validar abertura, saldo de testes e poder espacial
         run: |
           set -euo pipefail
-          for SUITE in verify_packaged_boot v129_currency v135_adventure v135_readability v135_flight v135_contacts v140_systems v140_sewer v140_journeys; do
+          for SUITE in verify_packaged_boot v129_currency v135_adventure v135_readability v135_flight v135_contacts v140_systems v140_sewer v141_journeys; do
             /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --path monster-game --script "res://tests/${SUITE}.gd" -- --space-test 2>&1 | tee "/tmp/${SUITE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/${SUITE}.log"; then exit 1; fi
           done
@@ -45,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           for FIXTURE in new existing; do
-            XDG_DATA_HOME="$RUNNER_TEMP/horda-startup-${FIXTURE}" HORDA_STARTUP_FIXTURE="$FIXTURE" HORDA_VALIDATION_DIR="$RUNNER_TEMP/startup-${FIXTURE}" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v140_startup.gd 2>&1 | tee "/tmp/startup-${FIXTURE}.log"
+            XDG_DATA_HOME="$RUNNER_TEMP/horda-startup-${FIXTURE}" HORDA_STARTUP_FIXTURE="$FIXTURE" HORDA_VALIDATION_DIR="$RUNNER_TEMP/startup-${FIXTURE}" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v141_startup.gd 2>&1 | tee "/tmp/startup-${FIXTURE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/startup-${FIXTURE}.log"; then exit 1; fi
           done
       - name: Conferir recorte real dos ocupantes nas cabines
@@ -86,3 +86,11 @@ jobs:
           HORDA_VALIDATION_DIR="$RUNNER_TEMP/atlas-v140" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v140_atlas.gd 2>&1 | tee /tmp/atlas-v140.log
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/atlas-v140.log; then exit 1; fi
           grep -q 'V140_ATLAS' /tmp/atlas-v140.log
+      - name: Conferir fim da rua e queda em três formatos de tela
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "true"
+        run: |
+          set -euo pipefail
+          XDG_DATA_HOME="$RUNNER_TEMP/transition-v141-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/transitions-v141" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v141_transitions.gd 2>&1 | tee /tmp/transitions-v141.log
+          if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/transitions-v141.log; then exit 1; fi
+          grep -q 'V141_TRANSITIONS' /tmp/transitions-v141.log
