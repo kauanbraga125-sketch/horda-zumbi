@@ -1705,7 +1705,19 @@ func draw_credits() -> void :
 func update_camera(dt: float) -> void :
 	if runner.sewer.active:
 		var sewer_zoom = 1.0
-		if runner.sewer.phase=="entry": sewer_zoom = lerpf(CAMERA_BASE_ZOOM,1.0,smoothstep(.08,.84,runner.sewer.entry_launch()))
+		if runner.sewer.phase=="entry":
+			sewer_zoom = lerpf(CAMERA_BASE_ZOOM,1.0,smoothstep(.12,1.1,runner.sewer.phase_age))
+			var highest = runner.FLOOR;var lowest = -INF
+			for member in runner.members:
+				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+8)
+			var safe_top = -layout_origin.y+165;var safe_bottom = 720+layout_origin.y-30
+			sewer_zoom = minf(sewer_zoom,(safe_bottom-safe_top)/maxf(1,lowest-highest))
+			camera_zoom = move_toward(camera_zoom,maxf(.68,sewer_zoom),dt*1.8)
+			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
+			var upper = safe_bottom-(CAMERA_ANCHOR.y+(lowest-runner.FLOOR)*camera_zoom)
+			var shift = clampf(0,minf(lower,upper),upper)
+			camera_ground_shift = move_toward(camera_ground_shift,shift,dt*850)
+			return
 		if runner.sewer.phase=="exit": sewer_zoom = lerpf(1.0,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
 		camera_zoom = move_toward(camera_zoom,sewer_zoom,dt*1.1);camera_ground_shift = move_toward(camera_ground_shift,0,dt*600);return
 	if runner.space.active:

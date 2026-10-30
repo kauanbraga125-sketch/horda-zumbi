@@ -81,11 +81,25 @@ func helicopter(canvas: Node2D, centre: Vector2, height: float, time: float, ang
 	canvas.draw_line(hub - Vector2(rotor * cos(time * 65), 2 * sin(time * 65)), hub + Vector2(rotor * cos(time * 65), 2 * sin(time * 65)), Color(0.85, 0.8, 0.9, tint.a), 3, true)
 	canvas.draw_set_transform(Vector2.ZERO)
 
+func road_end(run: HordeRun) -> float:
+	if run.sewer.encounter.pending: return run.sewer.encounter.dock_world-run.world_px-run.sewer.DOCK_TO_EDGE
+	if run.sewer.active and run.sewer.phase=="entry": return run.sewer.shore_edge()
+	return INF
+
+func street_rect(canvas: Node2D,rect: Rect2,color: Color,edge: float) -> void:
+	if is_inf(edge): canvas.draw_rect(rect,color);return
+	var horizon = HordeRun.FLOOR-72
+	var top = minf(rect.end.y,horizon)
+	if top>rect.position.y: canvas.draw_rect(Rect2(rect.position,Vector2(rect.size.x,top-rect.position.y)),color)
+	var bottom = maxf(rect.position.y,horizon);var right = minf(rect.end.x,edge)
+	if rect.end.y>bottom and right>rect.position.x: canvas.draw_rect(Rect2(rect.position.x,bottom,right-rect.position.x,rect.end.y-bottom),color)
+
 func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: float = 0, right: float = 1280) -> void :
-	canvas.draw_rect(Rect2(left, view_top, right - left, view_bottom - view_top), Color("342049"))
+	var edge = road_end(run)
+	street_rect(canvas,Rect2(left,view_top,right-left,view_bottom-view_top),Color("342049"),edge)
 	clip_texture(canvas, art.sky, Rect2(view_left, view_top, view_right - view_left, 448 - view_top), left, right)
 	for i in range(20):
-		canvas.draw_rect(Rect2(left, 380 + i * 10, right - left, 11), Color(0.24, 0.14, 0.31, float(i) / 20 * 0.26))
+		street_rect(canvas,Rect2(left,380+i*10,right-left,11),Color(.24,.14,.31,float(i)/20*.26),edge)
 	for layer in range(3):
 		var height = [224.0, 274.0, 254.0][layer]
 		var texture = art.world_layers[area][layer]
@@ -93,16 +107,23 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 		var bottom = HordeRun.FLOOR - [80.0, 5.0, -5.0][layer]
 		var offset = fposmod(run.world_px * [0.055, 0.19, 0.48][layer], width)
 		for tile in range(-1, 3):
-			clip_texture(canvas, texture, Rect2(tile * width - offset, bottom - height, width + 1, height), left, right)
+			var dest = Rect2(tile * width - offset, bottom - height, width + 1, height)
+			if layer==2:
+				clip_texture(canvas,texture,dest,left,minf(right,edge))
+			elif layer==1 and edge<right:
+				clip_texture(canvas,texture,dest,left,minf(right,edge))
+				clip_texture(canvas,texture,dest,maxf(left,edge),right,HordeRun.FLOOR-72)
+			else: clip_texture(canvas,texture,dest,left,right)
 	if area == 0:
 		for i in range(2):
 			var point = Vector2(fposmod(i * 770 - run.world_px * 0.52, 1540) - 140, HordeRun.FLOOR - 111)
+			if point.x+42>edge: continue
 			canvas.draw_circle(point, 42, Color(1, 0.65, 0.23, 0.05 + 0.018 * sin(time * 7 + i)))
 			sprite(canvas, art.items[10], point + Vector2(0, 35), 135, Color(0.9, 0.92, 1, 1), sin(time * 2 + i) * 0.035)
 	elif area == 1:
 		for i in range(5):
 			var x = fposmod(i * 313 - run.world_px * 0.48, 1565) - 90
-			if x > left and x < right: flame(canvas, Vector2(x, HordeRun.FLOOR - 26), time + i, 26)
+			if x > left and x < minf(right,edge-26): flame(canvas, Vector2(x, HordeRun.FLOOR - 26), time + i, 26)
 		for p in ([] if run.sewer.active and run.sewer.phase=="entry" or run.sewer.encounter.pending else civilians):
 			if p.x > left and p.x < right:
 				if int(p.variant) == 0:
@@ -111,7 +132,7 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 					art.woman.paint(canvas, {"woman_clip": "run", "woman_time": time + p.phase, "woman_reverse": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))
 				else: actor.paint(canvas, int(MonsterCatalog.CIVILIANS[int(p.variant)].rig), Vector2(p.x, p.y - absf(sin(time * 3 + p.variant)) * 6), 66, p.phase, "panic_run", time, 0, Color(0.78, 0.76, 0.85, 0.86), p.reverse)
 
-		if crash_age >= 0:
+		if crash_age >= 0 and is_inf(edge):
 			var t = crash_age
 			var point = Vector2(1040 - t * 135, 210 + minf(t, 2.55) * minf(t, 2.55) * 43)
 			for i in range(9):
@@ -131,6 +152,7 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 	elif area == 3:
 		for i in range(12):
 			var point = Vector2(fposmod(i * 142 - run.world_px * 0.48, 1704) - 60, HordeRun.FLOOR - 25)
+			if point.x+14>edge: continue
 			var glow = 0.16 + 0.1 * sin(time * 5 - i * 0.55)
 			canvas.draw_circle(point, 14, Color(0.54, 0.9, 1, glow));canvas.draw_circle(point, 3, Color(0.7, 0.94, 1, 0.9))
 		var beacon = Vector2(fposmod(1020 - run.world_px * 0.19, 1530), 244)
@@ -146,12 +168,13 @@ func flame(canvas: Node2D, pos: Vector2, time: float, height: float) -> void :
 	canvas.draw_set_transform(Vector2.ZERO)
 
 
-func clip_texture(canvas: Node2D, texture: Texture2D, dest: Rect2, left: float, right: float) -> void :
+func clip_texture(canvas: Node2D, texture: Texture2D, dest: Rect2, left: float, right: float, bottom: float = INF) -> void :
 	var x0 = maxf(left, dest.position.x); var x1 = minf(right, dest.end.x)
-	if x1 <= x0: return
+	var y1 = minf(bottom,dest.end.y)
+	if x1 <= x0 or y1<=dest.position.y: return
 	var width = texture.get_width(); var height = texture.get_height()
-	var source = Rect2((x0 - dest.position.x) / dest.size.x * width, 0, (x1 - x0) / dest.size.x * width, height)
-	canvas.draw_texture_rect_region(texture, Rect2(x0, dest.position.y, x1 - x0, dest.size.y), source)
+	var source = Rect2((x0 - dest.position.x) / dest.size.x * width, 0, (x1 - x0) / dest.size.x * width, (y1-dest.position.y)/dest.size.y*height)
+	canvas.draw_texture_rect_region(texture, Rect2(x0, dest.position.y, x1 - x0, y1-dest.position.y), source)
 
 func paint(canvas: Node2D, run: HordeRun, time: float) -> void :
 	paint_outside(canvas, run, time, run.area(), view_left, view_right)
@@ -159,7 +182,7 @@ func paint(canvas: Node2D, run: HordeRun, time: float) -> void :
 		var entrance = HordeRun.ANCHOR + float(t.entry) - run.world_px
 		var exit = entrance + float(t.length)
 		if entrance >= view_right or exit <= view_left: continue
-		var left = maxf(view_left, entrance); var right = minf(view_right, exit)
+		var left = maxf(view_left, entrance); var right = minf(minf(view_right,exit),road_end(run))
 		if right > left:
 			var width = art.tunnel.get_width() * 720.0 / art.tunnel.get_height()
 			var offset = fposmod(run.world_px, width)

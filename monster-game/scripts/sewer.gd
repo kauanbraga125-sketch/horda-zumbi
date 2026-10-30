@@ -4,11 +4,13 @@ const WATER = 555.0
 const ENTRY_SECONDS = 5.2
 const EXIT_SECONDS = 6.4
 const SHAFT_DEPTH = 680.0
+const ENTRY_GRAVITY = 620.0
 const RAMP_WIDTH = 500.0
 const RAMP_LIFT = 150.0
 const CAPTURE_SECONDS = 1.05
 const SEATS = 2
 const LEAD = 790.0
+const DOCK_TO_EDGE = 232.0
 var active = false
 var phase = "ground"
 var age = 0.0
@@ -48,11 +50,13 @@ var clean_streak = 0
 var sequence: Array = []
 var rush_left = 0.0
 var layout_columns = 3
+var entry_edge_world = 0.0
+var entry_travel = 0.0
 
 func reset(seed_value: int) -> void:
 	active = false;phase = "ground";age = 0;phase_age = 0;ride_age = 0;completed = 0;captured = 0;hits = 0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();random.seed = seed_value^0x536e2
-	life.reset();braking = 0;jump_hold_until = -1
+	life.reset();braking = 0;jump_hold_until = -1;entry_travel = 0
 	encounter.reset(seed_value);duck_buffer = 0;clean_streak = 0;sequence.clear();rush_left = 0;layout_columns = 3
 
 func begin(r,force: bool = false) -> bool:
@@ -63,18 +67,20 @@ func begin(r,force: bool = false) -> bool:
 	for i in range(r.members.size()-1,-1,-1):
 		if r.members[i].falling: r.remove_member(i,"fall")
 	if r.dead: return false
+	entry_edge_world = encounter.dock_world-DOCK_TO_EDGE if encounter.pending else r.world_px+LEAD-DOCK_TO_EDGE
 	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 32.0;left = duration
 	pressure = .23;serial = 0;scroll = 0;next_encounter = .8;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
 	duck_buffer = 0;clean_streak = 0;rush_left = 0;encounter.pending = false
 	sequence.assign(["rubble","pipe","fugitive","barrel","gate","rotor","collapse","rescue","rubble","gate","fugitive","barrel"])
 	if random.randf()<.5: sequence[3] = "collapse";sequence[6] = "barrel"
-	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number()
+	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number();entry_travel = 0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();lane_count = 1;layout_columns = 3
 	life.reset();braking = 0;jump_hold_until = -1
 	r.perk_left = 0;r.perk_kind = -1;r.transform_left = 0;r.boost_left = 0;r.blessings.reset()
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
 	for m in r.members:
 		starts[int(m.id)] = Vector2(m.x,m.y);m.sewer_pose = "run";m.sewer_board = 0.0;m.jump_queue.clear();m.jump_at = -1;m.jump_delay = -1;m.falling = false;m.vy = 0;m.roof_id = -1
+		m.sewer_drop_at = -1.0;m.sewer_onboard = false
 	assign_boats(r)
 	r.mission_stats.sewer_trips = int(r.mission_stats.get("sewer_trips",0))+1
 	r.events.append({"type":"sewer_begin"})
@@ -138,13 +144,13 @@ func request_duck(r) -> void:
 	r.events.append({"type":"sewer_duck"})
 
 func entry_launch() -> float: return smoothstep(3.35,ENTRY_SECONDS,phase_age)
-func entry_drop() -> float: return SHAFT_DEPTH*smoothstep(1.0,3.55,phase_age)
+func entry_drop() -> float: return SHAFT_DEPTH*smoothstep(.55,3.6,phase_age)
 func entry_depth() -> float: return SHAFT_DEPTH-entry_drop()
 func dock_x(r,slot: int) -> float:
 	var index = boats.find_custom(func(b):return int(b.slot)==slot)
 	return boat_x(r,index) if index>=0 else LEAD
 func dock_y(_r,_slot: int) -> float: return WATER-24
-func shore_edge() -> float: return 558.0
+func shore_edge() -> float: return entry_edge_world-start_world-entry_travel if active and phase=="entry" else LEAD-DOCK_TO_EDGE
 func entry_blend() -> float: return 1.0 if phase_age>=3.55 else 0.0
 func exit_blend() -> float: return 1.0 if phase_age>=3.5 else 0.0
 func ramp_left(r) -> float: return LEAD+160-scroll_speed(r)*phase_age
@@ -210,7 +216,8 @@ func _world(r,dt: float) -> void:
 
 func advance(r,dt: float,held: bool) -> void:
 	if not active or r.dead: return
-	age += dt;phase_age += dt;_world(r,dt*(.3 if phase=="entry" and phase_age<1.8 else 1.0));assign_boats(r)
+	age += dt;phase_age += dt;_world(r,dt);assign_boats(r)
+	if phase=="entry": entry_travel = r.world_px-start_world
 	camera_left = r.view_left
 	braking = maxf(0,braking-dt*.85);rush_left = maxf(0,rush_left-dt)
 	if held and jump_hold_until>=0:
@@ -276,18 +283,26 @@ func _update_members(r,_dt: float) -> void:
 			var local = Vector2(18-seat*80,21);var foot = Vector2(b.x,b.y)+local.rotated(float(b.angle))
 			m.sewer_pose = "duck" if b.duck_left>.12 else "ride"
 			if phase=="entry":
-				var delay = minf(.34,float(index)*.045)
-				var board_begin = .78+delay
 				var start = Vector2(starts.get(int(m.id),foot))
-				var lip = Vector2(shore_edge()-18-slot_column(int(b.slot))*8-seat*14,r.FLOOR)
-				if phase_age<board_begin:
-					foot = start.lerp(lip,smoothstep(0,board_begin,phase_age));foot.y = r.FLOOR-entry_drop();m.sewer_pose = "run"
-				elif phase_age<board_begin+2.62:
-					var t = clampf((phase_age-board_begin)/2.62,0,1)
-					var target = Vector2(b.x,WATER-24+float(b.get("depth",0)))+local.rotated(float(b.angle))+Vector2(0,SHAFT_DEPTH)
-					foot = lip.lerp(target,smoothstep(0,1,t))-Vector2(0,entry_drop()+sin(t*PI)*48)
-					foot.x = lerpf(lip.x+150*smoothstep(0,.45,t),target.x,smoothstep(.72,1,t))
-					m.sewer_pose = "board";m.sewer_board = t
+				if float(m.get("sewer_drop_at",-1))<0 and shore_edge()<=start.x:
+					# The moving road edge is shared with the renderer; each foot crosses once.
+					var passed = maxf(0,start.x-shore_edge())/maxf(1,r.speed)
+					m.sewer_drop_at = maxf(0,phase_age-minf(_dt,passed))
+				if float(m.get("sewer_drop_at",-1))<0:
+					foot = Vector2(start.x,lerpf(start.y,r.FLOOR,smoothstep(0,.4,phase_age))-entry_drop())
+					m.sewer_pose = "run" if start.y>=r.FLOOR-6 or phase_age>=.4 else "board"
+				else:
+					var target = Vector2(b.x,b.y+entry_drop())+local.rotated(float(b.angle))
+					var duration_fall = sqrt(2*maxf(1,target.y-r.FLOOR)/ENTRY_GRAVITY)
+					var falling_time = maxf(0,phase_age-float(m.sewer_drop_at))
+					var u = clampf(falling_time/duration_fall,0,1)
+					var travel = u+u*u-u*u*u
+					foot = Vector2(lerpf(start.x,target.x,travel),r.FLOOR+.5*ENTRY_GRAVITY*falling_time*falling_time-entry_drop())
+					m.sewer_pose = "board";m.sewer_board = u
+					if u>=1:
+						foot = target-Vector2(0,entry_drop());m.sewer_pose = "ride"
+						if not bool(m.get("sewer_onboard",false)):
+							m.sewer_onboard = true;splash(Vector2(b.x,b.y+28),false)
 			elif phase=="exit":
 				var flight = exit_boat(r,b);var launch = float(flight.launch)
 				foot = Vector2(flight.p)+local.rotated(float(flight.angle));m.sewer_angle = flight.angle

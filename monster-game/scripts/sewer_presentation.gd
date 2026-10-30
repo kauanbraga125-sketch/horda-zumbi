@@ -22,9 +22,14 @@ func background(g,s) -> void:
 	var c = g.paint_target;var view = view_rect(g)
 	if s.phase=="entry":
 		var floor_y = g.runner.FLOOR-s.entry_drop();var seam = view.position.y-20+s.entry_depth()
-		if seam>floor_y:
+		var shaft_top = floor_y-72
+		if seam>shaft_top:
 			var tex = Old.texture("sewer")
-			c.draw_texture_rect_region(tex,Rect2(view.position.x,floor_y,view.size.x,seam-floor_y+30),Rect2(tex.get_size()*Vector2(.06,.10),tex.get_size()*Vector2(.85,.42)),Color(.72,.85,.88))
+			var dest = Rect2(view.position.x,shaft_top,view.size.x,seam-shaft_top+30)
+			var source = Rect2(tex.get_size()*Vector2(.06,.10),tex.get_size()*Vector2(.85,.42))
+			var edge = clampf(s.shore_edge(),view.position.x,view.end.x)
+			texture_window(c,tex,dest,source,Rect2(view.position.x,floor_y,edge-view.position.x,maxf(0,seam-floor_y+30)),Color(.72,.85,.88))
+			texture_window(c,tex,dest,source,Rect2(edge,shaft_top,view.end.x-edge,seam-shaft_top+30),Color(.72,.85,.88))
 			for x in [s.shore_edge()+45,s.shore_edge()+360]:
 				c.draw_line(Vector2(x,floor_y),Vector2(x,seam+30),Color("17121e"),17,true)
 				c.draw_line(Vector2(x,floor_y),Vector2(x,seam+30),Color("776044"),10,true)
@@ -42,12 +47,23 @@ func background(g,s) -> void:
 			var t = fposmod(s.age*1.1+j*.22+i,1)
 			c.draw_line(at+Vector2(-t*28,t*287),at+Vector2(-t*28-2,t*287+12),Color(.42,.8,.74,.18),1.4,true)
 
+func texture_window(c,tex: Texture2D,dest: Rect2,source: Rect2,window: Rect2,tint: Color = Color.WHITE) -> void:
+	if window.size.x<=0 or window.size.y<=0: return
+	var clipped = dest.intersection(window)
+	if clipped.size.x<=0 or clipped.size.y<=0: return
+	var origin = source.position+(clipped.position-dest.position)/dest.size*source.size
+	var size = clipped.size/dest.size*source.size
+	c.draw_texture_rect_region(tex,clipped,Rect2(origin,size),tint)
+
 func dock_pool(g,s,lead: float) -> void:
 	# A street opening, never a water rectangle covering a running foot.
-	var c = g.paint_target;var view = view_rect(g);var edge = s.shore_edge()+lead-s.LEAD
+	var c = g.paint_target;var view = view_rect(g);var edge = lead-s.DOCK_TO_EDGE
 	if edge>view.end.x+50: return
 	var floor_y = g.runner.FLOOR
-	c.draw_rect(Rect2(edge,floor_y,maxf(1,view.end.x-edge+100),maxf(200,view.end.y-floor_y+80)),Color("132029"))
+	var pit_top = floor_y-72
+	c.draw_rect(Rect2(edge,pit_top,maxf(1,view.end.x-edge+100),maxf(200,view.end.y-pit_top+80)),Color("132029"))
+	var shaft = Old.texture("sewer")
+	c.draw_texture_rect_region(shaft,Rect2(edge,pit_top,maxf(1,view.end.x-edge+100),maxf(200,view.end.y-pit_top+80)),Rect2(shaft.get_size()*Vector2(.08,.12),shaft.get_size()*Vector2(.42,.32)),Color(.48,.58,.62))
 	var tex = g.gameplay_ui.ground_texture.atlas;var source = g.gameplay_ui.ground_texture.region
 	c.draw_texture_rect_region(tex,Rect2(edge-30,floor_y-5,30,view.end.y-floor_y+100),Rect2(source.position+Vector2(0,15),Vector2(35,source.size.y-15)))
 	c.draw_line(Vector2(edge-34,floor_y-5),Vector2(edge-2,floor_y-5),Color("8d917b"),5,true)
@@ -204,7 +220,6 @@ func paint(g,s) -> void:
 	var exit_t = clampf(s.phase_age/s.EXIT_SECONDS,0,1) if exiting else 0.0
 	if s.phase=="entry":
 		c.draw_set_transform(Vector2(0,-s.entry_drop()));g.ground(r.world_px);c.draw_set_transform(Vector2.ZERO)
-		if s.phase_age<1.1: dock_pool(g,s,s.LEAD)
 	water(g,s,false)
 	if exiting:
 		var tex = Art.fresh("ramp");var size = tex.get_size()*s.RAMP_WIDTH/tex.get_width()
@@ -224,6 +239,7 @@ func paint(g,s) -> void:
 			var member_index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
 			if member_index<0: continue
 			var m = r.members[member_index];var wear = r.cosmetics_for(m,int(m.kind));var pose = str(m.get("sewer_pose","ride"))
+			if s.phase=="entry" and pose in ["run","board"]: continue
 			if pose in ["run","land"]:
 				g.actor.paint(c,int(m.kind),Vector2(m.x,m.y),108,fposmod(r.elapsed*1.9+member_index*.1,1),"run",r.elapsed,.16 if pose=="land" else 0,Color.WHITE,false,1,false,-1,0,wear)
 			elif pose=="board":
@@ -234,6 +250,13 @@ func paint(g,s) -> void:
 				g.actor.paint_rider(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.31,float(m.get("sewer_angle",b.angle)),wear,Color.WHITE,seat,pose,float(b.duck_left))
 		if opacity>.02: Art.boat(c,p,96,angle,Color(1,1,1,opacity),true)
 		if b.bump<-.5: c.draw_arc(p+Vector2(65,-9),19,-1,1,12,Color(1,.75,.35,minf(.8,-float(b.bump)/25)),2,true)
+	if s.phase=="entry":
+		# Falling actors retain their paths independently of the boats' hull masks.
+		for i in range(r.members.size()-1,-1,-1):
+			var m = r.members[i];var pose = str(m.get("sewer_pose","ride"))
+			if pose not in ["run","board"]: continue
+			var wear = r.cosmetics_for(m,int(m.kind))
+			g.actor.paint(c,int(m.kind),Vector2(m.x,m.y),108,fposmod(float(m.run_phase),1),"run" if pose=="run" else "fall",r.elapsed,0,Color.WHITE,false,1,false,-1,0,wear)
 	for e in s.objects:
 		if not e.taken and e.kind in ["pipe","gate"]: object(g,s,e)
 	for item in s.casualties:

@@ -189,7 +189,7 @@ func slot_x(index: int) -> float:
 	var rank = int(members[index].get("formation_rank", index)) if index < members.size() else index
 	# Keep every column distinct even when the camera zooms in.
 	var rows = int(maxi(0, members.size() - 1) / columns)
-	var available_width = maxf(180.0, ANCHOR - view_left - rows * 15.0 - 12.0)
+	var available_width = maxf(72.0 if sewer.encounter.pending else 180.0, ANCHOR - view_left - rows * 15.0 - 12.0)
 	spacing = minf(spacing, available_width / float(mini(columns - 1, maxi(1, members.size() - 1))))
 	return ANCHOR - float(rank % columns) * spacing - float(int(rank / columns)) * 15.0
 
@@ -704,7 +704,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			m.x -= step
 		else: m.x = reform_x(m, slot_x(i), dt)
 		var half_width = 43.0 * (1.4 if perk_kind == 2 and perk_left > 0 and int(power_levels.get("mask_size", 0)) > 0 else 1.0)
-		if not m.falling and float(m.x) + half_width < view_left - 7.0:
+		if not m.falling and not sewer.encounter.pending and float(m.x) + half_width < view_left - 7.0:
 			remove_member(i, "camera");continue
 		var cadence = HordeZombieStride.cycle_rate(speed) if int(m.kind) == 0 and perk_left <= 0 else clampf(speed / 240.0, 1.15, 2.65)
 		m.run_phase += dt * cadence

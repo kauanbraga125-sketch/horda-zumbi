@@ -213,14 +213,16 @@ func ground(g, offset: float, terrain_run: HordeRun = null) -> void :
 	var right: float = g.scenery.view_right
 	var height = 192.0
 	var width = ground_texture.get_width() * height / ground_texture.get_height()
+	var descending = run.sewer.active and run.sewer.phase=="entry"
 	for segment in run.terrain.segments:
 		var start = maxf(left, float(segment.start) - offset)
 		var end = minf(right, float(segment.end) - offset)
-		if run.sewer.encounter.pending: end = minf(end,run.sewer.encounter.dock_world-offset-232)
+		if run.sewer.encounter.pending: end = minf(end,run.sewer.encounter.dock_world-offset-run.sewer.DOCK_TO_EDGE)
 		if run.sewer.active and run.sewer.phase=="entry": end = minf(end,run.sewer.shore_edge())
 		if start >= end: continue
 		var floor_y = HordeRun.FLOOR - float(segment.height)
-		g.paint_target.draw_rect(Rect2(start, floor_y, end - start, g.scenery.view_bottom - floor_y), Color("20172f"))
+		var body_bottom = maxf(g.scenery.view_bottom+run.sewer.entry_drop(),floor_y+run.sewer.SHAFT_DEPTH+100) if descending else g.scenery.view_bottom
+		g.paint_target.draw_rect(Rect2(start, floor_y, end - start, maxf(0,body_bottom-floor_y)), Color("20172f"))
 		for tile in range(floori((start + offset) / width), ceili((end + offset) / width)):
 			var tile_x = tile * width - offset
 			var x1 = maxf(start, tile_x)
@@ -229,6 +231,13 @@ func ground(g, offset: float, terrain_run: HordeRun = null) -> void :
 			source.position.x += (x1 - tile_x) / width * ground_texture.region.size.x
 			source.size.x = (x2 - x1) / width * ground_texture.region.size.x
 			g.paint_target.draw_texture_rect_region(ground_texture.atlas, Rect2(x1, floor_y, x2 - x1, height), source)
+			if descending:
+				var body = source;body.position.y += 70;body.size.y -= 70
+				var step_y = height*body.size.y/ground_texture.region.size.y
+				for row in range(ceili(maxf(0,body_bottom-floor_y-height)/step_y)):
+					var y = floor_y+height+row*step_y;var length_y = minf(step_y,body_bottom-y)
+					var sample = body;sample.size.y *= length_y/step_y
+					g.paint_target.draw_texture_rect_region(ground_texture.atlas,Rect2(x1,y,x2-x1,length_y),sample)
 		if float(segment.height) > 0:
 			var entry = float(segment.start) - offset
 			if run.tutorial_hints() and entry > HordeRun.ANCHOR and entry < right - 30:
