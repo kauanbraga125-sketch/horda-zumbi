@@ -31,10 +31,10 @@ func run() -> void:
 		m.cosmetics_1 = ["s_ice"] if i==1 else []
 	var entry_started: bool = false
 	var entry_finished: bool = false
-	var frames: int = 300
+	var frames: int = 120
 	var samples: Array = []
 	for frame in range(frames):
-		for substep in range(2):
+		for substep in range(5):
 			game.runner.advance(STEP,false)
 			game.update_camera(STEP)
 			game.configure_layout()
@@ -53,7 +53,7 @@ func run() -> void:
 			s.life.next_scene = 1e6
 			s.life.people.clear()
 		if frame%12==0:
-			samples.append({"time":float(frame)/30.0,"phase":s.phase,"phase_age":s.phase_age,"camera_zoom":game.camera_zoom,"drop":s.entry_drop(),"street_alpha":game.sewer_street_canvas.modulate.a,"members":game.runner.active_count()})
+			samples.append({"time":float(frame)/12.0,"phase":s.phase,"phase_age":s.phase_age,"camera_zoom":game.camera_zoom,"drop":s.entry_drop(),"street_alpha":game.sewer_street_canvas.modulate.a,"members":game.runner.active_count()})
 		game.configure_layout()
 		game.queue_redraw()
 		game.world_canvas.queue_redraw()
@@ -61,8 +61,8 @@ func run() -> void:
 		await process_frame
 		await RenderingServer.frame_post_draw
 		assert(root.get_texture().get_image().save_jpg(folder+"/frame-%04d.jpg" % frame,.90)==OK)
-		if frame%90==0: print("V142_PREVIEW_FRAME ",frame)
-	var summary = {"version":"0.10.42","frames":frames,"fps":30,"entry_started":entry_started,"entry_finished":entry_finished,"members":game.runner.active_count(),"samples":samples,"physical_device_tested":false}
+		if frame%20==0: print("V142_PREVIEW_FRAME ",frame)
+	var summary = {"version":"0.10.43","frames":frames,"fps":12,"entry_started":entry_started,"entry_finished":entry_finished,"members":game.runner.active_count(),"samples":samples,"physical_device_tested":false}
 	var report = FileAccess.open(folder+"/transicao.json",FileAccess.WRITE)
 	report.store_string(JSON.stringify(summary,"  "))
 	report.close()
