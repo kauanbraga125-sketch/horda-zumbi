@@ -1,6 +1,7 @@
 extends RefCounted
 const Old = preload("res://scripts/bird_art.gd")
 const Art = preload("res://scripts/sewer_art.gd")
+var shaft = preload("res://scripts/sewer_shaft.gd").new()
 
 func view_rect(g) -> Rect2:
 	return Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
@@ -21,20 +22,9 @@ func walls(g,s,left: float,right: float,alpha: float = 1.0,shift_y: float = 0.0)
 func background(g,s) -> void:
 	var c = g.paint_target;var view = view_rect(g)
 	if s.phase=="entry":
-		var floor_y = g.runner.FLOOR-s.entry_drop();var seam = view.position.y-20+s.entry_depth()
-		var shaft_top = floor_y-72
-		if seam>shaft_top:
-			var tex = Old.texture("sewer")
-			var dest = Rect2(view.position.x,shaft_top,view.size.x,seam-shaft_top+30)
-			var source = Rect2(tex.get_size()*Vector2(.06,.10),tex.get_size()*Vector2(.85,.42))
-			var edge = clampf(s.shore_edge(),view.position.x,view.end.x)
-			texture_window(c,tex,dest,source,Rect2(view.position.x,floor_y,edge-view.position.x,maxf(0,seam-floor_y+30)),Color(.72,.85,.88))
-			texture_window(c,tex,dest,source,Rect2(edge,shaft_top,view.end.x-edge,seam-shaft_top+30),Color(.72,.85,.88))
-			for x in [s.shore_edge()+45,s.shore_edge()+360]:
-				c.draw_line(Vector2(x,floor_y),Vector2(x,seam+30),Color("17121e"),17,true)
-				c.draw_line(Vector2(x,floor_y),Vector2(x,seam+30),Color("776044"),10,true)
-				c.draw_line(Vector2(x-3,floor_y),Vector2(x-3,seam+30),Color("b39866"),2,true)
-		walls(g,s,view.position.x,view.end.x,1,s.entry_depth())
+		# A galeria antiga fica sob a nova passagem e entra em cena sem emendas duras.
+		walls(g,s,view.position.x,view.end.x,1.0,s.entry_depth())
+		shaft.background(g,s)
 		return
 	if s.phase=="exit":
 		walls(g,s,view.position.x,view.end.x,1,s.exit_rise(g.runner));return
@@ -60,13 +50,7 @@ func dock_pool(g,s,lead: float) -> void:
 	var c = g.paint_target;var view = view_rect(g);var edge = lead-s.DOCK_TO_EDGE
 	if edge>view.end.x+50: return
 	var floor_y = g.runner.FLOOR
-	var pit_top = floor_y-72
-	c.draw_rect(Rect2(edge,pit_top,maxf(1,view.end.x-edge+100),maxf(200,view.end.y-pit_top+80)),Color("132029"))
-	var shaft = Old.texture("sewer")
-	c.draw_texture_rect_region(shaft,Rect2(edge,pit_top,maxf(1,view.end.x-edge+100),maxf(200,view.end.y-pit_top+80)),Rect2(shaft.get_size()*Vector2(.08,.12),shaft.get_size()*Vector2(.42,.32)),Color(.48,.58,.62))
-	var tex = g.gameplay_ui.ground_texture.atlas;var source = g.gameplay_ui.ground_texture.region
-	c.draw_texture_rect_region(tex,Rect2(edge-30,floor_y-5,30,view.end.y-floor_y+100),Rect2(source.position+Vector2(0,15),Vector2(35,source.size.y-15)))
-	c.draw_line(Vector2(edge-34,floor_y-5),Vector2(edge-2,floor_y-5),Color("8d917b"),5,true)
+	shaft.dock_face(g,edge)
 	for i in range(6):
 		var t = fposmod(g.ui_time*.7+i*.17,1);var at = Vector2(edge+40+i*38,floor_y+20+t*190)
 		c.draw_circle(at,2.2,Color(.47,.58,.56,(1-t)*.45))
@@ -75,7 +59,7 @@ func dock(g,s) -> void:
 	var r = g.runner;var lead = float(s.encounter.dock_world)-r.world_px
 	if lead<r.view_left-600 or lead>r.view_right+700: return
 	dock_pool(g,s,lead)
-	g.text("ESGOTO SOB A RUA",Vector2(lead-180,r.FLOOR-130),19,g.MINT,true,true,2)
+	# A passagem e comunicada pelo proprio cenario, sem texto flutuante.
 
 func blend_tile(c,tex: Texture2D,rect: Rect2,alpha: float,left: float,right: float) -> void:
 	var fade = 140.0/rect.size.x
@@ -270,6 +254,7 @@ func paint(g,s) -> void:
 		for i in range(12):
 			var t = fposmod(s.age*1.6+i*.083,1);var x = view.position.x+fposmod(i*163,view.size.x)
 			c.draw_line(Vector2(x,view.end.y-t*view.size.y),Vector2(x,view.end.y-t*view.size.y+28),Color(.6,.82,.79,.18),1.5,true)
+	if s.phase=="entry": shaft.foreground(g,s)
 
 func splash(g,_s,item: Dictionary) -> void:
 	var c = g.paint_target;var t = float(item.age);var p = Vector2(item.p)

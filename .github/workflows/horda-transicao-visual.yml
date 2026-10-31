@@ -1,0 +1,78 @@
+name: Horda 0.10.43 — testar e filmar transicao
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'monster-game/**'
+      - '.github/workflows/horda-transicao-visual.yml'
+  pull_request:
+    paths:
+      - 'monster-game/**'
+      - '.github/workflows/horda-transicao-visual.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Godot 4.5.1 e ffmpeg
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends ffmpeg xvfb
+          curl -fL --retry 3 -o "$RUNNER_TEMP/godot.zip" https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip
+          echo "02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  $RUNNER_TEMP/godot.zip" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/godot"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64"
+      - name: Importar sprites, texturas, fontes e cenas
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --headless --path monster-game --editor --import > "$RUNNER_TEMP/import.log" 2>&1
+          if grep -E 'SCRIPT ERROR|Parse Error|ERROR: Failed to load' "$RUNNER_TEMP/import.log"; then cat "$RUNNER_TEMP/import.log"; exit 1; fi
+          python3 monster-game/tools/refresh_startup_integrity.py
+      - name: Testar transicoes, camera e integridade dos personagens
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/transitions"
+          XDG_DATA_HOME="$RUNNER_TEMP/test-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/transitions" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v141_transitions.gd | tee "$RUNNER_TEMP/test.log"
+          grep -q '"failures":\[\]' "$RUNNER_TEMP/test.log"
+      - name: Gravar 10 segundos da nova queda
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/video" dist
+          XDG_DATA_HOME="$RUNNER_TEMP/preview-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/video" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v142_transition_preview.gd | tee "$RUNNER_TEMP/preview.log"
+          grep -q V142_PREVIEW_OK "$RUNNER_TEMP/preview.log"
+          ffmpeg -hide_banner -loglevel warning -y -framerate 12 -i "$RUNNER_TEMP/video/frame-%04d.jpg" -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -movflags +faststart dist/Horda-Zumbi-0.10.43-Transicao-Previa.mp4
+          cp "$RUNNER_TEMP/video/transicao.json" dist/Transicao-v0.10.43.json
+          for n in 0024 0036 0048 0060 0072 0084; do cp "$RUNNER_TEMP/video/frame-$n.jpg" "dist/Quadro-$n.jpg"; done
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+      - name: Entregar video, quadros e relatorio
+        uses: actions/upload-artifact@v4
+        with:
+          name: Horda-Zumbi-v0.10.43-Transicao-Video
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 90
+      - name: Preservar diagnostico em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Horda-Zumbi-v0.10.43-Erro-Visual
+          path: |
+            ${{ runner.temp }}/import.log
+            ${{ runner.temp }}/test.log
+            ${{ runner.temp }}/preview.log
+          if-no-files-found: ignore

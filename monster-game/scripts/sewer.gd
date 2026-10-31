@@ -1,7 +1,7 @@
 extends RefCounted
 ## A temporary chapter of the SAME run. Boats contain stable member IDs.
 const WATER = 555.0
-const ENTRY_SECONDS = 5.2
+const ENTRY_SECONDS = 5.8
 const EXIT_SECONDS = 6.4
 const SHAFT_DEPTH = 680.0
 const ENTRY_GRAVITY = 620.0
@@ -143,15 +143,15 @@ func request_duck(r) -> void:
 		b.duck_at = age+travel;b.jump_at = -1
 	r.events.append({"type":"sewer_duck"})
 
-func entry_launch() -> float: return smoothstep(3.35,ENTRY_SECONDS,phase_age)
-func entry_drop() -> float: return SHAFT_DEPTH*smoothstep(.55,3.6,phase_age)
+func entry_launch() -> float: return smoothstep(3.65,ENTRY_SECONDS,phase_age)
+func entry_drop() -> float: return SHAFT_DEPTH*smoothstep(.55,4.15,phase_age)
 func entry_depth() -> float: return SHAFT_DEPTH-entry_drop()
 func dock_x(r,slot: int) -> float:
 	var index = boats.find_custom(func(b):return int(b.slot)==slot)
 	return boat_x(r,index) if index>=0 else LEAD
 func dock_y(_r,_slot: int) -> float: return WATER-24
 func shore_edge() -> float: return entry_edge_world-start_world-entry_travel if active and phase=="entry" else LEAD-DOCK_TO_EDGE
-func entry_blend() -> float: return 1.0 if phase_age>=3.55 else 0.0
+func entry_blend() -> float: return smoothstep(3.15,ENTRY_SECONDS,phase_age)
 func exit_blend() -> float: return 1.0 if phase_age>=3.5 else 0.0
 func ramp_left(r) -> float: return LEAD+160-scroll_speed(r)*phase_age
 func takeoff_at(r,b: Dictionary) -> float: return (LEAD+160+RAMP_WIDTH-float(b.get("exit_x",b.x)))/scroll_speed(r)
