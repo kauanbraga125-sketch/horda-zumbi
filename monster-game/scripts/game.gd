@@ -1766,6 +1766,17 @@ func configure_layout() -> void :
 	if is_instance_valid(sewer_street_canvas):
 		sewer_street_canvas.visible = runner.sewer.active and runner.sewer.phase in ["entry","exit"]
 		sewer_street_canvas.position.y = -runner.sewer.entry_drop() if runner.sewer.active and runner.sewer.phase=="entry" else 0.0
+		# Nunca apagar uma rua onde ainda ha zumbis apoiados.
+		# A cidade perde presenca so depois de o ultimo pe cruzar a borda.
+		if runner.sewer.active and runner.sewer.phase=="entry":
+			var still_on_street: bool = false
+			for member in runner.members:
+				if str(member.get("sewer_pose",""))=="run":
+					still_on_street = true
+					break
+			sewer_street_canvas.modulate.a = 1.0 if still_on_street else 1.0-smoothstep(2.08,runner.sewer.ENTRY_SECONDS-0.22,runner.sewer.phase_age)
+		else:
+			sewer_street_canvas.modulate.a = 1.0
 		sewer_street_canvas.queue_redraw()
 	scenery.view_left = ( - layout_origin.x - world_canvas.position.x) / zoom
 	scenery.view_right = (1280 + layout_origin.x - world_canvas.position.x) / zoom
