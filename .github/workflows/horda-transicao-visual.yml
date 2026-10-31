@@ -48,7 +48,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/transitions"
           XDG_DATA_HOME="$RUNNER_TEMP/test-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/transitions" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v141_transitions.gd | tee "$RUNNER_TEMP/test.log"
           grep -q '"failures":\[\]' "$RUNNER_TEMP/test.log"
-      - name: Gravar 12 segundos da nova queda
+      - name: Gravar 10 segundos da nova queda
         shell: bash
         run: |
           set -euo pipefail
