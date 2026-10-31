@@ -72,4 +72,6 @@ func dock_face(g,edge: float) -> void:
 	var region = Rect2(edge,top,right-edge,maxf(180.0,view.end.y-top+90))
 	var tex_rect = Rect2(0,110,BACK.get_width(),BACK.get_height()-110)
 	c.draw_texture_rect_region(BACK,region,tex_rect,Color(1,1,1,.86))
-	c.draw_texture_rect(RIM,Rect2(edge-129,g.runner.FLOOR-148,290,267),false,Color.WHITE)
+	# A arte quebra apenas a borda imediata (20 px); os blocos firmes
+	# a esquerda continuam 100% visiveis ate a colisao fisica.
+	c.draw_texture_rect_region(RIM,Rect2(edge-20,g.runner.FLOOR-148,181,267),Rect2(RIM.get_width()*109.0/290.0,0,RIM.get_width()*181.0/290.0,RIM.get_height()),Color.WHITE)
