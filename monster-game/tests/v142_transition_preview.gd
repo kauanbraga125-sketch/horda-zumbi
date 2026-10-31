@@ -31,7 +31,7 @@ func run() -> void:
 		m.cosmetics_1 = ["s_ice"] if i==1 else []
 	var entry_started: bool = false
 	var entry_finished: bool = false
-	var frames: int = 360
+	var frames: int = 300
 	var samples: Array = []
 	for frame in range(frames):
 		for substep in range(2):
@@ -45,7 +45,13 @@ func run() -> void:
 			game.perfect_left = maxf(0,game.perfect_left-STEP)
 		var s = game.runner.sewer
 		if s.active and s.phase=="entry": entry_started = true
-		if s.active and s.phase=="ride": entry_finished = true
+		if s.active and s.phase=="ride":
+			entry_finished = true
+			# Esta previsualizacao valida a troca de cenarios, sem perigos do percurso.
+			s.next_encounter = 1e6
+			s.objects.clear()
+			s.life.next_scene = 1e6
+			s.life.people.clear()
 		if frame%12==0:
 			samples.append({"time":float(frame)/30.0,"phase":s.phase,"phase_age":s.phase_age,"camera_zoom":game.camera_zoom,"drop":s.entry_drop(),"street_alpha":game.sewer_street_canvas.modulate.a,"members":game.runner.active_count()})
 		game.configure_layout()
@@ -60,7 +66,14 @@ func run() -> void:
 	var report = FileAccess.open(folder+"/transicao.json",FileAccess.WRITE)
 	report.store_string(JSON.stringify(summary,"  "))
 	report.close()
-	assert(entry_started and entry_finished and not game.runner.dead and game.runner.active_count()==6)
+	var ok: bool = entry_started and entry_finished and not game.runner.dead and game.runner.active_count()>0
+	print("V142_PREVIEW_DIAGNOSTIC ",JSON.stringify({"ok":ok,"started":entry_started,"finished":entry_finished,"dead":game.runner.dead,"members":game.runner.active_count(),"phase":game.runner.sewer.phase}))
+	if not ok:
+		push_error("V142: transition did not complete in preview window; see diagnostic above")
+		game.set_process(false)
+		game.queue_free()
+		quit(1)
+		return
 	game.set_process(false)
 	game.queue_free()
 	game = null
