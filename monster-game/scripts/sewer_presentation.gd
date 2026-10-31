@@ -1,6 +1,7 @@
 extends RefCounted
 const Old = preload("res://scripts/bird_art.gd")
 const Art = preload("res://scripts/sewer_art.gd")
+var shaft = preload("res://scripts/sewer_shaft.gd").new()
 
 func view_rect(g) -> Rect2:
 	return Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
@@ -21,20 +22,9 @@ func walls(g,s,left: float,right: float,alpha: float = 1.0,shift_y: float = 0.0)
 func background(g,s) -> void:
 	var c = g.paint_target;var view = view_rect(g)
 	if s.phase=="entry":
-		var floor_y = g.runner.FLOOR-s.entry_drop();var seam = view.position.y-20+s.entry_depth()
-		var shaft_top = floor_y-72
-		if seam>shaft_top:
-			var tex = Old.texture("sewer")
-			var dest = Rect2(view.position.x,shaft_top,view.size.x,seam-shaft_top+30)
-			var source = Rect2(tex.get_size()*Vector2(.06,.10),tex.get_size()*Vector2(.85,.42))
-			var edge = clampf(s.shore_edge(),view.position.x,view.end.x)
-			texture_window(c,tex,dest,source,Rect2(view.position.x,floor_y,edge-view.position.x,maxf(0,seam-floor_y+30)),Color(.72,.85,.88))
-			texture_window(c,tex,dest,source,Rect2(edge,shaft_top,view.end.x-edge,seam-shaft_top+30),Color(.72,.85,.88))
-			for x in [s.shore_edge()+45,s.shore_edge()+360]:
-				c.draw_line(Vector2(x,floor_y),Vector2(x,seam+30),Color("17121e"),17,true)
-				c.draw_line(Vector2(x,floor_y),Vector2(x,seam+30),Color("776044"),10,true)
-				c.draw_line(Vector2(x-3,floor_y),Vector2(x-3,seam+30),Color("b39866"),2,true)
-		walls(g,s,view.position.x,view.end.x,1,s.entry_depth())
+		# A galeria antiga fica sob a nova passagem e entra em cena sem emendas duras.
+		walls(g,s,view.position.x,view.end.x,1.0,s.entry_depth())
+		shaft.paint(g,s)
 		return
 	if s.phase=="exit":
 		walls(g,s,view.position.x,view.end.x,1,s.exit_rise(g.runner));return
