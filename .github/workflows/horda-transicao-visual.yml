@@ -1,4 +1,4 @@
-name: Horda 0.10.42 — testar e filmar transicao
+name: Horda 0.10.43 — testar e filmar transicao
 
 on:
   push:
@@ -55,14 +55,14 @@ jobs:
           mkdir -p "$RUNNER_TEMP/video" dist
           XDG_DATA_HOME="$RUNNER_TEMP/preview-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/video" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v142_transition_preview.gd | tee "$RUNNER_TEMP/preview.log"
           grep -q V142_PREVIEW_OK "$RUNNER_TEMP/preview.log"
-          ffmpeg -hide_banner -loglevel warning -y -framerate 30 -i "$RUNNER_TEMP/video/frame-%04d.jpg" -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -movflags +faststart dist/Horda-Zumbi-0.10.42-Transicao-Previa.mp4
-          cp "$RUNNER_TEMP/video/transicao.json" dist/Transicao-v0.10.42.json
-          for n in 0060 0090 0120 0150 0180 0210; do cp "$RUNNER_TEMP/video/frame-$n.jpg" "dist/Quadro-$n.jpg"; done
+          ffmpeg -hide_banner -loglevel warning -y -framerate 12 -i "$RUNNER_TEMP/video/frame-%04d.jpg" -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -movflags +faststart dist/Horda-Zumbi-0.10.43-Transicao-Previa.mp4
+          cp "$RUNNER_TEMP/video/transicao.json" dist/Transicao-v0.10.43.json
+          for n in 0024 0036 0048 0060 0072 0084; do cp "$RUNNER_TEMP/video/frame-$n.jpg" "dist/Quadro-$n.jpg"; done
           (cd dist && sha256sum * > SHA256SUMS.txt)
       - name: Entregar video, quadros e relatorio
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-Zumbi-v0.10.42-Transicao-Video
+          name: Horda-Zumbi-v0.10.43-Transicao-Video
           path: dist/*
           if-no-files-found: error
           retention-days: 90
@@ -70,7 +70,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-Zumbi-v0.10.42-Erro-Visual
+          name: Horda-Zumbi-v0.10.43-Erro-Visual
           path: |
             ${{ runner.temp }}/import.log
             ${{ runner.temp }}/test.log
