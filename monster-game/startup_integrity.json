@@ -1,5 +1,5 @@
 {
-  "version": "0.10.47",
+  "version": "0.10.48",
   "class_count": 55,
   "files": [
     {
@@ -359,8 +359,8 @@
     },
     {
       "path": "res://scripts/sewer_bridge.gdshader",
-      "bytes": 2791,
-      "sha256": "450fceba76a4527c48148041c58bd779ffbb41a8a176cdb26d2e9b9523ea7b46"
+      "bytes": 4413,
+      "sha256": "2f3ab9a5dc65c813852076fc6398f8cbbb15d8ecd75146485ed8d03a9c30cd5b"
     },
     {
       "path": "res://scripts/sewer_event.gd",
@@ -384,8 +384,8 @@
     },
     {
       "path": "res://scripts/sewer_shaft.gd",
-      "bytes": 3556,
-      "sha256": "f6b89c73e15bb212d89aac088ecb5254d9eede2b331e19806e3c640404b92dac"
+      "bytes": 3676,
+      "sha256": "edc2b273eecdc16f10d3f32152f9704e35f7fed72114005e9424e2b95031acf3"
     },
     {
       "path": "res://scripts/sewer_visual.gd",

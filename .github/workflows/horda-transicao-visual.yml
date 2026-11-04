@@ -1,4 +1,4 @@
-name: Horda 0.10.47 — testar e filmar transicao
+name: Horda 0.10.48 — testar e filmar transicao
 
 on:
   push:
@@ -53,31 +53,32 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          for suite in v144_descent v145_surface v147_reveal; do
+          for suite in v144_descent v145_surface v147_reveal v148_fog; do
             XDG_DATA_HOME="$RUNNER_TEMP/$suite-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/$suite" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script "res://tests/$suite.gd" 2>&1 | tee "$RUNNER_TEMP/$suite.log"
             grep -q '"failures":\[\]' "$RUNNER_TEMP/$suite.log"
             if grep -E 'SCRIPT ERROR|Parse Error|ERROR:' "$RUNNER_TEMP/$suite.log"; then exit 1; fi
           done
-          cp "$RUNNER_TEMP/v144_descent/descent.json" dist/Recorte-v0.10.47.json
-          cp "$RUNNER_TEMP/v145_surface/surface.json" dist/Continuidade-v0.10.47.json
-          cp "$RUNNER_TEMP/v147_reveal/reveal.json" dist/Revelacao-v0.10.47.json
-          cp "$RUNNER_TEMP/transitions/transitions.json" dist/Trajetorias-v0.10.47.json
+          cp "$RUNNER_TEMP/v144_descent/descent.json" dist/Recorte-v0.10.48.json
+          cp "$RUNNER_TEMP/v145_surface/surface.json" dist/Continuidade-v0.10.48.json
+          cp "$RUNNER_TEMP/v147_reveal/reveal.json" dist/Revelacao-v0.10.48.json
+          cp "$RUNNER_TEMP/v148_fog/fog.json" dist/Neblina-v0.10.48.json
+          cp "$RUNNER_TEMP/transitions/transitions.json" dist/Trajetorias-v0.10.48.json
       - name: Gravar 14 segundos da nova queda a 30 fps
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/video" dist
-          XDG_DATA_HOME="$RUNNER_TEMP/preview-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/video" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v147_preview.gd 2>&1 | tee "$RUNNER_TEMP/preview.log"
-          grep -q V147_PREVIEW_OK "$RUNNER_TEMP/preview.log"
+          XDG_DATA_HOME="$RUNNER_TEMP/preview-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/video" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v148_preview.gd 2>&1 | tee "$RUNNER_TEMP/preview.log"
+          grep -q V148_PREVIEW_OK "$RUNNER_TEMP/preview.log"
           if grep -E 'SCRIPT ERROR|Parse Error|ERROR:' "$RUNNER_TEMP/preview.log"; then exit 1; fi
-          ffmpeg -hide_banner -loglevel warning -y -framerate 30 -i "$RUNNER_TEMP/video/frame-%04d.jpg" -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -movflags +faststart dist/Horda-Zumbi-0.10.47-Transicao-Previa.mp4
-          cp "$RUNNER_TEMP/video/transicao.json" dist/Transicao-v0.10.47.json
+          ffmpeg -hide_banner -loglevel warning -y -framerate 30 -i "$RUNNER_TEMP/video/frame-%04d.jpg" -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -movflags +faststart dist/Horda-Zumbi-0.10.48-Transicao-Previa.mp4
+          cp "$RUNNER_TEMP/video/transicao.json" dist/Transicao-v0.10.48.json
           for n in 0064 0085 0124 0149 0165 0240; do cp "$RUNNER_TEMP/video/frame-$n.jpg" "dist/Quadro-$n.jpg"; done
           (cd dist && sha256sum * > SHA256SUMS.txt)
       - name: Entregar video, quadros e relatorio
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-Zumbi-v0.10.47-Transicao-Video
+          name: Horda-Zumbi-v0.10.48-Transicao-Video
           path: dist/*
           if-no-files-found: error
           retention-days: 90
@@ -85,7 +86,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-Zumbi-v0.10.47-Erro-Visual
+          name: Horda-Zumbi-v0.10.48-Erro-Visual
           path: |
             ${{ runner.temp }}/import.log
             ${{ runner.temp }}/test.log
@@ -93,4 +94,5 @@ jobs:
             ${{ runner.temp }}/v144_descent.log
             ${{ runner.temp }}/v145_surface.log
             ${{ runner.temp }}/v147_reveal.log
+            ${{ runner.temp }}/v148_fog.log
           if-no-files-found: ignore

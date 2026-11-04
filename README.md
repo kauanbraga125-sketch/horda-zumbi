@@ -1,6 +1,6 @@
 # Horda Zumbi
 
-Versão em desenvolvimento: **0.10.47 — esgoto revelado depois da queda, com fundo em movimento e emenda suave**. [Mudanças e validação](monster-game/TRANSICAO-v0.10.47.md).
+Versão em desenvolvimento: **0.10.48 — neblina animada na descida e parede sólida sob a emenda**. [Mudanças e validação](monster-game/TRANSICAO-v0.10.48.md).
 
 O último APK publicado em Releases continua sendo a **0.10.41**.
 

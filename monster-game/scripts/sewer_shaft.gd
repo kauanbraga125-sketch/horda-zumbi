@@ -41,6 +41,7 @@ func configure(g,s) -> void:
 	mat.set_shader_parameter("scroll_x",g.runner.world_px*.28)
 	mat.set_shader_parameter("soil_scroll_x",g.runner.world_px)
 	mat.set_shader_parameter("throat_depth",throat_depth)
+	mat.set_shader_parameter("effect_time",g.frozen_world_time if g.screen in ["pause","results","revive"] else g.ui_time)
 	mat.set_shader_parameter("shore_edge",p.edge)
 	mat.set_shader_parameter("opening_mask",not s.active or s.phase=="entry")
 	mat.set_shader_parameter("exit_mode",s.active and s.phase=="exit")

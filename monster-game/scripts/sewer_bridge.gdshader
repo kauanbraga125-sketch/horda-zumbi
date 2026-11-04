@@ -10,6 +10,7 @@ uniform float gallery_height = 760.0;
 uniform float scroll_x = 0.0;
 uniform float soil_scroll_x = 0.0;
 uniform float throat_depth = 180.0;
+uniform float effect_time = 0.0;
 uniform float shore_edge = 800.0;
 uniform bool opening_mask = false;
 uniform bool exit_mode = false;
@@ -25,6 +26,11 @@ float soft_noise(vec2 p) {
 	f = f * f * (3.0 - 2.0 * f);
 	return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), f.x),
 		mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0)), f.x), f.y);
+}
+
+float cloud_noise(vec2 p) {
+	return (soft_noise(p) + 0.5 * soft_noise(p * 2.07 + vec2(13.4, 8.2))
+		+ 0.25 * soft_noise(p * 4.13 + vec2(7.1, 19.6))) / 1.75;
 }
 
 vec4 joined_sample(sampler2D image, float x, float y, float width, float overlap) {
@@ -52,11 +58,34 @@ void fragment() {
 	// The opening is air, not a stone panel at the height of the road. The
 	// already-existing wall is deeper, with an irregular spatial reveal.
 	float broken_top = throat_depth + soft_noise(vec2(soil_x * 0.008, 3.8)) * 64.0;
-	float wall = smoothstep(broken_top, broken_top + 130.0, depth);
+	// A short, solid rock edge sits behind a separate moving cloud bank.
+	// A long alpha ramp made the masonry look like a transparent ghost.
+	float wall = smoothstep(broken_top, broken_top + 28.0, depth);
 	vec3 fog = mix(vec3(0.20392, 0.12549, 0.28627), vec3(0.055, 0.038, 0.095),
 		smoothstep(24.0, throat_depth + 180.0, depth));
 	vec3 color = mix(fog, mix(soil.rgb, sewer.rgb, join), wall);
 	float opacity = mix(smoothstep(2.0,throat_depth+120.0,depth)*0.78,1.0,wall);
+	if (!exit_mode && depth > 0.0 && depth < throat_depth + 240.0) {
+		vec2 p = vec2((scene_position.x + scroll_x * 0.22) * 0.0042, depth * 0.010);
+		float drift = effect_time * 0.055;
+		float curl = soft_noise(p * 0.48 + vec2(drift * 0.36, 7.3));
+		float mass = cloud_noise(p + vec2(-drift, drift * 0.24 + curl * 0.7));
+		float wisps = cloud_noise(p * vec2(1.8, 1.3) + vec2(drift * 0.7, -drift * 0.38));
+		float crest = throat_depth * 0.68 + (curl - 0.5) * 105.0;
+		float upper_bank = exp(-pow((depth - crest) / (82.0 + curl * 45.0), 2.0));
+		float lip_bank = exp(-pow((depth - broken_top - 2.0) / 66.0, 2.0));
+		float volume = smoothstep(0.23, 0.76, mass * 0.78 + wisps * 0.30);
+		float envelope = smoothstep(3.0, 55.0, depth)
+			* (1.0 - smoothstep(throat_depth + 95.0, throat_depth + 230.0, depth));
+		float mist = clamp((upper_bank * (0.25 + volume * 0.58)
+			+ lip_bank * 0.48) * envelope, 0.0, 0.94);
+		vec3 cloud = mix(vec3(0.15, 0.17, 0.25), vec3(0.36, 0.32, 0.44),
+			clamp(volume * 0.72 + wisps * 0.36, 0.0, 1.0));
+		cloud = mix(cloud, vec3(0.16, 0.24, 0.28), smoothstep(throat_depth, throat_depth + 180.0, depth) * 0.35);
+		float combined = mist + opacity * (1.0 - mist);
+		color = (cloud * mist + color * opacity * (1.0 - mist)) / max(combined, 0.0001);
+		opacity = combined;
+	}
 	if (opening_mask) {
 		float chips = (soft_noise(vec2(depth * 0.04, 7.6)) - 0.5) * 16.0;
 		opacity *= smoothstep(shore_edge + chips - 4.0,
