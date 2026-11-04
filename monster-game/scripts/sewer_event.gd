@@ -23,6 +23,7 @@ func offer(r,forced: bool = false,event_kind: String = "sewer") -> bool:
 		if not r.space.begin(r,forced): return false
 		offered += 1;offered_kind = "space";last_kind = "space"
 		history.append({"kind":"space","at":r.elapsed});return true
+	r.sewer.visual.shaft.reset_cover()
 	pending = true;offered += 1;offered_kind = "sewer";last_kind = "sewer"
 	dock_world = r.world_px+maxf(r.view_right+260,1450)
 	r.sewer.reserve_ground(r,dock_world+r.generation_horizon()+2800)

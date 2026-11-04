@@ -8,6 +8,8 @@ uniform float gallery_offset = 460.0;
 uniform float gallery_width = 1330.0;
 uniform float gallery_height = 760.0;
 uniform float scroll_x = 0.0;
+uniform float soil_scroll_x = 0.0;
+uniform float throat_depth = 180.0;
 uniform float shore_edge = 800.0;
 uniform bool opening_mask = false;
 uniform bool exit_mode = false;
@@ -39,17 +41,22 @@ void vertex() {
 
 void fragment() {
 	float x = scene_position.x + scroll_x;
+	float soil_x = scene_position.x + soil_scroll_x;
 	float depth = scene_position.y - surface_y;
 	float irregularity = (soft_noise(vec2(x * 0.007, depth * 0.006)) - 0.5) * 100.0;
 	float join = smoothstep(gallery_offset - 160.0 + irregularity,
 		gallery_offset + 210.0 + irregularity, depth);
-	vec4 soil = joined_sample(soil_texture, x, (depth + 105.0) / 1155.0, 1050.0, 160.0);
+	vec4 soil = joined_sample(soil_texture, soil_x, (depth + 105.0) / 1155.0, 1050.0, 160.0);
 	vec4 sewer = joined_sample(sewer_texture, x, (depth - gallery_offset) / gallery_height,
 		gallery_width, 140.0);
-	vec3 color = mix(soil.rgb, sewer.rgb, join);
-	// The underground begins at the physical road surface. The distant street
-	// stays visible above it; roots must never climb over the cemetery or bridge.
-	float opacity = smoothstep(0.0, 3.0, depth);
+	// The opening is air, not a stone panel at the height of the road. The
+	// already-existing wall is deeper, with an irregular spatial reveal.
+	float broken_top = throat_depth + soft_noise(vec2(soil_x * 0.008, 3.8)) * 64.0;
+	float wall = smoothstep(broken_top, broken_top + 130.0, depth);
+	vec3 fog = mix(vec3(0.20392, 0.12549, 0.28627), vec3(0.055, 0.038, 0.095),
+		smoothstep(24.0, throat_depth + 180.0, depth));
+	vec3 color = mix(fog, mix(soil.rgb, sewer.rgb, join), wall);
+	float opacity = mix(smoothstep(2.0,throat_depth+120.0,depth)*0.78,1.0,wall);
 	if (opening_mask) {
 		float chips = (soft_noise(vec2(depth * 0.04, 7.6)) - 0.5) * 16.0;
 		opacity *= smoothstep(shore_edge + chips - 4.0,

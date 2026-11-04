@@ -1715,7 +1715,8 @@ func update_camera(dt: float) -> void :
 		var sewer_zoom = 1.0
 		if runner.sewer.phase=="entry":
 			if runner.members.is_empty(): return
-			sewer_zoom = lerpf(CAMERA_BASE_ZOOM,.82,smoothstep(.05,1.65,runner.sewer.phase_age))
+			var falling = maxf(0,runner.sewer.fall_age(runner))
+			sewer_zoom = lerpf(CAMERA_BASE_ZOOM,.82,smoothstep(.10,1.75,falling))
 			sewer_zoom = lerpf(sewer_zoom,1.0,smoothstep(3.85,runner.sewer.ENTRY_SECONDS,runner.sewer.phase_age))
 			var highest = INF;var lowest = -INF
 			for member in runner.members:
@@ -1783,12 +1784,13 @@ func configure_layout() -> void :
 		var entering: bool = runner.sewer.encounter.pending or (runner.sewer.active and runner.sewer.phase=="entry")
 		var visible_street: bool = runner.sewer.encounter.pending or (runner.sewer.active and runner.sewer.phase in ["entry","exit"])
 		var drop: float = runner.sewer.entry_drop() if entering else 0.0
-		var bottom = minf(scenery.view_bottom,runner.FLOOR-drop) if entering else scenery.view_bottom
+		var cover: float = runner.sewer.visual.shaft.throat_depth+224.0
+		var bottom = minf(scenery.view_bottom,runner.FLOOR-drop+cover) if entering else scenery.view_bottom
 		sewer_street_clip.position = Vector2(scenery.view_left,scenery.view_top)
 		sewer_street_clip.size = Vector2(scenery.view_right-scenery.view_left,maxf(0,bottom-scenery.view_top))
 		sewer_street_clip.visible = visible_street and sewer_street_clip.size.y>0
 		sewer_street_canvas.visible = visible_street
-		sewer_street_canvas.position = -sewer_street_clip.position+Vector2(0,-drop)
+		sewer_street_canvas.position = -sewer_street_clip.position+Vector2(0,-drop*.40)
 		sewer_street_canvas.modulate.a = 1.0
 		sewer_street_canvas.queue_redraw()
 	runner.sewer.visual.shaft.configure(self,runner.sewer)
@@ -1811,7 +1813,11 @@ func paint_sewer_background() -> void:
 func paint_sewer_street() -> void:
 	if not runner.sewer.encounter.pending and (not runner.sewer.active or runner.sewer.phase not in ["entry","exit"]): return
 	var target = paint_target;paint_target = sewer_street_canvas
+	var top = scenery.view_top;var bottom = scenery.view_bottom
+	var drop: float = runner.sewer.entry_drop()*.40 if runner.sewer.active and runner.sewer.phase=="entry" else 0.0
+	scenery.view_top += drop;scenery.view_bottom += drop
 	scenery.paint(paint_target,runner,frozen_world_time if screen=="pause" else ui_time)
+	scenery.view_top = top;scenery.view_bottom = bottom
 	if runner.sewer.phase=="exit": ground(runner.world_px)
 	paint_target = target
 

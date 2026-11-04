@@ -1,6 +1,6 @@
 extends "res://tests/v134_visual.gd"
-## Rendered regressions for the covered drop: no street below its surface,
-## no transparent scene mixing, and no background flash at the water handoff.
+## Actual terrain ends at the ledge; the distant background can continue below
+## the walking plane until the deeper wall covers it without a visible cut.
 var checks = 0
 var failures: Array[String] = []
 var handoffs: Array = []
@@ -15,20 +15,17 @@ func picture() -> Image:
 	return root.get_texture().get_image()
 
 func street_mask(label: String) -> void:
-	var clear = RenderingServer.get_default_clear_color()
-	RenderingServer.set_default_clear_color(Color.MAGENTA)
-	game.self_modulate.a = 0;game.world_canvas.self_modulate.a = 0;game.foreground_canvas.self_modulate.a = 0;game.sewer_background_canvas.self_modulate.a = 0
-	var img = await picture()
-	var surface = (game.world_to_ui(Vector2(0,game.runner.FLOOR-game.runner.sewer.entry_drop()))+game.layout_origin).y*float(img.get_height())/game.get_viewport_rect().size.y
+	var img = await preload("res://tests/sewer_render_probe.gd").terrain_image(game,self)
+	var scale = Vector2(img.get_size())/game.get_viewport_rect().size
+	var surface = ((game.world_to_ui(Vector2(0,game.runner.FLOOR-game.runner.sewer.entry_drop()))+game.layout_origin)*scale).y
+	var first_x = maxi(15,ceili(((game.world_to_ui(Vector2(game.runner.sewer.shore_edge()+24,0))+game.layout_origin)*scale).x))
 	var pixels = 0;var leaked = 0
 	for y in range(maxi(150,ceili(surface+5)),img.get_height()-5,13):
-		for x in range(15,img.get_width()-15,37):
+		for x in range(first_x,img.get_width()-15,37):
 			var color = img.get_pixel(x,y);pixels += 1
 			if color.r<.98 or color.g>.02 or color.b<.98: leaked += 1
-	check(pixels>10 and leaked==0,label+": street is absent below the physical surface")
-	img.save_png(folder+"/"+label+"-street-mask.png")
-	RenderingServer.set_default_clear_color(clear)
-	game.self_modulate.a = 1;game.world_canvas.self_modulate.a = 1;game.foreground_canvas.self_modulate.a = 1;game.sewer_background_canvas.self_modulate.a = 1
+	check(pixels>10 and leaked==0,label+": actual terrain is absent inside the opening")
+	img.save_png(folder+"/"+label+"-terrain-mask.png")
 	await picture()
 
 func handoff(label: String) -> void:
@@ -60,7 +57,12 @@ func run() -> void:
 		root.size = fixture[0];await process_frame
 		game.lab_count = fixture[1];game.start_lab("sewer");game.lab_active = false
 		var s = game.runner.sewer
-		check(s.begin(game.runner,true),"the covered drop begins")
+		# Reach the ledge through the real approach. Forcing entry immediately
+		# after offer() places the opening offscreen and samples no pit pixels.
+		for i in range(600):
+			step(STEP)
+			if s.active: break
+		check(s.active and s.phase=="entry","the actual approach starts the covered drop")
 		check(s.boats.all(func(b):return absf(b.y-(s.WATER-24+s.entry_depth()))<.001),"entry boats start below the street before the first physics update")
 		s.next_encounter = 1e6;s.life.next_scene = 1e6
 		var label = "%dx%d-%d" % [root.size.x,root.size.y,fixture[1]]

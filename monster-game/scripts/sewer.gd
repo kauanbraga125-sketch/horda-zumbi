@@ -55,6 +55,7 @@ var entry_travel = 0.0
 var descent_camera = 0.0
 
 func reset(seed_value: int) -> void:
+	visual.shaft.reset_cover()
 	active = false;phase = "ground";age = 0;phase_age = 0;ride_age = 0;completed = 0;captured = 0;hits = 0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();random.seed = seed_value^0x536e2
 	life.reset();braking = 0;jump_hold_until = -1;entry_travel = 0;descent_camera = 0.0
@@ -68,6 +69,7 @@ func begin(r,force: bool = false) -> bool:
 	for i in range(r.members.size()-1,-1,-1):
 		if r.members[i].falling: r.remove_member(i,"fall")
 	if r.dead: return false
+	if not encounter.pending: visual.shaft.reset_cover()
 	entry_edge_world = encounter.dock_world-DOCK_TO_EDGE if encounter.pending else r.world_px+LEAD-DOCK_TO_EDGE
 	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 32.0;left = duration
 	pressure = .23;serial = 0;scroll = 0;next_encounter = .8;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
@@ -147,6 +149,13 @@ func request_duck(r) -> void:
 	r.events.append({"type":"sewer_duck"})
 
 func entry_launch() -> float: return smoothstep(3.65,ENTRY_SECONDS,phase_age)
+func fall_age(r) -> float:
+	var first = INF
+	for member in r.members:
+		var at = float(member.get("sewer_drop_at",-1.0))
+		if at>=0: first = minf(first,at)
+	return -1.0 if is_inf(first) else maxf(0,phase_age-first)
+
 func entry_drop() -> float: return descent_camera
 func entry_depth() -> float: return SHAFT_DEPTH-entry_drop()
 func dock_x(r,slot: int) -> float:
