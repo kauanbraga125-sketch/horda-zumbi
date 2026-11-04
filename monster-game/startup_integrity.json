@@ -1,5 +1,5 @@
 {
-  "version": "0.10.45",
+  "version": "0.10.46",
   "class_count": 55,
   "files": [
     {
@@ -339,8 +339,8 @@
     },
     {
       "path": "res://scripts/scene.gd",
-      "bytes": 12755,
-      "sha256": "3129d8f3968703b64e2e862ef8fe882d64ac58487531af5627ed788eff6acf31"
+      "bytes": 12581,
+      "sha256": "124107f1bf41a76e79f39774a5a85ad73cf2233308126c9ad0204e1fe1f05cea"
     },
     {
       "path": "res://scripts/sequence_validator.gd",
@@ -359,8 +359,8 @@
     },
     {
       "path": "res://scripts/sewer_bridge.gdshader",
-      "bytes": 2500,
-      "sha256": "ff1041a61bd37ff32df251f670965737a6d1365eca2acde784ccd71fe7c36944"
+      "bytes": 2357,
+      "sha256": "9fd454067783ef3501e9c3ac8099d7ee6511417560f11bf68e55877f9fe9a751"
     },
     {
       "path": "res://scripts/sewer_event.gd",

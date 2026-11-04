@@ -47,15 +47,13 @@ void fragment() {
 	vec4 sewer = joined_sample(sewer_texture, x, (depth - gallery_offset) / gallery_height,
 		gallery_width, 140.0);
 	vec3 color = mix(soil.rgb, sewer.rgb, join);
-	// The far wall rises behind the road lip. Its ragged upper edge blends into
-	// the cemetery silhouettes, rather than leaving a rectangular black gap.
-	float lip = -110.0 + soft_noise(vec2(x * 0.012, 4.2)) * 38.0;
-	float opacity = smoothstep(lip - 20.0, lip + 20.0, depth);
+	// The underground begins at the physical road surface. The distant street
+	// stays visible above it; roots must never climb over the cemetery or bridge.
+	float opacity = smoothstep(0.0, 3.0, depth);
 	if (opening_mask) {
-		float recede = clamp(-depth, 0.0, 140.0) * 0.35;
 		float chips = (soft_noise(vec2(depth * 0.04, 7.6)) - 0.5) * 16.0;
-		opacity *= smoothstep(shore_edge - recede + chips - 4.0,
-			shore_edge - recede + chips + 8.0, scene_position.x);
+		opacity *= smoothstep(shore_edge + chips - 4.0,
+			shore_edge + chips + 8.0, scene_position.x);
 	}
 	if (exit_mode) {
 		opacity = smoothstep(gallery_offset - 40.0 + irregularity * 0.4,

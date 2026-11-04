@@ -88,7 +88,7 @@ func road_end(run: HordeRun) -> float:
 
 func street_rect(canvas: Node2D,rect: Rect2,color: Color,edge: float) -> void:
 	if is_inf(edge): canvas.draw_rect(rect,color);return
-	var horizon = HordeRun.FLOOR-72
+	var horizon = HordeRun.FLOOR
 	var top = minf(rect.end.y,horizon)
 	if top>rect.position.y: canvas.draw_rect(Rect2(rect.position,Vector2(rect.size.x,top-rect.position.y)),color)
 	var bottom = maxf(rect.position.y,horizon);var right = minf(rect.end.x,edge)
@@ -110,9 +110,6 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 			var dest = Rect2(tile * width - offset, bottom - height, width + 1, height)
 			if layer==2:
 				clip_texture(canvas,texture,dest,left,minf(right,edge))
-			elif layer==1 and edge<right:
-				clip_texture(canvas,texture,dest,left,minf(right,edge))
-				clip_texture(canvas,texture,dest,maxf(left,edge),right,HordeRun.FLOOR-72)
 			else: clip_texture(canvas,texture,dest,left,right)
 	if area == 0:
 		for i in range(2):

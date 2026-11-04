@@ -1,6 +1,6 @@
 # Horda Zumbi
 
-Versão em desenvolvimento: **0.10.45 — rua, raízes e esgoto conectados por uma descida contínua**. [Mudanças e validação](monster-game/TRANSICAO-v0.10.45.md).
+Versão em desenvolvimento: **0.10.46 — parede da queda alinhada ao piso, com a ponte e o fundo preservados**. [Mudanças e validação](monster-game/TRANSICAO-v0.10.46.md).
 
 O último APK publicado em Releases continua sendo a **0.10.41**.
 

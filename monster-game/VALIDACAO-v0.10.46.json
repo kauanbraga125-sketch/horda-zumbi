@@ -1,0 +1,334 @@
+{
+  "version": "0.10.46",
+  "engine": "Godot 4.5.1 stable",
+  "renderer": "OpenGL Compatibility, Mesa llvmpipe",
+  "native_rendering": true,
+  "physical_device_tested": false,
+  "scope": "Align the shaft with the physical street surface and preserve the distant bridge/cemetery. No descent physics or camera changes.",
+  "alignment": {
+    "checks": 39,
+    "failures": [],
+    "measurements": [
+      {
+        "covered_pixels": 0,
+        "fixture": "1280x720-6-approach",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "ground",
+        "phase_age": 0,
+        "samples_above_surface": 13340,
+        "samples_below_surface": 36,
+        "surface_y_pixels": 610.0
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "1280x720-6-entry-0.50",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 0.5,
+        "samples_above_surface": 19836,
+        "samples_below_surface": 57,
+        "surface_y_pixels": 610.0
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "1280x720-6-entry-1.25",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 1.25,
+        "samples_above_surface": 24910,
+        "samples_below_surface": 108,
+        "surface_y_pixels": 570.91455078125
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "1280x720-6-entry-1.75",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 1.75,
+        "samples_above_surface": 16445,
+        "samples_below_surface": 138,
+        "surface_y_pixels": 405.97607421875
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "1800x810-12-approach",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "ground",
+        "phase_age": 0,
+        "samples_above_surface": 22410,
+        "samples_below_surface": 48,
+        "surface_y_pixels": 686.25
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "1800x810-12-entry-0.50",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 0.5,
+        "samples_above_surface": 30915,
+        "samples_below_surface": 69,
+        "surface_y_pixels": 686.25
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "1800x810-12-entry-1.25",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 1.25,
+        "samples_above_surface": 37200,
+        "samples_below_surface": 123,
+        "surface_y_pixels": 642.278869628906
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "1800x810-12-entry-1.75",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 1.75,
+        "samples_above_surface": 25410,
+        "samples_below_surface": 159,
+        "surface_y_pixels": 456.723114013672
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "960x720-12-approach",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "ground",
+        "phase_age": 0,
+        "samples_above_surface": 8600,
+        "samples_below_surface": 36,
+        "surface_y_pixels": 547.5
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "960x720-12-entry-0.50",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 0.5,
+        "samples_above_surface": 12800,
+        "samples_below_surface": 57,
+        "surface_y_pixels": 547.5
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "960x720-12-entry-1.25",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 1.25,
+        "samples_above_surface": 16720,
+        "samples_below_surface": 108,
+        "surface_y_pixels": 527.264770507812
+      },
+      {
+        "covered_pixels": 0,
+        "fixture": "960x720-12-entry-1.75",
+        "missing_pixels_below": 0,
+        "peak_rgb_change": 0.0,
+        "phase": "entry",
+        "phase_age": 1.75,
+        "samples_above_surface": 14742,
+        "samples_below_surface": 138,
+        "surface_y_pixels": 459.543548583984
+      }
+    ],
+    "physical_device_tested": false,
+    "version": "0.10.46"
+  },
+  "street_clipping": {
+    "checks": 48,
+    "failures": [],
+    "handoffs": [
+      {
+        "fixture": "1280x720-6",
+        "mean_rgb_change": 0.000114839382076145,
+        "pixels": 14661
+      },
+      {
+        "fixture": "1800x810-12",
+        "mean_rgb_change": 8.04382401109653e-05,
+        "pixels": 23970
+      },
+      {
+        "fixture": "960x720-12",
+        "mean_rgb_change": 5.05661815881838e-05,
+        "pixels": 10935
+      }
+    ],
+    "physical_device_tested": false,
+    "version": "0.10.46"
+  },
+  "phase_surfaces": {
+    "checks": 21,
+    "comparisons": [
+      {
+        "changed_fraction": 0.0,
+        "label": "1280x720-6-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1280x720-6-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0015255530129672,
+        "label": "1280x720-6-entry-ride",
+        "mean_rgb_change": 0.000107731421375215,
+        "peak": 0.0941176488995552,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0015255530129672,
+        "label": "1280x720-6-ride-exit",
+        "mean_rgb_change": 0.000107731421375215,
+        "peak": 0.0941176488995552,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1800x810-12-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1800x810-12-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.00127323656735421,
+        "label": "1800x810-12-entry-ride",
+        "mean_rgb_change": 8.65745416378387e-05,
+        "peak": 0.0901960817476114,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.00127323656735421,
+        "label": "1800x810-12-ride-exit",
+        "mean_rgb_change": 8.65745416378387e-05,
+        "peak": 0.0901960817476114,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "960x720-12-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "960x720-12-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 4.64123271140815e-05,
+        "label": "960x720-12-entry-ride",
+        "mean_rgb_change": 9.52514438125446e-06,
+        "peak": 0.074509804447492,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 4.64123271140815e-05,
+        "label": "960x720-12-ride-exit",
+        "mean_rgb_change": 9.52514438125446e-06,
+        "peak": 0.074509804447492,
+        "pixels": 21546
+      }
+    ],
+    "failures": [],
+    "physical_device_tested": false,
+    "version": "0.10.46"
+  },
+  "motion_comparison_to_v145": {
+    "compared_frames": 420,
+    "compared_fields": [
+      "phase",
+      "phase_age",
+      "camera_zoom",
+      "drop",
+      "camera_shift",
+      "world",
+      "feet",
+      "members",
+      "edge"
+    ],
+    "changed_frames": [],
+    "identical": true
+  },
+  "startup_new": {
+    "checks": 15,
+    "failures": [],
+    "fixture": "new",
+    "physical_device_tested": false,
+    "version": "0.10.46"
+  },
+  "preview": {
+    "suite": "tests/v145_preview.gd",
+    "frames": 420,
+    "fps": 30,
+    "duration_seconds": 14,
+    "viewport": [
+      1280,
+      720
+    ],
+    "version_reported_by_game": "0.10.46",
+    "scope": "Actual approach, complete physical fall and boarding; hazards disabled after boarding to inspect the scenery; muted capture."
+  },
+  "visual_review": {
+    "critical_frames_examined_in_sequence": [
+      48,
+      239
+    ],
+    "original_size_frames": [
+      85,
+      110,
+      125,
+      149,
+      165
+    ],
+    "other_viewports_examined": [
+      [
+        1800,
+        810
+      ],
+      [
+        960,
+        720
+      ]
+    ],
+    "finding": "The shaft no longer hides the distant bridge/cemetery above the walking surface. Existing physical motion matches v0.10.45 for every recorded frame."
+  },
+  "deliverables": [
+    {
+      "file": "Horda-v0.10.46-Previa.mp4",
+      "bytes": 15363482,
+      "sha256": "1b2fbf00b25595ad77a1a5851cec37e176e35441d6d302c8d54f3f0f2e70cc47"
+    },
+    {
+      "file": "Horda-v0.10.46-Alinhamento.png",
+      "bytes": 1553612,
+      "sha256": "7d5cc8b543bd80b4d5aa35894e9b379907e8184eb60bdd28ca61866fdf9af6ef"
+    }
+  ]
+}
