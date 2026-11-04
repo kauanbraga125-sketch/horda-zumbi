@@ -1,77 +1,98 @@
 extends RefCounted
-## Transicao ilustrada: 4 artes SVG originais (fundo, frente, rua quebrada, chegada).
-## A geometria acompanha o mesmo deslocamento vertical dos personagens.
-## Sem faixas opacas, sem repetir blocos procedurais, sem mascarar o gameplay.
-const BACK: Texture2D = preload("res://assets/art/sewer_transition/shaft_back.svg")
-const FRONT: Texture2D = preload("res://assets/art/sewer_transition/shaft_foreground.svg")
-const RIM: Texture2D = preload("res://assets/art/sewer_transition/street_fracture.svg")
-const ARRIVAL: Texture2D = preload("res://assets/art/sewer_transition/sewer_arrival.svg")
+## A covered drop, built from the same masonry and portal as ordinary tunnels.
+## Street and underground meet at the physical floor; neither scene crossfades.
+const PORTAL_BEFORE_EDGE = 300.0
+const WALL_HEIGHT = 1350.0
+const WALL_TOP = -180.0
+var masonry: Texture2D
+var lintel: Texture2D
+var lintel_region: Rect2
+const LINTEL_SEAM = 357.0
 
-func limits(g,s) -> Dictionary:
+func geometry(g,s) -> Dictionary:
 	var view = Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
-	var street_y = g.runner.FLOOR-s.entry_drop()
-	var water_y = s.WATER+s.entry_depth()
-	return {"view":view,"street":street_y,"water":water_y,"edge":s.shore_edge()}
+	var drop: float = s.entry_drop() if s.active and s.phase=="entry" else 0.0
+	var depth: float = s.SHAFT_DEPTH-drop
+	var edge: float = s.shore_edge() if s.active else s.encounter.dock_world-g.runner.world_px-s.DOCK_TO_EDGE
+	return {"view":view,"street":g.runner.FLOOR-drop,"edge":edge,"depth":depth,"join":view.position.y+depth-20.0}
 
-func background(g,s) -> void:
-	if s.phase!="entry": return
-	var c = g.paint_target
-	var p = limits(g,s)
+func texture_window(c,tex: Texture2D,dest: Rect2,window: Rect2,tint: Color = Color.WHITE) -> void:
+	var clipped = dest.intersection(window)
+	if not clipped.has_area(): return
+	var source = Rect2((clipped.position-dest.position)/dest.size*tex.get_size(),clipped.size/dest.size*tex.get_size())
+	c.draw_texture_rect_region(tex,clipped,source,tint)
+
+func tunnel_wall(g,window: Rect2,top: float,offset: float,tint: Color = Color.WHITE) -> void:
+	if not window.has_area(): return
+	if masonry==null:
+		var image = Image.new()
+		assert(image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v144/shaft_wall.webp"))==OK)
+		masonry = ImageTexture.create_from_image(image)
+	var tex: Texture2D = masonry
+	var size = tex.get_size()*WALL_HEIGHT/tex.get_height()
+	var start = floorf((window.position.x+offset)/size.x)*size.x-offset
+	for i in range(ceili(window.size.x/size.x)+2):
+		texture_window(g.paint_target,tex,Rect2(start+i*size.x,top,size.x+1,size.y),window,tint)
+
+func approach_background(g,s,edge: float) -> void:
+	# A short covered throat uses the actual ordinary-tunnel art and mouth.
+	# Its left seam is hidden by the portal, exactly as in the normal run.
+	var view: Rect2 = geometry(g,s).view
+	var portal = edge-PORTAL_BEFORE_EDGE
+	var left = maxf(view.position.x,portal)
+	if left>=view.end.x: return
+	var window = Rect2(left,view.position.y,view.end.x-left,g.runner.FLOOR-view.position.y)
+	tunnel_wall(g,window,WALL_TOP,g.runner.world_px)
+
+func background(g,s,opening_only: bool = false) -> void:
+	var p = geometry(g,s)
 	var view: Rect2 = p.view
-	var top: float = p.street-63.0
-	var height: float = p.water-p.street+132.0
-	var appearance = smoothstep(0.10,0.94,s.phase_age)
-	# A arte inteira e um unico painel, com translucidez graduada
-	# nas extremidades. A parede original permanece atras do painel.
-	c.draw_texture_rect(BACK,Rect2(view.position.x,top,view.size.x,height),false,Color(1,1,1,appearance))
-	# A luz do esgoto entra no ultimo terco da descida;
-	# sem criar outra faixa de contraste na entrada da agua.
-	var glow = smoothstep(2.55,4.10,s.phase_age)
-	if glow>.01:
-		c.draw_texture_rect(ARRIVAL,Rect2(view.position.x,p.water-352,view.size.x,352),false,Color(1,1,1,glow*.89))
+	var left = maxf(view.position.x,float(p.edge)) if opening_only else view.position.x
+	var top = maxf(view.position.y,float(p.street))
+	var bottom = minf(view.end.y,maxf(float(p.street),float(p.join)))
+	if bottom<=top or left>=view.end.x: return
+	var window = Rect2(left,top,view.end.x-left,bottom-top)
+	# Opaque masonry below the surface, at a fixed scale. No stretched panel,
+	# no translucent city behind it, and no underground pixels above the floor.
+	g.paint_target.draw_rect(window,Color("100e1c"))
+	tunnel_wall(g,window,float(p.street)-g.runner.FLOOR+WALL_TOP,g.runner.world_px)
+
+func gallery_lintel(g,top: float,offset: float) -> void:
+	# A real stone ceiling hides the join between the shaft and the gallery.
+	# It stays behind the actors and keeps the same pose at the ride handoff.
+	if lintel==null:
+		var image = Image.new()
+		assert(image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v144/shaft_lintel.webp"))==OK)
+		lintel_region = Rect2(0,228,2172,323)
+		lintel = ImageTexture.create_from_image(image)
+	var view = Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
+	var scale = 104.0/lintel_region.size.y
+	var width = lintel_region.size.x*scale
+	var y = top-(LINTEL_SEAM-lintel_region.position.y)*scale
+	if y>view.end.y or y+104.0<view.position.y: return
+	var start = view.position.x-fposmod(offset,width)-width
+	for i in range(ceili(view.size.x/width)+3):
+		g.paint_target.draw_texture_rect_region(lintel,Rect2(start+i*width,y,width+1,104.0),lintel_region)
+
+func portal(g,s,edge: float,drop: float = 0.0) -> void:
+	var view: Rect2 = geometry(g,s).view
+	var x = edge-PORTAL_BEFORE_EDGE
+	if x<view.position.x-620 or x>view.end.x+620: return
+	var c = g.paint_target
+	c.draw_set_transform(Vector2(0,-drop))
+	g.scenery.sprite(c,g.art.tunnel_mouths[0],Vector2(x-30,g.runner.FLOOR-215),430)
+	c.draw_set_transform(Vector2.ZERO)
+
+func dock_face(g,edge: float,drop: float = 0.0) -> void:
+	# The normal terrain pit edge starts at the floor, below running bodies.
+	HordeTerrainArt.pit_edge(g,edge,g.runner.FLOOR-drop,false)
 
 func foreground(g,s) -> void:
-	if s.phase!="entry": return
-	var c = g.paint_target
-	var p = limits(g,s)
-	var view: Rect2 = p.view
-	var top: float = p.street-63.0
-	var height: float = p.water-p.street+132.0
-	var presence = smoothstep(0.45,1.20,s.phase_age)
-	# Molduras, correntes e tubulacoes passam NA FRENTE dos zumbis,
-	# mas deixam a faixa central aberta para que continuem legiveis.
-	c.draw_texture_rect(FRONT,Rect2(view.position.x,top,view.size.x,height),false,Color(1,1,1,presence*.88))
-	# Borda fragmentada cobre o encontro da calçada com o abismo.
-	# Apenas junto da abertura real, nunca em um X fixo da tela.
-	var edge: float = p.edge
-	if edge>view.position.x-260 and edge<view.end.x+130:
-		c.draw_texture_rect(RIM,Rect2(edge-129,p.street-148,290,267),false,Color(1,1,1,.91))
-	# Poeira e detritos pequenos: se movem com a mesma gravidade de entrada.
-	for i in range(22):
-		var t = fposmod(s.phase_age*.31+float(i)*.137,1.0)
-		var x = edge+27+float(i%7)*28+sin(float(i)*2.75)*9
-		var y = p.street+31+t*t*265
-		if x<view.position.x-5 or x>view.end.x+5 or y<view.position.y or y>view.end.y: continue
-		var radius = 1.3+float(i%4)*.65
-		c.draw_circle(Vector2(x,y),radius,Color(.67,.62,.69,(1.0-t)*.31))
-	# Goteiras e neblina suave junto ao espelho da agua, nao sobre a tela.
-	if s.phase_age>2.5:
-		var mist = smoothstep(2.5,4.2,s.phase_age)
-		for i in range(5):
-			var y = p.water-195+float(i)*21
-			if y<view.position.y or y>view.end.y: continue
-			c.draw_line(Vector2(view.position.x,y),Vector2(view.end.x,y),Color(.38,.57,.64,.022*mist),10,true)
+	var p = geometry(g,s)
 
-func dock_face(g,edge: float) -> void:
-	# A abertura durante a corrida normal tem a MESMA arte da descida.
+	# Debris belongs to the physical opening and stays below its rim.
 	var c = g.paint_target
-	var view = Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
-	var top: float = g.runner.FLOOR-70.0
-	var right = view.end.x+80
-	if edge>=right: return
-	var region = Rect2(edge,top,right-edge,maxf(180.0,view.end.y-top+90))
-	var tex_rect = Rect2(0,110,BACK.get_width(),BACK.get_height()-110)
-	c.draw_texture_rect_region(BACK,region,tex_rect,Color(1,1,1,.86))
-	# A arte quebra apenas a borda imediata (20 px); os blocos firmes
-	# a esquerda continuam 100% visiveis ate a colisao fisica.
-	c.draw_texture_rect_region(RIM,Rect2(edge-20,g.runner.FLOOR-148,181,267),Rect2(RIM.get_width()*109.0/290.0,0,RIM.get_width()*181.0/290.0,RIM.get_height()),Color.WHITE)
+	for i in range(12):
+		var t = fposmod(s.phase_age*.45+float(i)*.137,1.0)
+		var at = Vector2(float(p.edge)+8+i%4*13,float(p.street)+14+t*t*170)
+		c.draw_circle(at,1.4+float(i%3)*.6,Color(.46,.48,.57,(1.0-t)*.48))

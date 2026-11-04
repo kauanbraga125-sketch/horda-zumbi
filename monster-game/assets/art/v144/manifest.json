@@ -1,0 +1,31 @@
+{
+  "version": "0.10.44",
+  "generation": "Built-in image generation; original project assets created for the sewer descent.",
+  "assets": [
+    {
+      "file": "shaft_wall.webp",
+      "kind": "opaque shaft back wall",
+      "prompt": "Use case: stylized-concept. Asset type: production 2D game background texture, NOT a concept presentation. Create a richly hand-painted gothic underground service shaft WALL for a colorful side-scrolling zombie game. Portrait 1536x2048 composition. We look straight at the flat vertical back wall in side elevation, orthographic, no perspective camera tilt. The entire canvas is continuous dark violet-blue and indigo weathered stone masonry, wet turquoise moss in cracks, rusty narrow iron pipes running vertically, a few deeply recessed pointed arches cut into the WALL, subtle amber wall lanterns. Match polished cartoon gothic game environment art: thick crisp painted outlines, detailed irregular stones, strong but controlled warm amber and cool teal lighting, dark enough that bright green and magenta characters remain clearly legible in front. Upper wall dryer with violet slate, lower wall darker damp teal as we descend. CRITICAL: absolutely NO FLOORS, NO WALKWAYS, NO PLATFORMS, NO HORIZONTAL LEDGES, NO WATER SURFACE, NO ground, NO sky, NO large black empty bands, NO bottom sill, NO border, NO HUD, NO text, NO characters, NO vehicles. The shaft is a continuous tall fall space; the player must be able to fall in front of EVERY part of this wall with no apparent floor. Columns and arches are sculptural wall decoration behind the play area, never a foreground obstruction. Keep the central area comparatively quiet. The texture goes completely to all edges; left and right edges should tile seamlessly, no bright light clipped at the side edges. Opaque full background, not transparent. This image will be drawn behind falling characters in an actual game, and its bottom will meet an existing flooded sewer gallery.",
+      "encoding": "WebP quality 94; generated alpha preserved where present",
+      "source": "exec-37286a9e-38ae-4789-a2d3-17243a3500f8.png",
+      "sha256": "4c0a024f2d2a2220c044ce29d763c1460366956996e73b58478c74a34c4ae21f",
+      "bytes": 530352
+    },
+    {
+      "file": "shaft_lintel.webp",
+      "kind": "transparent stone ceiling occluder",
+      "prompt": "Use case: stylized-concept. Production 2D game asset: a narrow HORIZONTAL gothic stone ceiling lintel / underside of a drain tunnel arch, isolated on a genuinely transparent background. Very wide 1536x384 composition, the stone structure extends all the way to both left and right canvas edges so it can repeat horizontally. A continuous solid central band of dark violet blue hand-painted masonry blocks, damp teal moss, a narrow rusty iron pipe embedded horizontally, a few tiny hanging roots underneath. Irregular natural lower silhouette with individual stone edges, carved underside and soft deep self-shadow; the upper silhouette is slightly irregular too. Rich crisp cartoon painted outlines, matching a polished gothic zombie side-scroller, amber accents but no lanterns. This is a CEILING beam seen straight-on in side elevation; it hides a join between two underground background wall images. The central horizontal third MUST be continuously opaque from the left edge to the right edge, no holes or transparent gaps through the middle of the beam. Transparency only above and below the irregular stone silhouette. No ground or walkable floor surface, no characters, no HUD, no text, no black background, no frame. The asset must read as a textured structural ceiling over a falling passage, not a flat rectangle or decorative border. Keep it relatively slender; do not create a full scene or full wall.",
+      "encoding": "WebP quality 94; generated alpha preserved where present",
+      "source": "exec-fc0ff5d5-cc14-456f-8d6e-e44fd1b2d2f6.png",
+      "draw_region": [
+        0,
+        228,
+        2172,
+        323
+      ],
+      "opaque_seam_row": 357,
+      "sha256": "28a5067a63d06492705ff2764fff0c2024a55666a58a5bb94a14cfe0f01d5791",
+      "bytes": 251724
+    }
+  ]
+}

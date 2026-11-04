@@ -1,6 +1,8 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.41 — espaço e esgoto como eventos aleatórios**.
+Versão em desenvolvimento: **0.10.44 — entrada coberta, queda contínua e camadas recortadas no esgoto**. [Mudanças e validação](monster-game/TRANSICAO-v0.10.44.md).
+
+O último APK publicado em Releases continua sendo a **0.10.41**.
 
 **Para editar e compilar pelo próprio GitHub:** [guia de continuação](CONTINUAR-NO-GITHUB.md) · [compilar novo APK dos fontes no Actions](https://github.com/kauanbraga125-sketch/horda-zumbi/actions/workflows/horda-compilar-apk.yml). Alterações em `monster-game/` geram uma compilação de teste automaticamente; o botão **Run workflow** permite escolher a branch. Baixe o APK em **Artifacts** da execução concluída.
 

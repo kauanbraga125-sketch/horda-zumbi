@@ -14,21 +14,23 @@ func entry_boundary(g,s) -> float:
 	var view = view_rect(g)
 	return lerpf(minf(view.end.x+100,s.LEAD+380),view.position.x-750,smoothstep(0,.96,s.entry_launch()))
 
-func walls(g,s,left: float,right: float,alpha: float = 1.0,shift_y: float = 0.0) -> void:
+func walls(g,s,left: float,right: float,alpha: float = 1.0,shift_y: float = 0.0,top_limit: float = -INF) -> void:
 	var c = g.paint_target;var view = view_rect(g);var tex = Old.texture("sewer");var height = maxf(760,view.size.y+40)
 	var size = tex.get_size()*height/tex.get_height();var stride = size.x-140;var offset = fposmod(s.scroll*.45,stride)
-	for i in range(-1,ceili(view.size.x/stride)+2): blend_tile(c,tex,Rect2(view.position+Vector2(i*stride-offset,-20+shift_y),size),alpha,left,right)
+	for i in range(-1,ceili(view.size.x/stride)+2): blend_tile(c,tex,Rect2(view.position+Vector2(i*stride-offset,-20+shift_y),size),alpha,left,right,top_limit)
 
 func background(g,s) -> void:
 	var c = g.paint_target;var view = view_rect(g)
 	if s.phase=="entry":
-		# A galeria antiga fica sob a nova passagem e entra em cena sem emendas duras.
-		walls(g,s,view.position.x,view.end.x,1.0,s.entry_depth())
+		var p = shaft.geometry(g,s)
+		walls(g,s,view.position.x,view.end.x,1.0,s.entry_depth(),p.join)
 		shaft.background(g,s)
+		shaft.gallery_lintel(g,p.join,s.scroll*.45)
 		return
 	if s.phase=="exit":
 		walls(g,s,view.position.x,view.end.x,1,s.exit_rise(g.runner));return
 	walls(g,s,view.position.x,view.end.x)
+	shaft.gallery_lintel(g,view.position.y-20.0,s.scroll*.45)
 	var catwalk_y = view.position.y-20+maxf(760,view.size.y+40)*.588
 	s.life.paint(g,s,catwalk_y)
 	for i in range(7):
@@ -45,23 +47,24 @@ func texture_window(c,tex: Texture2D,dest: Rect2,source: Rect2,window: Rect2,tin
 	var size = clipped.size/dest.size*source.size
 	c.draw_texture_rect_region(tex,clipped,Rect2(origin,size),tint)
 
-func dock_pool(g,s,lead: float) -> void:
-	# A street opening, never a water rectangle covering a running foot.
-	var c = g.paint_target;var view = view_rect(g);var edge = lead-s.DOCK_TO_EDGE
-	if edge>view.end.x+50: return
-	var floor_y = g.runner.FLOOR
-	shaft.dock_face(g,edge)
-	for i in range(6):
-		var t = fposmod(g.ui_time*.7+i*.17,1);var at = Vector2(edge+40+i*38,floor_y+20+t*190)
-		c.draw_circle(at,2.2,Color(.47,.58,.56,(1-t)*.45))
+func dock_background(g,s) -> void:
+	var p = shaft.geometry(g,s)
+	shaft.approach_background(g,s,p.edge)
+	walls(g,s,maxf(p.edge,p.view.position.x),p.view.end.x,1.0,s.SHAFT_DEPTH,p.join)
+	shaft.background(g,s,true)
+	shaft.gallery_lintel(g,p.join,s.scroll*.45)
 
 func dock(g,s) -> void:
-	var r = g.runner;var lead = float(s.encounter.dock_world)-r.world_px
-	if lead<r.view_left-600 or lead>r.view_right+700: return
-	dock_pool(g,s,lead)
-	# A passagem e comunicada pelo proprio cenario, sem texto flutuante.
+	dock_front(g,s)
+	shaft.dock_face(g,s.encounter.dock_world-g.runner.world_px-s.DOCK_TO_EDGE)
 
-func blend_tile(c,tex: Texture2D,rect: Rect2,alpha: float,left: float,right: float) -> void:
+func dock_front(g,s) -> void:
+	shaft.portal(g,s,s.encounter.dock_world-g.runner.world_px-s.DOCK_TO_EDGE)
+
+func blend_tile(c,tex: Texture2D,rect: Rect2,alpha: float,left: float,right: float,top_limit: float = -INF) -> void:
+	var y0 = maxf(rect.position.y,top_limit)
+	if y0>=rect.end.y: return
+	var v0 = (y0-rect.position.y)/rect.size.y
 	var fade = 140.0/rect.size.x
 	for band in range(2):
 		var u0 = 0.0 if band==0 else fade;var u1 = fade if band==0 else 1.0
@@ -69,8 +72,8 @@ func blend_tile(c,tex: Texture2D,rect: Rect2,alpha: float,left: float,right: flo
 		if x1<=x0: continue
 		var a = (x0-rect.position.x)/rect.size.x;var b = (x1-rect.position.x)/rect.size.x
 		var ca = alpha*clampf(a/fade,0,1);var cb = alpha*clampf(b/fade,0,1)
-		var points = PackedVector2Array([Vector2(x0,rect.position.y),Vector2(x1,rect.position.y),Vector2(x1,rect.end.y),Vector2(x0,rect.end.y)])
-		c.draw_polygon(points,PackedColorArray([Color(1,1,1,ca),Color(1,1,1,cb),Color(1,1,1,cb),Color(1,1,1,ca)]),PackedVector2Array([Vector2(a,0),Vector2(b,0),Vector2(b,1),Vector2(a,1)]),tex)
+		var points = PackedVector2Array([Vector2(x0,y0),Vector2(x1,y0),Vector2(x1,rect.end.y),Vector2(x0,rect.end.y)])
+		c.draw_polygon(points,PackedColorArray([Color(1,1,1,ca),Color(1,1,1,cb),Color(1,1,1,cb),Color(1,1,1,ca)]),PackedVector2Array([Vector2(a,v0),Vector2(b,v0),Vector2(b,1),Vector2(a,1)]),tex)
 
 func water(g,s,front: bool,right_limit: float = INF,alpha: float = 1.0,left_limit: float = -INF) -> void:
 	var c = g.paint_target;var view = view_rect(g)
@@ -203,7 +206,9 @@ func paint(g,s) -> void:
 	var exiting = s.phase=="exit";var entry = s.entry_blend() if s.phase=="entry" else 1.0
 	var exit_t = clampf(s.phase_age/s.EXIT_SECONDS,0,1) if exiting else 0.0
 	if s.phase=="entry":
+		shaft.portal(g,s,s.shore_edge(),s.entry_drop())
 		c.draw_set_transform(Vector2(0,-s.entry_drop()));g.ground(r.world_px);c.draw_set_transform(Vector2.ZERO)
+		shaft.dock_face(g,s.shore_edge(),s.entry_drop())
 	water(g,s,false)
 	if exiting:
 		var tex = Art.fresh("ramp");var size = tex.get_size()*s.RAMP_WIDTH/tex.get_width()

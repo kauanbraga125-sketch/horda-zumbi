@@ -62,11 +62,11 @@ func run() -> void:
 					var img = root.get_texture().get_image();var painted = 0;var pixels = 0
 					img.save_png(folder+"/%dx%d_street_mask.png"%[root.size.x,root.size.y])
 					for dx in range(35,160,3):
-						var point = (game.world_to_ui(Vector2(s.shore_edge()+dx,r.FLOOR-s.entry_drop()-6))+game.layout_origin)*Vector2(img.get_size())/game.get_viewport_rect().size
+						var point = (game.world_to_ui(Vector2(s.shore_edge()+dx,r.FLOOR-s.entry_drop()+6))+game.layout_origin)*Vector2(img.get_size())/game.get_viewport_rect().size
 						if point.x<0 or point.x>=img.get_width() or point.y<0 or point.y>=img.get_height(): continue
 						var color = img.get_pixelv(Vector2i(point));pixels += 1
 						if color.g>.02 or color.r<.98 or color.b<.98: painted += 1
-					check(pixels>=10 and painted==0,"the rendered sidewalk ends beyond the opening in every scenery layer")
+					check(pixels>=10 and painted==0,"the clipped street cannot leak below the surface into the opening")
 					RenderingServer.set_default_clear_color(clear)
 					game.self_modulate.a = 1;game.world_canvas.self_modulate.a = 1;game.foreground_canvas.self_modulate.a = 1
 					await process_frame;await RenderingServer.frame_post_draw

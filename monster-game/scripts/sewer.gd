@@ -1,7 +1,7 @@
 extends RefCounted
 ## A temporary chapter of the SAME run. Boats contain stable member IDs.
 const WATER = 555.0
-const ENTRY_SECONDS = 5.8
+const ENTRY_SECONDS = 4.8
 const EXIT_SECONDS = 6.4
 const SHAFT_DEPTH = 680.0
 const ENTRY_GRAVITY = 620.0
@@ -106,7 +106,9 @@ func assign_boats(r) -> void:
 		if seat.is_empty():
 			var slot = 0
 			while boats.any(func(b):return int(b.slot)==slot): slot += 1
-			seat = {"id":id,"slot":slot,"ids":[],"x":400.0,"y":WATER-24,"vy":0.0,"previous_y":WATER-24,"jump_at":-1.0,"held":0.0,"bump":0.0,"angle":0.0,"arrival":age,"duck_at":-1.0,"duck_left":0.0}
+			# The first rendered entry frame already uses the underground water level.
+			var initial_y = WATER-24+(entry_depth() if phase=="entry" else 0.0)
+			seat = {"id":id,"slot":slot,"ids":[],"x":400.0,"y":initial_y,"vy":0.0,"previous_y":initial_y,"jump_at":-1.0,"held":0.0,"bump":0.0,"angle":0.0,"arrival":age,"duck_at":-1.0,"duck_left":0.0}
 			boats.append(seat);lane_count = maxi(lane_count,slot_lane(slot)+1);layout_columns = maxi(layout_columns,slot_column(slot)+1)
 			seat.x = boat_x(r,boats.size()-1)
 		seat.ids.append(id)

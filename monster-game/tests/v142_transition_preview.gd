@@ -62,7 +62,7 @@ func run() -> void:
 		await RenderingServer.frame_post_draw
 		assert(root.get_texture().get_image().save_jpg(folder+"/frame-%04d.jpg" % frame,.90)==OK)
 		if frame%20==0: print("V142_PREVIEW_FRAME ",frame)
-	var summary = {"version":"0.10.43","frames":frames,"fps":12,"entry_started":entry_started,"entry_finished":entry_finished,"members":game.runner.active_count(),"samples":samples,"physical_device_tested":false}
+	var summary = {"version":ProjectSettings.get_setting("application/config/version"),"frames":frames,"fps":12,"entry_started":entry_started,"entry_finished":entry_finished,"members":game.runner.active_count(),"samples":samples,"physical_device_tested":false}
 	var report = FileAccess.open(folder+"/transicao.json",FileAccess.WRITE)
 	report.store_string(JSON.stringify(summary,"  "))
 	report.close()

@@ -1,0 +1,65 @@
+{
+  "version": "0.10.44",
+  "engine": "Godot 4.5.1",
+  "checks_passed": 32159,
+  "reports": {
+    "mechanics": {
+      "checks": 230,
+      "failures": [],
+      "physical_device_tested": false,
+      "version": "0.10.40"
+    },
+    "trajectories": {
+      "captures": 48,
+      "checks": 31850,
+      "failures": []
+    },
+    "descent_pixels": {
+      "checks": 48,
+      "failures": [],
+      "handoffs": [
+        {
+          "fixture": "1280x720-6",
+          "mean_rgb_change": 9.98603334921898e-05,
+          "pixels": 14661
+        },
+        {
+          "fixture": "1800x810-12",
+          "mean_rgb_change": 0.000136226932569342,
+          "pixels": 23970
+        },
+        {
+          "fixture": "960x720-12",
+          "mean_rgb_change": 5.84559396733745e-05,
+          "pixels": 10935
+        }
+      ],
+      "physical_device_tested": false,
+      "version": "0.10.44"
+    },
+    "startup_new": {
+      "checks": 15,
+      "failures": [],
+      "fixture": "new",
+      "physical_device_tested": false,
+      "version": "0.10.44"
+    },
+    "startup_existing": {
+      "checks": 16,
+      "failures": [],
+      "fixture": "existing",
+      "physical_device_tested": false,
+      "version": "0.10.44"
+    }
+  },
+  "preview": {
+    "frames": 360,
+    "fps": 30,
+    "seconds": 12,
+    "members": 6,
+    "obstacles_disabled_after_entry": true
+  },
+  "original_entrance_frames_reviewed": 120,
+  "new_entrance_frames_reviewed": 210,
+  "physical_device_tested": false
+}
