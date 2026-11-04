@@ -1,10 +1,10 @@
 extends RefCounted
 ## A temporary chapter of the SAME run. Boats contain stable member IDs.
 const WATER = 555.0
-const ENTRY_SECONDS = 4.8
+const ENTRY_SECONDS = 5.7
 const EXIT_SECONDS = 6.4
-const SHAFT_DEPTH = 680.0
-const ENTRY_GRAVITY = 620.0
+const SHAFT_DEPTH = 1100.0
+const ENTRY_GRAVITY = 460.0
 const RAMP_WIDTH = 500.0
 const RAMP_LIFT = 150.0
 const CAPTURE_SECONDS = 1.05
@@ -52,11 +52,12 @@ var rush_left = 0.0
 var layout_columns = 3
 var entry_edge_world = 0.0
 var entry_travel = 0.0
+var descent_camera = 0.0
 
 func reset(seed_value: int) -> void:
 	active = false;phase = "ground";age = 0;phase_age = 0;ride_age = 0;completed = 0;captured = 0;hits = 0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();random.seed = seed_value^0x536e2
-	life.reset();braking = 0;jump_hold_until = -1;entry_travel = 0
+	life.reset();braking = 0;jump_hold_until = -1;entry_travel = 0;descent_camera = 0.0
 	encounter.reset(seed_value);duck_buffer = 0;clean_streak = 0;sequence.clear();rush_left = 0;layout_columns = 3
 
 func begin(r,force: bool = false) -> bool:
@@ -73,7 +74,7 @@ func begin(r,force: bool = false) -> bool:
 	duck_buffer = 0;clean_streak = 0;rush_left = 0;encounter.pending = false
 	sequence.assign(["rubble","pipe","fugitive","barrel","gate","rotor","collapse","rescue","rubble","gate","fugitive","barrel"])
 	if random.randf()<.5: sequence[3] = "collapse";sequence[6] = "barrel"
-	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number();entry_travel = 0
+	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number();entry_travel = 0;descent_camera = 0.0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();lane_count = 1;layout_columns = 3
 	life.reset();braking = 0;jump_hold_until = -1
 	r.perk_left = 0;r.perk_kind = -1;r.transform_left = 0;r.boost_left = 0;r.blessings.reset()
@@ -146,7 +147,7 @@ func request_duck(r) -> void:
 	r.events.append({"type":"sewer_duck"})
 
 func entry_launch() -> float: return smoothstep(3.65,ENTRY_SECONDS,phase_age)
-func entry_drop() -> float: return SHAFT_DEPTH*smoothstep(.55,4.15,phase_age)
+func entry_drop() -> float: return descent_camera
 func entry_depth() -> float: return SHAFT_DEPTH-entry_drop()
 func dock_x(r,slot: int) -> float:
 	var index = boats.find_custom(func(b):return int(b.slot)==slot)
@@ -261,7 +262,11 @@ func advance(r,dt: float,held: bool) -> void:
 				b.y = floor_y;b.vy = 0;splash(Vector2(b.x,b.y+28),false)
 		else: b.y = floor_y;b.vy = 0
 		b.angle = clampf(b.vy*.00023,-.18,.17)+sin(age*3+i)*.015
-	if phase=="entry" and phase_age>=ENTRY_SECONDS: phase = "ride";phase_age = 0;r.hit_grace = .8
+	if phase=="entry" and phase_age>=ENTRY_SECONDS:
+		var remaining = SHAFT_DEPTH-descent_camera
+		for b in boats: b.y -= remaining;b.previous_y -= remaining
+		for item in splashes: item.p.y -= remaining
+		descent_camera = SHAFT_DEPTH;phase = "ride";phase_age = 0;r.hit_grace = .8
 	if phase=="ride":
 		_update_objects(r,dt)
 		if pressure>=.94 and wave_cooldown<=0 and not boats.is_empty():
@@ -318,6 +323,21 @@ func _update_members(r,_dt: float) -> void:
 			m.x = foot.x;m.y = foot.y;m.vy = b.vy;m.falling = false;m.roof_id = -1;m.air_time += _dt;m.air_pose = 0;m.jump_queue.clear();m.run_phase += _dt*.75
 			if phase!="exit": m.sewer_angle = b.angle
 			m.hurt_left = maxf(0,float(m.hurt_left)-_dt)
+
+	if phase=="entry": _follow_descent(r,_dt)
+
+func _follow_descent(r,dt: float) -> void:
+	if r.members.is_empty(): return
+	var previous = descent_camera
+	var sum = 0.0
+	for m in r.members: sum += float(m.y)+previous
+	var landing = WATER-3.0+SHAFT_DEPTH-r.FLOOR
+	var target = SHAFT_DEPTH*clampf((sum/r.members.size()-r.FLOOR)/landing,0,1)
+	descent_camera = lerpf(previous,target,1-exp(-dt*6.0))
+	var motion = descent_camera-previous
+	for m in r.members: m.y -= motion
+	for b in boats: b.y -= motion;b.previous_y -= motion
+	for item in splashes: item.p.y -= motion
 
 func _update_objects(r,dt: float) -> void:
 	var step = scroll_speed(r)*dt

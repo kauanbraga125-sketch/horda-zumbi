@@ -102,7 +102,7 @@ static func flood_new(c,point: Vector2,height: float,time: float) -> void:
 		var alpha = 1.0
 		var uv = PackedVector2Array([Vector2(0,1),Vector2(0,0)]);var points = PackedVector2Array([base+Vector2(0,height),base])
 		for row in range(33):
-			var v = float(row)/32;var flow = (sin(v*15+time*5)*4+sin(v*27-time*7)*2)*sin(v*PI)
+			var v = float(row)/32;var flow = (sin(v*15+time*5)*4+sin(v*27-time*7)*2)*sin(v*PI)*minf(1,height/120.0)
 			points.append(base+Vector2(width+flow,v*height));uv.append(Vector2(.999,v))
 		c.draw_polygon(points,PackedColorArray([Color(1,1,1,alpha)]),uv,tex)
 

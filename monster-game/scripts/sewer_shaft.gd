@@ -1,98 +1,61 @@
 extends RefCounted
-## A covered drop, built from the same masonry and portal as ordinary tunnels.
-## Street and underground meet at the physical floor; neither scene crossfades.
-const PORTAL_BEFORE_EDGE = 300.0
-const WALL_HEIGHT = 1350.0
-const WALL_TOP = -180.0
-var masonry: Texture2D
-var lintel: Texture2D
-var lintel_region: Rect2
-const LINTEL_SEAM = 357.0
+## One continuous underground surface, positioned in world coordinates.
+## Its material blend depends on depth, never on phase age or viewport height.
+const GALLERY_HEIGHT = 760.0
+const GALLERY_ABOVE_WATER = 621.0
+var soil: Texture2D
 
 func geometry(g,s) -> Dictionary:
-	var view = Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
-	var drop: float = s.entry_drop() if s.active and s.phase=="entry" else 0.0
-	var depth: float = s.SHAFT_DEPTH-drop
+	var drop: float = s.entry_drop() if s.active and s.phase=="entry" else s.SHAFT_DEPTH if s.active else 0.0
+	var rise: float = s.exit_rise(g.runner) if s.active and s.phase=="exit" else 0.0
+	var surface: float = g.runner.FLOOR-drop+rise
+	var gallery: float = s.SHAFT_DEPTH+s.WATER-g.runner.FLOOR-GALLERY_ABOVE_WATER
 	var edge: float = s.shore_edge() if s.active else s.encounter.dock_world-g.runner.world_px-s.DOCK_TO_EDGE
-	return {"view":view,"street":g.runner.FLOOR-drop,"edge":edge,"depth":depth,"join":view.position.y+depth-20.0}
+	return {"surface":surface,"gallery_offset":gallery,"gallery_top":surface+gallery,"edge":edge}
 
-func texture_window(c,tex: Texture2D,dest: Rect2,window: Rect2,tint: Color = Color.WHITE) -> void:
-	var clipped = dest.intersection(window)
-	if not clipped.has_area(): return
-	var source = Rect2((clipped.position-dest.position)/dest.size*tex.get_size(),clipped.size/dest.size*tex.get_size())
-	c.draw_texture_rect_region(tex,clipped,source,tint)
-
-func tunnel_wall(g,window: Rect2,top: float,offset: float,tint: Color = Color.WHITE) -> void:
-	if not window.has_area(): return
-	if masonry==null:
+func configure(g,s) -> void:
+	var visible: bool = (s.active or s.encounter.pending) and g.screen in ["run","pause","results","revive"]
+	g.sewer_background_canvas.visible = visible
+	if not visible: return
+	if soil==null:
 		var image = Image.new()
-		assert(image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v144/shaft_wall.webp"))==OK)
-		masonry = ImageTexture.create_from_image(image)
-	var tex: Texture2D = masonry
-	var size = tex.get_size()*WALL_HEIGHT/tex.get_height()
-	var start = floorf((window.position.x+offset)/size.x)*size.x-offset
-	for i in range(ceili(window.size.x/size.x)+2):
-		texture_window(g.paint_target,tex,Rect2(start+i*size.x,top,size.x+1,size.y),window,tint)
-
-func approach_background(g,s,edge: float) -> void:
-	# A short covered throat uses the actual ordinary-tunnel art and mouth.
-	# Its left seam is hidden by the portal, exactly as in the normal run.
-	var view: Rect2 = geometry(g,s).view
-	var portal = edge-PORTAL_BEFORE_EDGE
-	var left = maxf(view.position.x,portal)
-	if left>=view.end.x: return
-	var window = Rect2(left,view.position.y,view.end.x-left,g.runner.FLOOR-view.position.y)
-	tunnel_wall(g,window,WALL_TOP,g.runner.world_px)
-
-func background(g,s,opening_only: bool = false) -> void:
+		assert(image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v145/soil_to_sewer.webp"))==OK)
+		soil = ImageTexture.create_from_image(image)
+	var sewer = preload("res://scripts/bird_art.gd").texture("sewer")
 	var p = geometry(g,s)
-	var view: Rect2 = p.view
-	var left = maxf(view.position.x,float(p.edge)) if opening_only else view.position.x
-	var top = maxf(view.position.y,float(p.street))
-	var bottom = minf(view.end.y,maxf(float(p.street),float(p.join)))
-	if bottom<=top or left>=view.end.x: return
-	var window = Rect2(left,top,view.end.x-left,bottom-top)
-	# Opaque masonry below the surface, at a fixed scale. No stretched panel,
-	# no translucent city behind it, and no underground pixels above the floor.
-	g.paint_target.draw_rect(window,Color("100e1c"))
-	tunnel_wall(g,window,float(p.street)-g.runner.FLOOR+WALL_TOP,g.runner.world_px)
+	var mat: ShaderMaterial = g.sewer_background_canvas.material
+	mat.set_shader_parameter("soil_texture",soil)
+	mat.set_shader_parameter("sewer_texture",sewer)
+	mat.set_shader_parameter("surface_y",p.surface)
+	mat.set_shader_parameter("gallery_offset",p.gallery_offset)
+	mat.set_shader_parameter("gallery_width",sewer.get_width()*GALLERY_HEIGHT/sewer.get_height())
+	mat.set_shader_parameter("gallery_height",GALLERY_HEIGHT)
+	mat.set_shader_parameter("scroll_x",g.runner.world_px*.28)
+	mat.set_shader_parameter("shore_edge",p.edge)
+	mat.set_shader_parameter("opening_mask",not s.active or s.phase=="entry")
+	mat.set_shader_parameter("exit_mode",s.active and s.phase=="exit")
+	g.sewer_background_canvas.queue_redraw()
 
-func gallery_lintel(g,top: float,offset: float) -> void:
-	# A real stone ceiling hides the join between the shaft and the gallery.
-	# It stays behind the actors and keeps the same pose at the ride handoff.
-	if lintel==null:
-		var image = Image.new()
-		assert(image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v144/shaft_lintel.webp"))==OK)
-		lintel_region = Rect2(0,228,2172,323)
-		lintel = ImageTexture.create_from_image(image)
-	var view = Rect2(g.scenery.view_left,g.scenery.view_top,g.scenery.view_right-g.scenery.view_left,g.scenery.view_bottom-g.scenery.view_top)
-	var scale = 104.0/lintel_region.size.y
-	var width = lintel_region.size.x*scale
-	var y = top-(LINTEL_SEAM-lintel_region.position.y)*scale
-	if y>view.end.y or y+104.0<view.position.y: return
-	var start = view.position.x-fposmod(offset,width)-width
-	for i in range(ceili(view.size.x/width)+3):
-		g.paint_target.draw_texture_rect_region(lintel,Rect2(start+i*width,y,width+1,104.0),lintel_region)
-
-func portal(g,s,edge: float,drop: float = 0.0) -> void:
-	var view: Rect2 = geometry(g,s).view
-	var x = edge-PORTAL_BEFORE_EDGE
-	if x<view.position.x-620 or x>view.end.x+620: return
-	var c = g.paint_target
-	c.draw_set_transform(Vector2(0,-drop))
-	g.scenery.sprite(c,g.art.tunnel_mouths[0],Vector2(x-30,g.runner.FLOOR-215),430)
-	c.draw_set_transform(Vector2.ZERO)
+func catwalk_y(g,s) -> float:
+	return float(geometry(g,s).gallery_top)+GALLERY_HEIGHT*.588
 
 func dock_face(g,edge: float,drop: float = 0.0) -> void:
-	# The normal terrain pit edge starts at the floor, below running bodies.
 	HordeTerrainArt.pit_edge(g,edge,g.runner.FLOOR-drop,false)
 
 func foreground(g,s) -> void:
-	var p = geometry(g,s)
-
-	# Debris belongs to the physical opening and stays below its rim.
+	# Dust and falling grit remain tied to the broken lip, below solid feet.
+	if s.phase_age>1.8: return
 	var c = g.paint_target
-	for i in range(12):
-		var t = fposmod(s.phase_age*.45+float(i)*.137,1.0)
-		var at = Vector2(float(p.edge)+8+i%4*13,float(p.street)+14+t*t*170)
-		c.draw_circle(at,1.4+float(i%3)*.6,Color(.46,.48,.57,(1.0-t)*.48))
+	var edge: float = s.shore_edge()
+	var top: float = g.runner.FLOOR-s.entry_drop()
+	for i in range(20):
+		var age = maxf(0,s.phase_age-.18-float(i)*.021)
+		if age<=0 or age>1.2: continue
+		var at = Vector2(edge+12+age*(25+i%5*14),top+8+age*age*(95+i%4*28))
+		var fade = (1.0-age/1.2)*.5
+		c.draw_circle(at,1.5+float(i%3)*.7,Color(.39,.31,.42,fade))
+	for i in range(5):
+		var age = maxf(0,s.phase_age-.22-float(i)*.09)
+		if age<=0 or age>1.05: continue
+		var at = Vector2(edge+18+i*11+age*24,top+12+age*age*110)
+		c.draw_circle(at,8+age*18,Color(.35,.26,.38,(1.0-age/1.05)*.075))

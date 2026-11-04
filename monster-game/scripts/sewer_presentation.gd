@@ -10,28 +10,10 @@ func exit_boundary(g,s) -> float:
 	var view = view_rect(g);var t = clampf(s.phase_age/s.EXIT_SECONDS,0,1)
 	return lerpf(view.end.x+250,view.position.x-750,smoothstep(.03,.91,t))
 
-func entry_boundary(g,s) -> float:
-	var view = view_rect(g)
-	return lerpf(minf(view.end.x+100,s.LEAD+380),view.position.x-750,smoothstep(0,.96,s.entry_launch()))
-
-func walls(g,s,left: float,right: float,alpha: float = 1.0,shift_y: float = 0.0,top_limit: float = -INF) -> void:
-	var c = g.paint_target;var view = view_rect(g);var tex = Old.texture("sewer");var height = maxf(760,view.size.y+40)
-	var size = tex.get_size()*height/tex.get_height();var stride = size.x-140;var offset = fposmod(s.scroll*.45,stride)
-	for i in range(-1,ceili(view.size.x/stride)+2): blend_tile(c,tex,Rect2(view.position+Vector2(i*stride-offset,-20+shift_y),size),alpha,left,right,top_limit)
-
 func background(g,s) -> void:
 	var c = g.paint_target;var view = view_rect(g)
-	if s.phase=="entry":
-		var p = shaft.geometry(g,s)
-		walls(g,s,view.position.x,view.end.x,1.0,s.entry_depth(),p.join)
-		shaft.background(g,s)
-		shaft.gallery_lintel(g,p.join,s.scroll*.45)
-		return
-	if s.phase=="exit":
-		walls(g,s,view.position.x,view.end.x,1,s.exit_rise(g.runner));return
-	walls(g,s,view.position.x,view.end.x)
-	shaft.gallery_lintel(g,view.position.y-20.0,s.scroll*.45)
-	var catwalk_y = view.position.y-20+maxf(760,view.size.y+40)*.588
+	if s.phase in ["entry","exit"]: return
+	var catwalk_y = shaft.catwalk_y(g,s)
 	s.life.paint(g,s,catwalk_y)
 	for i in range(7):
 		var at = Vector2(view.position.x+fposmod(i*267-s.scroll*.55,view.size.x+160)-80,view.position.y+68+(i%3)*21)
@@ -47,33 +29,8 @@ func texture_window(c,tex: Texture2D,dest: Rect2,source: Rect2,window: Rect2,tin
 	var size = clipped.size/dest.size*source.size
 	c.draw_texture_rect_region(tex,clipped,Rect2(origin,size),tint)
 
-func dock_background(g,s) -> void:
-	var p = shaft.geometry(g,s)
-	shaft.approach_background(g,s,p.edge)
-	walls(g,s,maxf(p.edge,p.view.position.x),p.view.end.x,1.0,s.SHAFT_DEPTH,p.join)
-	shaft.background(g,s,true)
-	shaft.gallery_lintel(g,p.join,s.scroll*.45)
-
 func dock(g,s) -> void:
-	dock_front(g,s)
 	shaft.dock_face(g,s.encounter.dock_world-g.runner.world_px-s.DOCK_TO_EDGE)
-
-func dock_front(g,s) -> void:
-	shaft.portal(g,s,s.encounter.dock_world-g.runner.world_px-s.DOCK_TO_EDGE)
-
-func blend_tile(c,tex: Texture2D,rect: Rect2,alpha: float,left: float,right: float,top_limit: float = -INF) -> void:
-	var y0 = maxf(rect.position.y,top_limit)
-	if y0>=rect.end.y: return
-	var v0 = (y0-rect.position.y)/rect.size.y
-	var fade = 140.0/rect.size.x
-	for band in range(2):
-		var u0 = 0.0 if band==0 else fade;var u1 = fade if band==0 else 1.0
-		var x0 = maxf(left,rect.position.x+u0*rect.size.x);var x1 = minf(right,rect.position.x+u1*rect.size.x)
-		if x1<=x0: continue
-		var a = (x0-rect.position.x)/rect.size.x;var b = (x1-rect.position.x)/rect.size.x
-		var ca = alpha*clampf(a/fade,0,1);var cb = alpha*clampf(b/fade,0,1)
-		var points = PackedVector2Array([Vector2(x0,y0),Vector2(x1,y0),Vector2(x1,rect.end.y),Vector2(x0,rect.end.y)])
-		c.draw_polygon(points,PackedColorArray([Color(1,1,1,ca),Color(1,1,1,cb),Color(1,1,1,cb),Color(1,1,1,ca)]),PackedVector2Array([Vector2(a,v0),Vector2(b,v0),Vector2(b,1),Vector2(a,1)]),tex)
 
 func water(g,s,front: bool,right_limit: float = INF,alpha: float = 1.0,left_limit: float = -INF) -> void:
 	var c = g.paint_target;var view = view_rect(g)
@@ -206,7 +163,6 @@ func paint(g,s) -> void:
 	var exiting = s.phase=="exit";var entry = s.entry_blend() if s.phase=="entry" else 1.0
 	var exit_t = clampf(s.phase_age/s.EXIT_SECONDS,0,1) if exiting else 0.0
 	if s.phase=="entry":
-		shaft.portal(g,s,s.shore_edge(),s.entry_drop())
 		c.draw_set_transform(Vector2(0,-s.entry_drop()));g.ground(r.world_px);c.draw_set_transform(Vector2.ZERO)
 		shaft.dock_face(g,s.shore_edge(),s.entry_drop())
 	water(g,s,false)
@@ -254,7 +210,7 @@ func paint(g,s) -> void:
 	for item in s.splashes: splash(g,s,item)
 	if s.phase=="ride": flood(g,s);speed_streaks(g,s)
 	water(g,s,true)
-	if s.phase=="entry" and s.phase_age>3.95: flood(g,s)
+	if s.phase=="entry": flood(g,s)
 	if s.phase=="entry" and s.phase_age>1 and s.phase_age<3.5:
 		for i in range(12):
 			var t = fposmod(s.age*1.6+i*.083,1);var x = view.position.x+fposmod(i*163,view.size.x)
@@ -271,16 +227,19 @@ func splash(g,_s,item: Dictionary) -> void:
 		c.draw_circle(at,(3+i%3)*(1-t),Color(1,.6,.18,1-t) if item.explosion else Color(.65,1,.92,1-t))
 
 func flood(g,s) -> void:
-	if s.phase=="entry" and s.phase_age<3.95: return
 	var c = g.paint_target;var view = view_rect(g);var edge = s.wave_edge()
-	var height = 440+s.pressure*52+sin(s.age*2)*8;var base = s.water_y(edge)+36
+	var emergence = smoothstep(3.7,s.ENTRY_SECONDS,s.phase_age) if s.phase=="entry" else 1.0
+	if emergence<=.005: return
+	var height = (440+s.pressure*52+sin(s.age*2)*8)*emergence
+	var shift = s.entry_depth() if s.phase=="entry" else 0.0
+	var base = s.water_y(edge)+36+shift
 	Art.flood_new(c,Vector2(edge+21,base),height,s.age)
 	for band in range(5):
 		var points = PackedVector2Array()
 		for j in range(26):
-			var x = edge-190+j*12;var y = s.water_y(x)+16+band*7+sin(j*.58-s.age*8+band)*3
+			var x = edge-190+j*12;var y = s.water_y(x)+shift+16+band*7+sin(j*.58-s.age*8+band)*3
 			points.append(Vector2(x,y))
-		c.draw_polyline(points,Color(.67,.94,.82,.42-band*.055),2.7-band*.25,true)
+		c.draw_polyline(points,Color(.67,.94,.82,(.42-band*.055)*emergence),2.7-band*.25,true)
 	for i in range(23):
 		var t = fposmod(s.age*1.4+i*.071,1)
 		var p = Vector2(edge-70+t*135,base-height*.65-t*35+t*t*91+(i%4)*7)

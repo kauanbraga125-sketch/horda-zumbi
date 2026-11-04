@@ -1,5 +1,5 @@
 {
-  "version": "0.10.44",
+  "version": "0.10.45",
   "class_count": 55,
   "files": [
     {
@@ -204,8 +204,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 121595,
-      "sha256": "c5e58db155d82b1fa281f9cd5a27185bf804b7ddef1bcd012111c6c45ee99c5b"
+      "bytes": 122619,
+      "sha256": "29395e9150ed782076fff90b81cddc4054aba1954e6f276627f77719d6bff587"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -349,13 +349,18 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 21490,
-      "sha256": "61781801e67682dc0bbdacf321a6dfa402008d05231a5dc7e05633e7579e52e2"
+      "bytes": 22275,
+      "sha256": "1f62c3032133865da07cef1079c745bc05c5a45f48d7f4d8b92708e5e65c16a0"
     },
     {
       "path": "res://scripts/sewer_art.gd",
-      "bytes": 7778,
-      "sha256": "72df9aec9e9119b0f3e3b95b8f257a2d8b2182dcf6e6a5a57ad17296e2ab6820"
+      "bytes": 7799,
+      "sha256": "8f42adc8bed0aa8c540888e755fd37a3b4c6148971cc2e4a889ec1407af4b82f"
+    },
+    {
+      "path": "res://scripts/sewer_bridge.gdshader",
+      "bytes": 2500,
+      "sha256": "ff1041a61bd37ff32df251f670965737a6d1365eca2acde784ccd71fe7c36944"
     },
     {
       "path": "res://scripts/sewer_event.gd",
@@ -369,8 +374,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 16335,
-      "sha256": "fbc5d1a14fcfdc766c91b77bf429e7a3f6fc16ee5cfd1ca43ab5bfef9ba7f07c"
+      "bytes": 14065,
+      "sha256": "acbe8fd480d11a5fc2469805a417bd437e9ca250c0caec70362b41f4fd1e0307"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
@@ -379,8 +384,8 @@
     },
     {
       "path": "res://scripts/sewer_shaft.gd",
-      "bytes": 4919,
-      "sha256": "7cf94776e0d6270abc08d495f570135218bbc443dccf4320532e35c8ac4e3cb2"
+      "bytes": 2964,
+      "sha256": "2e6483fa58b5b8445abc9b877c98c2a4231c43163ff96e0ac6d506a2ec7ddfb9"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
@@ -1401,6 +1406,16 @@
       "path": "res://assets/art/v144/shaft_wall.webp",
       "bytes": 530352,
       "sha256": "4c0a024f2d2a2220c044ce29d763c1460366956996e73b58478c74a34c4ae21f"
+    },
+    {
+      "path": "res://assets/art/v145/manifest.json",
+      "bytes": 2690,
+      "sha256": "2111e7659ce26b69dc484ec9ed8c5f57822943c995b9387e73caf57b7db1213f"
+    },
+    {
+      "path": "res://assets/art/v145/soil_to_sewer.webp",
+      "bytes": 418768,
+      "sha256": "e4593b87bf19a37f5d8239065b807bad6f89d4ddd0695fe8b9b145bf1fc0ab30"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

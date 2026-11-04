@@ -57,7 +57,7 @@ func run() -> void:
 				await snap("%dx%d_%02d_entrada_%03d"%[root.size.x,root.size.y,r.members.size(),frame])
 				if not shore_checked and s.phase_age<.2:
 					var clear = RenderingServer.get_default_clear_color();RenderingServer.set_default_clear_color(Color.MAGENTA)
-					game.self_modulate.a = 0;game.world_canvas.self_modulate.a = 0;game.foreground_canvas.self_modulate.a = 0
+					game.self_modulate.a = 0;game.world_canvas.self_modulate.a = 0;game.foreground_canvas.self_modulate.a = 0;game.sewer_background_canvas.self_modulate.a = 0
 					await process_frame;await RenderingServer.frame_post_draw
 					var img = root.get_texture().get_image();var painted = 0;var pixels = 0
 					img.save_png(folder+"/%dx%d_street_mask.png"%[root.size.x,root.size.y])
@@ -68,7 +68,7 @@ func run() -> void:
 						if color.g>.02 or color.r<.98 or color.b<.98: painted += 1
 					check(pixels>=10 and painted==0,"the clipped street cannot leak below the surface into the opening")
 					RenderingServer.set_default_clear_color(clear)
-					game.self_modulate.a = 1;game.world_canvas.self_modulate.a = 1;game.foreground_canvas.self_modulate.a = 1
+					game.self_modulate.a = 1;game.world_canvas.self_modulate.a = 1;game.foreground_canvas.self_modulate.a = 1;game.sewer_background_canvas.self_modulate.a = 1
 					await process_frame;await RenderingServer.frame_post_draw
 					shore_checked = true
 			if frame%12==0: samples.append({"size":str(root.size),"count":r.members.size(),"age":s.phase_age,"edge":s.shore_edge(),"drop":s.entry_drop(),"zoom":game.camera_zoom,"camera_y":game.camera_ground_shift,"members":r.members.map(func(m):return {"id":m.id,"x":m.x,"y":m.y,"pose":m.sewer_pose})})

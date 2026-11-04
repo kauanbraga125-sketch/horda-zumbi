@@ -17,7 +17,7 @@ func picture() -> Image:
 func street_mask(label: String) -> void:
 	var clear = RenderingServer.get_default_clear_color()
 	RenderingServer.set_default_clear_color(Color.MAGENTA)
-	game.self_modulate.a = 0;game.world_canvas.self_modulate.a = 0;game.foreground_canvas.self_modulate.a = 0
+	game.self_modulate.a = 0;game.world_canvas.self_modulate.a = 0;game.foreground_canvas.self_modulate.a = 0;game.sewer_background_canvas.self_modulate.a = 0
 	var img = await picture()
 	var surface = (game.world_to_ui(Vector2(0,game.runner.FLOOR-game.runner.sewer.entry_drop()))+game.layout_origin).y*float(img.get_height())/game.get_viewport_rect().size.y
 	var pixels = 0;var leaked = 0
@@ -28,7 +28,7 @@ func street_mask(label: String) -> void:
 	check(pixels>10 and leaked==0,label+": street is absent below the physical surface")
 	img.save_png(folder+"/"+label+"-street-mask.png")
 	RenderingServer.set_default_clear_color(clear)
-	game.self_modulate.a = 1;game.world_canvas.self_modulate.a = 1;game.foreground_canvas.self_modulate.a = 1
+	game.self_modulate.a = 1;game.world_canvas.self_modulate.a = 1;game.foreground_canvas.self_modulate.a = 1;game.sewer_background_canvas.self_modulate.a = 1
 	await picture()
 
 func handoff(label: String) -> void:
