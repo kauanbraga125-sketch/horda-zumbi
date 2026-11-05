@@ -12,6 +12,8 @@ uniform float scroll_x = 0.0;
 uniform float soil_scroll_x = 0.0;
 uniform float throat_depth = 180.0;
 uniform float effect_time = 0.0;
+uniform float water_clock = 0.0;
+uniform float water_scroll = 0.0;
 uniform float shore_edge = 800.0;
 uniform bool opening_mask = false;
 uniform bool exit_mode = false;
@@ -54,8 +56,25 @@ void fragment() {
 	float join = smoothstep(gallery_offset - 20.0 + irregularity * 0.25,
 		gallery_offset + 8.0 + irregularity * 0.25, depth);
 	vec4 soil = joined_sample(soil_texture, soil_x, (depth + 105.0) / 1155.0, 1050.0, 160.0);
-	vec4 sewer = joined_sample(sewer_texture, x, (depth - gallery_offset) / gallery_height,
-		gallery_width, 140.0);
+	float gallery_v = (depth - gallery_offset) / gallery_height;
+	vec4 sewer = joined_sample(sewer_texture, x, gallery_v, gallery_width, 140.0);
+	// Extend the painted water from the far bank in world space. The reflected
+	// lanterns keep their horizontal anchors as the surface moves around them.
+	float water_depth = (gallery_v - 0.708) * gallery_height;
+	if (water_depth > 0.0) {
+		float near_water = smoothstep(0.0, 280.0, water_depth);
+		float painted = min(water_depth, gallery_height * 0.22);
+		float extension = water_depth - painted;
+		float v = 0.708 + painted / gallery_height
+			+ 0.067 * (1.0 - exp(-extension / (gallery_height * 0.067)));
+		float current = sin(water_depth * 0.128 - water_clock * 3.4 + sin(x * 0.009) * 1.8)
+			+ 0.46 * sin(x * 0.027 + water_depth * 0.071 + water_clock * 4.7 + water_scroll * 0.015);
+		float shear = current * (0.85 + near_water * 4.2);
+		vec4 water = joined_sample(sewer_texture, x + shear, v + current * 0.0018,
+			gallery_width, 140.0);
+		water.rgb *= mix(vec3(1.0), vec3(0.88, 0.96, 1.0), near_water);
+		sewer = mix(sewer, water, smoothstep(0.0, 44.0, water_depth));
+	}
 	// The opening is air, not a stone panel at the height of the road. The
 	// already-existing wall is deeper, with an irregular spatial reveal.
 	float broken_top = throat_depth + soft_noise(vec2(soil_x * 0.008, 3.8)) * 64.0;

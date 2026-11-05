@@ -1,0 +1,187 @@
+{
+  "version": "0.10.51",
+  "asset": "water_fx.webp",
+  "source": "tools/art_sources/v151/water_fx.webp",
+  "generation_mode": "built-in image generation",
+  "prompt": "Use case: stylized-concept.\nAsset type: production 2D game sprite atlas for the water effects of Horda Zumbi, a side-scrolling dark-fantasy game.\nCreate ONE landscape RGBA sprite sheet with EXACTLY nine independent water effects on a strict, evenly spaced 3-column by 3-row grid. Each item is isolated in the middle of its own cell with generous clear margin on all four sides. True transparent background and true transparent gaps inside the shapes. No labels, no typography, no grid lines, no frame borders, no checkerboard baked into the art.\n\nThe game has richly textured hand-painted cartoon/pixel-painted assets: dark teal water in a moonlit stone sewer, purple and antique-gold jet skis, yellow lantern reflections. Match that game art. Use blue-green shadows, cool jade mids, soft sage and restrained seafoam highlights. Crisp painted edges with broken fine details; deliberate clusters of droplets. Small effects should read clearly at gameplay size. Avoid vector outlines, fluorescent cyan, bright white glow, flat solid puddles, and large opaque water blocks. Use the same low side view and shallow perspective across the sheet.\n\nTOP ROW, left to right:\n1. Compact horizontal stern wake, narrow pointed right end, broken churning foam and tapered watery tail extending LEFT. Low profile, aspect about 4:1.\n2. A second distinct, longer horizontal stern wake, energetic fractured wisps extending LEFT from the narrow right end. Low profile, aspect about 5:1.\n3. A very thin broken contact foam streak, irregular staggered pale teal flecks with transparent gaps, aspect about 9:1. This lies beneath a boat, so give it no high crest.\n\nMIDDLE ROW, left to right, three consecutive impact animation poses with the same shallow bottom waterline and centered impact origin:\n4. Initial low narrow crown of water with a few sharply rising drops.\n5. Wider peak splash, with two uneven liquid sheets curling outward and a few detached droplets, delicate forked shapes and transparent space between the sheets.\n6. Lower collapsing splash, much wider than tall, broken foam left and right, a few descending droplets and very little central height.\n\nBOTTOM ROW, left to right:\n7. An elongated shallow elliptical ripple with a fully clear transparent center. Broken arcs of dark teal and muted seafoam at irregular intervals, about 5:1 width to height.\n8. A compact jet-ski engine spray fan with its narrow origin on the RIGHT and fine pointed droplets shooting back to the LEFT. Long diagonal wisps taper off on the left. No smoke.\n9. ONE narrow water droplet sprite, elongated tip, round base, teal rim and a little reflected highlight. Completely isolated.\n\nEvery silhouette must fit within its own cell. Preserve at least 10% clear padding around each cell content. Deliver only the nine sprite elements, with genuine alpha; no scene, no boats, no characters, no environmental background.",
+  "source_image_sha256": "52ac91cfb73b925c838ece450a8a756f0f265af531700dcaff13dad54cc8c111",
+  "runtime_size": [
+    960,
+    576
+  ],
+  "alpha_bounds_threshold": 16,
+  "sprites": {
+    "wake_compact": {
+      "rect": [
+        6,
+        62,
+        308,
+        67
+      ],
+      "source_cell": [
+        0,
+        0
+      ],
+      "source_bbox": [
+        44,
+        136,
+        464,
+        227
+      ]
+    },
+    "wake_long": {
+      "rect": [
+        326,
+        63,
+        308,
+        66
+      ],
+      "source_cell": [
+        1,
+        0
+      ],
+      "source_bbox": [
+        6,
+        126,
+        490,
+        229
+      ]
+    },
+    "keel_foam": {
+      "rect": [
+        646,
+        83,
+        308,
+        25
+      ],
+      "source_cell": [
+        2,
+        0
+      ],
+      "source_bbox": [
+        47,
+        169,
+        482,
+        204
+      ]
+    },
+    "impact_start": {
+      "rect": [
+        27,
+        208,
+        266,
+        159
+      ],
+      "source_cell": [
+        0,
+        1
+      ],
+      "source_bbox": [
+        127,
+        96,
+        393,
+        255
+      ]
+    },
+    "impact_peak": {
+      "rect": [
+        326,
+        211,
+        308,
+        154
+      ],
+      "source_cell": [
+        1,
+        1
+      ],
+      "source_bbox": [
+        49,
+        47,
+        468,
+        257
+      ]
+    },
+    "impact_fall": {
+      "rect": [
+        646,
+        248,
+        308,
+        80
+      ],
+      "source_cell": [
+        2,
+        1
+      ],
+      "source_bbox": [
+        40,
+        139,
+        481,
+        253
+      ]
+    },
+    "ripple": {
+      "rect": [
+        6,
+        440,
+        308,
+        80
+      ],
+      "source_cell": [
+        0,
+        2
+      ],
+      "source_bbox": [
+        46,
+        115,
+        465,
+        224
+      ]
+    },
+    "stern_spray": {
+      "rect": [
+        326,
+        422,
+        308,
+        116
+      ],
+      "source_cell": [
+        1,
+        2
+      ],
+      "source_bbox": [
+        25,
+        66,
+        489,
+        240
+      ]
+    },
+    "drop": {
+      "rect": [
+        772,
+        412,
+        56,
+        135
+      ],
+      "source_cell": [
+        2,
+        2
+      ],
+      "source_bbox": [
+        225,
+        83,
+        281,
+        218
+      ]
+    }
+  },
+  "animations": {
+    "wake": "Two authored wake shapes, blended and displaced behind the hull along the water plane.",
+    "impact": [
+      "impact_start",
+      "impact_peak",
+      "impact_fall"
+    ],
+    "spray": "Directional fan and droplets with curved trajectories.",
+    "water_contact": "Foam and a soft shadow below the hull. Water effects are rendered behind the convoy."
+  }
+}

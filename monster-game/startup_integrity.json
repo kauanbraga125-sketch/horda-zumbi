@@ -1,5 +1,5 @@
 {
-  "version": "0.10.50",
+  "version": "0.10.51",
   "class_count": 55,
   "files": [
     {
@@ -349,8 +349,8 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 24399,
-      "sha256": "1e34c570300683fd7432b22589f478cc0914ce917419329db1ee70696a7f96f5"
+      "bytes": 24893,
+      "sha256": "9a3ab376f5abfbbadece6ce5a1a4bab37306c91ea413ff0f19fa1f8524a971e3"
     },
     {
       "path": "res://scripts/sewer_art.gd",
@@ -359,8 +359,8 @@
     },
     {
       "path": "res://scripts/sewer_bridge.gdshader",
-      "bytes": 6287,
-      "sha256": "2a3de9b48c9c6d62741297cdd1d49d5554c4aec6dedade3512c6cdc13793d871"
+      "bytes": 7360,
+      "sha256": "a0180588f4939691e81dcbfeb6592c1d65d014ff049cead116f3b5adcbd2b7f4"
     },
     {
       "path": "res://scripts/sewer_event.gd",
@@ -374,8 +374,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 14681,
-      "sha256": "0e681afd9dcc9e52fd5d5cf807a085c6ff5fc3b1065c41cf3aa3cf50d3135d43"
+      "bytes": 10068,
+      "sha256": "396e3ba9e3111f0a1bd7eb2a9052a55060db828cbd06e00607c1bb4aab2a89bd"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
@@ -384,13 +384,18 @@
     },
     {
       "path": "res://scripts/sewer_shaft.gd",
-      "bytes": 4442,
-      "sha256": "7b9c81d27e2abefc7f9f471ab8f431bacdf45c17b1076d16c797b4e8f5dcf4e5"
+      "bytes": 4540,
+      "sha256": "f85dfab85776d3da00eecefb2febefb451dcf335a0a287d338c47cfb662ab60f"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
       "bytes": 3064,
       "sha256": "1a9d3ef1013869f03456bf152684b05f45e28f92514d4e2dec658b441391820c"
+    },
+    {
+      "path": "res://scripts/sewer_water_fx.gd",
+      "bytes": 6968,
+      "sha256": "09fd2e51c85e6b8cbc3c9b557e7fbc172a5675f60f2210adb23f21408f1068b9"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",
@@ -1426,6 +1431,16 @@
       "path": "res://assets/art/v149/manifest.json",
       "bytes": 2237,
       "sha256": "e30e1ae18d063eb3a824c2e2287ea0891efb00da4661daa576e145f6b4233c7a"
+    },
+    {
+      "path": "res://assets/art/v151/water_fx.json",
+      "bytes": 5768,
+      "sha256": "85f90100032e19ebf6e808ac431c5d69cb13d8cb4462bc2b94323f93acbc5050"
+    },
+    {
+      "path": "res://assets/art/v151/water_fx.webp",
+      "bytes": 253856,
+      "sha256": "96a4a28164df321563aac66c0fda4b5e42d8cab49b1b22b241e7b57fc2c519a7"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

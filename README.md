@@ -1,6 +1,6 @@
 # Horda Zumbi
 
-Versão em desenvolvimento: **0.10.50 — borda rompida, névoa e detritos na entrada do esgoto**. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
+A versão em desenvolvimento **0.10.51** traz água animada, espuma e novos respingos no esgoto. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
 
 O último APK publicado em Releases continua sendo a **0.10.41**.
 
