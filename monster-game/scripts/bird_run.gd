@@ -77,7 +77,7 @@ func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
 	if id!="agourinho" or rescued: return false
 	rescued = true;emotion_left = 1.6;target = Vector2(m.x,m.y);beam_left = .7
 	m.falling = false;m.vy = 0;m.hurt_left = 0;m.glide_left = 1.0
-	if not r.space.active and not r.sewer.active:
+	if not r.space.active and not r.sewer.active and not r.sky.active:
 		var safe_x = r.ANCHOR
 		for offset in range(0,700,35):
 			if r.has_floor(r.ANCHOR+offset): safe_x = r.ANCHOR+offset;break

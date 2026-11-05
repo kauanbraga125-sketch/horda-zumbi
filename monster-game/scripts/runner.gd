@@ -551,7 +551,7 @@ func register_loss() -> void :
 	while not loss_times.is_empty() and loss_times[0] < elapsed - 4.5: loss_times.pop_front()
 	if (loss_times.size() >= 3 or active_count() <= 3) and recovery_left <= 0 and active_count() > 0:
 		recovery_left = 3.0 if active_count() >= 24 else 7.0;recovery_speed = maxf(275, speed * 0.93);pressure = maxf(0, pressure - 0.35)
-		if developer_kind.is_empty() and not space.active: spawn_civilians(spawn_left() - world_px + 100, 3 if active_count() <= 12 else 1, next_entity_id + 500000)
+		if developer_kind.is_empty() and not space.active and not sky.active: spawn_civilians(spawn_left() - world_px + 100, 3 if active_count() <= 12 else 1, next_entity_id + 500000)
 		events.append({"type": "recovery"})
 
 func remove_member(index: int, cause: String) -> void :
@@ -565,6 +565,8 @@ func remove_member(index: int, cause: String) -> void :
 		hit.in_space = true;hit.foot_x = old.x;hit.foot_y = old.y;hit.space_height = space.member_height(self);hit.space_wear = cosmetics_for(old,shown).duplicate()
 	elif sewer.active:
 		hit.in_sewer = true;sewer.casualty(self,old,shown)
+	elif sky.active:
+		hit.in_sky = true
 	events.append(hit)
 	members.remove_at(index);cached_active = -1
 	clean_air = false;register_loss()

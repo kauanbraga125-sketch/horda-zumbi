@@ -307,11 +307,15 @@ func consume_run_events() -> void :
 			"sky_launch":
 				effects.clear();sound.play("space_boost", -14);effects.spark(point, MINT, 18)
 			"sky_boost": sound.play("space_boost", -16);effects.spark(point, MINT, 14)
-			"sky_charge": sound.play("space_energy", -14);effects.ring(point, Color("df9aff"))
-			"sky_bounce": effects.ring(point, MINT)
+			"sky_charge": sound.play("space_energy", -14)
+			"sky_bounce":
+				if e.prop == "balloon": sound.play("glass_break", -17)
+				else: sound.play("creeper_wing", -22)
+			"sky_warn": sound.play("power_warning" if e.prop == "storm" else "creeper_wing", -24)
 			"sky_hit": sound.play("space_hit", -14);shake = 3;effects.spark(point, CORAL, 15)
 			"sky_land":
-				effects.clear();sound.play("heavy_land", -15);effects.dust(point, 16, 1.1)
+				effects.clear();sound.play("heavy_land", -13);shake = 6.0 * float(e.force)
+				sound.play("explosion", -24)
 				show_toast("DE VOLTA À CORRIDA • PICO %d m" % e.peak, 2.5)
 			"space_boost": sound.play("space_boost",-13);effects.spark(point,MINT,24)
 			"space_ship_hit": sound.play("space_hit",-17);effects.spark(point,CORAL,6)
@@ -427,7 +431,7 @@ func consume_run_events() -> void :
 				shake = 2.5 if int(e.kind) == 3 else 5.0
 				var death_point: Vector2 = Vector2(float(e.get("foot_x", point.x)), float(e.get("foot_y", point.y))) if int(e.kind) in [2, 3] else point
 				if bool(e.get("in_space",false)): runner.space.visual.casualty(e)
-				elif not bool(e.get("in_sewer",false)): effects.death(int(e.kind), death_point)
+				elif not bool(e.get("in_sewer",false)) and not bool(e.get("in_sky",false)): effects.death(int(e.kind), death_point)
 			"shot": sound.play("gunshot", -17)
 			"explosion": sound.play("explosion", -14);effects.explosion(point);shake = 8
 			"tunnel": sound.play("tunnel", -18)
@@ -512,7 +516,7 @@ func perform_action(action: String) -> void :
 	if action == "home_space_test" and screen == "home":
 		start_lab("sky", 6, 0);return
 	if action == "lab_sky_restart" and lab_active and lab_kind == "sky":
-		start_lab("sky", runner.members.size(), runner.developer_stage);return
+		start_lab("sky", runner.max_horde, runner.developer_stage);return
 	if prepare_ui.action(self, action): return
 	if codex.action(self,action): return
 	if hub.action(self, action): return
@@ -970,6 +974,7 @@ func draw_run() -> void :
 	var captured_by_id: Dictionary = {}
 	ground(runner.world_px)
 	runner.sky.visual.launcher(self, runner)
+	runner.sky.visual.paint_landing(self, runner)
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
 	effects.draw_trails(paint_target, actor, runner.elapsed)

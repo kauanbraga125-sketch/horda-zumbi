@@ -50,10 +50,11 @@ func launcher_ground_test() -> void:
 		check(visible_pixels > 5, "launcher foot at %d touches the stone surface" % int(foot.x))
 	check(placed.save_png(folder + "/launcher.png") == OK, "capture the launcher planted in the street")
 
-func play_route(label: String, taps: Array, capture: bool, restart: bool = false) -> Dictionary:
+func play_route(label: String, taps: Array, capture: bool, restart: bool = false, expected_losses: int = 0) -> Dictionary:
 	if restart: game.perform_action("lab_sky_restart")
 	else: game.start_lab("sky", 6, 0)
 	var r = game.runner
+	r.run_seed = 5330
 	var s = r.sky
 	var ids = r.members.map(func(m): return m.id)
 	for i in range(r.members.size()):
@@ -69,10 +70,10 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 	var touched: Array[String] = []
 	var timestamps: Array[Dictionary] = []
 	var previous_foot = Vector2.ZERO
-	var named_frames = [0.35, 1.19, 2.43, 3.82, 5.04, 7.5]
+	var named_frames = [0.50, 1.11, 2.21, 2.42, 3.82, 5.10, 7.45, 11.60, 21.60, 31.40, 39.83]
 	var next_sample = 0
 	var launch_pressed = false
-	for tick in range(1200):
+	for tick in range(4200):
 		if not launch_pressed and s.pad_world - r.world_px - r.ANCHOR < 195.0:
 			tap()
 			launch_pressed = true
@@ -92,7 +93,11 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 			if e.type in ["sky_charge", "sky_bounce", "sky_hit"]:
 				touched.append(e.prop)
 			if e.type == "sky_hit":
-				check(velocity_before_hit > -530.0 and s.velocity < -500.0, label + ": collision applies a real downward impulse")
+				check(velocity_before_hit > s.velocity and s.velocity < -500.0, label + ": collision applies a real downward impulse")
+				if e.prop == "storm":
+					check(s.objects.any(func(obj): return obj.kind == "storm" and obj.used_at == s.age and s.hazard_phase(obj) == "attack"), label + ": the visible bolt applies the damage")
+				elif e.prop == "bat":
+					check(e.get("lost", 0) == 1, label + ": the bat removes one actual member")
 			if str(e.type).begins_with("sky_"):
 				timestamps.append({"event": e.type, "prop": e.get("prop", ""), "video_frame": frames, "altitude": s.altitude, "charges": s.charges})
 		game.update_camera(STEP)
@@ -114,15 +119,19 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 			var still = await picture(false)
 			assert(still.save_jpg(folder + "/%s-%02d.jpg" % [label, next_sample], .94) == OK)
 			next_sample += 1
+		if not recording and landing_tick >= 0 and tick == landing_tick + 10:
+			var impact = await picture(false)
+			assert(impact.save_png(folder + "/%s-impact.png" % label) == OK)
 		if landing_tick >= 0 and tick > landing_tick + 74:
 			break
 		if not started and not s.pending: break
 	check(launch_count == 1 and landing_tick >= 0 and not s.active, label + ": one takeoff and a natural landing")
-	check(r.members.map(func(m): return m.id) == ids and not r.dead, label + ": the same horde runs on after landing")
+	check(r.members.size() == ids.size() - expected_losses and r.members.all(func(m): return m.id in ids) and not r.dead,
+		label + ": the surviving members run on after landing")
 	check(r.members.all(func(m): return absf(float(m.y) - r.ground_y(float(m.x))) < .5), label + ": members settle on the real street floor")
 	check(r.sewer.encounter.completed_count == 1 and r.world_px > s.start_world + 500.0, label + ": the run advances through the handoff")
 	check(height_per_frame < 35.0, label + ": camera never jumps between street and sky")
-	var report = {"route": label, "peak_m": int(s.peak / 30.0), "taps_used": spent, "contacts": touched, "events": timestamps, "camera_delta_px": height_per_frame}
+	var report = {"route": label, "peak_m": int(s.peak / 30.0), "taps_used": spent, "contacts": touched, "events": timestamps, "camera_delta_px": height_per_frame, "gates": s.course.gate, "losses": r.losses}
 	routes.append(report)
 	return report
 
@@ -144,14 +153,17 @@ func run() -> void:
 	game.data = MonsterCatalog.defaults()
 	game.data.active_cosmetics = ["z_plumber", "s_ice"]
 	await launcher_ground_test()
-	var ascent = await play_route("subida", [1.9, 4.60, 6.6, 7.95], recording)
-	check(ascent.peak_m >= 96 and ascent.taps_used == 4, "timed taps drive a sustained climb")
+	var inputs = [1.9, 4.60, 6.6, 7.95]
+	for tick in [679, 793, 937, 1066, 1214, 1338, 1489, 1615, 1758, 1881, 2021, 2141, 2282]:
+		inputs.append(float(tick) * STEP - .001)
+	var ascent = await play_route("subida", inputs, recording, false, 1)
+	check(ascent.peak_m >= 440 and ascent.gates >= 18 and ascent.taps_used == 17, "timed taps carry the horde through the generated high-altitude course")
 	check("ember" in ascent.contacts and "balloon" in ascent.contacts and "cloud" in ascent.contacts, "the charge and both free boosts are reachable")
-	check(not "bat" in ascent.contacts and not "storm" in ascent.contacts, "both hazards can be dodged using height")
-	var bat = await play_route("morcego", [2.22], recording, true)
-	check("bat" in bat.contacts and bat.peak_m < ascent.peak_m, "the bat route loses height and returns early")
-	var storm = await play_route("tempestade", [1.9], false, true)
-	check("storm" in storm.contacts, "the storm route reaches the second downward hazard")
+	check("bat" in ascent.contacts and ascent.losses == 1, "the high-altitude bat can end a long climb")
+	var storm = await play_route("tempestade", [1.9], recording, true)
+	check("storm" in storm.contacts and storm.peak_m < ascent.peak_m, "the opening storm knocks down a lower attempt")
+	var bat = await play_route("morcego", [2.22], false, true, 1)
+	check("bat" in bat.contacts and bat.peak_m < storm.peak_m, "the opening bat punishes a late tap")
 	var report = {"version": str(ProjectSettings.get_setting("application/config/version")), "checks": checks, "failures": failures, "video_frames": frames, "routes": routes}
 	var out = FileAccess.open(folder + "/sky.json", FileAccess.WRITE)
 	out.store_string(JSON.stringify(report, "  "))

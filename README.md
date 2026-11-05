@@ -1,6 +1,6 @@
 # Horda Zumbi
 
-A versão em desenvolvimento **0.10.54** encaixa a cama elástica da subida ao Céu Sombrio no piso de pedra. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
+A versão em desenvolvimento **0.10.55** amplia o Céu Sombrio com subida contínua, perigos animados e dificuldade progressiva. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
 
 O último APK publicado em Releases continua sendo a **0.10.41**.
 
