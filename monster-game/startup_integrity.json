@@ -1,5 +1,5 @@
 {
-  "version": "0.10.48",
+  "version": "0.10.49",
   "class_count": 55,
   "files": [
     {
@@ -204,8 +204,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 123016,
-      "sha256": "b0cd4ebe2c527808d6a46cfbd9ad83848c15db1f7f499dd99e440a8cff50d47b"
+      "bytes": 125481,
+      "sha256": "3f5b81bc0a62c0f6ff444d648afb1cd7fe3ce0e7efd1914a8e5b16b60315d9b0"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -349,18 +349,18 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 22573,
-      "sha256": "f945d1337875a6e03fd8fe80384fafc58f149bebb0a51b3b6ca84720452ad21c"
+      "bytes": 24399,
+      "sha256": "1e34c570300683fd7432b22589f478cc0914ce917419329db1ee70696a7f96f5"
     },
     {
       "path": "res://scripts/sewer_art.gd",
-      "bytes": 7799,
-      "sha256": "8f42adc8bed0aa8c540888e755fd37a3b4c6148971cc2e4a889ec1407af4b82f"
+      "bytes": 8061,
+      "sha256": "fdd2acfd5e58bf7c8c7bf38f62b656f4130783e898905963e924bd7bfe1ef71b"
     },
     {
       "path": "res://scripts/sewer_bridge.gdshader",
-      "bytes": 4413,
-      "sha256": "2f3ab9a5dc65c813852076fc6398f8cbbb15d8ecd75146485ed8d03a9c30cd5b"
+      "bytes": 4566,
+      "sha256": "e60ac10964e5852997332a5a344551881efd1be663c2a89fc5e57ff2b8918ce2"
     },
     {
       "path": "res://scripts/sewer_event.gd",
@@ -374,8 +374,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 14065,
-      "sha256": "acbe8fd480d11a5fc2469805a417bd437e9ca250c0caec70362b41f4fd1e0307"
+      "bytes": 14849,
+      "sha256": "f9dae4b22bbc97c44b7b3d165b0a35dcc47ceb55ebbbcb09529bcf90055f6912"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
@@ -1416,6 +1416,16 @@
       "path": "res://assets/art/v145/soil_to_sewer.webp",
       "bytes": 418768,
       "sha256": "e4593b87bf19a37f5d8239065b807bad6f89d4ddd0695fe8b9b145bf1fc0ab30"
+    },
+    {
+      "path": "res://assets/art/v149/jetski_solo.webp",
+      "bytes": 517292,
+      "sha256": "7ab8235516118e1f5bfbce12723182b180ca9e94fe37f3fdc274926a9ed45251"
+    },
+    {
+      "path": "res://assets/art/v149/manifest.json",
+      "bytes": 2237,
+      "sha256": "e30e1ae18d063eb3a824c2e2287ea0891efb00da4661daa576e145f6b4233c7a"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

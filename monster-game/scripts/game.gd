@@ -1712,27 +1712,60 @@ func draw_credits() -> void :
 
 func update_camera(dt: float) -> void :
 	if runner.sewer.active:
-		var sewer_zoom = 1.0
+		var fleet = runner.sewer.fleet_size()
+		var safe_top = -layout_origin.y+155.0;var safe_bottom = 720.0+layout_origin.y-30.0
+		var fleet_zoom = minf(1.0,minf((full_rect().size.x-180.0)/fleet.x,(safe_bottom-safe_top)/fleet.y))
+		var required_right = runner.sewer.entry_min_lead+runner.sewer.HULL_HALF_WIDTH
+		if required_right>runner.ANCHOR: fleet_zoom = minf(fleet_zoom,(full_rect().end.x-CAMERA_ANCHOR.x-24)/maxf(1,required_right-runner.ANCHOR))
+		var sewer_zoom = fleet_zoom
 		if runner.sewer.phase=="entry":
 			if runner.members.is_empty(): return
 			var falling = maxf(0,runner.sewer.fall_age(runner))
+			var all_onboard = runner.members.all(func(m):return bool(m.get("sewer_onboard",false)))
 			sewer_zoom = lerpf(CAMERA_BASE_ZOOM,.82,smoothstep(.10,1.75,falling))
 			sewer_zoom = lerpf(sewer_zoom,1.0,smoothstep(3.85,runner.sewer.ENTRY_SECONDS,runner.sewer.phase_age))
+			sewer_zoom = minf(sewer_zoom,lerpf(CAMERA_BASE_ZOOM,fleet_zoom,smoothstep(.15,1.5,falling)))
+			if all_onboard: sewer_zoom = fleet_zoom
 			var highest = INF;var lowest = -INF
 			for member in runner.members:
 				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+8)
-			var safe_top = -layout_origin.y+155;var safe_bottom = 720+layout_origin.y-30
 			var fit = (safe_bottom-safe_top)/maxf(1,lowest-highest)
 			sewer_zoom = maxf(.52,minf(sewer_zoom,fit))
 			camera_zoom = minf(fit,lerpf(camera_zoom,sewer_zoom,1-exp(-dt*6.0)))
 			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
 			var upper = safe_bottom-(CAMERA_ANCHOR.y+(lowest-runner.FLOOR)*camera_zoom)
 			var shift = clampf(0,minf(lower,upper),upper)
+			if all_onboard:
+				var gallery_top = runner.sewer.visual.shaft.geometry(self,runner.sewer).gallery_top+30.0
+				shift = minf(shift,(runner.FLOOR-gallery_top)*camera_zoom-CAMERA_ANCHOR.y-layout_origin.y)
 			camera_ground_shift = lerpf(camera_ground_shift,shift,1-exp(-dt*9.0))
 			camera_ground_shift = clampf(camera_ground_shift,minf(lower,upper),maxf(lower,upper))
 			return
-		if runner.sewer.phase=="exit": sewer_zoom = lerpf(1.0,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
-		camera_zoom = move_toward(camera_zoom,sewer_zoom,dt*1.1);camera_ground_shift = move_toward(camera_ground_shift,0,dt*600);return
+		var target_shift = 0.0
+		if runner.sewer.phase=="exit":
+			sewer_zoom = lerpf(fleet_zoom,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
+			var highest = INF;var lowest = -INF;var leftmost = INF;var rightmost = -INF
+			for member in runner.members:
+				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+24)
+				leftmost = minf(leftmost,float(member.x)-68);rightmost = maxf(rightmost,float(member.x)+90)
+			var fit = (safe_bottom-safe_top)/maxf(1,lowest-highest)
+			if leftmost<runner.ANCHOR: fit = minf(fit,(CAMERA_ANCHOR.x-full_rect().position.x-18)/maxf(1,runner.ANCHOR-leftmost))
+			if rightmost>runner.ANCHOR: fit = minf(fit,(full_rect().end.x-CAMERA_ANCHOR.x-18)/maxf(1,rightmost-runner.ANCHOR))
+			camera_zoom = minf(fit,lerpf(camera_zoom,minf(sewer_zoom,fit),1-exp(-dt*6.0)))
+			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
+			var upper = safe_bottom-(CAMERA_ANCHOR.y+(lowest-runner.FLOOR)*camera_zoom)
+			target_shift = clampf(0,minf(lower,upper),upper)
+			camera_ground_shift = clampf(lerpf(camera_ground_shift,target_shift,1-exp(-dt*9.0)),minf(lower,upper),maxf(lower,upper))
+			return
+		if runner.sewer.phase=="ride":
+			var low = runner.sewer.WATER-24+(runner.sewer.lanes()-1)*runner.sewer.LANE_SPACE+runner.sewer.HULL_HEIGHT*.5
+			var high = runner.sewer.WATER-24-114.0
+			var lower = safe_top-(CAMERA_ANCHOR.y+(high-runner.FLOOR)*camera_zoom)
+			var upper = safe_bottom-(CAMERA_ANCHOR.y+(low-runner.FLOOR)*camera_zoom)
+			target_shift = clampf(0,minf(lower,upper),upper)
+			var gallery_top = runner.sewer.visual.shaft.geometry(self,runner.sewer).gallery_top+30.0
+			target_shift = minf(target_shift,(runner.FLOOR-gallery_top)*camera_zoom-CAMERA_ANCHOR.y-layout_origin.y)
+		camera_zoom = move_toward(camera_zoom,sewer_zoom,dt*1.1);camera_ground_shift = move_toward(camera_ground_shift,target_shift,dt*600);return
 	if runner.space.active:
 		var s = runner.space
 		var transition = s.visual.transition_progress(s)

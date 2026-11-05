@@ -89,7 +89,7 @@ func run() -> void:
 		for i in range(30):r.advance(DT,false)
 		check(s.captured==count and r.souls==count,"captured craft cannot duplicate its occupants")
 		var ids: Array = []
-		for b in s.boats: ids.append_array(b.ids);check(b.ids.size()<=2,"recruits continue using at most two seats")
+		for b in s.boats: ids.append_array(b.ids);check(b.ids.size()==1,"each recruit has a solo ski")
 		check(ids.size()==r.active_count() and ids.all(func(id):return ids.count(id)==1),"recruitment keeps stable unique passenger identities")
 	for type in ["rescue","fugitive"]:
 		r = boat_run();var s = r.sewer;var tail = s.boats[-1]
@@ -97,7 +97,7 @@ func run() -> void:
 		for i in range(100): r.advance(DT,false)
 		var amount = 2 if type=="fugitive" else 1
 		check(s.captured==amount and r.souls==amount,"capture at the trailing craft finishes even beyond the visible edge "+type)
-	var report = {"version":"0.10.41","checks":checks,"failures":failures,"event_distribution":kinds,"failed_rolls":misses,"physical_device_tested":false}
+	var report = {"version":ProjectSettings.get_setting("application/config/version"),"checks":checks,"failures":failures,"event_distribution":kinds,"failed_rolls":misses,"physical_device_tested":false}
 	var folder = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not folder.is_empty():
 		DirAccess.make_dir_recursive_absolute(folder);var f = FileAccess.open(folder+"/journeys.json",FileAccess.WRITE);f.store_string(JSON.stringify(report,"  "));f.close()

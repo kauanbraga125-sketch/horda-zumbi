@@ -63,7 +63,7 @@ func run() -> void:
 		clock = float(mat.get_shader_parameter("effect_time"))
 		mat.set_shader_parameter("effect_time",clock+1.0)
 		var deep_after = await picture(false)
-		var deep = band_difference(deep_before,deep_after,s.visual.shaft.throat_depth+245,1600,true)
+		var deep = band_difference(deep_before,deep_after,float(s.visual.shaft.geometry(game,s).gallery_offset)+120.0,1800,true)
 		check(deep.pixels>100 and deep.changed==0,label+": cloud animation does not make the lower gallery flicker")
 		measurements.append({"fixture":label,"deep_gallery_motion":deep})
 		mat.set_shader_parameter("effect_time",clock)

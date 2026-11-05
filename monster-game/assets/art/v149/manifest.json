@@ -1,0 +1,23 @@
+{
+  "version": "0.10.49",
+  "asset": "jetski_solo.webp",
+  "source": "tools/art_sources/v149/jetski_solo.webp",
+  "reference": "assets/art/v138/jetski.webp",
+  "generation_mode": "built-in image generation",
+  "prompt": "Use case: precise-object-edit.\nAsset type: production 2D game sprite, redesigned compact SOLO jet ski for Horda Zumbi.\nInput image 1 is the existing game's two-person jet ski: use it as the edit target and exact style/material reference. Redesign its proportions into a SHORT one-person water scooter, with ONE compact black saddle, not the long two-person bench. Keep the hand-painted dark fantasy cartoon/pixel-painted game finish, bold dark outline, rich worn purple hull, chunky antique gold frame, small ivory skull mounted at the right-facing bow, mossy weathering, rear exhaust, black handlebar grips. Same strict side view facing RIGHT and readable silhouette. No driver/characters.\nComposition: exactly ONE complete jet ski, broadside orthographic 2D platform-game profile, around 2.5:1 width-to-height overall. Full object visible with a small transparent margin. Seat centered at approximately 46% of hull width and 32% of hull height; handlebar grips around 62% width and 10% height, so a seated rider can reach them. Keep a low flat side hull to layer in front of the rider's feet. Make the saddle visibly only large enough for one rider. Strong clean anatomy of the vehicle, mechanically coherent, consistent lighting from upper left, all parts attached.\nScene/backdrop: genuinely transparent alpha background, including under and around the entire vehicle. No floor, no water, no wake, no spray, no cast shadow outside the vehicle. No separate detached parts or extra objects. No text, no labels, no border, no watermark. The result is a game-ready isolated sprite, not a promotional illustration.",
+  "production": {
+    "runtime_size": [
+      1024,
+      451
+    ],
+    "source_alpha_threshold_for_bounds": 16,
+    "padding": 3,
+    "runtime_height_world": 82,
+    "pilot_anchor": [
+      -8,
+      21
+    ],
+    "pilot_capacity": 1,
+    "animation": "Existing authored pilot cels, physical hull bob/tilt, individual wakes and landing splashes; hull drawn in back and foreground passes."
+  }
+}

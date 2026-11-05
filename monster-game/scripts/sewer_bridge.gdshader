@@ -50,8 +50,8 @@ void fragment() {
 	float soil_x = scene_position.x + soil_scroll_x;
 	float depth = scene_position.y - surface_y;
 	float irregularity = (soft_noise(vec2(x * 0.007, depth * 0.006)) - 0.5) * 100.0;
-	float join = smoothstep(gallery_offset - 160.0 + irregularity,
-		gallery_offset + 210.0 + irregularity, depth);
+	float join = smoothstep(gallery_offset - 20.0 + irregularity * 0.25,
+		gallery_offset + 8.0 + irregularity * 0.25, depth);
 	vec4 soil = joined_sample(soil_texture, soil_x, (depth + 105.0) / 1155.0, 1050.0, 160.0);
 	vec4 sewer = joined_sample(sewer_texture, x, (depth - gallery_offset) / gallery_height,
 		gallery_width, 140.0);
@@ -65,7 +65,7 @@ void fragment() {
 		smoothstep(24.0, throat_depth + 180.0, depth));
 	vec3 color = mix(fog, mix(soil.rgb, sewer.rgb, join), wall);
 	float opacity = mix(smoothstep(2.0,throat_depth+120.0,depth)*0.78,1.0,wall);
-	if (!exit_mode && depth > 0.0 && depth < throat_depth + 240.0) {
+	if (!exit_mode && depth > 0.0 && depth < gallery_offset + 115.0) {
 		vec2 p = vec2((scene_position.x + scroll_x * 0.22) * 0.0042, depth * 0.010);
 		float drift = effect_time * 0.055;
 		float curl = soft_noise(p * 0.48 + vec2(drift * 0.36, 7.3));
@@ -74,11 +74,12 @@ void fragment() {
 		float crest = throat_depth * 0.68 + (curl - 0.5) * 105.0;
 		float upper_bank = exp(-pow((depth - crest) / (82.0 + curl * 45.0), 2.0));
 		float lip_bank = exp(-pow((depth - broken_top - 2.0) / 66.0, 2.0));
+		float lower_bank = exp(-pow((depth - gallery_offset + 5.0 - (curl - 0.5) * 60.0) / 98.0, 2.0));
 		float volume = smoothstep(0.23, 0.76, mass * 0.78 + wisps * 0.30);
 		float envelope = smoothstep(3.0, 55.0, depth)
-			* (1.0 - smoothstep(throat_depth + 95.0, throat_depth + 230.0, depth));
-		float mist = clamp((upper_bank * (0.25 + volume * 0.58)
-			+ lip_bank * 0.48) * envelope, 0.0, 0.94);
+			* (1.0 - smoothstep(gallery_offset - 5.0, gallery_offset + 110.0, depth));
+		float mist = clamp((upper_bank * (0.40 + volume * 0.78)
+			+ lip_bank * 0.68 + lower_bank * (0.25 + volume * 0.45)) * envelope, 0.0, 0.985);
 		vec3 cloud = mix(vec3(0.15, 0.17, 0.25), vec3(0.36, 0.32, 0.44),
 			clamp(volume * 0.72 + wisps * 0.36, 0.0, 1.0));
 		cloud = mix(cloud, vec3(0.16, 0.24, 0.28), smoothstep(throat_depth, throat_depth + 180.0, depth) * 0.35);

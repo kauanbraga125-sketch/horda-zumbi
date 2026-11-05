@@ -47,7 +47,7 @@ func run() -> void:
 	for count in [1,2,4,6,10,20,64]:
 		var r = fresh(count);var s = r.sewer;ids = r.members.map(func(m):return int(m.id));var seats: Array = []
 		for b in s.boats: seats.append_array(b.ids)
-		check(s.boats.size()==ceili(count/2.0) and s.boats.all(func(b):return b.ids.size()<=2),"exactly two seats per ski "+str(count))
+		check(s.boats.size()==count and s.boats.all(func(b):return b.ids.size()==1),"exactly one pilot per solo ski "+str(count))
 		check(seats.size()==count and seats.all(func(id):return seats.count(id)==1 and id in ids),"one stable seat for each actual member "+str(count))
 		var world = r.world_px;var souls = r.souls;s.left = .001;r.advance(DT,false)
 		for i in range(ceili(s.EXIT_SECONDS/DT)+5): r.advance(DT,false)
@@ -83,7 +83,7 @@ func run() -> void:
 	var r = fresh(6);var s = r.sewer;var old_targets: Dictionary = {}
 	for i in range(s.boats.size()): old_targets[s.boats[i].id] = s.boat_x(r,i)
 	r.add_member(0,true);s.assign_boats(r)
-	check(s.boats.all(func(b):return not old_targets.has(b.id) or absf(s.boat_x(r,s.boats.find(b))-float(old_targets[b.id]))<.01),"first new boat adds a stable row without moving existing seated pairs")
+	check(s.boats.all(func(b):return not old_targets.has(b.id) or absf(s.boat_x(r,s.boats.find(b))-float(old_targets[b.id]))<.01),"a recruit gets a new solo ski without moving existing pilots")
 	r = fresh(6);s = r.sewer;s.pressure = .91;var before = s.wave_edge();s.pressure = .25
 	check(s.wave_edge()<before,"mistakes physically bring the flood toward the tail")
 	s.pressure = .99;r.advance(DT,false)
@@ -106,5 +106,19 @@ func run() -> void:
 		# Isolate authored cadence from mistakes; the full native replay tests input.
 		r.hit_grace = 1;r.advance(DT,false)
 	check(s.history.size()>=4 and s.history.any(func(h):return h.kind=="pipe") and s.history.any(func(h):return h.kind in ["rescue","fugitive"]),"encounter rhythm makes varied decisions inside the first eleven seconds")
-	var report = {"version":"0.10.40","checks":checks,"failures":failures,"physical_device_tested":false}
+	# Perspective lanes change drawing depth, not access to the shared pickups.
+	r = fresh(20);s = r.sewer
+	for b in s.boats.duplicate():
+		if s.slot_lane(b.slot)<3:
+			var index = r.members.find_custom(func(m):return m.id==b.ids[0])
+			if index>=0: r.remove_member(index,"lane_probe")
+	s.assign_boats(r);r.events.clear()
+	var coins_before = r.coins;var row = r.new_coin_row(1)
+	s.add_object("coin",s.boats[0].x,s.WATER-70,{"coin_row":row});r.advance(DT,false)
+	check(r.coins==coins_before+1,"a surviving deep-lane solo pilot can collect the shared coin")
+	var members_before = r.active_count();s.add_object("rescue",s.boats[0].x,s.WATER-8)
+	for i in range(80): r.advance(DT,false)
+	check(r.active_count()==members_before+1 and s.captured==1,"a deep-lane leader can still rescue a real recruit")
+	check(s.boats.size()==r.active_count() and s.boats.all(func(b):return b.ids.size()==1),"deep-lane rescue preserves one pilot per craft")
+	var report = {"version":ProjectSettings.get_setting("application/config/version"),"checks":checks,"failures":failures,"physical_device_tested":false}
 	print("V140_SEWER ",JSON.stringify(report));quit(0 if failures.is_empty() else 1)

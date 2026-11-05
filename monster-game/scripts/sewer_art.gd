@@ -48,10 +48,15 @@ static func new_prop(c,id: String,at: Vector2,width: float,angle: float = 0.0,ti
 	c.draw_set_transform(at,angle);c.draw_texture_rect(tex,Rect2(-size*.5,size),false,tint);c.draw_set_transform(Vector2.ZERO)
 
 static func boat(c,p: Vector2,height: float,angle: float = 0,tint: Color = Color.WHITE,front: bool = false) -> void:
-	var tex = fresh("jetski");var size = tex.get_size()*height/tex.get_height()
+	var key = "solo_jetski_v149"
+	if not textures.has(key):
+		var image = Image.new()
+		assert(image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v149/jetski_solo.webp"))==OK)
+		textures[key] = ImageTexture.create_from_image(image)
+	var tex: Texture2D = textures[key];var size = tex.get_size()*height/tex.get_height()
 	c.draw_set_transform(p,angle)
 	if front:
-		var v = .78
+		var v = .68
 		c.draw_texture_rect_region(tex,Rect2(Vector2(-size.x*.5,-size.y*.5+size.y*v),Vector2(size.x,size.y*(1-v))),Rect2(0,tex.get_height()*v,tex.get_width(),tex.get_height()*(1-v)),tint)
 	else: c.draw_texture_rect(tex,Rect2(-size*.5,size),false,tint)
 	c.draw_set_transform(Vector2.ZERO)

@@ -73,6 +73,18 @@ func wake(g,s,b: Dictionary,index: int) -> void:
 		var t = fposmod(s.age*3.1+i*.147+index,1)
 		c.draw_circle(Vector2(b.x-70-t*134,b.y+17-t*50+t*t*58),2.8*(1-t)+.4,Color(.78,1,.96,(1-t)*.7))
 
+func hull_waterline(g,s,b: Dictionary,p: Vector2,angle: float) -> void:
+	if s.phase=="exit" or b.vy<0: return
+	var surface = s.water_y(b.x)-24+float(b.get("depth",0))+(s.entry_depth() if s.phase=="entry" else 0.0)
+	if absf(float(b.y)-surface)>12: return
+	var c = g.paint_target;var points = PackedVector2Array()
+	c.draw_set_transform(p,angle)
+	for i in range(17):
+		var x = lerpf(-76,69,float(i)/16)
+		points.append(Vector2(x,s.HULL_HEIGHT*.46+sin(x*.08-s.age*7+float(b.id))*.9))
+	c.draw_polyline(points,Color(.64,.96,.86,.38),1.4,true)
+	c.draw_set_transform(Vector2.ZERO)
+
 func suspended(g,s,e: Dictionary) -> void:
 	var c = g.paint_target;var gate = e.kind=="gate";var id = "gate" if gate else "pipe_mount"
 	var tex = Art.fresh(id) if gate else Art.texture(id);var height = 193.0 if gate else 170.0
@@ -166,6 +178,9 @@ func paint(g,s) -> void:
 		c.draw_set_transform(Vector2(0,-s.entry_drop()));g.ground(r.world_px);c.draw_set_transform(Vector2.ZERO)
 		shaft.dock_face(g,s.shore_edge(),s.entry_drop())
 	water(g,s,false)
+	# Depth lanes share a perspective water field, not a translucent sheet over
+	# the lower pilots. Only local foam crosses each compact hull afterwards.
+	water(g,s,true)
 	if exiting:
 		var tex = Art.fresh("ramp");var size = tex.get_size()*s.RAMP_WIDTH/tex.get_width()
 		var at = Vector2(s.ramp_left(r)+size.x*.5,s.WATER+48-size.y*.5+s.exit_rise(r))
@@ -179,7 +194,7 @@ func paint(g,s) -> void:
 		if exiting:
 			var flight = s.exit_boat(r,b);p = flight.p;angle = flight.angle
 			opacity = 0.0 if p.y>view.end.y+180 else 1.0
-		if opacity>.02: wake(g,s,b,index);Art.boat(c,p,96,angle,Color(1,1,1,opacity))
+		if opacity>.02: wake(g,s,b,index);Art.boat(c,p,s.HULL_HEIGHT,angle,Color(1,1,1,opacity))
 		for seat in range(b.ids.size()-1,-1,-1):
 			var member_index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
 			if member_index<0: continue
@@ -193,7 +208,9 @@ func paint(g,s) -> void:
 				g.actor.paint_space(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.13,"return" if s.phase_age>1.45 else "launch",0,wear)
 			else:
 				g.actor.paint_rider(c,int(m.kind),Vector2(m.x,m.y),108,r.elapsed+member_index*.31,float(m.get("sewer_angle",b.angle)),wear,Color.WHITE,seat,pose,float(b.duck_left))
-		if opacity>.02: Art.boat(c,p,96,angle,Color(1,1,1,opacity),true)
+		if opacity>.02:
+			Art.boat(c,p,s.HULL_HEIGHT,angle,Color(1,1,1,opacity),true)
+			hull_waterline(g,s,b,p,angle)
 		if b.bump<-.5: c.draw_arc(p+Vector2(65,-9),19,-1,1,12,Color(1,.75,.35,minf(.8,-float(b.bump)/25)),2,true)
 	if s.phase=="entry":
 		# Falling actors retain their paths independently of the boats' hull masks.
@@ -209,7 +226,6 @@ func paint(g,s) -> void:
 		g.actor.paint_space(c,int(item.kind),at,84,t,"ejected",0,item.wear,Color(1,1,1,1-smoothstep(.5,1,t)))
 	for item in s.splashes: splash(g,s,item)
 	if s.phase=="ride": flood(g,s);speed_streaks(g,s)
-	water(g,s,true)
 	if s.phase=="entry": flood(g,s)
 	if s.phase=="entry" and s.phase_age>1 and s.phase_age<3.5:
 		for i in range(12):
