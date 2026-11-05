@@ -114,6 +114,7 @@ var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
 var lab_active = false
 var lab_count = 36
+var lab_sky_count = 6
 var lab_stage = 3
 var lab_kind = "bomb"
 var lab_data: Dictionary = {}
@@ -306,8 +307,8 @@ func consume_run_events() -> void :
 			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)
 			"sky_launch":
 				effects.clear();sound.play("space_boost", -14);effects.spark(point, MINT, 18)
-			"sky_boost": sound.play("space_boost", -16);effects.spark(point, MINT, 14)
-			"sky_charge": sound.play("space_energy", -14)
+			"sky_boost": sound.play("space_boost", -16)
+			"sky_charge": sound.play("space_energy", -14 if e.gained > 0 else -22)
 			"sky_bounce":
 				if e.prop == "balloon": sound.play("glass_break", -17)
 				else: sound.play("creeper_wing", -22)
@@ -516,7 +517,7 @@ func perform_action(action: String) -> void :
 	if action == "home_space_test" and screen == "home":
 		start_lab("sky", 6, 0);return
 	if action == "lab_sky_restart" and lab_active and lab_kind == "sky":
-		start_lab("sky", runner.max_horde, runner.developer_stage);return
+		start_lab("sky", lab_sky_count, runner.developer_stage);return
 	if prepare_ui.action(self, action): return
 	if codex.action(self,action): return
 	if hub.action(self, action): return
@@ -2103,6 +2104,7 @@ func start_lab(kind: String, count: int = -1, stage: int = -1) -> void :
 	if kind in ["harvester","spectral"]:
 		runner.developer_kind = "";runner.power_owned = [3,4,5,6];runner.blessings.begin(runner,5 if kind == "harvester" else 6)
 	if kind == "sky":
+		lab_sky_count = runner.active_count()
 		runner.active_cosmetics = data.get("active_cosmetics", []).duplicate()
 		for i in range(runner.members.size()): runner.members[i].kind = 1 if i % 2 == 1 else 0
 		runner.sewer.encounter.offer(runner, true, "space")

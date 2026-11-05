@@ -6,12 +6,14 @@ const GRAVITY = 680.0
 const TERMINAL_FALL = 1180.0
 const MAX_CHARGES = 5
 const COOLDOWN = 0.18
+const IMPACT_LOCK = 0.18
 const PAD_CROSSING_MARGIN = 18.0
 const POSES = {
-	"ember": Vector2(30, 39), "balloon": Vector2(49, 54), "cloud": Vector2(87, 25),
+	"ember": Vector2(54, 66), "balloon": Vector2(49, 54), "cloud": Vector2(87, 25),
 	"bat": Vector2(43, 29), "storm": Vector2(68, 36),
 }
 const Course = preload("res://scripts/sky_course.gd")
+const Civil = preload("res://scripts/sky_civilians.gd")
 var course = Course.new()
 var visual = preload("res://scripts/sky_visual.gd").new()
 var pending = false
@@ -24,6 +26,10 @@ var peak = 0.0
 var charges = 0
 var cooldown = 0.0
 var hurt_left = 0.0
+var impact_left = 0.0
+var buffered_boost = false
+var recovering = false
+var recovery_after = 0.0
 var boost_left = 0.0
 var start_world = 0.0
 var street_ready = false
@@ -44,6 +50,10 @@ func reset() -> void:
 	altitude = 0.0
 	velocity = 0.0
 	charges = 0
+	impact_left = 0.0
+	buffered_boost = false
+	recovering = false
+	recovery_after = 0.0
 	notice_left = 0.0
 	objects.clear()
 	bursts.clear()
@@ -92,6 +102,10 @@ func begin(r, member: Dictionary) -> void:
 	charges = 2
 	cooldown = .23
 	hurt_left = 0.0
+	impact_left = 0.0
+	buffered_boost = false
+	recovering = false
+	recovery_after = 0.0
 	boost_left = .35
 	street_ready = false
 	start_world = r.world_px
@@ -114,27 +128,46 @@ func begin(r, member: Dictionary) -> void:
 	r.wave_durations.clear()
 	r.wave_started.clear()
 	course.start(r, self)
+	emit_impulse(r)
 	r.flights += 1
 	r.mission_stats.space_flights = int(r.mission_stats.get("space_flights", 0)) + 1
 	r.events.append({"type": "sky_launch", "x": pad_world - r.world_px, "y": r.FLOOR - PAD_HEIGHT})
 
 func impulse(r) -> void:
-	if charges <= 0 or cooldown > 0.0 or hurt_left > .19:
+	if charges <= 0: return
+	if impact_left > 0.0:
+		buffered_boost = true
 		return
+	if cooldown > 0.0: return
 	charges -= 1
 	boost(r, 850.0)
 
 func boost(r, speed: float) -> void:
+	var recovered = recovering and velocity < 0.0
 	velocity = maxf(velocity, speed)
 	cooldown = COOLDOWN
 	boost_left = .32
+	if recovered:
+		recovering = false
+		notice = "VOO RECUPERADO"
+		notice_left = 1.12
+		r.events.append({"type": "sky_recovered", "x": r.ANCHOR, "y": r.FLOOR - altitude})
+	emit_impulse(r)
 	r.events.append({"type": "sky_boost", "y": r.FLOOR - altitude - 16})
 
-func add_object(kind: String, x: float, height: float) -> void:
+func emit_impulse(r) -> void:
+	var i: int = r.leader_index()
+	var x = float(r.members[i].x) if i >= 0 else float(r.ANCHOR)
+	var width = clampf((r.active_count() - 1) * 28.0 + 86.0, 86.0, 236.0)
+	emit_burst(r, "impulse", Vector2(x - width * .46, r.FLOOR - altitude + 9.0), {"width": width})
+
+func add_object(kind: String, x: float, height: float) -> Dictionary:
 	var pressure = Course.pressure(height)
-	objects.append({"kind": kind, "x": x, "height": height, "used_at": -1.0,
+	var object = {"kind": kind, "x": x, "height": height, "used_at": -1.0,
 		"alert_at": -1.0, "warning": lerpf(.44, .29, pressure) if kind == "bat" else lerpf(.68, .49, pressure),
-		"attack": .52 if kind == "bat" else .23, "dive_y": 0.0, "pressure": pressure})
+		"attack": .52 if kind == "bat" else .23, "dive_y": 0.0, "pressure": pressure}
+	objects.append(object)
+	return object
 
 func hazard_phase(e: Dictionary) -> String:
 	if e.alert_at < 0.0: return "idle"
@@ -151,6 +184,8 @@ func object_point(r, e: Dictionary, at: float) -> Vector2:
 	var amplitude = 11.0 if e.kind == "bat" else 5.0
 	var y = r.FLOOR - float(e.height) + (19.0 if e.kind == "cloud" else -46.0)
 	var point = Vector2(float(e.x) - r.world_px, y + sin(at * 3.7 + rhythm) * amplitude)
+	if Civil.is_civil(e.kind):
+		return Civil.point(e, at, point)
 	if e.kind == "bat" and e.alert_at >= 0.0:
 		var attack_age = at - float(e.alert_at) - float(e.warning)
 		var dive = clampf(attack_age, 0.0, float(e.attack))
@@ -179,25 +214,33 @@ func emit_burst(r, kind: String, point: Vector2, extra: Dictionary = {}) -> void
 
 func touch_object(r, e: Dictionary, point: Vector2, member_index: int) -> void:
 	e.used_at = age
-	var effect = {"x": point.x, "y": point.y, "prop": e.kind}
+	var effect = {"x": point.x, "y": point.y, "prop": e.kind, "recovery": e.get("recovery", false)}
 	match e.kind:
 		"ember":
-			charges += 1
+			var gained = int(charges < MAX_CHARGES)
+			charges += gained
 			emit_burst(r, "ember", point)
-			notice = "+1 BRASA"
+			notice = "+1 BRASA" if gained > 0 else "BRASAS CHEIAS"
 			effect.type = "sky_charge"
+			effect.gained = gained
 		"balloon", "cloud":
 			emit_burst(r, e.kind, point)
 			notice = "CAVEIRA ESTOUROU" if e.kind == "balloon" else "SALTO FANTASMA"
 			boost(r, 790.0 if e.kind == "balloon" else 870.0)
 			effect.type = "sky_bounce"
+			if e.get("recovery", false):
+				notice = "CORRENTE DE RESGATE"
+				course.rejoin(r, self, e)
 		"bat", "storm":
-			var knock = -530.0 if e.kind == "bat" else -690.0
-			velocity = maxf(-TERMINAL_FALL, minf(knock, velocity - 145.0))
+			var knock = -170.0 if e.kind == "bat" else -240.0
+			velocity = minf(knock, velocity)
 			hurt_left = .68
+			impact_left = IMPACT_LOCK
+			recovering = true
 			boost_left = 0.0
 			notice = "PERDEU ALTURA"
 			effect.type = "sky_hit"
+			offer_recovery(r)
 			if e.kind == "bat" and r.active_count() > 1:
 				var member: Dictionary = r.members[member_index]
 				var previous: int = r.active_count()
@@ -211,27 +254,67 @@ func touch_object(r, e: Dictionary, point: Vector2, member_index: int) -> void:
 					emit_burst(r, "casualty", foot, {"member_kind": kind, "wear": wear})
 					r.refresh_formation()
 					reform_left = 1.1
+		Civil.PARA_OCHRE, Civil.PARA_LILAC, Civil.JETPACK:
+			Civil.capture(r, self, e.kind, point)
+			notice = "+1 ALMA • CIVIL CAPTURADO"
+			effect.type = "sky_civil"
 	r.events.append(effect)
 	notice_left = 1.12
 
-func update_contacts(r, travel: float) -> void:
+func height_after_drop(seconds: float) -> float:
+	var accelerating = minf(seconds, maxf(0.0, (TERMINAL_FALL + velocity) / GRAVITY))
+	return altitude + velocity * accelerating - .5 * GRAVITY * accelerating * accelerating \
+		- TERMINAL_FALL * (seconds - accelerating)
+
+func offer_recovery(r) -> void:
+	if age < recovery_after or height_after_drop(.86) < 275.0: return
+	recovery_after = age + 4.0
+	var origin = r.world_px + r.ANCHOR
+	var ember = add_object("ember", origin + r.speed * .90, height_after_drop(.76))
+	ember.recovery = true
+	# A late tap meets the support after the fall. Passing beneath it still leads to the road.
+	var cloud_height = height_after_drop(.76) + 370.0
+	var cloud = add_object("cloud", origin + r.speed * 1.59, cloud_height)
+	cloud.recovery = true
+
+func swept_pickup(m: Dictionary, previous_feet: Dictionary, point: Vector2, previous_point: Vector2, radius: Vector2) -> bool:
+	var foot = Vector2(m.x, m.y)
+	var old_foot: Vector2 = previous_feet.get(m.id, foot)
+	var body = Vector2(0.0, -53.0)
+	var end = (foot + body - point) / radius
+	var start = (old_foot + body - previous_point) / radius
+	if start.is_equal_approx(end): return end.length_squared() <= 1.0
+	return Geometry2D.get_closest_point_to_segment(Vector2.ZERO, start, end).length_squared() <= 1.0
+
+func update_contacts(r, travel: float, dt: float, previous_feet: Dictionary) -> void:
 	var lead_index: int = r.leader_index()
 	var lead: Dictionary = r.members[lead_index] if lead_index >= 0 else {}
-	for e in objects:
+	# A hit or recovery can add a route while processing contacts.
+	for e in objects.duplicate():
 		var kind: String = e.kind
-		if e.used_at >= 0.0 or (kind == "ember" and charges == MAX_CHARGES): continue
+		if e.used_at >= 0.0: continue
 		var point = object_point(r, e, age)
+		var civil = Civil.is_civil(kind)
 		var hazard = kind in ["bat", "storm"]
 		if hazard:
 			alert_hazard(r, e, point, lead)
 			if hurt_left > 0.0: continue
-		var radius: Vector2 = POSES[kind]
-		if point.x > r.ANCHOR + radius.x + travel + 38.0 or point.x < r.view_left - radius.x: continue
+		var radius: Vector2 = Vector2(63, 74) if civil else POSES[kind]
+		if point.x < r.view_left - radius.x: continue
+		if civil: Civil.alert(e, age, point, lead)
+		var reach = float(r.ANCHOR) if lead.is_empty() else maxf(float(r.ANCHOR), float(lead.x))
+		if point.x > reach + radius.x + travel + 38.0: continue
 		var striking = kind == "storm" and hazard_phase(e) == "attack"
 		if kind == "storm" and not striking: continue
+		var pickup = civil or kind == "ember"
+		var previous_point = object_point(r, e, age - dt) + Vector2(travel, 0.0) if pickup else point
 		for i in range(r.members.size()):
 			var m: Dictionary = r.members[i]
 			if m.falling: continue
+			if pickup:
+				if not swept_pickup(m, previous_feet, point, previous_point, radius): continue
+				touch_object(r, e, point, i)
+				break
 			var y = float(m.y) - (0.0 if kind == "cloud" else 46.0)
 			var dx = clampf(float(m.x) - point.x, 0.0, travel)
 			var diff = Vector2(float(m.x) - dx, y) - point
@@ -244,11 +327,15 @@ func update_contacts(r, travel: float) -> void:
 func advance(r, dt: float) -> void:
 	age += dt
 	cooldown = maxf(0.0, cooldown - dt)
+	impact_left = maxf(0.0, impact_left - dt)
 	boost_left = maxf(0.0, boost_left - dt)
 	hurt_left = maxf(0.0, hurt_left - dt)
 	notice_left = maxf(0.0, notice_left - dt)
 	reform_left = maxf(0.0, reform_left - dt)
 	r.hit_grace = maxf(0.0, r.hit_grace - dt)
+	if buffered_boost and impact_left <= 0.0:
+		buffered_boost = false
+		impulse(r)
 	var travel = r.speed * dt
 	r.world_px += travel
 	course.fill(r, self)
@@ -270,6 +357,7 @@ func advance(r, dt: float) -> void:
 		street_ready = true
 	elif street_ready and r.world_px + r.generation_horizon() + 1000.0 > r.terrain.generated_to:
 		r.sewer.reserve_ground(r, r.world_px + r.generation_horizon() + 9500.0)
+	var previous_feet: Dictionary = {}
 	for i in range(r.members.size()):
 		var m: Dictionary = r.members[i]
 		if m.falling:
@@ -277,9 +365,12 @@ func advance(r, dt: float) -> void:
 			m.x -= travel
 			continue
 		var id = int(m.id)
+		previous_feet[id] = Vector2(m.x, m.y)
 		var rank = int(m.formation_rank)
 		var target = sin(float(rank) * 1.8 - age * 2.3) * minf(float(rank) * 4.0, 20.0)
-		var offset = lerpf(float(spacing.get(id, 0.0)), target, 1.0 - exp(-dt * 8.0))
+		var arrival = float(m.get("sky_arrival", 0.0))
+		if arrival > 0.0: m.sky_arrival = maxf(0.0, arrival - dt)
+		var offset = lerpf(float(spacing.get(id, 0.0)), target, 1.0 - exp(-dt * (5.0 if arrival > 0.0 else 8.0)))
 		spacing[id] = offset
 		var landing_blend = smoothstep(0.0, 105.0, altitude) if velocity < 0.0 else 1.0
 		m.y = r.FLOOR - maxf(0.0, altitude + offset * landing_blend)
@@ -291,7 +382,7 @@ func advance(r, dt: float) -> void:
 	if altitude <= 0.0:
 		finish(r)
 		return
-	update_contacts(r, travel)
+	update_contacts(r, travel, dt, previous_feet)
 
 func finish(r) -> void:
 	active = false

@@ -1,5 +1,5 @@
 {
-  "version": "0.10.55",
+  "version": "0.10.56",
   "class_count": 55,
   "files": [
     {
@@ -204,13 +204,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 128610,
-      "sha256": "ba2947582e5a5973a3b0c212944876ddcb2cf9cd81dd8e6e66f798db22c43313"
+      "bytes": 128663,
+      "sha256": "72ef16b66122ba5adf373f5e0df572819720f12b576895e67a77fed7b5ba1d4b"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 20000,
-      "sha256": "65fc14fa6678804b779aed719cf1944e691e4b62154eb4e47a6f944035171663"
+      "bytes": 20096,
+      "sha256": "3e87bda20b1955f27b462781b5998f928a725c8b588dfcde33b037e81266dfb8"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -404,28 +404,33 @@
     },
     {
       "path": "res://scripts/sky.gd",
-      "bytes": 11443,
-      "sha256": "20be93f14a0ac1d7306d5580d738875fd04026526d3f95b4683dd56c70dfcbb0"
+      "bytes": 15123,
+      "sha256": "1f0b3a81af75dec377c0858c622dc53cefea99d4e1634561b78f8c1b0957964a"
     },
     {
       "path": "res://scripts/sky_atmosphere.gd",
-      "bytes": 3444,
-      "sha256": "1d95d19bdc14ee84bfc2512d29e9d360a1456af6645ef1e5b3f3ea08fc8a7353"
+      "bytes": 4480,
+      "sha256": "ef7dec1a9497600320ccd93707cf456663b94e4ffd12adc06ea61e8dc99829ec"
+    },
+    {
+      "path": "res://scripts/sky_civilians.gd",
+      "bytes": 4767,
+      "sha256": "29cabf3ad6656aeca8debaad7b53833bcc1ffcddb4b06ed76e7c6af651053541"
     },
     {
       "path": "res://scripts/sky_course.gd",
-      "bytes": 2488,
-      "sha256": "c6ec81b0872eec8471826d957a9d23ebf22c6e507da1c25f6cfd34df4e34faa7"
+      "bytes": 3330,
+      "sha256": "5dea5fedf9f9d2f972adee15f5f4d3f5e1e41d118f3fe0d8b17b293d5436f7b5"
     },
     {
       "path": "res://scripts/sky_motion.gd",
-      "bytes": 8274,
-      "sha256": "18660c6a47e1b046197e990e1c3c35fc1f19ada715e143de68a30175114a26ef"
+      "bytes": 10477,
+      "sha256": "ca2cffd161ab362763a13132df1fe207f052c1036283f544decf1603db8ebd1c"
     },
     {
       "path": "res://scripts/sky_visual.gd",
-      "bytes": 9363,
-      "sha256": "66264f5d2d0087733b4bfbee027dc93cab02bd3e017b418e9862b1e973050fa1"
+      "bytes": 9435,
+      "sha256": "1ba7cfcd6e3fb9cecd61debc33ce9dbb3ca002e1246cfb0e7cf25c4d62ea05f0"
     },
     {
       "path": "res://scripts/soldier.gd",
@@ -1501,6 +1506,26 @@
       "path": "res://assets/art/v155/vista.webp",
       "bytes": 619394,
       "sha256": "5077fc211a50849c543f7fa8301c0fa4a467858dd97055358a82c44cef1cd8c9"
+    },
+    {
+      "path": "res://assets/art/v156/equipment.webp",
+      "bytes": 492946,
+      "sha256": "b0ec1ee2845d3cef111808ef0c0431226369c3f815ac1d4bf5d432fc08878c21"
+    },
+    {
+      "path": "res://assets/art/v156/people.webp",
+      "bytes": 763062,
+      "sha256": "6ef98c4677b0038f4365a9faee85ea2b0fd5a72ea7b7827e1c12f6d865166e8e"
+    },
+    {
+      "path": "res://assets/art/v156/sky_motion.json",
+      "bytes": 13364,
+      "sha256": "0ee3762c51375b25dc77b75c76f53ecd265602ae8598c0fab62fbbd423b1e063"
+    },
+    {
+      "path": "res://assets/art/v156/wind.webp",
+      "bytes": 369936,
+      "sha256": "e05f6f5b85d908d8b7c76d86d130036b975b9b4b3d7a6d1ccc6d28aa7ef10caa"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

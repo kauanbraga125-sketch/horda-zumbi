@@ -1,7 +1,10 @@
 extends RefCounted
 
 const ART = "res://assets/art/v155/"
+const FLIGHT_ART = "res://assets/art/v156/"
+const Civil = preload("res://scripts/sky_civilians.gd")
 const FLAP = ["bat_up", "bat_mid", "bat_down", "bat_mid"]
+const IMPULSE = ["impulse_start", "impulse_open", "impulse_wisps"]
 const MINT = Color("b3ffdd")
 const LILAC = Color("f7a5ff")
 const AMBER = Color("ffc183")
@@ -12,8 +15,13 @@ var elder_eyes: Array[Vector2] = []
 func warm() -> void:
 	if not frames.is_empty(): return
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string(ART + "sky_motion.json"))
+	load_frames(ART, manifest)
+	for point in manifest.eye_points: elder_eyes.append(Vector2(point[0], point[1]))
+	load_frames(FLIGHT_ART, JSON.parse_string(FileAccess.get_file_as_string(FLIGHT_ART + "sky_motion.json")))
+
+func load_frames(directory: String, manifest: Dictionary) -> void:
 	for name in manifest.atlases:
-		var atlas: Texture2D = load(ART + name + ".webp")
+		var atlas: Texture2D = load(directory + name + ".webp")
 		for key in manifest.atlases[name].tiles:
 			var data = manifest.atlases[name].tiles[key]
 			var a = data.rect
@@ -23,7 +31,6 @@ func warm() -> void:
 			tile.filter_clip = true
 			frames[key] = {"texture": tile, "size": Vector2(data.size[0], data.size[1]) / 512.0,
 				"pivot": Vector2(data.pivot[0], data.pivot[1])}
-	for point in manifest.eye_points: elder_eyes.append(Vector2(point[0], point[1]))
 
 func bounds(name: String, centre: Vector2, scale: float) -> Rect2:
 	var f: Dictionary = frames[name]
@@ -49,12 +56,16 @@ func paint_prop(g, r, e: Dictionary, point: Vector2, original: Dictionary) -> vo
 	match kind:
 		"ember":
 			var pulse = sin(t * 8.0)
-			halo(canvas, point, 25.0 + pulse * 4.0, LILAC, .16)
-			g.scenery.sprite(canvas, original.ember, point - Vector2(0, 10), 71.0 + pulse * 5.0, Color.WHITE, sin(t * 6.0) * .08)
+			var height = 71.0 + pulse * 5.0
+			var angle = sin(t * 6.0) * .08
+			halo(canvas, point, 25.0 + pulse * 4.0, LILAC, .23 if e.get("recovery", false) else .16)
+			g.scenery.sprite(canvas, original.ember, point - Vector2(0, height * .24).rotated(angle), height, Color.WHITE, angle)
 		"balloon":
 			g.scenery.sprite(canvas, original.balloon, point + Vector2(0, 17), 142.0, Color.WHITE, sin(t * 3.5) * .115)
 		"cloud":
 			sprite(canvas, "ghost", point, 221.0 + sin(t * 4.6) * 9.0, Color.WHITE, sin(t * 2.4) * .034)
+			if e.get("recovery", false):
+				sprite(canvas, "catch_wisp", point - Vector2(4, 26), 61.0, Color(1, .94, 1, .64 + sin(t * 5.8) * .24))
 		"bat":
 			var pose: String = FLAP[posmod(floori(t * 11.0), FLAP.size())]
 			var tint = Color.WHITE
@@ -113,6 +124,14 @@ func paint_bursts(g, r) -> void:
 		var origin = Vector2(float(b.x) - r.world_px, b.y)
 		var fade = 1.0 - smoothstep(.17, 1.0, t)
 		match b.kind:
+			"impulse":
+				var frame = 0 if elapsed < .10 else (1 if elapsed < .23 else 2)
+				var tint = Color(1, .93, 1, fade)
+				var drop = 136.0 * elapsed
+				sprite(canvas, IMPULSE[frame], origin + Vector2(-18.0 * t, drop), float(b.width) * (1.12 + .38 * t), tint, .25)
+				burst_particles(canvas, origin + Vector2(-8, 28 + drop), t, LILAC, 9, 92.0, .35)
+			"civil":
+				Civil.paint_capture(canvas, self, b.civil, origin, t, fade)
 			"ember":
 				halo(canvas, origin, 30.0 + 54.0 * t, LILAC, .70 * fade)
 				burst_particles(canvas, origin, t, LILAC, 12, 67.0, .23)
@@ -145,6 +164,28 @@ func paint_bursts(g, r) -> void:
 				g.actor.paint(canvas, int(b.member_kind), foot, 112.0, 0.0, "fall", elapsed, 0.0,
 					Color(1, .75, .73, fade), false, 1.0, true, elapsed, 520.0, b.wear)
 				burst_particles(canvas, origin - Vector2(0, 39), t, Color("ff9a85"), 8, 82.0, 1.0)
+
+func paint_speed(g, r) -> void:
+	var s = r.sky
+	var falling = smoothstep(265.0, 1090.0, -s.velocity)
+	var rising = smoothstep(495.0, 865.0, s.velocity) * (.50 + .50 * s.boost_left / .35)
+	var strength = maxf(falling, rising)
+	if strength < .02: return
+	var canvas: Node2D = g.paint_target
+	var left: float = g.scenery.view_left
+	var top: float = g.scenery.view_top
+	var span: float = g.scenery.view_right - left
+	var height: float = g.scenery.view_bottom - top
+	var is_falling = falling > rising
+	var art = "fall_wind" if is_falling else "rise_wind"
+	for i in range(7):
+		var x = left - 112.0 + fposmod(float(i) * 207.7 - (r.world_px - s.start_world) * .56, span + 224.0)
+		var y = top - 135.0 + fposmod(float(i) * 184.2 + s.altitude * .82, height + 270.0)
+		var at_edge = smoothstep(0.0, span * .27, absf(x - left - span * .51))
+		var alpha = strength * lerpf(.12, .52 if is_falling else .42, at_edge)
+		var size = (80.0 if is_falling else 77.0) + (54.0 + float(i % 3) * 19.0) * strength
+		var tint = Color(.71, .78, 1, alpha) if is_falling else Color(.77, .95, 1, alpha)
+		sprite(canvas, art, Vector2(x, y), size, tint, -.31 if is_falling else -1.17)
 
 func paint_landing(g, r) -> void:
 	var hit: Dictionary = r.sky.landing

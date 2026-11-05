@@ -1,60 +1,77 @@
 extends RefCounted
 
-static func paint(g, r, motion) -> void:
+const ELDER_DEPTH = .16
+const DRAGON_DEPTH = .22
+const WITCH_DEPTH = .29
+
+# Anchors are in the coordinates of each plane. Only the camera projection
+# changes as the horde rises, so a landmark can be seen again on the way down.
+static func project(anchor: Vector2, camera: Vector2, depth: float) -> Vector2:
+	return anchor - camera * depth
+
+static func paint(g, r, motion, visibility: float) -> void:
 	var s = r.sky
-	var visibility = smoothstep(460.0, 1030.0, s.altitude)
-	if visibility <= 0.0: return
 	var canvas: Node2D = g.paint_target
 	var left: float = g.scenery.view_left
 	var top: float = g.scenery.view_top
-	var span: float = g.scenery.view_right - left
-	var height: float = g.scenery.view_bottom - top
-	var travel: float = r.world_px - s.start_world
+	var view = Rect2(Vector2(left, top), Vector2(g.scenery.view_right - left, g.scenery.view_bottom - top))
+	var camera = Vector2(r.world_px - s.start_world + left, top)
 	var t: float = s.age
+	clouds(canvas, motion, view, camera * .13 + Vector2(t * 7.0, 0), false, visibility)
 
-	for i in range(3):
-		var x = left - 340.0 + fposmod(span * .46 + i * span * .58 - travel * .11, span + 680.0)
-		var y = top - 150.0 + fposmod(188.0 + i * 251.0 + s.altitude * .13, height + 300.0)
-		motion.sprite(canvas, "mist_far", Vector2(x, y), 670.0, Color(.63, .65, .91, visibility * .33))
+	var elder = project(Vector2(1365.0, -124.0), camera, ELDER_DEPTH)
+	if Rect2(Vector2.ZERO, view.size).grow(185.0).has_point(elder):
+		paint_elder(canvas, motion, view.position + elder, t, visibility)
 
-	# The apparition emerges from the distant mist for only part of each cycle.
-	var apparition = fposmod(t, 26.0)
-	var reveal = smoothstep(2.9, 5.2, apparition) * (1.0 - smoothstep(10.8, 14.3, apparition))
-	if reveal > 0.0:
-		var centre = Vector2(left + span * .75 - (apparition - 6.0) * 12.0,
-			top + height * .56 + sin(t * .55) * 20.0)
-		var size = minf(span * .63, 650.0)
-		var opacity = visibility * reveal
-		motion.sprite(canvas, "elder", centre, size, Color(.68, .62, .88, opacity * .55))
-		var box: Rect2 = motion.bounds("elder", centre, size)
-		var blink = fposmod(t + 1.05, 4.25)
-		var opened = smoothstep(.03, .16, blink) * (1.0 - smoothstep(4.05, 4.23, blink))
-		for uv in motion.elder_eyes:
-			var point: Vector2 = box.position + box.size * uv
-			motion.halo(canvas, point, 23.0, Color("a5ffdb"), opacity * opened * .4)
-			canvas.draw_set_transform(point, -.06, Vector2(9.0, maxf(.15, 3.6 * opened)))
-			canvas.draw_circle(Vector2.ZERO, 1.0, Color(.72, 1.0, .87, opacity * opened * .87), true, -1, true)
-		canvas.draw_set_transform(Vector2.ZERO)
+	# The flyers cross the distant sky on their own routes. Wrap outside the
+	# view so their animation can continue through a long climb.
+	var dragon_offset = Vector2(t * 24.0, 12.0 * sin(t * 1.6))
+	var witch_offset = Vector2(t * 40.0, 9.0 * sin(t * 2.1))
+	var dragon_pose = "dragon_up" if fposmod(t, 1.04) < .49 else "dragon_down"
+	flyers(canvas, motion, view, project(Vector2(1645.0, -35.0) - dragon_offset, camera, DRAGON_DEPTH),
+		dragon_pose, 108.0, sin(t * 1.7) * .045, Color(.71, .68, .90, visibility * .55))
+	flyers(canvas, motion, view, project(Vector2(1800.0, 127.0) - witch_offset, camera, WITCH_DEPTH),
+		"witch", 76.0, sin(t * 2.1) * .062, Color(.74, .61, .86, visibility * .60))
+	var insects = project(Vector2(1450.0, 288.0) - Vector2(t * 12.0, 0.0), camera, .34)
+	insects.x = fposmod(insects.x + 230.0, 2160.0) - 230.0
+	if Rect2(Vector2.ZERO, view.size).grow(60.0).has_point(insects):
+		for i in range(8):
+			var beat = t * 2.2 + float(i) * 2.39
+			var mote = view.position + insects + Vector2(sin(beat) * (13.0 + i * 4.9), cos(beat * .77) * (8.0 + i * 2.6))
+			var wings = 1.0 + absf(sin(t * 44.0 + i)) * 1.4
+			canvas.draw_line(mote - Vector2(wings, 1), mote + Vector2(wings, -1), Color(.58, .47, .72, visibility * .41), 1.0, true)
+	clouds(canvas, motion, view, camera * .37 + Vector2(t * 18.0, 0), true, visibility)
 
-	var dragon_x = left - 235.0 + fposmod(span + 290.0 - t * 59.0 - travel * .10, span + 470.0)
-	var dragon_y = top + height * .31 + sin(t * 1.4) * 25.0 + sin(s.altitude * .0009) * 32.0
-	var pose = "dragon_up" if fposmod(t, .86) < .46 else "dragon_down"
-	motion.sprite(canvas, pose, Vector2(dragon_x, dragon_y), 254.0, Color(.75, .71, .95, visibility * .66), sin(t * 1.7) * .09)
-	var witch_x = left - 150.0 + fposmod(span * 1.31 - t * 88.0 - travel * .19, span + 320.0)
-	var witch_y = top + height * .74 + sin(t * 2.4) * 19.0
-	motion.sprite(canvas, "witch", Vector2(witch_x, witch_y), 154.0, Color(.71, .61, .85, visibility * .70), sin(t * 2.4) * .10)
+static func paint_elder(canvas: Node2D, motion, point: Vector2, time: float, visibility: float) -> void:
+	const SIZE = 294.0
+	motion.sprite(canvas, "elder", point, SIZE, Color(.67, .62, .85, visibility * .47))
+	var box: Rect2 = motion.bounds("elder", point, SIZE)
+	var blink = fposmod(time + 1.05, 4.9)
+	var opened = smoothstep(.01, .14, blink) * (1.0 - smoothstep(4.67, 4.86, blink))
+	for uv in motion.elder_eyes:
+		var eye: Vector2 = box.position + box.size * uv
+		motion.halo(canvas, eye, 9.0, Color("a5ffdb"), visibility * opened * .31)
+		canvas.draw_set_transform(eye, -.06, Vector2(3.7, maxf(.15, 1.5 * opened)))
+		canvas.draw_circle(Vector2.ZERO, 1.0, Color(.72, 1.0, .87, visibility * opened * .61), true, -1, true)
+	canvas.draw_set_transform(Vector2.ZERO)
 
-	for i in range(3):
-		var x = left - 290.0 + fposmod(span * .29 + i * span * .52 - travel * .24 - t * 17.0, span + 580.0)
-		var y = top - 98.0 + fposmod(i * 227.0 + s.altitude * .28 + t * 19.0, height + 196.0)
-		motion.sprite(canvas, "mist_front", Vector2(x, y), 435.0 + float(i) * 64.0, Color(.88, .78, 1.0, visibility * .22))
-	# Two small swarms crossing the nearer haze. Their wing flicker reads at game scale.
-	for i in range(14):
-		var row = float(i / 7)
-		var phase = t * (2.7 + .18 * i) + i * 2.26
-		var x = left - 25.0 + fposmod(span * (.74 + row * .33) + sin(phase) * (18.0 + i * 4.5) - travel * .34, span + 50.0)
-		var y = top + height * (.40 + row * .24) + cos(phase * .81) * (15.0 + i * 2.8)
-		var point = Vector2(x, y)
-		var wing = 1.2 + absf(sin(t * 44.0 + i)) * 2.1
-		canvas.draw_line(point - Vector2(wing, 1.5), point + Vector2(wing, -1.5), Color(.71, .61, .82, visibility * .32), 1.0, true)
-		canvas.draw_circle(point, 1.55, Color(.13, .08, .19, visibility * .79), true, -1, true)
+static func flyers(canvas: Node2D, motion, view: Rect2, relative: Vector2, pose: String, size: float, roll: float, tint: Color) -> void:
+	var point = Vector2(fposmod(relative.x + 250.0, 2380.0) - 250.0,
+		fposmod(relative.y + 180.0, 1110.0) - 180.0)
+	if Rect2(Vector2.ZERO, view.size).grow(90.0).has_point(point):
+		motion.sprite(canvas, pose, view.position + point, size, tint, roll)
+
+static func clouds(canvas: Node2D, motion, view: Rect2, camera: Vector2, near: bool, visibility: float) -> void:
+	var cell = Vector2(768.0, 309.0) if near else Vector2(920.0, 355.0)
+	var bounds = Rect2(camera, view.size).grow(510.0)
+	var first = (bounds.position / cell).floor()
+	var last = (bounds.end / cell).floor()
+	var art = "mist_front" if near else "mist_far"
+	for row in range(int(first.y), int(last.y) + 1):
+		for col in range(int(first.x), int(last.x) + 1):
+			var scatter = Vector2(sin(col * 18.1 + row * 9.37) * 167.0, cos(row * 4.78 + col * 3.17) * 107.0)
+			var point = (Vector2(col, row) + Vector2(.52, .48)) * cell + scatter - camera
+			var size = (510.0 if near else 716.0) + sin(col * 2.1 + row * 7.2) * 94.0
+			var tint = Color(.81, .75, 1.0, visibility * .36) if near else Color(.66, .65, .92, visibility * .23)
+			if Rect2(Vector2.ZERO, view.size).grow(size * .60).has_point(point):
+				motion.sprite(canvas, art, view.position + point, size, tint)

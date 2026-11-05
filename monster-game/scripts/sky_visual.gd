@@ -3,6 +3,7 @@ extends RefCounted
 const BACKDROP = preload("res://assets/art/v153/sky.webp")
 const ATLAS = preload("res://assets/art/v153/props.webp")
 const Atmosphere = preload("res://scripts/sky_atmosphere.gd")
+const Civil = preload("res://scripts/sky_civilians.gd")
 var motion = preload("res://scripts/sky_motion.gd").new()
 # Sole positions in the atlas tile, including its transparent border.
 const PAD_FEET = [Vector2(.15, .835), Vector2(.50, .962), Vector2(.86, .835)]
@@ -58,17 +59,7 @@ func paint_background(g, r) -> void:
 		var uv = PackedVector2Array([Vector2(u0, v0), Vector2(u1, v0), Vector2(u1, v1), Vector2(u0, v1)])
 		var tint = PackedColorArray([Color(high_tint, a0), Color(high_tint, a0), Color(high_tint, a1), Color(high_tint, a1)])
 		g.paint_target.draw_polygon(quad, tint, uv, BACKDROP)
-	# Faint motes closer than the painted clouds make the change in altitude legible.
-	var wind = clampf(s.velocity / 750.0, -1.5, 1.2)
-	var span = right - left
-	for i in range(12):
-		var x = left + fposmod(i * 241.7 - (r.world_px - s.start_world) * .54, span)
-		var y = top + fposmod(i * 91.3 - top * .74 + s.age * 20.0, bottom - top)
-		var alpha = blend * smoothstep(top, top + 40.0, y) * (1.0 - smoothstep(bottom - 42.0, bottom, y))
-		var point = Vector2(x, y)
-		g.paint_target.draw_line(point, point + Vector2(-5.0, 9.0 * wind), Color(.88, .76, 1, alpha * .17), 1.4, true)
-
-	Atmosphere.paint(g, r, motion)
+	Atmosphere.paint(g, r, motion, blend)
 
 func launcher(g, r) -> void:
 	var s = r.sky
@@ -109,11 +100,20 @@ func launcher(g, r) -> void:
 func paint(g, r) -> void:
 	var s = r.sky
 	var canvas: Node2D = g.paint_target
+	motion.paint_speed(g, r)
+	var speaker: Dictionary = {}
+	var speaker_pos = Vector2.ZERO
 	for e in s.objects:
 		var point: Vector2 = s.object_point(r, e, s.age)
 		if point.x < g.scenery.view_left - 142.0 or point.x > g.scenery.view_right + 142.0 or point.y < g.scenery.view_top - 205.0 or point.y > g.scenery.view_bottom + 135.0:
 			continue
-		motion.paint_prop(g, r, e, point, sprites)
+		if Civil.is_civil(e.kind):
+			Civil.paint(g, motion, e, point, s.age)
+			if e.kind == Civil.JETPACK and point.y >= g.scenery.view_top + 66.0:
+				speaker = e
+				speaker_pos = point
+		else:
+			motion.paint_prop(g, r, e, point, sprites)
 	motion.paint_bursts(g, r)
 	var order: Array = r.members.filter(func(m): return not m.falling)
 	order.sort_custom(func(a, b): return float(a.y) < float(b.y) if not is_equal_approx(a.y, b.y) else float(a.x) < float(b.x))
@@ -125,17 +125,20 @@ func paint(g, r) -> void:
 			canvas.draw_circle(Vector2.ZERO, 1.0, Color(.03, .015, .05, .28 * (1.0 - s.altitude / 215.0)))
 			canvas.draw_set_transform(Vector2.ZERO)
 		var rank = int(m.formation_rank)
-		if s.boost_left > 0.0 and rank < 8:
-			var tail = Vector2(-18.0 - sin(s.age * 11.0 + rank) * 8.0, 36.0 + 90.0 * s.boost_left)
-			var glow = Color(.67, .96, .85, s.boost_left * .8)
-			canvas.draw_polyline(PackedVector2Array([foot - Vector2(7, 12), foot + tail * .56, foot + tail]), glow, 2.5, true)
 		var kind = int(m.kind)
 		var state = "rise" if s.velocity > 35.0 else "fall"
 		var tint = Color("ffb1a9").lerp(Color.WHITE, 1.0 - s.hurt_left * .85)
+		var arrival = float(m.get("sky_arrival", 0.0))
+		if arrival > 0.0:
+			tint = Color(Color("ebaeff").lerp(tint, 1.0 - arrival / .36), 1.0 - arrival * 1.55)
 		g.actor.paint(canvas, kind, foot, 112.0, float(m.run_phase), state, r.elapsed + rank * .06, 0.0, tint, false, 1.0, true, float(m.air_time), float(m.vy), r.cosmetics_for(m, kind))
+	if not speaker.is_empty(): Civil.dialogue(g, speaker, speaker_pos, s.age)
 
 func paint_landing(g, r) -> void:
 	motion.paint_landing(g, r)
+
+func soul_target(view: Rect2) -> Vector2:
+	return view.position + Vector2(525, 119)
 
 func hud(g, r) -> void:
 	var s = r.sky
@@ -163,6 +166,7 @@ func hud(g, r) -> void:
 	g.gameplay_ui.glyph(g, "pause", pause_rect.get_center(), 40, g.CREAM)
 	g.home_menu.register(g, pause_rect, "pause")
 	var metres = int(s.altitude / 30.0)
+	g.home_menu.label(g, "ALMAS %d" % int(r.souls), horde_rect.position + Vector2(4, 103), 17, Color("c3a4e3"), false)
 	var region = "CÉU PROFUNDO" if metres >= 300 else ("VENTOS MALDITOS" if metres >= 120 else "BRUMA DO CEMITÉRIO")
 	g.home_menu.label(g, region, edge + Vector2(4, 103), 17, Color("c3a4e3"), false)
 	var message = "TOQUE PARA SUBIR"
@@ -170,10 +174,13 @@ func hud(g, r) -> void:
 	if s.charges <= 0:
 		message = "SEM BRASAS • BUSQUE UM APOIO"
 		colour = VIOLET
-	elif s.velocity < -340.0:
+	elif s.recovering or s.velocity < -340.0:
 		message = "TOQUE PARA RECUPERAR ALTURA"
 	if s.notice_left > 0.0:
 		message = s.notice
 		colour = g.CORAL if s.hurt_left > 0.0 else g.MINT
+	if s.recovering and s.impact_left <= 0.0:
+		message = "TOQUE PARA RECUPERAR O VOO" if s.charges > 0 else "BUSQUE UMA BRASA OU UM APOIO"
+		colour = g.GOLD
 	var hint = Vector2(view.get_center().x, edge.y + 117.0)
 	g.text(message, hint, 21, colour, true, true, 3)

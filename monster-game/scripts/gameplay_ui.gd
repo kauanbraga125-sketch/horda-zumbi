@@ -23,6 +23,8 @@ func hud_layout(view: Rect2) -> Dictionary:
 		"effect": Rect2(pause_rect.position.x - 332, top, 308, 78)}
 
 func counter_target(g, index: int) -> Vector2:
+	if g.runner.sky.active and index == 2:
+		return g.runner.sky.visual.soul_target(g.full_rect())
 	if g.runner.space.active:
 		var d = g.runner.space.visual.layout(g.full_rect())
 		return d.coins.get_center() if index==3 else d.horde.get_center()
