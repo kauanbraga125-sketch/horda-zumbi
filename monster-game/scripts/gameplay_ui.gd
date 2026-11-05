@@ -61,6 +61,9 @@ func glyph(g, kind: String, point: Vector2, size: float, color: Color) -> void :
 					if (row + col) % 2 == 0: g.draw_rect(Rect2(origin + Vector2(col, row) * cell, Vector2.ONE * cell), Color("31203f"))
 
 func hud(g) -> void :
+	if g.runner.sky.active:
+		g.runner.sky.visual.hud(g, g.runner)
+		return
 	if g.runner.sewer.active:
 		g.runner.sewer.visual.hud(g,g.runner.sewer);return
 	if g.runner.space.active:
@@ -87,6 +90,9 @@ func hud(g) -> void :
 	glyph(g, "pause", pause_rect.get_center(), 40, g.CREAM)
 	g.home_menu.register(g, pause_rect, "pause")
 	g.home_menu.label(g, ("TESTE  •  " + g.LAB_LABELS[g.LAB_KINDS.find(g.lab_kind)] if g.lab_active else MonsterCatalog.AREAS[g.runner.area()].name.to_upper() + "  •  TÚNEL " + str(g.runner.tunnel_number())), d.location, 19, MonsterCatalog.AREAS[g.runner.area()].color, false, 680)
+	if g.lab_active and g.lab_kind == "sky" and not g.runner.sky.pending:
+		var retry = Rect2(pause_rect.end.x - 182.0, pause_rect.end.y + 12.0, 182.0, 41.0)
+		g.button(retry, "TENTAR DE NOVO", "lab_sky_restart", Color("513c67"), -2, 16)
 	var effect: Rect2 = d.effect
 	if g.runner.space.active:
 		g.runner.space.paint_hud(g)

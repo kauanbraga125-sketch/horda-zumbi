@@ -94,7 +94,7 @@ func blend() -> float:
 	return 1.0
 
 func begin(r, force: bool = false) -> bool:
-	if active or r.sewer.active or r.dead or r.active_count() <= 0: return false
+	if active or r.sewer.active or r.sky.active or r.sky.pending or r.dead or r.active_count() <= 0: return false
 	if not force and not r.power_eligible(): return false
 	if force:
 		r.perk_left = 0;r.perk_kind = -1;r.boost_left = 0;r.transform_left = 0

@@ -119,8 +119,8 @@ var lab_kind = "bomb"
 var lab_data: Dictionary = {}
 var lab_context: Dictionary = {}
 var lab_saved_runner: HordeRun
-const LAB_KINDS = ["space", "sewer", "harvester", "spectral", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
-const LAB_LABELS = ["ESPAÇO • ABDUÇÃO MALDITA", "ESGOTO • FUGA DE JET SKI", "CAÇADOR NOTURNO", "MANTO ESPECTRAL", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
+const LAB_KINDS = ["sky", "sewer", "harvester", "spectral", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
+const LAB_LABELS = ["SUBIDA • CÉU SOMBRIO", "ESGOTO • FUGA DE JET SKI", "CAÇADOR NOTURNO", "MANTO ESPECTRAL", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
 
 func _ready() -> void :
 	home_menu.attach(self)
@@ -304,6 +304,15 @@ func consume_run_events() -> void :
 			"field_power": sound.play("perk",-14);show_toast(str(e.title),2.1)
 			"civil_drop": sound.play("creeper_wing",-13)
 			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)
+			"sky_launch":
+				effects.clear();sound.play("space_boost", -14);effects.spark(point, MINT, 18)
+			"sky_boost": sound.play("space_boost", -16);effects.spark(point, MINT, 14)
+			"sky_charge": sound.play("space_energy", -14);effects.ring(point, Color("df9aff"))
+			"sky_bounce": effects.ring(point, MINT)
+			"sky_hit": sound.play("space_hit", -14);shake = 3;effects.spark(point, CORAL, 15)
+			"sky_land":
+				effects.clear();sound.play("heavy_land", -15);effects.dust(point, 16, 1.1)
+				show_toast("DE VOLTA À CORRIDA • PICO %d m" % e.peak, 2.5)
 			"space_boost": sound.play("space_boost",-13);effects.spark(point,MINT,24)
 			"space_ship_hit": sound.play("space_hit",-17);effects.spark(point,CORAL,6)
 			"space_smash": sound.play("space_smash",-12);effects.spark(point,CORAL,14);shake = 3
@@ -501,7 +510,9 @@ func perform_action(action: String) -> void :
 		else: runner.sewer.left = .01
 		return
 	if action == "home_space_test" and screen == "home":
-		start_lab("space");return
+		start_lab("sky", 6, 0);return
+	if action == "lab_sky_restart" and lab_active and lab_kind == "sky":
+		start_lab("sky", runner.members.size(), runner.developer_stage);return
 	if prepare_ui.action(self, action): return
 	if codex.action(self,action): return
 	if hub.action(self, action): return
@@ -835,6 +846,7 @@ func backdrop() -> void :
 		return
 	if screen in ["run", "pause", "results"]:
 		scenery.paint(paint_target, runner, ui_time)
+		if runner.sky.active: runner.sky.visual.paint_background(self, runner)
 	elif screen in ["home", "market"]:
 		home_menu.backdrop(self, full_rect())
 	else:
@@ -901,7 +913,7 @@ func draw_home() -> void :
 		var left = d.level.position.x
 		var width = (d.help.end.x - left - 24) / 4
 		var top = d.level.end.y + 12
-		var labels = ["EVENTO ESPAÇO","EVENTO ESGOTO","AVES MALDITAS","REPOR 1M"]
+		var labels = ["TESTAR SUBIDA","EVENTO ESGOTO","AVES MALDITAS","REPOR 1M"]
 		var actions = ["home_space_test","home_sewer_test","birds_open","developer_test_funds"]
 		for i in range(4): button(Rect2(left+i*(width+8),top,width,52),labels[i],actions[i],Color("4c786a") if i<3 else Color("513c67"),-2,18)
 	else:
@@ -951,8 +963,13 @@ func draw_run() -> void :
 		runner.space.paint(self)
 		effects.paint(paint_target,art,actor)
 		return
+	if runner.sky.active and scenery.view_bottom < runner.FLOOR - 220.0:
+		runner.sky.visual.paint(self, runner)
+		effects.paint(paint_target, art, actor)
+		return
 	var captured_by_id: Dictionary = {}
 	ground(runner.world_px)
+	runner.sky.visual.launcher(self, runner)
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
 	effects.draw_trails(paint_target, actor, runner.elapsed)
@@ -1020,6 +1037,10 @@ func draw_run() -> void :
 	passenger_captures.paint(paint_target, art, runner, false)
 	crowd_drawn = visible.size()
 
+	if runner.sky.active:
+		runner.sky.visual.paint(self, runner)
+		effects.paint(paint_target, art, actor)
+		return
 	var draw_order: Array = visible.keys()
 	draw_order.sort_custom(func(a, b):
 		var ay = float(runner.members[a].y) - runner.member_depth(a)
@@ -1414,8 +1435,8 @@ func animation_state(member: Dictionary) -> String:
 func update_run_visuals(dt: float) -> void :
 	var cabin = get_node_or_null("SpaceCabin") as SubViewport
 	if is_instance_valid(cabin): cabin.render_target_update_mode = SubViewport.UPDATE_ALWAYS if runner.space.active and runner.space.battle.pilot_left>0 else SubViewport.UPDATE_DISABLED
-	if runner.space.active or runner.sewer.active:
-		effects.update(dt,0);ui_effects.update(dt,0)
+	if runner.space.active or runner.sewer.active or runner.sky.active:
+		effects.update(dt, runner.speed * .65 if runner.sky.active else 0.0);ui_effects.update(dt,0)
 		sound.update_course(runner,screen == "run" and not runner.dead)
 		return
 	passenger_captures.update(dt, runner, effects)
@@ -1786,6 +1807,13 @@ func update_camera(dt: float) -> void :
 		pan_sewer_camera(required_left,required_right,dt)
 		return
 	camera_sewer_pan = move_toward(camera_sewer_pan,0.0,dt*290.0)
+	if runner.sky.active:
+		var height: float = runner.sky.altitude
+		camera_zoom = lerpf(CAMERA_BASE_ZOOM, 1.0, smoothstep(80.0, 500.0, height))
+		var lift = maxf(0.0, height * camera_zoom - 150.0)
+		var easing = minf(lift, 140.0)
+		camera_ground_shift = easing * easing / 280.0 + maxf(0.0, lift - 140.0)
+		return
 	if runner.space.active:
 		var s = runner.space
 		var transition = s.visual.transition_progress(s)
@@ -2057,18 +2085,22 @@ func preview_sprite() -> void :
 	add_child(suite)
 	await suite.run(self)
 
-func start_lab(kind: String) -> void :
+func start_lab(kind: String, count: int = -1, stage: int = -1) -> void :
 	passenger_captures.clear()
 	if not lab_active:
 		lab_saved_runner = runner;lab_data = data.duplicate(true);lab_active = true
 		lab_context = {"settings_from": settings_from, "stats": last_stats.duplicate(true), "challenges": run_challenges.duplicate(), "settled": run_settled, "report": run_report.duplicate(true)}
 	lab_kind = kind;runner = HordeRun.new()
-	runner.start_developer(kind, lab_count, lab_stage)
+	runner.start_developer(kind, lab_count if count < 1 else count, lab_stage if stage < 0 else stage)
 	runner.bird.configure(data)
 	runner.jump_delay_step = lab_delay;lab_hitboxes = kind == "collision"
 	if kind == "powers": runner.power_owned = [2,3,4,5,6];runner.levels.frenzy = 1
 	if kind in ["harvester","spectral"]:
 		runner.developer_kind = "";runner.power_owned = [3,4,5,6];runner.blessings.begin(runner,5 if kind == "harvester" else 6)
+	if kind == "sky":
+		runner.active_cosmetics = data.get("active_cosmetics", []).duplicate()
+		for i in range(runner.members.size()): runner.members[i].kind = 1 if i % 2 == 1 else 0
+		runner.sewer.encounter.offer(runner, true, "space")
 	if kind == "space":
 		runner.developer_kind = "";runner.active_cosmetics = []
 		for item in HordeMeta.COSMETICS: runner.active_cosmetics.append(item.id)
@@ -2086,7 +2118,7 @@ func start_lab(kind: String) -> void :
 	effects.clear();ui_effects.clear();scenery.reset();end_delay = -1
 	last_save = 0;last_stats.clear();run_challenges.clear();trail_tick = 0
 	change_screen("run")
-	if kind!="sewer": show_toast("TESTE: " + LAB_LABELS[LAB_KINDS.find(kind)], 2.5)
+	if kind not in ["sewer", "sky", "space"]: show_toast("TESTE: " + LAB_LABELS[LAB_KINDS.find(kind)], 2.5)
 
 func leave_lab() -> void :
 	if not lab_active: return

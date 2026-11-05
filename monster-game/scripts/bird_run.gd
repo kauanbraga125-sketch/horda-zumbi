@@ -31,7 +31,7 @@ func advance(r,dt: float) -> void:
 		if r.sewer.active: desired.y -= 30
 		point = desired if clock<=dt*1.5 else point.lerp(desired,1-exp(-dt*6))
 	if emotion_left>0 and not watched.is_empty(): warned = Vector2(watched.x,watched.y)
-	if (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
+	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
 	if clock>=chirp_at:
 		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp"})
 	if id=="fiapo" and cooldown<=0:

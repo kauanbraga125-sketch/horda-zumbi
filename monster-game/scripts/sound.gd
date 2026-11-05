@@ -189,9 +189,11 @@ func update_course(run: HordeRun, running: bool, burning: bool = false) -> void 
 	if run.sewer.active:
 		for p in [rotor,fire,wings,footsteps,heavy_steps]: p.stop()
 		set_music("midnight_late");set_atmosphere("");set_loop(engine,"sewer_rush",true,-20+run.sewer.pressure*8);return
-	if run.space.active:
+	if run.space.active or run.sky.active:
 		for p in [rotor,engine,fire,wings,footsteps,heavy_steps]: p.stop()
-		set_atmosphere("");set_music("space_music");return
+		set_atmosphere("")
+		if run.space.active: set_music("space_music")
+		return
 	set_music("midnight_late" if run.tunnel_number() >= 6 else "midnight_run")
 	var heli_distance = 2000.0; var engine_distance = 2000.0; var aircraft = false; var motorcycle = false
 	for entity in run.entities:

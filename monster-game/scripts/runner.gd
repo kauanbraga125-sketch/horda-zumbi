@@ -27,6 +27,7 @@ var run_seed = 0
 var bonus_director = HordeBonusDirector.new()
 var space = preload("res://scripts/space.gd").new()
 var sewer = preload("res://scripts/sewer.gd").new()
+var sky = preload("res://scripts/sky.gd").new()
 var bird = preload("res://scripts/bird_run.gd").new()
 var blessings = preload("res://scripts/field_powers.gd").new()
 var coin_rows: Dictionary = {}
@@ -158,6 +159,7 @@ func start(upgrades: Dictionary, seed_value: int = 0, skin: int = 0, areas: Arra
 	rng.seed = run_seed;course_rng.seed = run_seed ^ 3699770;reward_rng.seed = run_seed ^ 5556785
 	bonus_director.reset(run_seed)
 	space.reset(run_seed)
+	sky.reset()
 	sewer.reset(run_seed);bird.configure(preload("res://scripts/bird_catalog.gd").defaults())
 	course_history.clear();generation_trace.clear();next_challenge_level = 0;next_helicopter_world = 0
 	mobile_slots = 0;helicopter_draws = 0;sequence_rejections = 0;next_rhythm_world = 0
@@ -490,6 +492,7 @@ func grounded_strength() -> int:
 	return count
 
 func jump() -> void :
+	if sky.active: sky.impulse(self);return
 	if sewer.active: sewer.request_jump(self);return
 	if space.active: space.impulse();return
 	HordeJump.request(self)
@@ -626,6 +629,9 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		sewer.visual.notice_left = maxf(0,sewer.visual.notice_left-dt)
 		sewer.advance(self,dt,jump_held)
 		return
+	if sky.active:
+		sky.advance(self, dt)
+		return
 	if space.active:
 		space.advance(self, dt, jump_held)
 		return
@@ -698,8 +704,10 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		if sewer.active or space.active: return
 		bonus_director.tick(self)
 	refresh_formation()
+	var launcher_contact: Dictionary = {}
 	for i in range(members.size() - 1, -1, -1):
 		var m = members[i]
+		var previous_x = float(m.x)
 		if m.falling:
 			m.x -= step
 		else: m.x = reform_x(m, slot_x(i), dt)
@@ -760,6 +768,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			var hold_step = minf(dt, maxf(0, hold_for - float(m.air_time))) if held else 0.0
 			if hold_step > 0: HordeBalance.integrate(m, hold_step, true)
 			if dt - hold_step > 1e-06: HordeBalance.integrate(m, dt - hold_step, false)
+			if sky.pending and sky.contact(self, m, Vector2(previous_x, previous_y), step): launcher_contact = m
 			if not m.falling and m.glide_left > 0 and not floor_here and m.y > FLOOR - 60:
 				m.y = FLOOR - 60;m.vy = 0.0
 
@@ -789,6 +798,10 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	if members.is_empty(): finish();return
 	var lead = leader_index()
 	if lead < 0: return
+	if not launcher_contact.is_empty():
+		sky.begin(self, launcher_contact)
+		return
+	sky.pass_launcher(self)
 	for e in entities:
 		if e.taken: continue
 		if dead or members.is_empty(): break
@@ -1216,7 +1229,7 @@ func protect_civilian_path(e: Dictionary) -> void :
 
 func power_eligible() -> bool:
 
-	return not space.active and not sewer.active and not sewer.encounter.pending and not blessings.active() and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
+	return not sky.active and not sky.pending and not space.active and not sewer.active and not sewer.encounter.pending and not blessings.active() and transform_left <= 0 and perk_left <= 0 and boost_left <= 0
 
 func mark_power_collected() -> void :
 	bonus_director.collected(self)

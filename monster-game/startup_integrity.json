@@ -1,5 +1,5 @@
 {
-  "version": "0.10.52",
+  "version": "0.10.53",
   "class_count": 55,
   "files": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 4415,
-      "sha256": "a617ee3d0eee82ba4ac3ba76c17bfdbb4f248b40ad2746933c54fd761a1ac988"
+      "bytes": 4431,
+      "sha256": "73df477f782a6ccf93cffebed6c11d35f115d76d3851992125c46543a9946b34"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -204,13 +204,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 126571,
-      "sha256": "adcee1f63570805373ff637dfcd8a6d3d376d15d7fc171b44ca8fbe283ed71ff"
+      "bytes": 128372,
+      "sha256": "e340db6fdad8b476f14064a19be8826f63cf5b520444d2d23b0a04056484eb49"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 19692,
-      "sha256": "7913de6356eb29859a232735cc94c466ddd58bf0ec2c07ebe4ab9dcec797667e"
+      "bytes": 20000,
+      "sha256": "65fc14fa6678804b779aed719cf1944e691e4b62154eb4e47a6f944035171663"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -334,8 +334,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 70157,
-      "sha256": "9ffdca7e17b7f6976a28cc878d40ef10293e54568bd8d78651fc9243909ba27c"
+      "bytes": 70627,
+      "sha256": "3a0cfc3a2ea5d9094a98d2d6492459d98df696ba2b1e2fe44dbb64b169e04910"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -349,8 +349,8 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 31013,
-      "sha256": "f1cf7b552bb222575cdf76a055d6339b7f446ede6daaba697ea0a61b9d8f14b0"
+      "bytes": 31046,
+      "sha256": "26db871c333ce9cbbff61b8574b9b8c171d1a8ef291006276f6fbcf8fe510d0c"
     },
     {
       "path": "res://scripts/sewer_art.gd",
@@ -364,8 +364,8 @@
     },
     {
       "path": "res://scripts/sewer_event.gd",
-      "bytes": 2456,
-      "sha256": "3d0b0dbc565ec7adb4989475fea82ddac1238761ae40c94472c24c5307db935f"
+      "bytes": 2612,
+      "sha256": "34b20c5e8612a3196cd1dac4d654716465ff79cb0b3cd7a07f389deee6af8db6"
     },
     {
       "path": "res://scripts/sewer_life.gd",
@@ -403,6 +403,16 @@
       "sha256": "f7e609fd0c0ffd6470c2fbcf561d86f4909d2bd0bf81e727fb22df149dbf29b9"
     },
     {
+      "path": "res://scripts/sky.gd",
+      "bytes": 7622,
+      "sha256": "8609d69891973d254a1e824abafebd9a18857ba8a264e01c701b8b94d0da4c91"
+    },
+    {
+      "path": "res://scripts/sky_visual.gd",
+      "bytes": 8922,
+      "sha256": "e408eadea3b2e219e434c21623d9cb3099adfe260ef27aad133472f15b0ae63c"
+    },
+    {
       "path": "res://scripts/soldier.gd",
       "bytes": 9640,
       "sha256": "c68f8f19baf150afe97de775d93f9765cab246a0536e92ffc4caa31532fc6a23"
@@ -414,13 +424,13 @@
     },
     {
       "path": "res://scripts/sound.gd",
-      "bytes": 16233,
-      "sha256": "65ff952a0671c28470636654a83c1db3d40858da4634f0199c18cde7e46d4fc5"
+      "bytes": 16276,
+      "sha256": "cd6151c466c270d46336e6d3439b9aadb57fbb8eac477cecbfa6790dac028793"
     },
     {
       "path": "res://scripts/space.gd",
-      "bytes": 23633,
-      "sha256": "724699a23d2d6803682feeaa473a6aa2963883a9365f34d6b98617496ada44c4"
+      "bytes": 23666,
+      "sha256": "29418741de508f392aaa2873c24d7156b745688ae74e9bd553c5e107741c1dfb"
     },
     {
       "path": "res://scripts/space_atmosphere.gd",
@@ -1441,6 +1451,21 @@
       "path": "res://assets/art/v151/water_fx.webp",
       "bytes": 253856,
       "sha256": "96a4a28164df321563aac66c0fda4b5e42d8cab49b1b22b241e7b57fc2c519a7"
+    },
+    {
+      "path": "res://assets/art/v153/props.webp",
+      "bytes": 350316,
+      "sha256": "0bddaa0fa4841aa7c02a202f93f98b9259b4c4d4bd135f936b325f29a7529d96"
+    },
+    {
+      "path": "res://assets/art/v153/sky.webp",
+      "bytes": 113174,
+      "sha256": "3521c34413f4bc78e6adfebaf9dd5cf817b58aeaddaaef3be99ed45550537ea0"
+    },
+    {
+      "path": "res://assets/art/v153/sky_art.json",
+      "bytes": 5930,
+      "sha256": "387e87a0d3df825280b33c513820d32fd1df3b96f338de2707fc62ed668c33fa"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

@@ -91,7 +91,7 @@ func reset(seed_value: int) -> void:
 	exit_first = 0;exit_last = 0;exit_wave_x = 0;exit_gap = 380.0
 
 func begin(r,force: bool = false) -> bool:
-	if active or r.space.active or r.dead or r.active_count()<=0: return false
+	if active or r.space.active or r.sky.active or r.sky.pending or r.dead or r.active_count()<=0: return false
 	if not force and not r.power_eligible(): return false
 	for e in r.entities:
 		if e.state=="capture" and e.kind in ["civilian","police","soldier"]: r.complete_capture(e)

@@ -14,13 +14,21 @@ func road(seed_value: int = 13942):
 	for t in r.tunnels:
 		if r.world_px>=float(t.entry) and r.world_px<=float(t.entry)+float(t.length): r.world_px = float(t.entry)+float(t.length)+300
 	return r
-func offered(r) -> bool: return r.space.active or r.sewer.encounter.pending or r.sewer.active
+func offered(r) -> bool: return r.sky.pending or r.sky.active or r.sewer.encounter.pending or r.sewer.active
 func roll(r) -> void:
 	for i in range(30):
 		if offered(r): return
 		r.elapsed = r.sewer.encounter.next_at+.01;r.sewer.encounter.tick(r)
 func finish(r,kind: String) -> void:
-	if kind=="space": r.space.finish(r)
+	if kind=="space":
+		var tapped = false
+		for tick in range(600):
+			if r.sky.pending and not tapped and r.sky.pad_world - r.world_px - r.ANCHOR <= 195.0:
+				r.jump()
+				r.release_jump()
+				tapped = true
+			r.advance(DT)
+			if not r.sky.pending and not r.sky.active: break
 	else:
 		if not r.sewer.active: r.sewer.begin(r,true)
 		r.sewer.finish(r)
@@ -45,7 +53,7 @@ func run() -> void:
 		check(kind in ["space","sewer"] and r.bonuses==0,"journeys do not increment power pickup statistics")
 		check(not e.offer(r,true,"sewer" if kind=="space" else "space"),"active journey cannot overlap the other type")
 		if kind=="space":
-			check(r.space.phase=="ascent" and r.space.left==30 and 4 not in r.power_owned,"natural abduction uses the ship ascent without buying or collecting a power")
+			check(r.sky.pending and not r.sky.active and not r.space.active and 4 not in r.power_owned,"the natural ascent offers an optional trampoline on the street")
 			check(7 not in r.power_owned and 8 not in r.power_owned,"natural events do not grant unpurchased combat powers")
 		var ids = r.members.map(func(m):return int(m.id));finish(r,kind)
 		check(r.members.map(func(m):return int(m.id))==ids and r.souls==0,"return preserves actual members and earned souls")

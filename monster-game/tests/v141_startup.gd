@@ -46,29 +46,29 @@ func run() -> void:
 	if fixture == "existing":
 		check(game.data.best == 4567 and game.data.runs == 31,"existing run progress preserved")
 		check(game.data.cosmetics == ["bruxa"] and game.data.active_cosmetics == ["bruxa"],"existing cosmetics preserved")
-	if str(ProjectSettings.get_setting("application/config/version")) in ["0.10.31","0.10.32","0.10.33","0.10.34","0.10.35","0.10.36","0.10.37","0.10.38","0.10.41","0.10.42","0.10.43","0.10.44","0.10.45","0.10.46","0.10.47","0.10.48","0.10.49","0.10.50","0.10.51","0.10.52"]:
+	if str(ProjectSettings.get_setting("application/config/version")) in ["0.10.31","0.10.32","0.10.33","0.10.34","0.10.35","0.10.36","0.10.37","0.10.38","0.10.41","0.10.42","0.10.43","0.10.44","0.10.45","0.10.46","0.10.47","0.10.48","0.10.49","0.10.50","0.10.51","0.10.52","0.10.53"]:
 		var shortcuts: Dictionary = {}
 		for candidate in game.buttons:
 			if candidate.action in ["home_space_test","home_sewer_test","birds_open","developer_test_funds"]: shortcuts[candidate.action] = candidate.rect
-		check(shortcuts.size() == 4,"home exposes space sewer birds and funds shortcuts")
+		check(shortcuts.size() == 4,"home exposes sky sewer birds and funds shortcuts")
 		if shortcuts.size() == 4:
 			check(game.full_rect().encloses(shortcuts.home_sewer_test) and game.full_rect().encloses(shortcuts.birds_open) and game.full_rect().encloses(shortcuts.home_space_test) and game.full_rect().encloses(shortcuts.developer_test_funds) and not shortcuts.home_space_test.intersects(shortcuts.developer_test_funds),"shortcuts fit without overlap")
 			game.data.wallet = 77;game.data.eyes = 1
 			game.press_at(shortcuts.developer_test_funds.get_center());game.release_touch(-1)
 			check(game.data.wallet == 1000000 and game.data.eyes == 10000,"home refill works through touch routing")
 			game.press_at(shortcuts.home_space_test.get_center());game.release_touch(-1)
-			check(game.lab_active and game.runner.space.active,"home space shortcut works through touch routing")
+			check(game.lab_active and game.runner.sky.pending and game.lab_kind == "sky","home sky shortcut offers the trampoline through touch routing")
 			game.leave_lab();game.change_screen("home");game.toast_left = 0
 	game.change_screen("developer");await snap("02_developer_" + fixture)
 	var button: Dictionary = {}
 	for candidate in game.buttons:
-		if candidate.action == "lab_kind_space": button = candidate;break
-	check(not button.is_empty(),"space button is registered")
+		if candidate.action == "lab_kind_sky": button = candidate;break
+	check(not button.is_empty(),"sky button is registered")
 	if not button.is_empty():
-		check(game.full_rect().encloses(button.rect),"space button lies inside the screen")
+		check(game.full_rect().encloses(button.rect),"sky button lies inside the screen")
 		game.press_at(button.rect.get_center());game.release_touch(-1)
-	check(game.lab_active and game.lab_kind == "space" and game.runner.space.active,"space action opens the real flight")
-	await snap("03_space_" + fixture)
+	check(game.lab_active and game.lab_kind == "sky" and game.runner.sky.pending,"sky action opens the optional trampoline")
+	await snap("03_sky_" + fixture)
 	game.leave_lab();game.sound.set_enabled(false);game.set_process(false);game.queue_free();current_scene = null;game = null;boot = null
 	for i in range(8): await process_frame
 	var report = {"version":str(ProjectSettings.get_setting("application/config/version")),"fixture":fixture,"checks":checks,"failures":failures,"physical_device_tested":false}
