@@ -27,6 +27,29 @@ func skip_test() -> void:
 	check(not r.sky.pending and not r.sky.active and not r.space.active and r.flights == 0, "running past the trampoline stays in the street")
 	check(not r.dead and r.active_count() == 6 and r.sewer.encounter.completed_count == 0, "skipping preserves the horde and does not complete a journey")
 
+func launcher_ground_test() -> void:
+	game.start_lab("sky", 6, 0)
+	step(1.1)
+	var r = game.runner
+	var s = r.sky
+	var centre_x = s.pad_world - r.world_px
+	var floor_y: float = r.ground_y(centre_x)
+	var placed = await picture()
+	s.pending = false
+	var bare = await picture()
+	s.pending = true
+	for foot in [Vector2(-90, 0), Vector2(0, 6), Vector2(93, 0)]:
+		var contact: Vector2 = game.world_to_ui(Vector2(centre_x + foot.x, floor_y + foot.y)) + game.layout_origin
+		var visible_pixels = 0
+		for y in range(floori(contact.y), floori(contact.y) + 5):
+			for x in range(roundi(contact.x) - 9, roundi(contact.x) + 10):
+				var base = placed.get_pixel(x, y)
+				var road = bare.get_pixel(x, y)
+				if base.r - base.b > .07 and absf(base.r - road.r) + absf(base.g - road.g) + absf(base.b - road.b) > .14:
+					visible_pixels += 1
+		check(visible_pixels > 5, "launcher foot at %d touches the stone surface" % int(foot.x))
+	check(placed.save_png(folder + "/launcher.png") == OK, "capture the launcher planted in the street")
+
 func play_route(label: String, taps: Array, capture: bool, restart: bool = false) -> Dictionary:
 	if restart: game.perform_action("lab_sky_restart")
 	else: game.start_lab("sky", 6, 0)
@@ -120,6 +143,7 @@ func run() -> void:
 	game.sound.set_enabled(false)
 	game.data = MonsterCatalog.defaults()
 	game.data.active_cosmetics = ["z_plumber", "s_ice"]
+	await launcher_ground_test()
 	var ascent = await play_route("subida", [1.9, 4.60, 6.6, 7.95], recording)
 	check(ascent.peak_m >= 96 and ascent.taps_used == 4, "timed taps drive a sustained climb")
 	check("ember" in ascent.contacts and "balloon" in ascent.contacts and "cloud" in ascent.contacts, "the charge and both free boosts are reachable")
@@ -128,7 +152,7 @@ func run() -> void:
 	check("bat" in bat.contacts and bat.peak_m < ascent.peak_m, "the bat route loses height and returns early")
 	var storm = await play_route("tempestade", [1.9], false, true)
 	check("storm" in storm.contacts, "the storm route reaches the second downward hazard")
-	var report = {"version": "0.10.53", "checks": checks, "failures": failures, "video_frames": frames, "routes": routes}
+	var report = {"version": str(ProjectSettings.get_setting("application/config/version")), "checks": checks, "failures": failures, "video_frames": frames, "routes": routes}
 	var out = FileAccess.open(folder + "/sky.json", FileAccess.WRITE)
 	out.store_string(JSON.stringify(report, "  "))
 	out.close()

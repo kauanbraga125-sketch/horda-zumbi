@@ -1,4 +1,4 @@
-name: Horda 0.10.53 — validar subida e continuidade dos cenários
+name: Horda 0.10.54 — validar subida e continuidade dos cenários
 
 on:
   push:
@@ -61,14 +61,14 @@ jobs:
             grep -q '"failures":\[\]' "$RUNNER_TEMP/$suite.log"
             if grep -E 'SCRIPT ERROR|Parse Error|ERROR:' "$RUNNER_TEMP/$suite.log"; then exit 1; fi
           done
-          cp "$RUNNER_TEMP/v140_faces/faces.json" dist/Pilotos-v0.10.53.json
-          cp "$RUNNER_TEMP/v144_descent/descent.json" dist/Recorte-v0.10.53.json
-          cp "$RUNNER_TEMP/v145_surface/surface.json" dist/Continuidade-v0.10.53.json
-          cp "$RUNNER_TEMP/v147_reveal/reveal.json" dist/Revelacao-v0.10.53.json
-          cp "$RUNNER_TEMP/v148_fog/fog.json" dist/Neblina-v0.10.53.json
-          cp "$RUNNER_TEMP/v149_solo/solo.json" dist/Jet-Skis-v0.10.53.json
-          cp "$RUNNER_TEMP/v151_water/water.json" dist/Agua-v0.10.53.json
-          cp "$RUNNER_TEMP/transitions/transitions.json" dist/Trajetorias-v0.10.53.json
+          cp "$RUNNER_TEMP/v140_faces/faces.json" dist/Pilotos-v0.10.54.json
+          cp "$RUNNER_TEMP/v144_descent/descent.json" dist/Recorte-v0.10.54.json
+          cp "$RUNNER_TEMP/v145_surface/surface.json" dist/Continuidade-v0.10.54.json
+          cp "$RUNNER_TEMP/v147_reveal/reveal.json" dist/Revelacao-v0.10.54.json
+          cp "$RUNNER_TEMP/v148_fog/fog.json" dist/Neblina-v0.10.54.json
+          cp "$RUNNER_TEMP/v149_solo/solo.json" dist/Jet-Skis-v0.10.54.json
+          cp "$RUNNER_TEMP/v151_water/water.json" dist/Agua-v0.10.54.json
+          cp "$RUNNER_TEMP/transitions/transitions.json" dist/Trajetorias-v0.10.54.json
       - name: Gravar gameplay do céu a 30 fps
         shell: bash
         run: |
@@ -77,13 +77,13 @@ jobs:
           HORDA_SKY_RECORD=1 XDG_DATA_HOME="$RUNNER_TEMP/preview-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/video" xvfb-run -a "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v153_sky.gd 2>&1 | tee "$RUNNER_TEMP/preview.log"
           grep -q '"failures":\[\]' "$RUNNER_TEMP/preview.log"
           if grep -E 'SCRIPT ERROR|Parse Error|ERROR:' "$RUNNER_TEMP/preview.log"; then exit 1; fi
-          ffmpeg -hide_banner -loglevel warning -y -framerate 30 -i "$RUNNER_TEMP/video/frame-%04d.jpg" -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -movflags +faststart dist/Horda-v0.10.53-Gameplay-Ceu.mp4
-          cp "$RUNNER_TEMP/video/sky.json" dist/Partida-v0.10.53.json
+          ffmpeg -hide_banner -loglevel warning -y -framerate 30 -i "$RUNNER_TEMP/video/frame-%04d.jpg" -c:v libx264 -preset fast -crf 20 -pix_fmt yuv420p -movflags +faststart dist/Horda-v0.10.54-Gameplay-Ceu.mp4
+          cp "$RUNNER_TEMP/video/sky.json" dist/Partida-v0.10.54.json
           (cd dist && sha256sum * > SHA256SUMS.txt)
       - name: Entregar video e relatorios
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-Zumbi-v0.10.53-Gameplay-Ceu
+          name: Horda-Zumbi-v0.10.54-Gameplay-Ceu
           path: dist/*
           if-no-files-found: error
           retention-days: 90
@@ -91,7 +91,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Horda-Zumbi-v0.10.53-Erro-Visual
+          name: Horda-Zumbi-v0.10.54-Erro-Visual
           path: |
             ${{ runner.temp }}/import.log
             ${{ runner.temp }}/test.log

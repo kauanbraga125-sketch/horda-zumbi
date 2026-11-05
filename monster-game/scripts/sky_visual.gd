@@ -5,6 +5,9 @@ const ATLAS = preload("res://assets/art/v153/props.webp")
 const SIZES = {
 	"ember": 71.0, "balloon": 142.0, "cloud": 71.0, "bat": 96.0, "storm": 137.0,
 }
+# Sole positions in the atlas tile, including its transparent border.
+const PAD_FEET = [Vector2(.15, .835), Vector2(.50, .962), Vector2(.86, .835)]
+const PAD_BASE_START = .78
 const VIOLET = Color("edb8ff")
 const MINT = Color("a9f4ce")
 
@@ -69,18 +72,30 @@ func launcher(g, r) -> void:
 	if not s.pending and not s.active: return
 	var x = s.pad_world - r.world_px
 	if x < g.scenery.view_left - s.PAD_WIDTH or x > g.scenery.view_right + s.PAD_WIDTH: return
-	if g.scenery.view_bottom < r.FLOOR - 125.0: return
+	var floor_y: float = r.ground_y(x)
+	if g.scenery.view_bottom < floor_y - 125.0: return
 	var canvas: Node2D = g.paint_target
-	var floor_point = Vector2(x, r.FLOOR - 9.0)
-	canvas.draw_set_transform(floor_point, 0.0, Vector2(s.PAD_WIDTH * .47, 9.0))
-	canvas.draw_circle(Vector2.ZERO, 1.0, Color(.03, .013, .063, .53))
-	canvas.draw_set_transform(Vector2.ZERO)
 	var compression = 0.0
 	if s.active and s.age < .24: compression = sin(s.age / .24 * PI) * 15.0
-	var size = Vector2(s.PAD_WIDTH + 8.0, 79.0 - compression)
-	canvas.draw_texture_rect(sprites.pad, Rect2(floor_point - Vector2(size.x * .5, size.y), size), false)
+	# The near rim meets the jump plane. Only the upper part compresses on impact.
+	var width = s.PAD_WIDTH + 8.0
+	var left = x - width * .5
+	var top = floor_y - s.PAD_HEIGHT - 40.0 + compression
+	var base_top = floor_y - 3.0
+	var base_height = 13.0
+	for foot in PAD_FEET:
+		var sole_y = base_top + base_height * inverse_lerp(PAD_BASE_START, 1.0, foot.y)
+		var sole = Vector2(left + width * foot.x, sole_y + 1.5)
+		canvas.draw_set_transform(sole, 0.0, Vector2(32.0, 4.8))
+		canvas.draw_circle(Vector2.ZERO, 1.0, Color(.033, .022, .06, .24))
+		canvas.draw_circle(Vector2.ZERO, .70, Color(.023, .012, .039, .38))
+	canvas.draw_set_transform(Vector2.ZERO)
+	var tile: Rect2 = sprites.pad.region
+	var split = tile.size.y * PAD_BASE_START
+	canvas.draw_texture_rect_region(ATLAS, Rect2(left, top, width, base_top - top), Rect2(tile.position, Vector2(tile.size.x, split)))
+	canvas.draw_texture_rect_region(ATLAS, Rect2(left, base_top, width, base_height), Rect2(tile.position + Vector2(0, split), Vector2(tile.size.x, tile.size.y - split)))
 	if not s.pending or x < r.ANCHOR - 12.0: return
-	var cue = Vector2(x, r.FLOOR - 159.0)
+	var cue = Vector2(x, floor_y - 159.0)
 	var rect = Rect2(cue - Vector2(123.0, 29.0), Vector2(246.0, 49.0))
 	var ready = x - r.ANCHOR < clampf(r.speed * .83, 225.0, 420.0)
 	g.panel(rect, Color("301b43"), g.GOLD if ready else Color("b992c8"), 12, 2)
