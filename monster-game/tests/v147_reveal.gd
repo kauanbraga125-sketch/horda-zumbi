@@ -37,6 +37,22 @@ func texture_probe(label: String,empty: bool) -> void:
 	normal.save_png(folder+"/"+label+".png")
 	game.self_modulate.a = 1;game.foreground_canvas.self_modulate.a = 1
 	await picture()
+func mouth_depth(label: String) -> void:
+	var normal = await picture()
+	var mat: ShaderMaterial = game.sewer_background_canvas.material
+	var bank = mat.get_shader_parameter("bank_texture")
+	mat.set_shader_parameter("bank_texture", marker)
+	var replaced = await picture(false)
+	var scale = Vector2(normal.get_size()) / game.get_viewport_rect().size
+	var surface = ((game.world_to_ui(Vector2(0, game.runner.FLOOR)) + game.layout_origin) * scale).y
+	var edge = ((game.world_to_ui(Vector2(game.runner.sewer.shore_edge() + 40, 0)) + game.layout_origin) * scale).x
+	var upper = difference(normal, replaced, 8, 145, floori(surface - 3))
+	var lower = difference(normal, replaced, ceili(edge), ceili(surface + 8))
+	check(upper.pixels > 100 and upper.changed == 0, label + ": the mouth texture leaves the street above the road plane visible")
+	check(lower.pixels > 100 and lower.changed > 100, label + ": the recessed rock texture gives the opening depth before the first foot falls")
+	measurements.append({"fixture":label,"type":"shallow_mouth","above":upper,"below":lower})
+	mat.set_shader_parameter("bank_texture", bank)
+	await picture()
 func upper_scene(label: String) -> void:
 	game.self_modulate.a = 0;game.foreground_canvas.self_modulate.a = 0
 	var normal = await picture()
@@ -84,6 +100,7 @@ func run() -> void:
 			if s.active: break
 		check(s.active and s.fall_age(game.runner)<0,label+": entry starts before the first foot falls")
 		await texture_probe(label+"-before-fall",true)
+		await mouth_depth(label+"-mouth")
 		for i in range(180):
 			step(STEP)
 			if s.fall_age(game.runner)>=0: break

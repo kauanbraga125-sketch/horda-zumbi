@@ -29,9 +29,6 @@ func texture_window(c,tex: Texture2D,dest: Rect2,source: Rect2,window: Rect2,tin
 	var size = clipped.size/dest.size*source.size
 	c.draw_texture_rect_region(tex,clipped,Rect2(origin,size),tint)
 
-func dock(g,s) -> void:
-	shaft.dock_face(g,s.encounter.dock_world-g.runner.world_px-s.DOCK_TO_EDGE)
-
 func water(g,s,front: bool,right_limit: float = INF,alpha: float = 1.0,left_limit: float = -INF) -> void:
 	var c = g.paint_target;var view = view_rect(g)
 	var left = maxf(view.position.x-35,left_limit);var right = minf(view.end.x+35,right_limit);var bottom = view.end.y+100
@@ -176,7 +173,7 @@ func paint(g,s) -> void:
 	var exit_t = clampf(s.phase_age/s.EXIT_SECONDS,0,1) if exiting else 0.0
 	if s.phase=="entry":
 		c.draw_set_transform(Vector2(0,-s.entry_drop()));g.ground(r.world_px);c.draw_set_transform(Vector2.ZERO)
-		shaft.dock_face(g,s.shore_edge(),s.entry_drop())
+		shaft.rupture_debris(g,s)
 	water(g,s,false)
 	# Depth lanes share a perspective water field, not a translucent sheet over
 	# the lower pilots. Only local foam crosses each compact hull afterwards.
@@ -231,7 +228,6 @@ func paint(g,s) -> void:
 		for i in range(12):
 			var t = fposmod(s.age*1.6+i*.083,1);var x = view.position.x+fposmod(i*163,view.size.x)
 			c.draw_line(Vector2(x,view.end.y-t*view.size.y),Vector2(x,view.end.y-t*view.size.y+28),Color(.6,.82,.79,.18),1.5,true)
-	if s.phase=="entry": shaft.foreground(g,s)
 
 func splash(g,_s,item: Dictionary) -> void:
 	var c = g.paint_target;var t = float(item.age);var p = Vector2(item.p)

@@ -213,16 +213,27 @@ func ground(g, offset: float, terrain_run: HordeRun = null) -> void :
 	var right: float = g.scenery.view_right
 	var height = 192.0
 	var width = ground_texture.get_width() * height / ground_texture.get_height()
-	var descending = run.sewer.active and run.sewer.phase=="entry"
+	var edge: float = g.scenery.road_end(run)
+	var has_opening = not is_inf(edge)
+	var lip_floor = INF
 	for segment in run.terrain.segments:
-		var start = maxf(left, float(segment.start) - offset)
-		var end = minf(right, float(segment.end) - offset)
-		if run.sewer.encounter.pending: end = minf(end,run.sewer.encounter.dock_world-offset-run.sewer.DOCK_TO_EDGE)
-		if run.sewer.active and run.sewer.phase=="entry": end = minf(end,run.sewer.shore_edge())
-		if start >= end: continue
+		var segment_left = float(segment.start) - offset
+		var segment_right = float(segment.end) - offset
+		var start = maxf(left, segment_left)
+		var end = minf(minf(right, segment_right), edge)
 		var floor_y = HordeRun.FLOOR - float(segment.height)
-		var body_bottom = maxf(g.scenery.view_bottom+run.sewer.entry_drop(),floor_y+run.sewer.SHAFT_DEPTH+100) if descending else g.scenery.view_bottom
-		g.paint_target.draw_rect(Rect2(start, floor_y, end - start, maxf(0,body_bottom-floor_y)), Color("20172f"))
+		var has_lip = has_opening and segment_left < edge and segment_right >= edge
+		if has_lip: lip_floor = floor_y
+		if start >= end: continue
+		var body_bottom: float = g.scenery.view_bottom
+		if has_opening: body_bottom = maxf(body_bottom + run.sewer.entry_drop(), floor_y + height)
+		var body_rect = Rect2(start, floor_y, end - start, maxf(0, body_bottom - floor_y))
+		var bank = PackedVector2Array()
+		if has_lip and edge - HordeTerrainArt.SEWER_BANK_INSET < end:
+			bank = HordeTerrainArt.sewer_bank_outline(start, edge, floor_y, body_bottom)
+			HordeTerrainArt.sewer_bank_piece(g.paint_target, body_rect, bank)
+		else:
+			g.paint_target.draw_rect(body_rect, Color("20172f"))
 		for tile in range(floori((start + offset) / width), ceili((end + offset) / width)):
 			var tile_x = tile * width - offset
 			var x1 = maxf(start, tile_x)
@@ -230,22 +241,29 @@ func ground(g, offset: float, terrain_run: HordeRun = null) -> void :
 			var source = ground_texture.region
 			source.position.x += (x1 - tile_x) / width * ground_texture.region.size.x
 			source.size.x = (x2 - x1) / width * ground_texture.region.size.x
-			g.paint_target.draw_texture_rect_region(ground_texture.atlas, Rect2(x1, floor_y, x2 - x1, height), source)
-			if descending:
+			var cut_tile = not bank.is_empty() and x2 > edge - HordeTerrainArt.SEWER_BANK_INSET
+			var dest = Rect2(x1, floor_y, x2 - x1, height)
+			if cut_tile: HordeTerrainArt.sewer_bank_piece(g.paint_target, dest, bank, ground_texture.atlas, source)
+			else: g.paint_target.draw_texture_rect_region(ground_texture.atlas, dest, source)
+			if has_opening:
 				var body = source;body.position.y += 70;body.size.y -= 70
 				var step_y = height*body.size.y/ground_texture.region.size.y
 				for row in range(ceili(maxf(0,body_bottom-floor_y-height)/step_y)):
 					var y = floor_y+height+row*step_y;var length_y = minf(step_y,body_bottom-y)
 					var sample = body;sample.size.y *= length_y/step_y
-					g.paint_target.draw_texture_rect_region(ground_texture.atlas,Rect2(x1,y,x2-x1,length_y),sample)
+					var lower = Rect2(x1, y, x2 - x1, length_y)
+					if cut_tile: HordeTerrainArt.sewer_bank_piece(g.paint_target, lower, bank, ground_texture.atlas, sample)
+					else: g.paint_target.draw_texture_rect_region(ground_texture.atlas, lower, sample)
 		if float(segment.height) > 0:
 			var entry = float(segment.start) - offset
 			if run.tutorial_hints() and entry > HordeRun.ANCHOR and entry < right - 30:
 				g.text("PULE!", Vector2(entry - 52, HordeRun.FLOOR - 28), 15, g.GOLD, true, true, 2)
 			for i in range(2):
-				var edge = float(segment.start if i == 0 else segment.end) - offset
-				if edge < left or edge > right: continue
-				HordeTerrainArt.elevation(g, edge, floor_y, float(segment.height), i == 1)
+				var elevation_edge = float(segment.start if i == 0 else segment.end) - offset
+				if elevation_edge < left or elevation_edge > right: continue
+				HordeTerrainArt.elevation(g, elevation_edge, floor_y, float(segment.height), i == 1)
+	if not is_inf(lip_floor):
+		HordeTerrainArt.sewer_lip(g, edge, lip_floor)
 
 func dialogue(g) -> void :
 	var rect = Rect2(405, g.full_rect().position.y + 107, 711, 74)

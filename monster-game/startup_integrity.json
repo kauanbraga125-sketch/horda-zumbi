@@ -1,5 +1,5 @@
 {
-  "version": "0.10.49",
+  "version": "0.10.50",
   "class_count": 55,
   "files": [
     {
@@ -204,13 +204,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 125481,
-      "sha256": "3f5b81bc0a62c0f6ff444d648afb1cd7fe3ce0e7efd1914a8e5b16b60315d9b0"
+      "bytes": 125401,
+      "sha256": "be9c4c62760507c18f46e6915d472995fbd56a2fa63bca3b8caeb4cede113606"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 17425,
-      "sha256": "4b39a9421513ecb1c3a5dee2f9aec5c83e31fccae1fb40856ae8ecb8880f19f6"
+      "bytes": 18217,
+      "sha256": "46841777268fc85716240b54f95b3176dd864f89bd533642fd757edfbe325ba3"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -359,8 +359,8 @@
     },
     {
       "path": "res://scripts/sewer_bridge.gdshader",
-      "bytes": 4566,
-      "sha256": "e60ac10964e5852997332a5a344551881efd1be663c2a89fc5e57ff2b8918ce2"
+      "bytes": 6287,
+      "sha256": "2a3de9b48c9c6d62741297cdd1d49d5554c4aec6dedade3512c6cdc13793d871"
     },
     {
       "path": "res://scripts/sewer_event.gd",
@@ -374,8 +374,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 14849,
-      "sha256": "f9dae4b22bbc97c44b7b3d165b0a35dcc47ceb55ebbbcb09529bcf90055f6912"
+      "bytes": 14681,
+      "sha256": "0e681afd9dcc9e52fd5d5cf807a085c6ff5fc3b1065c41cf3aa3cf50d3135d43"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
@@ -384,13 +384,13 @@
     },
     {
       "path": "res://scripts/sewer_shaft.gd",
-      "bytes": 3676,
-      "sha256": "edc2b273eecdc16f10d3f32152f9704e35f7fed72114005e9424e2b95031acf3"
+      "bytes": 4442,
+      "sha256": "7b9c81d27e2abefc7f9f471ab8f431bacdf45c17b1076d16c797b4e8f5dcf4e5"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
-      "bytes": 2935,
-      "sha256": "6dd133f557474f4938547da4dd86147ba44f49d02df3d90b023c2b089e2765d1"
+      "bytes": 3064,
+      "sha256": "1a9d3ef1013869f03456bf152684b05f45e28f92514d4e2dec658b441391820c"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",
@@ -454,8 +454,8 @@
     },
     {
       "path": "res://scripts/terrain_art.gd",
-      "bytes": 2785,
-      "sha256": "a54447bb0ea99322ea32a934ca2db26d4ce5c4f75df78fbeb944571a7ed7e860"
+      "bytes": 6048,
+      "sha256": "c3a285947c85b52249cba8083ca299c0b6f62cc628e724f9425d0932e70435cb"
     },
     {
       "path": "res://scripts/traffic.gd",

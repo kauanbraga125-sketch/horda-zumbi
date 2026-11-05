@@ -1,6 +1,6 @@
 # Horda Zumbi
 
-Versão em desenvolvimento: **0.10.49 — um jet ski compacto por integrante, neblina densa e chegada enquadrada na galeria**. [Mudanças e validação](monster-game/TRANSICAO-v0.10.49.md).
+Versão em desenvolvimento: **0.10.50 — borda rompida, névoa e detritos na entrada do esgoto**. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
 
 O último APK publicado em Releases continua sendo a **0.10.41**.
 

@@ -3,6 +3,7 @@ render_mode unshaded;
 
 uniform sampler2D soil_texture : source_color, filter_linear, repeat_disable;
 uniform sampler2D sewer_texture : source_color, filter_linear, repeat_disable;
+uniform sampler2D bank_texture : source_color, filter_linear, repeat_disable;
 uniform float surface_y = 574.0;
 uniform float gallery_offset = 460.0;
 uniform float gallery_width = 1330.0;
@@ -65,6 +66,23 @@ void fragment() {
 		smoothstep(24.0, throat_depth + 180.0, depth));
 	vec3 color = mix(fog, mix(soil.rgb, sewer.rgb, join), wall);
 	float opacity = mix(smoothstep(2.0,throat_depth+120.0,depth)*0.78,1.0,wall);
+	float from_edge = scene_position.x - shore_edge;
+	float across = max(0.0, from_edge);
+	// A recessed shoulder gives the mouth some rock relief before the deep wall enters view.
+	if (opening_mask && depth > 0.0 && depth < throat_depth + 18.0 && from_edge > -175.0 && across < 780.0) {
+		float relief = soft_noise(vec2((from_edge + 53.0) * 0.013, 2.8));
+		float rim = 6.0 + relief * 16.0 + 18.0 * sin(clamp(across / 630.0, 0.0, 1.0) * 3.14159);
+		float recess = smoothstep(rim, rim + 23.0, depth)
+			* (1.0 - smoothstep(throat_depth * 0.72, throat_depth + 18.0, depth))
+			* (1.0 - smoothstep(250.0, 780.0, across));
+		vec3 strata = texture(bank_texture, vec2(fract((from_edge + 87.0) / 510.0),
+			mix(0.24, 0.84, clamp((depth - rim) / 200.0, 0.0, 1.0)))).rgb;
+		vec3 shadow = mix(vec3(0.045, 0.039, 0.072), strata * vec3(0.53, 0.61, 0.80), 0.81);
+		float shade = recess * 0.89;
+		float combined = shade + opacity * (1.0 - shade);
+		color = (shadow * shade + color * opacity * (1.0 - shade)) / max(combined, 0.0001);
+		opacity = combined;
+	}
 	if (!exit_mode && depth > 0.0 && depth < gallery_offset + 115.0) {
 		vec2 p = vec2((scene_position.x + scroll_x * 0.22) * 0.0042, depth * 0.010);
 		float drift = effect_time * 0.055;
@@ -76,21 +94,31 @@ void fragment() {
 		float lip_bank = exp(-pow((depth - broken_top - 2.0) / 66.0, 2.0));
 		float lower_bank = exp(-pow((depth - gallery_offset + 5.0 - (curl - 0.5) * 60.0) / 98.0, 2.0));
 		float volume = smoothstep(0.23, 0.76, mass * 0.78 + wisps * 0.30);
+		float mouth_mist = 0.0;
+		if (opening_mask && across < 465.0 && depth < 170.0) {
+			float rise = soft_noise(vec2(from_edge * 0.013 - drift * 0.75, depth * 0.025 + drift * 4.8));
+			float crest_y = 35.0 + across * 0.075 + (curl - 0.5) * 52.0;
+			mouth_mist = exp(-pow((depth - crest_y) / (23.0 + volume * 13.0), 2.0))
+				* smoothstep(0.23, 0.77, rise * 0.72 + volume * 0.28)
+				* (1.0 - smoothstep(85.0, 465.0, across))
+				* (1.0 - smoothstep(135.0, 170.0, depth));
+		}
 		float envelope = smoothstep(3.0, 55.0, depth)
 			* (1.0 - smoothstep(gallery_offset - 5.0, gallery_offset + 110.0, depth));
 		float mist = clamp((upper_bank * (0.40 + volume * 0.78)
-			+ lip_bank * 0.68 + lower_bank * (0.25 + volume * 0.45)) * envelope, 0.0, 0.985);
+			+ lip_bank * 0.68 + lower_bank * (0.25 + volume * 0.45) + mouth_mist * 0.56) * envelope, 0.0, 0.985);
 		vec3 cloud = mix(vec3(0.15, 0.17, 0.25), vec3(0.36, 0.32, 0.44),
 			clamp(volume * 0.72 + wisps * 0.36, 0.0, 1.0));
 		cloud = mix(cloud, vec3(0.16, 0.24, 0.28), smoothstep(throat_depth, throat_depth + 180.0, depth) * 0.35);
+		cloud = mix(cloud, vec3(0.21, 0.29, 0.33), mouth_mist * 0.55);
 		float combined = mist + opacity * (1.0 - mist);
 		color = (cloud * mist + color * opacity * (1.0 - mist)) / max(combined, 0.0001);
 		opacity = combined;
 	}
 	if (opening_mask) {
 		float chips = (soft_noise(vec2(depth * 0.04, 7.6)) - 0.5) * 16.0;
-		opacity *= smoothstep(shore_edge + chips - 4.0,
-			shore_edge + chips + 8.0, scene_position.x);
+		float retreat = clamp(depth * 0.53, 0.0, 148.0);
+		opacity *= smoothstep(chips - retreat - 26.0, chips - retreat * 0.70 + 8.0, from_edge);
 	}
 	if (exit_mode) {
 		opacity = smoothstep(gallery_offset - 40.0 + irregularity * 0.4,

@@ -952,7 +952,6 @@ func draw_run() -> void :
 		return
 	var captured_by_id: Dictionary = {}
 	ground(runner.world_px)
-	if runner.sewer.encounter.pending: runner.sewer.visual.dock(self,runner.sewer)
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
 	effects.draw_trails(paint_target, actor, runner.elapsed)
