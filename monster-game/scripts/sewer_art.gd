@@ -61,21 +61,37 @@ static func boat(c,p: Vector2,height: float,angle: float = 0,tint: Color = Color
 	else: c.draw_texture_rect(tex,Rect2(-size*.5,size),false,tint)
 	c.draw_set_transform(Vector2.ZERO)
 
-static func survivor_new(c,variant: int,p: Vector2,height: float,time: float,tint: Color = Color.WHITE) -> void:
-	var index = posmod(int(time*7),4)+posmod(variant,3)*4
-	var line = float(data().survivor_anchors[index].waterline)/320*height
-	c.draw_set_transform(p+Vector2(0,sin(time*5.3+variant)*.7),sin(time*2.9+variant)*.015)
-	cel(c,"survivors",index,Rect2(-height*.5,-line,height,height),tint)
+static func immersed(c, tex: Texture2D, surface: Vector2, size: Vector2, region: Rect2, immersion: float, angle: float = 0.0, tint: Color = Color.WHITE, dry: float = 0.0) -> void:
+	# Rotate about the contact line. Underwater pixels soften into the painted surface.
+	var above = 1.0 - immersion
+	var left = -size.x * 0.5
+	var submerged = size.y * immersion
+	var cut = region.position.y + region.size.y * above
+	c.draw_set_transform(surface, angle)
+	c.draw_texture_rect_region(tex, Rect2(left, -size.y*above, size.x, size.y*above),
+		Rect2(region.position, Vector2(region.size.x, region.size.y*above)), tint)
+	var corners = PackedVector2Array([Vector2(left,0), Vector2(-left,0), Vector2(-left,submerged), Vector2(left,submerged)])
+	var tex_size = tex.get_size()
+	var uv = PackedVector2Array([Vector2(region.position.x,cut)/tex_size, Vector2(region.end.x,cut)/tex_size,
+		region.end/tex_size, Vector2(region.position.x,region.end.y)/tex_size])
+	var near = tint * Color(0.53,0.76,0.74,0.76).lerp(Color.WHITE,dry)
+	var deep = tint * Color(0.20,0.48,0.51,0.12).lerp(Color.WHITE,dry)
+	c.draw_polygon(corners, PackedColorArray([near,near,deep,deep]), uv, tex)
 	c.draw_set_transform(Vector2.ZERO)
+
+static func survivor_new(c,variant: int,p: Vector2,height: float,time: float,tint: Color = Color.WHITE,dry: float = 0.0) -> void:
+	var index = posmod(int(time*7),4)+posmod(variant,3)*4
+	var tex = cell_texture("survivors",index)
+	var line = (float(data().survivor_anchors[index].waterline) - 26.0 + sin(time*4.1+variant)*8.0) / 320.0
+	immersed(c,tex,p,Vector2.ONE*height,Rect2(Vector2.ZERO,tex.get_size()),1.0-line,sin(time*2.9+variant)*0.052,tint,dry)
 
 static func fugitive(c,variant: int,p: Vector2,height: float,time: float,tint: Color = Color.WHITE) -> void:
 	var index = posmod(variant,3)*4+posmod(int(time*8),4)
 	var spec: Dictionary = data().fugitives
 	var box: Array = spec.bounds[index];var scale = height*2.05/512.0
-	var size = Vector2(512,384)*scale;var waterline = (float(box[3])-10)*scale
-	c.draw_set_transform(p,sin(time*4)*.018)
-	cel(c,"fugitives",index,Rect2(-size.x*.5,-waterline,size.x,size.y),tint)
-	c.draw_set_transform(Vector2.ZERO)
+	var tex = cell_texture("fugitives",index)
+	var size = Vector2(512,384)*scale
+	immersed(c,tex,p,size,Rect2(Vector2.ZERO,tex.get_size()),1.0-(float(box[3])-18.0)/384.0,sin(time*4)*.018,tint)
 
 static func captive(c,variant: int,p: Vector2,height: float,progress: float,tint: Color = Color.WHITE) -> void:
 	var index = posmod(variant,2)*4+clampi(int(progress*4),0,3)
@@ -98,18 +114,17 @@ static func runner_new(c,variant: int,foot: Vector2,height: float,time: float,ti
 	cel(c,id,index,Rect2(-size.x*.5,-anchor_y,size.x,size.y),tint)
 	c.draw_set_transform(Vector2.ZERO)
 
-static func flood_new(c,point: Vector2,height: float,time: float) -> void:
+static func flood_new(c,point: Vector2,height: float,time: float,opacity: float = 1.0) -> void:
 	# Each frame is a standalone GPU texture: no atlas neighbor can leak or repeat.
-	var frame = fposmod(time*9,16);var index = floori(frame);var blend = smoothstep(0,1,frame-index)
+	var index = posmod(int(time*9),16)
 	var width = height*.65;var base = point-Vector2(width,height)
-	for layer in range(1):
-		var tex = cell_texture("flood",index)
-		var alpha = 1.0
-		var uv = PackedVector2Array([Vector2(0,1),Vector2(0,0)]);var points = PackedVector2Array([base+Vector2(0,height),base])
-		for row in range(33):
-			var v = float(row)/32;var flow = (sin(v*15+time*5)*4+sin(v*27-time*7)*2)*sin(v*PI)*minf(1,height/120.0)
-			points.append(base+Vector2(width+flow,v*height));uv.append(Vector2(.999,v))
-		c.draw_polygon(points,PackedColorArray([Color(1,1,1,alpha)]),uv,tex)
+	var tex = cell_texture("flood",index)
+	var uv = PackedVector2Array([Vector2(0,1),Vector2(0,0)])
+	var points = PackedVector2Array([base+Vector2(0,height),base])
+	for row in range(33):
+		var v = float(row)/32;var flow = (sin(v*15+time*5)*4+sin(v*27-time*7)*2)*sin(v*PI)*minf(1,height/120.0)
+		points.append(base+Vector2(width+flow,v*height));uv.append(Vector2(.999,v))
+	c.draw_polygon(points,PackedColorArray([Color(1,1,1,opacity)]),uv,tex)
 
 static func texture(id: String) -> Texture2D:
 	if not textures.has(id):

@@ -13,6 +13,25 @@ func fresh(count: int = 6):
 	check(r.sewer.phase=="ride","boarding and connected entrance finish")
 	r.sewer.objects.clear();r.sewer.next_encounter = 1e6;r.sewer.life.next_scene = 1e6;r.sewer.life.people.clear();r.events.clear();r.hit_grace = 0
 	return r
+
+func high_row(jump: bool) -> Dictionary:
+	var r = fresh()
+	var s = r.sewer
+	s.spawn(r,"rubble")
+	s.next_encounter = 1e6
+	var wreck: Dictionary = s.objects[0]
+	var jumped_at = -1
+	var in_air = 0
+	for i in range(260):
+		if jump and jumped_at<0 and (wreck.x-s.boats[0].x)/s.scroll_speed(r)<=0.53:
+			r.jump()
+			jumped_at = i
+		r.hit_grace = 1.0
+		r.advance(DT,jumped_at>=0 and i-jumped_at<12)
+		for event in r.drain_events():
+			if event.type=="coin" and event.get("sewer_airborne",false): in_air += 1
+	return {"coins":r.coins,"airborne":in_air}
+
 func run() -> void:
 	check(not MonsterCatalog.POWERS.any(func(p):return p.kind==9),"sewer is absent from the power shop")
 	check(not MonsterCatalog.POWER_UPGRADES.any(func(p):return p.id=="sewer_time"),"event duration is not a bought power upgrade")
@@ -62,6 +81,9 @@ func run() -> void:
 			sample.advance(DT,held and i<12);top = minf(top,float(sample.sewer.boats[0].y))
 		heights.append(bottom-top)
 	check(float(heights[1])>float(heights[0])+12,"holding truly changes the leader's jump as well as the followers")
+	var jumped = high_row(true)
+	check(jumped.coins==5 and jumped.airborne==5,"the authored high arc yields all five coins on a timed jump")
+	check(high_row(false).coins==0,"the same high coin arc stays above an unjumping convoy")
 	for kind in ["barrel","rubble","rotor"]:
 		for count in [2,6,8,10]:
 			for lead in ([.50,.55,.60] if kind=="rubble" else [.40,.45,.50]):
@@ -96,6 +118,13 @@ func run() -> void:
 	check(s.objects.any(func(e):return e.kind=="rescue" and e.get("from_catwalk",false)),"falling background worker becomes the same rescue in the water")
 	for i in range(170): r.advance(DT,false)
 	check(s.captured==1 and r.souls==1 and r.active_count()==7,"background rescue grants exactly one real member and soul")
+	r = fresh(6);s = r.sewer
+	var walker = {"x":0.0,"age":0.0,"variant":0,"fall":false,"drops":false,"taken":false}
+	s.life.people.append(walker)
+	var gallery_before = r.world_px*s.GALLERY_PARALLAX
+	for i in range(18): r.advance(DT,false)
+	check(walker.x>0.0 and is_equal_approx(walker.x+r.world_px*s.GALLERY_PARALLAX-gallery_before,166.0*18*DT),
+		"catwalk runners advance with their facing on the same moving floor")
 	r = fresh(6);s = r.sewer;var e = s.add_object("collapse",s.boats[0].x+s.scroll_speed(r)*1.85,s.WATER-370,{"warning":1.0,"landed":false})
 	for i in range(60): r.advance(DT,false)
 	check(not e.landed and r.losses==0,"submerged spike gives a real warning before emerging")

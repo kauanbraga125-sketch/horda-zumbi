@@ -1,5 +1,5 @@
 {
-  "version": "0.10.51",
+  "version": "0.10.52",
   "class_count": 55,
   "files": [
     {
@@ -204,13 +204,13 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 125401,
-      "sha256": "be9c4c62760507c18f46e6915d472995fbd56a2fa63bca3b8caeb4cede113606"
+      "bytes": 126571,
+      "sha256": "adcee1f63570805373ff637dfcd8a6d3d376d15d7fc171b44ca8fbe283ed71ff"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
-      "bytes": 18217,
-      "sha256": "46841777268fc85716240b54f95b3176dd864f89bd533642fd757edfbe325ba3"
+      "bytes": 19692,
+      "sha256": "7913de6356eb29859a232735cc94c466ddd58bf0ec2c07ebe4ab9dcec797667e"
     },
     {
       "path": "res://scripts/grave_mud.gdshader",
@@ -349,18 +349,18 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 24893,
-      "sha256": "9a3ab376f5abfbbadece6ce5a1a4bab37306c91ea413ff0f19fa1f8524a971e3"
+      "bytes": 31013,
+      "sha256": "f1cf7b552bb222575cdf76a055d6339b7f446ede6daaba697ea0a61b9d8f14b0"
     },
     {
       "path": "res://scripts/sewer_art.gd",
-      "bytes": 8061,
-      "sha256": "fdd2acfd5e58bf7c8c7bf38f62b656f4130783e898905963e924bd7bfe1ef71b"
+      "bytes": 9146,
+      "sha256": "29cf9280cc9498f498f3feeb6ffe1330e681d576e5cb4843c43551185cb01ea7"
     },
     {
       "path": "res://scripts/sewer_bridge.gdshader",
-      "bytes": 7360,
-      "sha256": "a0180588f4939691e81dcbfeb6592c1d65d014ff049cead116f3b5adcbd2b7f4"
+      "bytes": 7933,
+      "sha256": "4d63b504b33b8bdb45b16de9e00abdcefcc359b508b791913559cfa655666685"
     },
     {
       "path": "res://scripts/sewer_event.gd",
@@ -369,33 +369,33 @@
     },
     {
       "path": "res://scripts/sewer_life.gd",
-      "bytes": 2497,
-      "sha256": "ac95dd60664242c5c9b54cb2179ea6e0886bf2c02ea78d7403ffdb83594924c5"
+      "bytes": 3023,
+      "sha256": "0bc0b312d55a6943fbc15e9b297fe27350c74560165d29563b7923485003ac14"
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 10068,
-      "sha256": "396e3ba9e3111f0a1bd7eb2a9052a55060db828cbd06e00607c1bb4aab2a89bd"
+      "bytes": 12302,
+      "sha256": "adad12ca1f9280c8dd2c272e81fd82ad4ce847bb9049e67de13de969342e1e31"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
-      "bytes": 8325,
-      "sha256": "ba60a43da7723b4920277929fbe1f4196cfc4b7933070a4d1da1917466852901"
+      "bytes": 9189,
+      "sha256": "6aa1da7b54bc98ba10cee085de1ffb1feddf9f1dd53d1a901ef6c5e87c1e43ea"
     },
     {
       "path": "res://scripts/sewer_shaft.gd",
-      "bytes": 4540,
-      "sha256": "f85dfab85776d3da00eecefb2febefb451dcf335a0a287d338c47cfb662ab60f"
+      "bytes": 4819,
+      "sha256": "382dc5f39e36665a18aca64da191260fe1583d392f35de49b6185e0d4e3c51c7"
     },
     {
       "path": "res://scripts/sewer_visual.gd",
-      "bytes": 3064,
-      "sha256": "1a9d3ef1013869f03456bf152684b05f45e28f92514d4e2dec658b441391820c"
+      "bytes": 3402,
+      "sha256": "98e79c4f70eafe01b03e219ad1877212ac48b90abc0045abe338e35ae7fa9dfd"
     },
     {
       "path": "res://scripts/sewer_water_fx.gd",
-      "bytes": 6968,
-      "sha256": "09fd2e51c85e6b8cbc3c9b557e7fbc172a5675f60f2210adb23f21408f1068b9"
+      "bytes": 7513,
+      "sha256": "e882c7821be3d66dc9b08914ba2879f7e734e4bd28b4d0684c163837239f1140"
     },
     {
       "path": "res://scripts/skeleton_approved_sprite.gd",
@@ -459,8 +459,8 @@
     },
     {
       "path": "res://scripts/terrain_art.gd",
-      "bytes": 6048,
-      "sha256": "c3a285947c85b52249cba8083ca299c0b6f62cc628e724f9425d0932e70435cb"
+      "bytes": 6157,
+      "sha256": "9183fbee125d71e260ce2ee6578eeb2a899cc651b3856a10c6bd7f9f9a2fa432"
     },
     {
       "path": "res://scripts/traffic.gd",

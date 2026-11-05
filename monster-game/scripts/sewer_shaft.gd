@@ -40,7 +40,7 @@ func configure(g,s) -> void:
 	mat.set_shader_parameter("gallery_offset",p.gallery_offset)
 	mat.set_shader_parameter("gallery_width",sewer.get_width()*GALLERY_HEIGHT/sewer.get_height())
 	mat.set_shader_parameter("gallery_height",GALLERY_HEIGHT)
-	mat.set_shader_parameter("scroll_x",g.runner.world_px*.28)
+	mat.set_shader_parameter("scroll_x",g.runner.world_px*s.GALLERY_PARALLAX)
 	mat.set_shader_parameter("soil_scroll_x",g.runner.world_px)
 	mat.set_shader_parameter("throat_depth",throat_depth)
 	mat.set_shader_parameter("effect_time",g.frozen_world_time if g.screen in ["pause","results","revive"] else g.ui_time)
@@ -48,7 +48,11 @@ func configure(g,s) -> void:
 	mat.set_shader_parameter("water_scroll",s.scroll)
 	mat.set_shader_parameter("shore_edge",p.edge)
 	mat.set_shader_parameter("opening_mask",not s.active or s.phase=="entry")
-	mat.set_shader_parameter("exit_mode",s.active and s.phase=="exit")
+	var exiting: bool = s.active and s.phase=="exit"
+	mat.set_shader_parameter("exit_mode",exiting)
+	mat.set_shader_parameter("exit_opening",s.exit_opening() if exiting else 0.0)
+	mat.set_shader_parameter("exit_clear",s.exit_clear() if exiting else 0.0)
+	mat.set_shader_parameter("exit_bank",s.exit_bank(g.runner) if exiting else 0.0)
 	g.sewer_background_canvas.queue_redraw()
 
 func catwalk_y(g,s) -> float:

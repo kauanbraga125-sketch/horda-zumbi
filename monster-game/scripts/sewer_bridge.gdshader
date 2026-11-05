@@ -17,6 +17,9 @@ uniform float water_scroll = 0.0;
 uniform float shore_edge = 800.0;
 uniform bool opening_mask = false;
 uniform bool exit_mode = false;
+uniform float exit_opening = 0.0;
+uniform float exit_clear = 0.0;
+uniform float exit_bank = 0.0;
 varying vec2 scene_position;
 
 float hash21(vec2 p) {
@@ -63,16 +66,17 @@ void fragment() {
 	float water_depth = (gallery_v - 0.708) * gallery_height;
 	if (water_depth > 0.0) {
 		float near_water = smoothstep(0.0, 280.0, water_depth);
-		float painted = min(water_depth, gallery_height * 0.22);
-		float extension = water_depth - painted;
-		float v = 0.708 + painted / gallery_height
-			+ 0.067 * (1.0 - exp(-extension / (gallery_height * 0.067)));
+		float painted = 0.708 + water_depth / gallery_height;
+		float extension = max(0.0, painted - 0.86);
+		float v = min(painted, 0.86) + 0.13 - abs(mod(extension, 0.26) - 0.13);
 		float current = sin(water_depth * 0.128 - water_clock * 3.4 + sin(x * 0.009) * 1.8)
 			+ 0.46 * sin(x * 0.027 + water_depth * 0.071 + water_clock * 4.7 + water_scroll * 0.015);
-		float shear = current * (0.85 + near_water * 4.2);
+		float deep = smoothstep(175.0, 390.0, water_depth);
+		float shear = current * (0.85 + near_water * 4.2) + deep * sin(water_depth * 0.023) * 28.0;
 		vec4 water = joined_sample(sewer_texture, x + shear, v + current * 0.0018,
 			gallery_width, 140.0);
-		water.rgb *= mix(vec3(1.0), vec3(0.88, 0.96, 1.0), near_water);
+		water.rgb *= mix(vec3(1.0), vec3(0.88, 0.96, 1.0), near_water)
+			* mix(vec3(1.0), vec3(0.60, 0.80, 0.83), deep);
 		sewer = mix(sewer, water, smoothstep(0.0, 44.0, water_depth));
 	}
 	// The opening is air, not a stone panel at the height of the road. The
@@ -102,7 +106,7 @@ void fragment() {
 		color = (shadow * shade + color * opacity * (1.0 - shade)) / max(combined, 0.0001);
 		opacity = combined;
 	}
-	if (!exit_mode && depth > 0.0 && depth < gallery_offset + 115.0) {
+	if (depth > 0.0 && depth < gallery_offset + 115.0) {
 		vec2 p = vec2((scene_position.x + scroll_x * 0.22) * 0.0042, depth * 0.010);
 		float drift = effect_time * 0.055;
 		float curl = soft_noise(p * 0.48 + vec2(drift * 0.36, 7.3));
@@ -140,8 +144,13 @@ void fragment() {
 		opacity *= smoothstep(chips - retreat - 26.0, chips - retreat * 0.70 + 8.0, from_edge);
 	}
 	if (exit_mode) {
-		opacity = smoothstep(gallery_offset - 40.0 + irregularity * 0.4,
-			gallery_offset + 65.0 + irregularity * 0.4, depth);
+		float opening = mix(-0.22, 0.73, exit_opening) + irregularity * 0.0012;
+		float beyond = smoothstep(exit_bank - 320.0 + irregularity, exit_bank + 12.0 + irregularity, scene_position.x);
+		float air = (1.0 - smoothstep(opening - 0.08, opening + 0.10, gallery_v))
+			* (1.0 - smoothstep(0.54, 0.71, gallery_v)) * smoothstep(0.0, 0.14, exit_opening) * beyond;
+		float reveal = max(air, exit_clear);
+		color = mix(color, vec3(0.19, 0.16, 0.28), reveal * (1.0 - reveal) * 1.15);
+		opacity *= 1.0 - reveal;
 	}
 	COLOR = vec4(color, opacity) * COLOR;
 }

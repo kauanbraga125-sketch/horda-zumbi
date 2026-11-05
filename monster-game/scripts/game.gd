@@ -79,6 +79,7 @@ var settings_from = "home"
 var slider_channel = ""
 var camera_focus = 0.0
 var camera_ground_shift = 0.0
+var camera_sewer_pan = 0.0
 var frozen_world_time = 0.0
 var foreground_canvas: Node2D
 var sewer_background_canvas: Node2D
@@ -249,7 +250,7 @@ func start_run() -> void :
 	passenger_captures.clear()
 	fly_visual_states.clear()
 	fly_panic_until = -1.0
-	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0
+	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;camera_sewer_pan = 0
 	revive_used = false;revive_offered = false
 	run_settled = false;run_report = {};data.active_souls = 0
 	run_mission_report = {"points":0,"coins":0,"bonuses":0,"eyes":0}
@@ -290,7 +291,7 @@ func consume_run_events() -> void :
 				if "COMPORTA" in str(e.title) or "CANO" in str(e.title): sound.play("sewer_gate",-20)
 			"sewer_hit": sound.play("sewer_splash",-15);shake = 3
 			"sewer_blast": effects.explosion(point);sound.play("explosion",-15);shake = 4
-			"sewer_collapse": effects.dust(point,10,1.3);sound.play("heavy_land",-20);shake = 2
+			"sewer_collapse": sound.play("sewer_gate",-20)
 			"sewer_fugitives": runner.sewer.visual.notify("JET-SKI ALCANÇADO • +%d ALMAS" % int(e.count))
 			"sewer_exit": sound.play("space_boost",-14);runner.sewer.visual.notify("RAMPA À FRENTE • DE VOLTA À CORRIDA!")
 			"sewer_land":
@@ -1709,27 +1710,42 @@ func draw_credits() -> void :
 	for i in range(lines.size()): wrapped(lines[i], Vector2(94, 190 + i * 51), 1092, 17, CREAM, 2)
 	button(Rect2(69, 641, 240, 61), "VOLTAR", "back", Color("513c67"), -2, 23)
 
+func pan_sewer_camera(left: float,right: float,dt: float) -> void:
+	var frame = full_rect()
+	var projected_left = CAMERA_ANCHOR.x + (left-runner.ANCHOR)*camera_zoom
+	var projected_right = CAMERA_ANCHOR.x + (right-runner.ANCHOR)*camera_zoom
+	var minimum = frame.position.x+74.0-projected_left
+	var maximum = frame.end.x-74.0-projected_right
+	var target = clampf(0.0,minf(minimum,maximum),maxf(minimum,maximum))
+	camera_sewer_pan = lerpf(camera_sewer_pan,target,1-exp(-dt*6.0))
+	camera_sewer_pan = clampf(camera_sewer_pan,minimum-66.0,maximum+66.0)
+
 func update_camera(dt: float) -> void :
-	if runner.sewer.active:
+	if runner.sewer.active and not runner.sewer.boats.is_empty():
 		var fleet = runner.sewer.fleet_size()
 		var safe_top = -layout_origin.y+155.0;var safe_bottom = 720.0+layout_origin.y-30.0
 		var fleet_zoom = minf(1.0,minf((full_rect().size.x-180.0)/fleet.x,(safe_bottom-safe_top)/fleet.y))
-		var required_right = runner.sewer.entry_min_lead+runner.sewer.HULL_HALF_WIDTH
-		if required_right>runner.ANCHOR: fleet_zoom = minf(fleet_zoom,(full_rect().end.x-CAMERA_ANCHOR.x-24)/maxf(1,required_right-runner.ANCHOR))
+		var required_right = runner.sewer.boat_x(runner,0)+runner.sewer.HULL_HALF_WIDTH
+		var required_left = runner.sewer.boat_x(runner,runner.sewer.boats.size()-1)-runner.sewer.HULL_HALF_WIDTH
 		var sewer_zoom = fleet_zoom
 		if runner.sewer.phase=="entry":
 			if runner.members.is_empty(): return
 			var falling = maxf(0,runner.sewer.fall_age(runner))
 			var all_onboard = runner.members.all(func(m):return bool(m.get("sewer_onboard",false)))
+			var anchored_zoom = fleet_zoom
+			if required_right>runner.ANCHOR:
+				anchored_zoom = minf(anchored_zoom,(full_rect().end.x-CAMERA_ANCHOR.x-24)/(required_right-runner.ANCHOR))
+			if required_left<runner.ANCHOR:
+				anchored_zoom = minf(anchored_zoom,(CAMERA_ANCHOR.x-full_rect().position.x-24)/(runner.ANCHOR-required_left))
 			sewer_zoom = lerpf(CAMERA_BASE_ZOOM,.82,smoothstep(.10,1.75,falling))
 			sewer_zoom = lerpf(sewer_zoom,1.0,smoothstep(3.85,runner.sewer.ENTRY_SECONDS,runner.sewer.phase_age))
-			sewer_zoom = minf(sewer_zoom,lerpf(CAMERA_BASE_ZOOM,fleet_zoom,smoothstep(.15,1.5,falling)))
+			sewer_zoom = minf(sewer_zoom,lerpf(CAMERA_BASE_ZOOM,anchored_zoom,smoothstep(.15,1.5,falling)))
 			if all_onboard: sewer_zoom = fleet_zoom
 			var highest = INF;var lowest = -INF
 			for member in runner.members:
 				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+8)
 			var fit = (safe_bottom-safe_top)/maxf(1,lowest-highest)
-			sewer_zoom = maxf(.52,minf(sewer_zoom,fit))
+			sewer_zoom = minf(sewer_zoom,fit)
 			camera_zoom = minf(fit,lerpf(camera_zoom,sewer_zoom,1-exp(-dt*6.0)))
 			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
 			var upper = safe_bottom-(CAMERA_ANCHOR.y+(lowest-runner.FLOOR)*camera_zoom)
@@ -1739,6 +1755,7 @@ func update_camera(dt: float) -> void :
 				shift = minf(shift,(runner.FLOOR-gallery_top)*camera_zoom-CAMERA_ANCHOR.y-layout_origin.y)
 			camera_ground_shift = lerpf(camera_ground_shift,shift,1-exp(-dt*9.0))
 			camera_ground_shift = clampf(camera_ground_shift,minf(lower,upper),maxf(lower,upper))
+			if all_onboard: pan_sewer_camera(required_left,required_right,dt)
 			return
 		var target_shift = 0.0
 		if runner.sewer.phase=="exit":
@@ -1748,13 +1765,13 @@ func update_camera(dt: float) -> void :
 				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+24)
 				leftmost = minf(leftmost,float(member.x)-68);rightmost = maxf(rightmost,float(member.x)+90)
 			var fit = (safe_bottom-safe_top)/maxf(1,lowest-highest)
-			if leftmost<runner.ANCHOR: fit = minf(fit,(CAMERA_ANCHOR.x-full_rect().position.x-18)/maxf(1,runner.ANCHOR-leftmost))
-			if rightmost>runner.ANCHOR: fit = minf(fit,(full_rect().end.x-CAMERA_ANCHOR.x-18)/maxf(1,rightmost-runner.ANCHOR))
+			fit = minf(fit,(full_rect().size.x-150.0)/maxf(1.0,rightmost-leftmost))
 			camera_zoom = minf(fit,lerpf(camera_zoom,minf(sewer_zoom,fit),1-exp(-dt*6.0)))
 			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
 			var upper = safe_bottom-(CAMERA_ANCHOR.y+(lowest-runner.FLOOR)*camera_zoom)
 			target_shift = clampf(0,minf(lower,upper),upper)
 			camera_ground_shift = clampf(lerpf(camera_ground_shift,target_shift,1-exp(-dt*9.0)),minf(lower,upper),maxf(lower,upper))
+			pan_sewer_camera(leftmost,rightmost,dt)
 			return
 		if runner.sewer.phase=="ride":
 			var low = runner.sewer.WATER-24+(runner.sewer.lanes()-1)*runner.sewer.LANE_SPACE+runner.sewer.HULL_HEIGHT*.5
@@ -1764,7 +1781,11 @@ func update_camera(dt: float) -> void :
 			target_shift = clampf(0,minf(lower,upper),upper)
 			var gallery_top = runner.sewer.visual.shaft.geometry(self,runner.sewer).gallery_top+30.0
 			target_shift = minf(target_shift,(runner.FLOOR-gallery_top)*camera_zoom-CAMERA_ANCHOR.y-layout_origin.y)
-		camera_zoom = move_toward(camera_zoom,sewer_zoom,dt*1.1);camera_ground_shift = move_toward(camera_ground_shift,target_shift,dt*600);return
+		camera_zoom = minf(move_toward(camera_zoom,sewer_zoom,dt*1.1),(full_rect().size.x-40.0)/fleet.x)
+		camera_ground_shift = move_toward(camera_ground_shift,target_shift,dt*600)
+		pan_sewer_camera(required_left,required_right,dt)
+		return
+	camera_sewer_pan = move_toward(camera_sewer_pan,0.0,dt*290.0)
 	if runner.space.active:
 		var s = runner.space
 		var transition = s.visual.transition_progress(s)
@@ -1806,7 +1827,8 @@ func configure_layout() -> void :
 			market_canvas.position = - grid.position
 	var zoom = prepare_ui.camera_zoom(self) if screen == "prepare" else camera_zoom
 	world_canvas.scale = Vector2.ONE * zoom
-	world_canvas.position = CAMERA_ANCHOR + Vector2(0, 0 if screen == "prepare" else camera_ground_shift) - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * zoom
+	var camera_offset = Vector2.ZERO if screen == "prepare" else Vector2(camera_sewer_pan,camera_ground_shift)
+	world_canvas.position = CAMERA_ANCHOR + camera_offset - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * zoom
 	world_canvas.visible = screen in ["run", "pause", "results", "revive", "prepare"]
 	scenery.view_left = ( - layout_origin.x - world_canvas.position.x) / zoom
 	scenery.view_right = (1280 + layout_origin.x - world_canvas.position.x) / zoom
@@ -1822,7 +1844,10 @@ func configure_layout() -> void :
 		sewer_street_clip.size = Vector2(scenery.view_right-scenery.view_left,maxf(0,bottom-scenery.view_top))
 		sewer_street_clip.visible = visible_street and sewer_street_clip.size.y>0
 		sewer_street_canvas.visible = visible_street
-		sewer_street_canvas.position = -sewer_street_clip.position+Vector2(0,-drop*.40)
+		var street_shift = -drop*.40
+		if runner.sewer.active and runner.sewer.phase=="exit":
+			street_shift = runner.sewer.exit_rise(runner)-runner.sewer.EXIT_ELEVATION
+		sewer_street_canvas.position = -sewer_street_clip.position+Vector2(0,street_shift)
 		sewer_street_canvas.modulate.a = 1.0
 		sewer_street_canvas.queue_redraw()
 	runner.sewer.visual.shaft.configure(self,runner.sewer)
@@ -1846,11 +1871,10 @@ func paint_sewer_street() -> void:
 	if not runner.sewer.encounter.pending and (not runner.sewer.active or runner.sewer.phase not in ["entry","exit"]): return
 	var target = paint_target;paint_target = sewer_street_canvas
 	var top = scenery.view_top;var bottom = scenery.view_bottom
-	var drop: float = runner.sewer.entry_drop()*.40 if runner.sewer.active and runner.sewer.phase=="entry" else 0.0
-	scenery.view_top += drop;scenery.view_bottom += drop
+	var street_shift = sewer_street_canvas.position.y+sewer_street_clip.position.y
+	scenery.view_top -= street_shift;scenery.view_bottom -= street_shift
 	scenery.paint(paint_target,runner,frozen_world_time if screen=="pause" else ui_time)
 	scenery.view_top = top;scenery.view_bottom = bottom
-	if runner.sewer.phase=="exit": ground(runner.world_px)
 	paint_target = target
 
 func paint_world() -> void :
@@ -2058,7 +2082,7 @@ func start_lab(kind: String) -> void :
 		runner.developer_kind = "";runner.power_owned = [3,4];runner.active_cosmetics = data.get("active_cosmetics",[]).duplicate()
 		for i in range(runner.members.size()): runner.members[i].kind = 1 if i%3==1 else 0
 		runner.entities.clear();runner.events.clear();runner.sewer.encounter.offer(runner,true)
-	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;perfect_left = 0
+	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;camera_sewer_pan = 0;perfect_left = 0
 	effects.clear();ui_effects.clear();scenery.reset();end_delay = -1
 	last_save = 0;last_stats.clear();run_challenges.clear();trail_tick = 0
 	change_screen("run")

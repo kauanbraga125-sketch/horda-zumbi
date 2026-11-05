@@ -13,6 +13,9 @@ func run() -> void:
 	var first_frame = -1
 	var frame_count = 0
 	var jump_inputs = 0
+	var airborne_coins = 0
+	var first_jump_coins = 0
+	var finish_frame = -1
 	var milestones: Array = []
 	var s = game.runner.sewer;var acted: Dictionary = {};var held_until = -1.0;var missed_barrel = -1;var duck_inputs = 0;var contacts: Array = []
 	const SIMULATION_FRAMES = 1500
@@ -36,22 +39,26 @@ func run() -> void:
 			game.runner.advance(STEP,game.jump_held);game.update_camera(STEP);game.configure_layout()
 			for event in game.runner.events:
 				if event.type=="sewer_hit": contacts.append({"time":s.ride_age,"cause":event.get("cause",""),"members":game.runner.active_count()})
-				if s.active and event.type in ["sewer_exit","sewer_blast","sewer_hit","soul"]:
+				if event.type=="coin" and bool(event.get("sewer_airborne",false)):
+					airborne_coins += 1
+					if s.ride_age<3.3: first_jump_coins += 1
+				if s.active and event.type in ["sewer_exit","sewer_blast","sewer_hit","sewer_collapse","soul","perfect"]:
 					milestones.append({"frame":frame,"action":event.type})
 			game.consume_run_events();game.update_run_visuals(STEP);game.ui_time += STEP
 			game.toast_left = maxf(0,game.toast_left-STEP);game.perfect_left = maxf(0,game.perfect_left-STEP)
 		var water_visible = s.phase == "entry" and game.scenery.view_bottom >= s.WATER + s.entry_depth() - 57.0
 		if first_frame < 0 and (not water_only or (s.active and (water_visible or s.phase == "ride"))): first_frame = frame
-		if first_frame >= 0 and (not water_only or (s.active and (s.phase != "exit" or s.phase_age < 2.7))):
+		if finish_frame < 0 and s.completed > 0: finish_frame = frame
+		if first_frame >= 0 and (not water_only or s.active or (finish_frame>=0 and frame<finish_frame+30)):
 			game.configure_layout();game.queue_redraw();game.world_canvas.queue_redraw();game.foreground_canvas.queue_redraw()
 			await process_frame;await RenderingServer.frame_post_draw
 			assert(root.get_texture().get_image().save_jpg(folder+"/frame-%04d.jpg" % frame_count,.94)==OK)
 			frame_count += 1
 		if frame%180==0: print("V145_PREVIEW_FRAME ",frame)
-	var scope = "water gameplay from the approach to the first landing through the exit ramp" if water_only else "full event"
-	var report = {"scope":scope,"version":ProjectSettings.get_setting("application/config/version"),"frames":frame_count,"simulation_frames":SIMULATION_FRAMES,"first_frame":first_frame,"run_seed":game.runner.run_seed,"fps":30,"souls":game.runner.souls,"members":game.runner.active_count(),"losses":game.runner.losses,"captures":s.captured,"fugitive_variants":s.history.filter(func(h):return h.kind=="fugitive"),"completed":s.completed,"safe_passes":s.safe_jumps,"jump_inputs":jump_inputs,"duck_inputs":duck_inputs,"controlled_obstacles":acted.size(),"encounters":s.history,"contacts":contacts,"milestones":milestones,"real_touch_inputs":true,"deliberately_missed_barrel":missed_barrel>=0,"dock_arrival":s.completed==1,"physical_device_tested":false}
+	var scope = "water gameplay from boarding through the return to the street" if water_only else "full event"
+	var report = {"scope":scope,"version":ProjectSettings.get_setting("application/config/version"),"frames":frame_count,"simulation_frames":SIMULATION_FRAMES,"first_frame":first_frame,"finish_frame":finish_frame,"run_seed":game.runner.run_seed,"fps":30,"souls":game.runner.souls,"members":game.runner.active_count(),"losses":game.runner.losses,"captures":s.captured,"fugitive_variants":s.history.filter(func(h):return h.kind=="fugitive"),"completed":s.completed,"safe_passes":s.safe_jumps,"jump_inputs":jump_inputs,"duck_inputs":duck_inputs,"airborne_coins":airborne_coins,"first_jump_coins":first_jump_coins,"controlled_obstacles":acted.size(),"encounters":s.history,"contacts":contacts,"milestones":milestones,"real_touch_inputs":true,"deliberately_missed_barrel":missed_barrel>=0,"dock_arrival":s.completed==1,"physical_device_tested":false}
 	var file = FileAccess.open(folder+"/replay.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  "));file.close()
-	assert(frame_count>0 and s.completed==1 and not s.active and jump_inputs>=2 and duck_inputs>=2 and not game.runner.dead and game.runner.active_count()>0)
+	assert(frame_count>0 and s.completed==1 and not s.active and jump_inputs>=2 and duck_inputs>=2 and first_jump_coins==5 and not game.runner.dead and game.runner.active_count()>0)
 	game.set_process(false);game.queue_free();game = null
 	for i in range(8): await process_frame
 	preload("res://scripts/bird_art.gd").textures.clear();preload("res://scripts/sewer_art.gd").textures.clear()

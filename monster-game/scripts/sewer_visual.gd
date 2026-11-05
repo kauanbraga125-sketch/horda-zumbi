@@ -18,8 +18,11 @@ func hud(g,s) -> void:
 		title = ["GALERIA INUNDADA", "CASA DAS BOMBAS", "TETO EM COLAPSO"][clampi(int(s.ride_age / 11), 0, 2)]
 		status = "SAÍDA EM %d s" % ceili(s.left)
 	elif s.phase == "exit":
-		title = "SALTO DE SAÍDA"
-		status = "SALTANDO!"
+		title = "RAMPA À FRENTE" if s.phase_age<s.exit_first else "SALTO DE SAÍDA"
+		status = "ALINHANDO" if s.phase_age<s.exit_first else "SALTANDO!"
+		if g.runner.members.all(func(m):return m.sewer_pose=="land"):
+			title = "DE VOLTA À CORRIDA"
+			status = "POUSO"
 	else:
 		var fall_time: float = s.fall_age(g.runner)
 		if fall_time >= 0: status = "DESCENDO"
@@ -34,8 +37,12 @@ func hud(g,s) -> void:
 	g.home_menu.slab(g,pause,Color("493053"),Color("bd915b"),11,3);g.gameplay_ui.glyph(g,"pause",pause.get_center(),34,g.CREAM);g.home_menu.register(g,pause,"pause")
 	if notice_left>0:
 		g.home_menu.label(g,notice,Vector2(view.get_center().x,o.y+124),23,g.CREAM,true,view.size.x-80)
-	g.home_menu.label(g,"ONDA • %d KM/H" % roundi(s.scroll_speed(g.runner)*.12),Vector2(o.x+27,o.y+111),15,g.CORAL if s.pressure>.7 else g.MINT,false)
-	g.progress_bar(Rect2(o.x+27,o.y+118,190,8),s.pressure,g.CORAL if s.pressure>.65 else g.MINT)
+	var flood: float = s.wave_strength() if s.phase=="exit" else 1.0
+	if flood>0.005:
+		var wave_color: Color = g.CORAL if s.pressure>.7 else g.MINT
+		wave_color.a *= flood
+		g.home_menu.label(g,"ONDA • %d KM/H" % roundi(s.scroll_speed(g.runner)*.12),Vector2(o.x+27,o.y+111),15,wave_color,false)
+		g.progress_bar(Rect2(o.x+27,o.y+118,190,8),s.pressure*flood,wave_color)
 	g.home_menu.label(g,"ALMAS %d • MAIOR HORDA %d" % [g.runner.souls,g.runner.max_horde],Vector2(right-290,o.y+118),15,g.MINT,false,265)
 	if s.phase=="ride":
 		var duck = Rect2(right-233,view.end.y-(145 if g.lab_active else 91),206,65)

@@ -73,10 +73,30 @@ func run() -> void:
 		check(s.boats.all(func(b):return b.x<=s.boats[0].x+1),label+": a surviving front craft becomes the leader after a loss")
 		s.left = .001;step(STEP)
 		var previous: Dictionary = {};var escaped_view = 0;var jumps: Array = []
+		var decked: Dictionary = {}
+		var takeoff_height: Dictionary = {}
+		var climbing: Dictionary = {}
+		var crossed_below_bank = 0
+		var receding_wave = false
 		for i in range(ceili(s.EXIT_SECONDS/STEP)+3):
 			step(STEP)
+			if s.active:
+				var rise: float = s.exit_rise(r)
+				receding_wave = receding_wave or (s.wave_strength()>0.08 and s.wave_strength()<0.92)
+				for b in s.boats:
+					var flight: Dictionary = s.exit_boat(r,b)
+					var distance: float = float(b.exit_x)-s.ramp_left(r)-s.RAMP_INSET
+					if distance>=0.0 and flight.launch<0.0:
+						var bottom = Vector2(flight.p)+Vector2(0,s.HULL_WATERLINE).rotated(flight.angle)
+						if absf(bottom.y-rise-s.ramp_deck(distance))<0.05: decked[b.id] = true
+					elif flight.launch>=0.0:
+						var y = float(flight.p.y)-rise
+						if not takeoff_height.has(b.id): takeoff_height[b.id] = y
+						if flight.launch>=0.20 and flight.launch<=0.24 and takeoff_height[b.id]-y>73.0: climbing[b.id] = true
 			for m in r.members:
 				var point = Vector2(m.x,m.y)
+				if s.active and m.x>s.exit_bank(r)+8.0 and m.y>r.FLOOR+s.exit_rise(r)-s.EXIT_ELEVATION+3.0:
+					crossed_below_bank += 1
 				if previous.has(m.id):
 					var delta = point.distance_to(previous[m.id])
 					check(delta<55,label+": individual riders return without a per-frame teleport")
@@ -87,6 +107,10 @@ func run() -> void:
 			if i in [90,190,290]: await snap(label+"-exit-%03d" % i)
 			if not s.active: break
 		check(escaped_view==0,label+": the exit camera keeps the real pilots on screen")
+		check(decked.size()==r.members.size(),label+": each hull touches the same painted ramp deck")
+		check(climbing.size()==r.members.size(),label+": every pilot climbs immediately after leaving the lip")
+		check(crossed_below_bank==0,label+": riders clear the raised bank before crossing")
+		check(receding_wave,label+": the flood visibly diminishes over the approach to the ramp")
 		if not jumps.is_empty(): print("V149_JUMPS ",label," ",JSON.stringify(jumps))
 		check(not s.active and s.completed==1 and not r.dead,label+": the same living horde reaches the running ground")
 	var report = {"version":ProjectSettings.get_setting("application/config/version"),"checks":checks,"failures":failures,"measurements":measurements,"captures":shots,"physical_device_tested":false}

@@ -31,6 +31,11 @@ func ripple(canvas: Node2D, point: Vector2, width: float, clock: float, strength
 		var size = Vector2(width * (0.67 + 0.62 * phase), width * (0.11 + 0.07 * phase))
 		cel(canvas, Cel.RIPPLE, Rect2(point - size * 0.5, size), strength * opacity * 0.74)
 
+func contact(canvas: Node2D, point: Vector2, width: float, clock: float, strength: float) -> void:
+	var drift = sin(clock*3.6)*width*0.035
+	var size = Vector2(width*(0.94+0.05*sin(clock*2.7)),clampf(width*0.065,5.0,12.0))
+	cel(canvas,Cel.KEEL_FOAM,Rect2(point+Vector2(drift,-2.0)-Vector2(size.x*0.5,0),size),strength*(0.67+0.17*sin(clock*5.6)))
+
 func trail(canvas: Node2D, stern: Vector2, width: float, clock: float, strength: float) -> void:
 	var pulse = 0.5 + 0.5 * sin(clock * 7.3)
 	var size = Vector2(width * (0.94 + pulse * 0.10), width * 0.15)
@@ -52,21 +57,26 @@ func convoy(g, s) -> void:
 	var canvas: Node2D = g.paint_target
 	var entry = s.phase == "entry"
 	var exit = s.phase == "exit"
-	var rise: float = s.exit_rise(g.runner) if exit else 0.0
 	var drive: float = s.entry_launch() * 0.62 if entry else lerpf(0.62, 1.0, smoothstep(0, 0.42, s.ride_age))
 	for boat in s.boats:
-		var line: float = s.boat_waterline(boat) + rise
-		if line > g.scenery.view_bottom + 46.0 or line < g.scenery.view_top - 80.0: continue
+		var line: float = s.boat_waterline(boat)
 		var hull = Vector2(boat.x, boat.y)
-		if exit: hull = s.exit_boat(g.runner, boat).p
+		var contact_strength = 1.0
+		if exit:
+			var route: Dictionary = s.exit_boat(g.runner,boat)
+			contact_strength = float(route.water_contact)
+			if contact_strength <= 0.005: continue
+			hull = route.p
+			line = float(route.waterline)
+		if line > g.scenery.view_bottom + 46.0 or line < g.scenery.view_top - 80.0: continue
 		var lift = maxf(0, line - hull.y - s.HULL_WATERLINE)
-		var grounded = 1.0 - smoothstep(1.0, 21.0, lift)
-		var shade = 0.64 * (1.0 - smoothstep(35.0, 187.0, lift))
+		var grounded = (1.0 - smoothstep(1.0, 21.0, lift))*contact_strength
+		var shade = 0.64 * (1.0 - smoothstep(35.0, 187.0, lift))*contact_strength
 		canvas.draw_texture_rect(shadow, Rect2(hull.x - 97, line - 10, 194, 27), false, Color(0.025, 0.062, 0.076, shade))
 		var clock = s.age + float(boat.id) * 0.39
 		cel(canvas, Cel.KEEL_FOAM, Rect2(hull.x - 78, line - 1, 155, 10), grounded * 0.72)
-		var dry_for = maxf(0, s.age - float(boat.get("water_touch_at", s.age)))
-		var linger = 1.0 - smoothstep(0.025, 0.34, dry_for)
+		var dry_for = maxf(0, s.age - float(boat.get("water_touch_at", s.age))) if not exit else 0.0
+		var linger = (1.0 - smoothstep(0.025, 0.34, dry_for))*contact_strength
 		if linger <= 0.005: continue
 		var drift = s.scroll_speed(g.runner) * dry_for * 0.56
 		var stern = Vector2(hull.x - 88 - drift, line + 4)

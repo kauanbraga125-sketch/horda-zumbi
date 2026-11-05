@@ -23,14 +23,15 @@ static func pit_edge(g, edge: float, floor_y: float, right_bank: bool) -> void :
 	source.position += Vector2(94 if right_bank else 290, 118);source.size = Vector2(150, 314)
 	g.paint_target.draw_texture_rect_region(g.art.terrain_parts, Rect2(edge - (12 if right_bank else 44), floor_y - 1, 55, 115), source)
 
-static func sewer_bank_outline(left: float, edge: float, top: float, bottom: float) -> PackedVector2Array:
-	var outer_left = minf(left, edge - SEWER_BANK_INSET)
-	var outline = PackedVector2Array([Vector2(outer_left, top)])
+static func sewer_bank_outline(inside: float, edge: float, top: float, bottom: float, right_bank: bool = false) -> PackedVector2Array:
+	var direction = 1.0 if right_bank else -1.0
+	var outer = edge + direction*maxf((inside-edge)*direction,SEWER_BANK_INSET)
+	var outline = PackedVector2Array([Vector2(outer, top)])
 	for point in SEWER_BANK_PROFILE:
-		outline.append(Vector2(edge, top) + point)
+		outline.append(Vector2(edge-direction*point.x,top+point.y))
 	var end_y = maxf(bottom, top + SEWER_BANK_PROFILE[-1].y + 1)
-	outline.append(Vector2(edge + SEWER_BANK_PROFILE[-1].x, end_y))
-	outline.append(Vector2(outer_left, end_y))
+	outline.append(Vector2(edge-direction*SEWER_BANK_PROFILE[-1].x,end_y))
+	outline.append(Vector2(outer,end_y))
 	return outline
 
 static func sewer_bank_piece(canvas: Node2D, dest: Rect2, outline: PackedVector2Array, texture: Texture2D = null, source: Rect2 = Rect2()) -> void:
