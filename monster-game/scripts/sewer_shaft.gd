@@ -6,6 +6,7 @@ const GALLERY_ABOVE_WATER = 621.0
 var soil: Texture2D
 var dust: GradientTexture2D
 var throat_depth = 180.0
+var painted_view = Rect2()
 
 func reset_cover() -> void:
 	throat_depth = 180.0
@@ -19,9 +20,11 @@ func geometry(g,s) -> Dictionary:
 	return {"surface":surface,"gallery_offset":gallery,"gallery_top":surface+gallery,"edge":edge,"throat_depth":throat_depth,"street_cover":throat_depth+224.0}
 
 func configure(g,s) -> void:
-	var visible: bool = (s.active or s.encounter.pending) and g.screen in ["run","pause","results","revive"]
+	var visible: bool = (s.active or s.encounter.cutout_pending()) and g.screen in ["run","pause","results","revive"]
 	g.sewer_background_canvas.visible = visible
-	if not visible: return
+	if not visible:
+		painted_view = Rect2()
+		return
 	# Adapt the unseen throat to the initial framing, then lock it to the world
 	# as soon as the first real foot leaves the road. No phase-clock fade.
 	if not s.active or (s.phase=="entry" and s.fall_age(g.runner)<0):
@@ -53,7 +56,11 @@ func configure(g,s) -> void:
 	mat.set_shader_parameter("exit_opening",s.exit_opening() if exiting else 0.0)
 	mat.set_shader_parameter("exit_clear",s.exit_clear() if exiting else 0.0)
 	mat.set_shader_parameter("exit_bank",s.exit_bank(g.runner) if exiting else 0.0)
-	g.sewer_background_canvas.queue_redraw()
+	var view = Rect2(g.scenery.view_left, g.scenery.view_top,
+		g.scenery.view_right - g.scenery.view_left, g.scenery.view_bottom - g.scenery.view_top)
+	if view != painted_view:
+		painted_view = view
+		g.sewer_background_canvas.queue_redraw()
 
 func catwalk_y(g,s) -> float:
 	return float(geometry(g,s).gallery_top)+GALLERY_HEIGHT*.588

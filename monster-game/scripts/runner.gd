@@ -191,7 +191,7 @@ func slot_x(index: int) -> float:
 	var rank = int(members[index].get("formation_rank", index)) if index < members.size() else index
 	# Keep every column distinct even when the camera zooms in.
 	var rows = int(maxi(0, members.size() - 1) / columns)
-	var available_width = maxf(72.0 if sewer.encounter.pending else 180.0, ANCHOR - view_left - rows * 15.0 - 12.0)
+	var available_width = maxf(72.0 if sewer.encounter.cutout_pending() else 180.0, ANCHOR - view_left - rows * 15.0 - 12.0)
 	spacing = minf(spacing, available_width / float(mini(columns - 1, maxi(1, members.size() - 1))))
 	return ANCHOR - float(rank % columns) * spacing - float(int(rank / columns)) * 15.0
 
@@ -238,7 +238,7 @@ func refresh_formation() -> void:
 			var previous = order[j - 1];order[j - 1] = order[j];order[j] = previous;j -= 1
 	for i in range(order.size()): order[i].formation_rank = i
 
-func separate_members(dt: float) -> void:
+func separate_members(dt: float, blockers = null) -> void:
 	# Adjacent neighbours per lane, instead of every pair testing every vehicle.
 	var lanes: Dictionary = {}
 	var minimum = 38.0 if members.size() <= 6 else 24.0 if members.size() > 24 else 30.0
@@ -258,8 +258,8 @@ func separate_members(dt: float) -> void:
 			var overlap = required-(float(b.x)-float(a.x))
 			if overlap<=0: continue
 			var correction = minf(overlap,dt*HordeTuning.REFORM_WALK_SPEED)*.5
-			a.x = reform_x(a,float(a.x)-correction,dt)
-			b.x = reform_x(b,float(b.x)+correction,dt)
+			a.x = reform_x(a, float(a.x) - correction, dt, blockers)
+			b.x = reform_x(b, float(b.x) + correction, dt, blockers)
 
 func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(INF, INF)) -> void :
 	if dead or ( not members.is_empty() and active_count() == 0): return
@@ -355,7 +355,7 @@ func member_floor(m: Dictionary) -> Dictionary:
 			result = {"y": roof, "solid": true, "roof": int(e.id)}
 	return result
 
-func reform_x(m: Dictionary, target: float, dt: float) -> float:
+func reform_x(m: Dictionary, target: float, dt: float, blockers = null) -> float:
 
 	if float(m.get("reform_hold_until", 0.0)) > elapsed: return float(m.x)
 	var airborne = float(m.y) < float(m.get("surface_y", ground_y(float(m.x)))) - 4.0
@@ -363,7 +363,7 @@ func reform_x(m: Dictionary, target: float, dt: float) -> float:
 	if not airborne:
 		# Never slide a grounded character into a hole or through a step.
 		if not has_floor(candidate) or ground_y(candidate) < float(m.y) - 3.0: return float(m.x)
-	for e in entities:
+	for e in (entities if blockers == null else blockers):
 		if e.taken or not MonsterCatalog.VEHICLES.has(e.kind): continue
 
 		if absf(float(e.x) - float(m.x)) > float(e.width) * 0.5 + 90.0: continue
@@ -706,15 +706,18 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		if sewer.active or space.active: return
 		bonus_director.tick(self)
 	refresh_formation()
+	var blockers: Array[Dictionary] = []
+	for entity in entities:
+		if not entity.taken and MonsterCatalog.VEHICLES.has(entity.kind): blockers.append(entity)
 	var launcher_contact: Dictionary = {}
 	for i in range(members.size() - 1, -1, -1):
 		var m = members[i]
 		var previous_x = float(m.x)
 		if m.falling:
 			m.x -= step
-		else: m.x = reform_x(m, slot_x(i), dt)
+		else: m.x = reform_x(m, slot_x(i), dt, blockers)
 		var half_width = 43.0 * (1.4 if perk_kind == 2 and perk_left > 0 and int(power_levels.get("mask_size", 0)) > 0 else 1.0)
-		if not m.falling and not sewer.encounter.pending and float(m.x) + half_width < view_left - 7.0:
+		if not m.falling and not sewer.encounter.cutout_pending() and float(m.x) + half_width < view_left - 7.0:
 			remove_member(i, "camera");continue
 		var cadence = HordeZombieStride.cycle_rate(speed) if int(m.kind) == 0 and perk_left <= 0 else clampf(speed / 240.0, 1.15, 2.65)
 		m.run_phase += dt * cadence
@@ -795,24 +798,19 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			var phase = int(float(m.run_phase) * 2)
 			if phase != m.step_phase:
 				m.step_phase = phase;events.append({"type": "step", "x": m.x - 6, "y": floor_y - member_depth(i)})
-	separate_members(dt)
+	separate_members(dt, blockers)
 	if jump_buffer_until >= 0: HordeJump.resolve_buffer(self)
 	if members.is_empty(): finish();return
-	var lead = leader_index()
-	if lead < 0: return
+	if leader_index() < 0: return
 	if not launcher_contact.is_empty():
 		sky.begin(self, launcher_contact)
 		return
 	sky.pass_launcher(self)
 	for e in entities:
 		if e.taken: continue
-		if dead or members.is_empty(): break
-		lead = leader_index()
-		if lead < 0: break
-		var body = members[lead]
-		var centre = Vector2(body.x, body.y - 48)
+		if dead or active_count() == 0: break
 		if e.kind == "eye":
-			if centre.distance_to(Vector2(e.x, e.y)) < 54:
+			if leader_touches(e, 54.0):
 				e.taken = true;eyes_collected += 1;events.append({"type": "eye", "x": e.x, "y": e.y})
 			continue
 		if e.kind == "coin":
@@ -837,7 +835,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		if e.kind in ["crystal", "mask", "shield", "boost", "space_brain", "harvester", "spectral"]:
 			if e.kind == "mask" and 2 not in power_owned: continue
 			if not power_eligible(): e.taken = true;continue
-			if centre.distance_to(Vector2(e.x, e.y)) < 72:
+			if leader_touches(e, 72.0):
 				e.taken = true
 				match e.kind:
 					"harvester": grant_perk(5)
@@ -885,9 +883,16 @@ func new_coin_row(count: int) -> int:
 	return id
 
 func coin_in_reach(point: Vector2, radius: float) -> bool:
+	var radius_squared = radius * radius
 	for m in members:
-		if not m.falling and Vector2(m.x,m.y-48).distance_to(point)<radius: return true
+		if not m.falling and Vector2(m.x, m.y - 48).distance_squared_to(point) < radius_squared: return true
 	return false
+
+func leader_touches(entity: Dictionary, radius: float) -> bool:
+	var index = leader_index()
+	if index < 0: return false
+	var lead = members[index]
+	return Vector2(lead.x, lead.y - 48).distance_squared_to(Vector2(entity.x, entity.y)) < radius * radius
 
 func collect_coin_row(e: Dictionary) -> void:
 	var id = int(e.get("coin_row",-1))
@@ -936,26 +941,30 @@ func ensure_tunnels(through: float) -> void :
 		var interval = HordeTuning.tunnel_interval(HordeDirector.stage_speed(number - 1))
 		schedule_tunnel(number, float(previous.entry) + float(previous.length) + interval)
 
-func update_tunnels() -> void :
+func update_tunnels(on_journey: bool = false) -> void :
 	if not developer_kind.is_empty(): return
 	ensure_tunnels(world_px + 45000)
 	for t in tunnels:
-
-		if not bool(t.get("rewards_spawned", false)) and world_px >= float(t.entry) - 1800.0:
+		if t.completed: continue
+		var entry = float(t.entry)
+		var end = entry + float(t.length)
+		if not on_journey and world_px < end and not bool(t.get("rewards_spawned", false)) and world_px >= entry - 1800.0:
 			t.rewards_spawned = true
 			spawn_tunnel_rewards(t)
-		if not t.entered and world_px >= float(t.entry):
+		if world_px < entry: break
+		if not t.entered:
 			t.entered = true;entered_tunnels = int(t.number);t.mission_entry_losses=losses
-			events.append({"type": "tunnel_enter", "number": entered_tunnels})
-		if not t.completed and world_px >= float(t.entry) + float(t.length):
+			if not on_journey: events.append({"type": "tunnel_enter", "number": entered_tunnels})
+		if world_px >= end:
 			t.completed = true;completed_tunnels = int(t.number)
+			t.rewards_spawned = true
 			if losses==int(t.get("mission_entry_losses",losses)):
 				mission_stats.clean_tunnel_current=int(mission_stats.get("clean_tunnel_current",0))+1
 				mission_stats.clean_tunnel_streak=maxi(int(mission_stats.get("clean_tunnel_streak",0)),int(mission_stats.clean_tunnel_current))
 			else: mission_stats.clean_tunnel_current=0
-			save_generation_trace()
-			events.append({"type": "tunnel_exit", "number": completed_tunnels, "area": area()})
-			break
+			if not on_journey:
+				save_generation_trace()
+				events.append({"type": "tunnel_exit", "number": completed_tunnels, "area": area()})
 
 func spawn_tunnel_rewards(t: Dictionary) -> void :
 	if not developer_kind.is_empty(): return
@@ -968,7 +977,7 @@ func spawn_tunnel_rewards(t: Dictionary) -> void :
 		var x_base: float = start + length * (0.18 + float(lane) * 0.24)
 		for i in range(4):
 			var cx: float = x_base + float(i) * 52.0
-			add_entity("coin", cx, floor_y - 60.0 - (15.0 if i in [1, 2] else 0.0))
+			if cx > ANCHOR: add_entity("coin", cx, floor_y - 60.0 - (15.0 if i in [1, 2] else 0.0))
 
 	var recruits: int = mini(6, 2 + int(active_count() / 12))
 	var allowed: int = mini(recruits, remaining_soul_slots())
@@ -976,13 +985,14 @@ func spawn_tunnel_rewards(t: Dictionary) -> void :
 	var civil_x: float = start + length * 0.43
 	for i in range(allowed):
 		var at: float = civil_x + float(i) * 80.0
+		if at <= ANCHOR: continue
 		var person: Dictionary = add_entity("civilian", at, ground_y(at), reward_rng.randi_range(0, 2))
 		person.group = group
 
 
 	if active_count() >= 8 and remaining_soul_slots() >= 2 and reward_rng.randf() < 0.2:
 		var car_x: float = start + length * 0.77
-		add_entity("car", car_x, ground_y(car_x))
+		if car_x > ANCHOR + 180.0: add_entity("car", car_x, ground_y(car_x))
 
 func spawn_civilians(x: float, count: int, group_id: int) -> void :
 	if souls >= early_soul_limit(): return

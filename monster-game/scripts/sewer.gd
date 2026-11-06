@@ -81,11 +81,15 @@ var exit_wave_x = 0.0
 var exit_gap = 380.0
 var planned_slots: Dictionary = {}
 var entry_min_lead = 0.0
+var rider_order: Array[int] = []
+var rider_index: Dictionary = {}
 
 func reset(seed_value: int) -> void:
 	visual.shaft.reset_cover()
 	active = false;phase = "ground";age = 0;phase_age = 0;ride_age = 0;completed = 0;captured = 0;hits = 0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();random.seed = seed_value^0x536e2
+	rider_order.clear()
+	rider_index.clear()
 	life.reset();braking = 0;jump_hold_until = -1;entry_travel = 0;descent_camera = 0.0;exit_ramp_origin = LEAD+160.0;exit_speed = 705.0
 	encounter.reset(seed_value);duck_buffer = 0;clean_streak = 0;sequence.clear();rush_left = 0;layout_rows = 1;planned_slots.clear();entry_min_lead = 0.0
 	exit_first = 0;exit_last = 0;exit_wave_x = 0;exit_gap = 380.0
@@ -127,7 +131,10 @@ func begin(r,force: bool = false) -> bool:
 	return true
 
 func water_y(x: float) -> float:
-	var influence = exp(-pow((x-wave_edge())/180.0,2)) if phase=="ride" else 0.0
+	return water_surface(x, wave_edge() if phase == "ride" else INF)
+
+func water_surface(x: float, edge: float) -> float:
+	var influence = exp(-pow((x-edge)/180.0,2)) if edge != INF else 0.0
 	return WATER+sin(x*.013+age*2.4)*7+sin(x*.027-age*3.3)*3+sin(x*.044-age*9)*5*influence
 
 func boat_waterline(boat: Dictionary) -> float:
@@ -136,14 +143,25 @@ func boat_waterline(boat: Dictionary) -> float:
 	return water_y(float(boat.x)) + depth - 24.0 + HULL_WATERLINE
 
 func assign_boats(r) -> void:
-	var living: Array = []
-	for m in r.members: living.append(int(m.id))
+	var unchanged: bool = rider_order.size() == r.members.size() and boats.size() == r.members.size()
+	if unchanged:
+		for i in range(r.members.size()):
+			if rider_order[i] != int(r.members[i].id):
+				unchanged = false
+				break
+	if unchanged: return
+	rider_order.clear()
+	rider_index.clear()
+	for i in range(r.members.size()):
+		var id = int(r.members[i].id)
+		rider_order.append(id)
+		rider_index[id] = i
 	for b in boats:
-		b.ids = b.ids.filter(func(id):return id in living)
+		b.ids = b.ids.filter(func(id): return rider_index.has(id))
 	boats = boats.filter(func(b):return not b.ids.is_empty())
 	var assigned: Array = []
 	for b in boats: assigned.append_array(b.ids)
-	for id in living:
+	for id in rider_order:
 		if id in assigned: continue
 		var seat: Dictionary = {}
 		for candidate in boats:
@@ -176,6 +194,11 @@ func assign_boats(r) -> void:
 	boats.sort_custom(func(a,b):return a.slot<b.slot)
 	lane_count = 1
 	for b in boats: lane_count = maxi(lane_count,slot_lane(int(b.slot))+1)
+
+func member_index(r, id: int) -> int:
+	var index = int(rider_index.get(id, -1))
+	if index >= 0 and index < r.members.size() and int(r.members[index].id) == id: return index
+	return r.members.find_custom(func(member): return int(member.id) == id)
 
 func lanes() -> int: return lane_count
 
@@ -372,18 +395,19 @@ func tail_x() -> float:
 	return tail
 
 func wave_edge() -> float:
-	return maxf(camera_left+155.0,tail_x()) + lerpf(-50.0,25.0,pressure)
+	return wave_edge_at(tail_x())
+
+func wave_edge_at(tail: float) -> float:
+	return maxf(camera_left+155.0,tail) + lerpf(-50.0,25.0,pressure)
 
 func _world(r,dt: float) -> void:
 	var target = HordeDirector.stage_speed(r.tunnel_number())*1.10
 	r.cruise_speed = move_toward(r.cruise_speed,target,dt*90);r.speed = r.cruise_speed;r.last_effective_speed = r.speed;r.time_scale = 1
 	var travel = (exit_speed if phase=="exit" else float(r.speed))*dt
 	r.world_px += travel
+	r.update_tunnels(true)
 	r.hit_grace = maxf(0,r.hit_grace-dt)
 	for e in r.entities: e.x -= travel
-	# The next street tunnel stays ahead while the horde travels below it.
-	for tunnel in r.tunnels:
-		if not tunnel.entered: tunnel.entry += travel
 
 func advance(r,dt: float,held: bool) -> void:
 	if not active or r.dead: return
@@ -410,12 +434,17 @@ func advance(r,dt: float,held: bool) -> void:
 		ride_age += dt;left = maxf(0,left-dt);scroll += scroll_speed(r)*dt
 		next_encounter -= dt;pressure = move_toward(pressure,.28+ride_age/duration*.16,dt*.018);wave_cooldown = maxf(0,wave_cooldown-dt)
 		if next_encounter<=0 and left>3.6: spawn(r)
+	var tail = tail_x() if phase == "ride" else INF
 	for i in range(boats.size()):
 		var b = boats[i]
 		b.depth = lerpf(float(b.get("depth",0)),float(slot_lane(int(b.slot)))*LANE_SPACE,1-exp(-dt*5))
-		var floor_y = water_y(b.x)-24+float(b.depth)
+		var floor_y = water_surface(b.x, wave_edge_at(tail) if tail != INF else INF)-24+float(b.depth)
 		b.previous_x = b.x
 		b.x = lerpf(float(b.x),boat_x(r,i)+float(b.bump),1-exp(-dt*8));b.bump = move_toward(b.bump,0,dt*38);b.previous_y = b.y
+		if tail != INF:
+			var moved_tail = float(b.x) - HULL_HALF_WIDTH
+			if moved_tail < tail: tail = moved_tail
+			elif float(b.previous_x) - HULL_HALF_WIDTH == tail and moved_tail > tail: tail = tail_x()
 		b.duck_left = maxf(0,b.duck_left-dt)
 		if b.duck_at>=0 and age>=b.duck_at: b.duck_at = -1;b.duck_left = DUCK_SECONDS
 		b.duck_pose = duck_pose(b.duck_left)
@@ -463,11 +492,6 @@ func begin_exit(r) -> void:
 		b.exit_y = b.y
 	exit_first = takeoff_at(r, boats.front())
 	exit_last = takeoff_at(r, boats.back())
-	var next: Dictionary = r.current_tunnel()
-	if not next.is_empty() and not next.entered:
-		var delay = maxf(0.0,r.world_px+maxf(1650.0,r.view_right-r.ANCHOR+420.0)-float(next.entry))
-		for tunnel in r.tunnels:
-			if not tunnel.entered: tunnel.entry += delay
 	prepare_landing(r)
 	phase = "exit"
 	phase_age = 0.0
@@ -482,7 +506,7 @@ func exit_formed(r) -> bool:
 func _update_members(r,_dt: float) -> void:
 	for b in boats:
 		for seat in range(b.ids.size()):
-			var index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
+			var index = member_index(r, int(b.ids[seat]))
 			if index<0: continue
 			var m = r.members[index]
 			var local = PILOT_ANCHOR;var foot = Vector2(b.x,b.y)+local.rotated(float(b.angle))
@@ -610,7 +634,7 @@ func _update_objects(r,dt: float) -> void:
 func damage_boat(r,b: Dictionary,cause: String) -> void:
 	if r.hit_grace>0: return
 	for id in b.ids.duplicate():
-		var index = r.members.find_custom(func(m):return int(m.id)==int(id))
+		var index = member_index(r, int(id))
 		if index<0: continue
 		var before = r.losses;r.damage(index,cause)
 		r.hit_grace = maxf(r.hit_grace,.8);pressure = minf(1,pressure+.21);b.bump = -25;braking = 1;clean_streak = 0
@@ -649,6 +673,7 @@ func reserve_ground(r,end: float) -> void:
 
 func finish(r) -> void:
 	prepare_landing(r);active = false;phase = "ground";completed += 1
+	r.update_tunnels()
 	r.recovery_left = 2.5;r.recovery_speed = HordeDirector.stage_speed(r.tunnel_number());r.hit_grace = 2.2;r.cached_active = -1
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
 	for i in range(r.members.size()):

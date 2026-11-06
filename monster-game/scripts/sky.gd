@@ -22,6 +22,7 @@ var visual = preload("res://scripts/sky_visual.gd").new()
 var aircraft = Air.new()
 var captures = preload("res://scripts/sky_captures.gd").new()
 var tardis = Tardis.new()
+var hauntings = preload("res://scripts/sky_hauntings.gd").new()
 var pending = false
 var active = false
 var pad_world = 0.0
@@ -38,6 +39,7 @@ var recovering = false
 var recovery_after = 0.0
 var boost_left = 0.0
 var start_world = 0.0
+var start_tunnel = 0
 var street_ready = false
 var notice = ""
 var notice_left = 0.0
@@ -103,6 +105,7 @@ func pass_launcher(r) -> void:
 
 func begin(r, member: Dictionary) -> void:
 	pending = false
+	r.sewer.encounter.selected_sky()
 	active = true
 	age = 0.0
 	altitude = r.FLOOR - float(member.y)
@@ -118,6 +121,7 @@ func begin(r, member: Dictionary) -> void:
 	boost_left = .35
 	street_ready = false
 	start_world = r.world_px
+	start_tunnel = r.tunnel_number()
 	notice_left = 0.0
 	spacing.clear()
 	objects.clear()
@@ -140,6 +144,7 @@ func begin(r, member: Dictionary) -> void:
 	r.wave_durations.clear()
 	r.wave_started.clear()
 	course.start(r, self)
+	hauntings.reset(int(r.run_seed) ^ roundi(start_world))
 	emit_impulse(r)
 	r.flights += 1
 	r.mission_stats.space_flights = int(r.mission_stats.get("space_flights", 0)) + 1
@@ -386,15 +391,15 @@ func advance(r, dt: float) -> void:
 		impulse(r)
 	var travel = r.speed * dt
 	r.world_px += travel
+	r.update_tunnels(true)
 	course.fill(r, self)
 	for i in range(objects.size() - 1, -1, -1):
 		if object_point(r, objects[i], age).x < r.view_left - 230.0: objects.remove_at(i)
 	while not bursts.is_empty() and age - float(bursts[0].at) > .85: bursts.pop_front()
 	for e in r.entities: e.x -= travel
-	for tunnel in r.tunnels:
-		if not tunnel.entered: tunnel.entry += travel
 	velocity = maxf(-TERMINAL_FALL, velocity - GRAVITY * dt)
 	altitude = maxf(0.0, altitude + velocity * dt)
+	hauntings.advance(dt, altitude)
 	peak = maxf(peak, altitude)
 	if not street_ready and altitude > 515.0:
 		# The road is below the camera here. Build the landing stretch while it is hidden.
@@ -443,10 +448,11 @@ func finish(r) -> void:
 	objects.clear()
 	bursts.clear()
 	aircraft.shots.clear()
+	r.update_tunnels()
 	var lead_index: int = r.leader_index()
 	var lead_x = float(r.members[lead_index].x) if lead_index >= 0 else float(r.ANCHOR)
 	landing = {"at": r.elapsed, "x": r.world_px + lead_x, "force": clampf(absf(velocity) / TERMINAL_FALL, .46, 1.0)}
-	r.sewer.encounter.complete(r, "space")
+	r.sewer.encounter.complete(r)
 	r.next_pattern_world = maxf(r.next_pattern_world, r.world_px + r.generation_horizon() + 130.0)
 	for m in r.members:
 		if m.falling: continue
@@ -458,4 +464,4 @@ func finish(r) -> void:
 		m.air_jumps = 0
 		m.roof_id = -1
 		m.land_left = .20
-	r.events.append({"type": "sky_land", "peak": int(peak / 30.0), "force": landing.force})
+	r.events.append({"type": "sky_land", "peak": int(peak / 30.0), "force": landing.force, "to_tunnel": r.tunnel_number()})

@@ -322,7 +322,7 @@ func _update_objects(r,dt: float) -> void:
 func finish(r) -> void:
 	prepare_landing(r)
 	active = false;phase = "ground";left = 0;completed_flights += 1
-	r.sewer.encounter.complete(r,"space")
+	r.sewer.encounter.complete(r)
 	r.cruise_speed = HordeDirector.stage_speed(r.tunnel_number());r.speed = r.cruise_speed;r.time_scale = 1;r.last_effective_speed = r.speed
 	# All pending astronaut captures count before the party lands.
 	for e in objects:

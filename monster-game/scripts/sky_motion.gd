@@ -5,6 +5,7 @@ const FLIGHT_ART = "res://assets/art/v156/"
 const AIRCRAFT_ART = "res://assets/art/v157/"
 const ORBIT_ART = "res://assets/art/v158/"
 const SPACE_ART = "res://assets/art/v159/"
+const HAUNTING_ART = "res://assets/art/v160/"
 const Civil = preload("res://scripts/sky_civilians.gd")
 const FLAP = ["bat_up", "bat_mid", "bat_down", "bat_mid"]
 const IMPULSE = ["impulse_start", "impulse_open", "impulse_wisps"]
@@ -14,9 +15,15 @@ const AMBER = Color("ffc183")
 
 var frames: Dictionary = {}
 var elder_eyes: Array[Vector2] = []
+static var shared_frames: Dictionary = {}
+static var shared_eyes: Array[Vector2] = []
 
 func warm() -> void:
 	if not frames.is_empty(): return
+	if not shared_frames.is_empty():
+		frames = shared_frames
+		elder_eyes = shared_eyes
+		return
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string(ART + "sky_motion.json"))
 	load_frames(ART, manifest)
 	for point in manifest.eye_points: elder_eyes.append(Vector2(point[0], point[1]))
@@ -24,6 +31,9 @@ func warm() -> void:
 	load_frames(AIRCRAFT_ART, JSON.parse_string(FileAccess.get_file_as_string(AIRCRAFT_ART + "aircraft.json")))
 	load_frames(ORBIT_ART, JSON.parse_string(FileAccess.get_file_as_string(ORBIT_ART + "orbit.json")))
 	load_frames(SPACE_ART, JSON.parse_string(FileAccess.get_file_as_string(SPACE_ART + "tardis.json")))
+	load_frames(HAUNTING_ART, JSON.parse_string(FileAccess.get_file_as_string(HAUNTING_ART + "sky_v160.json")))
+	shared_frames = frames
+	shared_eyes = elder_eyes
 
 func load_frames(directory: String, manifest: Dictionary) -> void:
 	for name in manifest.atlases:

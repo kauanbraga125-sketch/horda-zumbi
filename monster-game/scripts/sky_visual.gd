@@ -29,8 +29,14 @@ func warm() -> void:
 		sprites[key] = tile
 	motion.warm()
 
+func covers_background(g, r) -> bool:
+	return Orbit.covers_background(r.sky.altitude, g.scenery.view_bottom - g.scenery.view_top)
+
 func paint_background(g, r) -> void:
 	var s = r.sky
+	if covers_background(g, r):
+		Orbit.paint(g, r, motion)
+		return
 	var blend = smoothstep(100.0, 475.0, s.altitude)
 	if blend <= 0.0:
 		return

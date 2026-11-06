@@ -285,7 +285,7 @@ func consume_run_events() -> void :
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
-			"sewer_dock": show_toast("O CHÃO CEDEU • ESGOTO ABAIXO",2.0)
+			"sewer_dock": show_toast("ENTRADA DO ESGOTO", 1.7)
 			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16)
 			"sewer_encounter":
 				runner.sewer.visual.notify(str(e.title))
@@ -336,7 +336,8 @@ func consume_run_events() -> void :
 			"sky_land":
 				effects.clear();sound.play("heavy_land", -13);shake = 6.0 * float(e.force)
 				sound.play("explosion", -24)
-				show_toast("DE VOLTA À CORRIDA • PICO %d m" % e.peak, 2.5)
+				var return_label = "TÚNEL %d" % e.to_tunnel if e.to_tunnel > runner.sky.start_tunnel else "PICO %d m" % e.peak
+				show_toast("DE VOLTA À CORRIDA • " + return_label, 2.5)
 			"space_boost": sound.play("space_boost",-13);effects.spark(point,MINT,24)
 			"space_ship_hit": sound.play("space_hit",-17);effects.spark(point,CORAL,6)
 			"space_smash": sound.play("space_smash",-12);effects.spark(point,CORAL,14);shake = 3
@@ -525,6 +526,9 @@ func open_market(tab: int = 0) -> void :
 
 func perform_action(action: String) -> void :
 	if birds_ui.action(self,action): return
+	if action == "journey_sewer" and screen == "run":
+		runner.sewer.encounter.select_sewer(runner)
+		return
 	if action=="home_sewer_test" and screen=="home": start_lab("sewer");return
 	if action=="sewer_duck" and screen=="run" and runner.sewer.active:
 		jump_touches.clear();jump_held = false;runner.sewer.request_duck(runner);return
@@ -780,6 +784,8 @@ func _input(event: InputEvent) -> void :
 		if event.keycode == KEY_SPACE:
 			if event.pressed and screen == "run" and runner.transform_left <= 0: jump_touches[-2] = true;jump_held = true;runner.jump()
 			elif not event.pressed: release_touch(-2)
+		elif event.pressed and event.keycode == KEY_DOWN and screen == "run":
+			perform_action("journey_sewer")
 		elif event.pressed and event.keycode in [KEY_ESCAPE, KEY_BACK]:
 			if screen == "run": perform_action("pause")
 			elif screen == "pause": perform_action("resume")
@@ -862,14 +868,15 @@ func currency() -> void :
 func backdrop() -> void :
 	if runner.sewer.active and screen in ["run","pause","results"]:
 		runner.sewer.visual.background(self,runner.sewer);return
-	if runner.sewer.encounter.pending and screen in ["run","pause","results"]:
+	if runner.sewer.encounter.cutout_pending() and screen in ["run","pause","results"]:
 		return # The same clipped street layer is used before and after the first fall.
 	if runner.space.active and screen in ["run","pause","results"]:
 		if runner.space.visual.ground_visible(runner.space): scenery.paint(paint_target,runner,ui_time)
 		runner.space.paint_background(self)
 		return
 	if screen in ["run", "pause", "results"]:
-		scenery.paint(paint_target, runner, ui_time)
+		if not runner.sky.active or not runner.sky.visual.covers_background(self, runner):
+			scenery.paint(paint_target, runner, ui_time)
 		if runner.sky.active: runner.sky.visual.paint_background(self, runner)
 	elif screen in ["home", "market"]:
 		home_menu.backdrop(self, full_rect())
@@ -994,6 +1001,7 @@ func draw_run() -> void :
 	var captured_by_id: Dictionary = {}
 	ground(runner.world_px)
 	runner.sky.visual.launcher(self, runner)
+	draw_sewer_marker()
 	runner.sky.visual.paint_landing(self, runner)
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
@@ -1123,6 +1131,14 @@ func draw_run() -> void :
 
 func draw_run_hud() -> void :
 	gameplay_ui.hud(self)
+	var encounter = runner.sewer.encounter
+	if screen == "run" and encounter.pending and not encounter.sewer_armed:
+		var view = full_rect()
+		var card = Rect2(view.end.x - 342.0, view.position.y + 121.0, 314.0, 100.0)
+		panel(card, Color("221a30"), Color("a88768"), 14)
+		var label = "ESGOTO OU TRAMPOLIM" if runner.sky.pending else "DESVIO OPCIONAL"
+		text(label, card.position + Vector2(157, 26), 15, MINT, true, true)
+		button(Rect2(card.position + Vector2(12, 38), Vector2(290, 48)), "ENTRAR NO ESGOTO", "journey_sewer", Color("3f675e"), -2, 21)
 	if not runner.space.active: hub.draw_run_notice(self)
 	if perfect_left > 0 and not runner.space.active:
 		var alpha = minf(1,perfect_left*3)
@@ -1131,6 +1147,21 @@ func draw_run_hud() -> void :
 
 func draw_pause() -> void :
 	views.pause(self)
+
+func draw_sewer_marker() -> void:
+	var encounter = runner.sewer.encounter
+	if not encounter.pending or encounter.sewer_armed: return
+	var x = encounter.dock_world - runner.world_px - runner.sewer.DOCK_TO_EDGE
+	if x < scenery.view_left - 115.0 or x > scenery.view_right + 115.0: return
+	var floor_y = runner.ground_y(x)
+	paint_target.draw_set_transform(Vector2(x, floor_y + 2), 0.0, Vector2(59.0, 15.0))
+	paint_target.draw_circle(Vector2.ZERO, 1.0, Color("171022"), true, -1, true)
+	paint_target.draw_circle(Vector2.ZERO, .83, Color("795c50"), false, .12, true)
+	paint_target.draw_set_transform(Vector2.ZERO)
+	for i in range(-2, 3):
+		paint_target.draw_line(Vector2(x + 16 * i, floor_y - 6), Vector2(x + 16 * i, floor_y + 10), Color("69515b"), 3.0, true)
+	panel(Rect2(x - 60.0, floor_y - 67.0, 120.0, 32.0), Color("292239"), Color("9a785d"), 8)
+	text("ESGOTO", Vector2(x, floor_y - 44), 17, MINT, true, true)
 
 func draw_results() -> void :
 	views.results(self)
@@ -1888,8 +1919,9 @@ func configure_layout() -> void :
 	scenery.view_top = ( - layout_origin.y - world_canvas.position.y) / zoom
 	scenery.view_bottom = (720 + layout_origin.y - world_canvas.position.y) / zoom
 	if is_instance_valid(sewer_street_canvas):
-		var entering: bool = runner.sewer.encounter.pending or (runner.sewer.active and runner.sewer.phase=="entry")
-		var visible_street: bool = runner.sewer.encounter.pending or (runner.sewer.active and runner.sewer.phase in ["entry","exit"])
+		var entrance_open: bool = runner.sewer.encounter.cutout_pending()
+		var entering: bool = entrance_open or (runner.sewer.active and runner.sewer.phase=="entry")
+		var visible_street: bool = entrance_open or (runner.sewer.active and runner.sewer.phase in ["entry","exit"])
 		var drop: float = runner.sewer.entry_drop() if entering else 0.0
 		var cover: float = runner.sewer.visual.shaft.throat_depth+224.0
 		var bottom = minf(scenery.view_bottom,runner.FLOOR-drop+cover) if entering else scenery.view_bottom
@@ -1902,7 +1934,7 @@ func configure_layout() -> void :
 			street_shift = runner.sewer.exit_rise(runner)-runner.sewer.EXIT_ELEVATION
 		sewer_street_canvas.position = -sewer_street_clip.position+Vector2(0,street_shift)
 		sewer_street_canvas.modulate.a = 1.0
-		sewer_street_canvas.queue_redraw()
+		if visible_street: sewer_street_canvas.queue_redraw()
 	runner.sewer.visual.shaft.configure(self,runner.sewer)
 	if screen != "prepare":
 		runner.view_left = scenery.view_left
@@ -1921,7 +1953,7 @@ func paint_sewer_background() -> void:
 	sewer_background_canvas.draw_rect(view.grow(8),Color.WHITE)
 
 func paint_sewer_street() -> void:
-	if not runner.sewer.encounter.pending and (not runner.sewer.active or runner.sewer.phase not in ["entry","exit"]): return
+	if not runner.sewer.encounter.cutout_pending() and (not runner.sewer.active or runner.sewer.phase not in ["entry","exit"]): return
 	var target = paint_target;paint_target = sewer_street_canvas
 	var top = scenery.view_top;var bottom = scenery.view_bottom
 	var street_shift = sewer_street_canvas.position.y+sewer_street_clip.position.y

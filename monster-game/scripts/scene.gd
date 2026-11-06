@@ -82,7 +82,7 @@ func helicopter(canvas: Node2D, centre: Vector2, height: float, time: float, ang
 	canvas.draw_set_transform(Vector2.ZERO)
 
 func road_end(run: HordeRun) -> float:
-	if run.sewer.encounter.pending: return run.sewer.encounter.dock_world-run.world_px-run.sewer.DOCK_TO_EDGE
+	if run.sewer.encounter.cutout_pending(): return run.sewer.encounter.dock_world-run.world_px-run.sewer.DOCK_TO_EDGE
 	if run.sewer.active and run.sewer.phase=="entry": return run.sewer.shore_edge()
 	return INF
 
@@ -116,7 +116,7 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 		for i in range(5):
 			var x = fposmod(i * 313 - run.world_px * 0.48, 1565) - 90
 			if x > left and x < minf(right,edge-26): flame(canvas, Vector2(x, HordeRun.FLOOR - 26), time + i, 26)
-		for p in ([] if run.sewer.active and run.sewer.phase=="entry" or run.sewer.encounter.pending else civilians):
+		for p in ([] if run.sewer.active and run.sewer.phase=="entry" or run.sewer.encounter.cutout_pending() else civilians):
 			if p.x > left and p.x < right:
 				if int(p.variant) == 0:
 					art.civil.paint(canvas, {"state": "normal", "civil_clip": "corrida", "civil_time": time + p.phase, "civil_flip": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))

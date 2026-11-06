@@ -2,6 +2,10 @@ extends RefCounted
 
 const PERSON_HEIGHT = 96.0
 const Tardis = preload("res://scripts/sky_tardis.gd")
+const FLY_POSES = {
+	"para_ochre": "para_ochre", "para_lilac": "para_lilac", "jetpack": "jetpack",
+	"astronaut": "astro", "orbit_satellite": "navigator", "orbit_shuttle": "alien",
+}
 
 var active: Array[Dictionary] = []
 
@@ -53,6 +57,7 @@ func grip(r, person: Dictionary) -> void:
 
 func advance(r, sky, dt: float) -> void:
 	if active.is_empty(): return
+	var completed = false
 	for person in active:
 		if person.state == "normal":
 			person.delay -= dt
@@ -75,11 +80,16 @@ func advance(r, sky, dt: float) -> void:
 		var target = Vector2(member.x, member.y) + person.capture_offset
 		# Pull the passenger out of the cabin and into the same grip used on the street.
 		var foot = origin.lerp(target, smoothstep(0.0, .46, u))
+		if person.from_vehicle:
+			var tumble = sin(PI * smoothstep(.0, .53, u))
+			foot += Vector2((int(person.variant) - 1) * 15.0, -36.0) * tumble
 		person.x = foot.x
 		person.y = foot.y
 		person.worker_time = float(person.capture_duration) - float(person.capture_left)
-		if person.capture_left <= 0.0: complete(r, sky, person)
-	active = active.filter(func(person): return not person.taken)
+		if person.capture_left <= 0.0:
+			complete(r, sky, person)
+			completed = completed or bool(person.taken)
+	if completed: active = active.filter(func(person): return not person.taken)
 
 func complete(r, sky, person: Dictionary) -> void:
 	var before: int = r.members.size()
@@ -118,4 +128,15 @@ func paint(g, motion, member_id: int) -> void:
 		tint = tint.lerp(Color(.90, .65, 1.0, tint.a), smoothstep(.65, .98, u))
 		var key: String = str(person.prop) + "_panic" if person.sprite.is_empty() else person.sprite
 		if key == "orbit_alien_caught" and u < .26: key = "orbit_alien_float"
-		motion.sprite(g.paint_target, key, point, 122.0, tint, HordeCaptureMotion.angle(person))
+		var roll = HordeCaptureMotion.angle(person)
+		var pose: String = FLY_POSES.get(person.prop, "")
+		if not pose.is_empty():
+			var progression = HordeCaptureMotion.grip_progress(person)
+			if u >= .13 or person.prop == "orbit_satellite":
+				key = pose + ("_grab" if progression < .49 else "_struggle")
+			var resistance = sin(progression * TAU * 1.8) * (1.0 - progression)
+			roll += resistance * .26
+			point += Vector2(7.0 * resistance, -sin(progression * PI) * 11.0)
+			if person.prop == "orbit_shuttle" and int(person.variant) == 1:
+				tint = tint.lerp(Color(.85, .92, 1.0, tint.a), .57)
+		motion.sprite(g.paint_target, key, point, 122.0, tint, roll)

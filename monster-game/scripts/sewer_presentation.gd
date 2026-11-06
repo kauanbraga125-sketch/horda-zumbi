@@ -178,7 +178,7 @@ func paint(g,s) -> void:
 			opacity = 0.0 if flight.launch>flight.detach else float(flight.opacity)
 		if opacity>.02: Art.boat(c,p,s.HULL_HEIGHT,angle,Color(1,1,1,opacity))
 		for seat in range(b.ids.size()-1,-1,-1):
-			var member_index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
+			var member_index = s.member_index(r, int(b.ids[seat]))
 			if member_index<0: continue
 			var m = r.members[member_index];var wear = r.cosmetics_for(m,int(m.kind));var pose = str(m.get("sewer_pose","ride"))
 			if s.phase=="entry" and pose in ["run","board"]: continue

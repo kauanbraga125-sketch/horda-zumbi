@@ -1,6 +1,7 @@
 extends RefCounted
 
 const SkyPlanes = preload("res://scripts/sky_atmosphere.gd")
+const Hauntings = preload("res://scripts/sky_hauntings.gd")
 const START = 4320.0
 const FULL = 6860.0
 const SPACE_START = 9250.0
@@ -12,6 +13,9 @@ static func blend(height: float) -> float:
 
 static func space_blend(height: float) -> float:
 	return smoothstep(SPACE_START, SPACE_FULL, height)
+
+static func covers_background(height: float, view_height: float) -> bool:
+	return height >= SPACE_FULL or height - view_height * .39 >= FULL
 
 static func paint(g, r, motion) -> void:
 	var s = r.sky
@@ -25,9 +29,11 @@ static func paint(g, r, motion) -> void:
 	var camera = Vector2(r.world_px - s.start_world + left, top)
 	var time: float = s.age
 	var space = space_blend(height)
-	plate(canvas, motion.frames.orbit_sky.texture, view, camera, height)
+	if space < 1.0: plate(canvas, motion.frames.orbit_sky.texture, view, camera, height)
 	if space > .0: paint_deep_space(canvas, motion, view, camera, space)
 	paint_stars(canvas, view, camera, time, opacity, AMBER.lerp(Color("a6ddff"), space))
+	Hauntings.passers(canvas, motion, view, camera, time, opacity * (1.0 - space * .67))
+	s.hauntings.paint_orbit(canvas, motion, view, camera, space)
 
 	var air = opacity * (1.0 - space * .67)
 	var dark = Color(.74, .62, .82, air * .60)

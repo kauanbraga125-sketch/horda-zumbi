@@ -30,6 +30,8 @@ func finish(r,kind: String) -> void:
 			r.advance(DT)
 			if not r.sky.pending and not r.sky.active: break
 	else:
+		if r.sewer.encounter.pending and not r.sewer.encounter.sewer_armed:
+			r.sewer.encounter.select_sewer(r)
 		if not r.sewer.active: r.sewer.begin(r,true)
 		r.sewer.finish(r)
 func boat_run():
@@ -44,22 +46,24 @@ func run() -> void:
 	var misses = 0
 	for seed_value in range(24):
 		var r = road(seed_value);var e = r.sewer.encounter;var deadline = float(e.next_at)
-		check(deadline>=45 and deadline<=75,"first roll respects a normal-run interval")
+		check(deadline >= e.FIRST_WINDOW.x and deadline <= e.FIRST_WINDOW.y, "first roll respects a normal-run interval")
 		r.elapsed = deadline-.1;e.tick(r);check(not offered(r),"nothing starts before the deadline")
 		r.elapsed = deadline+.01;e.tick(r)
 		if not offered(r): misses += 1;check(e.next_at>r.elapsed,"a failed chance schedules another opportunity")
 		roll(r);check(offered(r),"ordinary safe road eventually offers a journey")
 		var kind = str(e.offered_kind);kinds[kind] = int(kinds.get(kind,0))+1
-		check(kind in ["space","sewer"] and r.bonuses==0,"journeys do not increment power pickup statistics")
+		check(kind in ["space","sewer","both"] and r.bonuses==0,"journeys do not increment power pickup statistics")
 		check(not e.offer(r,true,"sewer" if kind=="space" else "space"),"active journey cannot overlap the other type")
 		if kind=="space":
 			check(r.sky.pending and not r.sky.active and not r.space.active and 4 not in r.power_owned,"the natural ascent offers an optional trampoline on the street")
 			check(7 not in r.power_owned and 8 not in r.power_owned,"natural events do not grant unpurchased combat powers")
-		var ids = r.members.map(func(m):return int(m.id));finish(r,kind)
+		if kind=="both":
+			check(r.sky.pending and e.pending and not e.sewer_armed, "both physical entries are offered without committing")
+		var ids = r.members.map(func(m):return int(m.id));finish(r,"sewer" if kind=="both" else kind)
 		check(r.members.map(func(m):return int(m.id))==ids and r.souls==0,"return preserves actual members and earned souls")
-		check(e.next_at>=r.elapsed+105 and e.completed_count==1,"shared return cooldown starts only once")
+		check(e.next_at>=r.elapsed+e.RETURN_WINDOW.x and e.completed_count==1,"shared return cooldown starts only once")
 		var count = e.offered;r.elapsed += 10;e.tick(r);check(e.offered==count,"a completed trip cannot immediately roll another")
-		roll(r);check(e.offered_kind!=kind,"the next successful natural event avoids repeating the last scenery")
+		roll(r);check(e.offered_kind in ["space", "sewer", "both"],"the next eligible roll offers an independent route choice")
 	check(misses>0 and kinds.has("space") and kinds.has("sewer"),"seeds cover failed rolls and both event families")
 	var r = road();r.perk_left = 3;r.perk_kind = 3
 	check(not r.sewer.encounter.offer(r,false,"space") and not r.sewer.encounter.offer(r,false,"sewer"),"active transformations block both journeys")

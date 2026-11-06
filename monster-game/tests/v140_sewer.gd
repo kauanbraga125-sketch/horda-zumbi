@@ -38,7 +38,7 @@ func run() -> void:
 	var schedules: Array = []
 	for seed_value in range(8):
 		var e = preload("res://scripts/sewer_event.gd").new();e.reset(seed_value)
-		check(e.next_at>=45 and e.next_at<=75,"first event has a normal-run cooldown")
+		check(e.next_at >= e.FIRST_WINDOW.x and e.next_at <= e.FIRST_WINDOW.y, "first event has a normal-run cooldown")
 		schedules.append(e.next_at)
 	check(schedules.any(func(at):return absf(float(at)-float(schedules[0]))>2),"run seeds vary the event timing")
 	var ordinary = HordeRun.new();ordinary.start_developer("bomb",6,0,1387);ordinary.developer_kind = "";ordinary.tutorial_enabled = false;ordinary.power_owned.clear();ordinary.entities.clear()
