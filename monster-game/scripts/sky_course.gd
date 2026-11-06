@@ -1,6 +1,8 @@
 extends RefCounted
 
 # Opening sequence teaches both kinds of lift before the generated climb.
+const Civil = preload("res://scripts/sky_civilians.gd")
+const Air = preload("res://scripts/sky_aircraft.gd")
 const OPENING = [
 	[.54, 435.0, "ember"], [1.12, 634.0, "balloon"],
 	[1.78, 1040.0, "ember"], [2.58, 1230.0, "bat"], [2.88, 1440.0, "ember"],
@@ -9,8 +11,8 @@ const OPENING = [
 	[5.68, 1730.0, "ember"], [5.83, 2170.0, "ember"],
 	[6.47, 2260.0, "para_lilac"], [6.76, 2400.0, "ember"], [7.72, 2680.0, "ember"],
 	[8.60, 3165.0, "ember"], [8.87, 3220.0, "jetpack"],
+	[10.95, 3620.0, Air.PLANE],
 ]
-const Civil = preload("res://scripts/sky_civilians.gd")
 
 var random = RandomNumberGenerator.new()
 var gate = 0
@@ -71,9 +73,16 @@ func place_leg(sky) -> void:
 	# Attack lanes leave space to aim at the next support or recover below.
 	var obstacle_time = seconds * .60
 	var obstacle_height = next_height + rise * .86
+	match gate % 6:
+		3:
+			add(sky, Air.HELICOPTER, next_x + speed * 1.53, next_height + 298.0)
+		5:
+			add(sky, Air.PATROL, next_x + speed * 2.52, next_height + 525.0)
+	if gate >= 6 and gate % 6 == 1:
+		add(sky, Air.PLANE, next_x + speed * 1.55, next_height + 240.0)
 	if gate % 3 == 1:
 		add(sky, "bat", next_x + speed * obstacle_time, obstacle_height - lerpf(409.0, 244.0, difficulty))
-	else:
+	elif gate % 6 != 5:
 		add(sky, "storm", next_x + speed * obstacle_time, obstacle_height + lerpf(390.0, 288.0, difficulty))
 	if difficulty > .7 and gate % 3 == 2:
 		add(sky, "bat", next_x + speed * 1.08, charge_height - 205.0)

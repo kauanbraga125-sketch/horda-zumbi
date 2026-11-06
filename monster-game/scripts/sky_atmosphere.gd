@@ -17,7 +17,7 @@ static func paint(g, r, motion, visibility: float) -> void:
 	var view = Rect2(Vector2(left, top), Vector2(g.scenery.view_right - left, g.scenery.view_bottom - top))
 	var camera = Vector2(r.world_px - s.start_world + left, top)
 	var t: float = s.age
-	clouds(canvas, motion, view, camera * .13 + Vector2(t * 7.0, 0), false, visibility)
+	clouds(canvas, motion, view, camera * .085 + Vector2(t * 5.0, 0), false, visibility)
 
 	var elder = project(Vector2(1365.0, -124.0), camera, ELDER_DEPTH)
 	if Rect2(Vector2.ZERO, view.size).grow(185.0).has_point(elder):
@@ -40,7 +40,7 @@ static func paint(g, r, motion, visibility: float) -> void:
 			var mote = view.position + insects + Vector2(sin(beat) * (13.0 + i * 4.9), cos(beat * .77) * (8.0 + i * 2.6))
 			var wings = 1.0 + absf(sin(t * 44.0 + i)) * 1.4
 			canvas.draw_line(mote - Vector2(wings, 1), mote + Vector2(wings, -1), Color(.58, .47, .72, visibility * .41), 1.0, true)
-	clouds(canvas, motion, view, camera * .37 + Vector2(t * 18.0, 0), true, visibility)
+	clouds(canvas, motion, view, camera * .26 + Vector2(t * 12.0, 0), true, visibility)
 
 static func paint_elder(canvas: Node2D, motion, point: Vector2, time: float, visibility: float) -> void:
 	const SIZE = 294.0
@@ -71,7 +71,7 @@ static func clouds(canvas: Node2D, motion, view: Rect2, camera: Vector2, near: b
 		for col in range(int(first.x), int(last.x) + 1):
 			var scatter = Vector2(sin(col * 18.1 + row * 9.37) * 167.0, cos(row * 4.78 + col * 3.17) * 107.0)
 			var point = (Vector2(col, row) + Vector2(.52, .48)) * cell + scatter - camera
-			var size = (510.0 if near else 716.0) + sin(col * 2.1 + row * 7.2) * 94.0
-			var tint = Color(.81, .75, 1.0, visibility * .36) if near else Color(.66, .65, .92, visibility * .23)
+			var size = (376.0 if near else 516.0) + sin(col * 2.1 + row * 7.2) * 65.0
+			var tint = Color(.76, .73, .96, visibility * .28) if near else Color(.62, .62, .88, visibility * .19)
 			if Rect2(Vector2.ZERO, view.size).grow(size * .60).has_point(point):
 				motion.sprite(canvas, art, view.position + point, size, tint)

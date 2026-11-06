@@ -1,0 +1,152 @@
+{
+  "generator": "OpenAI ImageGen",
+  "prompts": {
+    "plane": "Use case: stylized-concept. Production transparent sprite sheet for a 2D side-scrolling cartoon gothic zombie game. Landscape composition, exactly two equally sized columns, each contains one complete sprite, fully isolated with clear transparent space between cells. Strong near-black contours, intricate painterly hand-drawn details, stylized compact proportions and tactile worn painted metal with brass rivets. Precise lateral silhouette, all vehicles face LEFT with nose distinctly on the left. No floor, no background, no shadows outside silhouettes, no letters, no logos, no bullets or effects outside the sprites. Clear silhouettes at 300 pixels wide. Asset type: paired live and broken frames for a vintage CIVILIAN passenger propeller plane flying at night. The left cell shows the intact plane in flight, warm ivory top, rich turquoise rounded nose and lower fuselage, a short line of amber-lit rectangular cabin windows with small passenger silhouettes, turquoise high tail, twin piston engine nacelles and visible propeller hubs, entirely retracted landing gear, no propeller blades because they are animated separately in-engine. A very slight three-quarter angle just enough to see the wings while maintaining a flat and physically readable fuselage roof. Right cell shows the EXACT same plane at identical scale, facing left, as a buckled falling wreck, jagged torn roof above the cabin and fractured wing edges, bent nose and broken windows, recognizable original ivory and turquoise colors. Damage contained in sprite, no clouds or detached debris. In both cells keep the silhouette low and long and anchor fuselage center at the midpoint of its cell.",
+    "heli": "Use case: stylized-concept. Production transparent sprite sheet for a 2D side-scrolling cartoon gothic zombie game. Landscape composition, exactly two equally sized columns, each contains one complete sprite, fully isolated with clear transparent space between cells. Strong near-black contours, intricate painterly hand-drawn details, stylized compact proportions and tactile worn painted metal with brass rivets. Precise lateral silhouette, all vehicles face LEFT with nose distinctly on the left. No floor, no background, no shadows outside silhouettes, no letters, no logos, no bullets or effects outside the sprites. Clear silhouettes at 300 pixels wide. Asset type: paired live and broken frames for a small civilian search-and-rescue HELICOPTER. Left cell: expressive compact vermilion and cream helicopter in flight, sea-green large rounded front windshield with a tiny pilot and warm amber passenger side windows, brass door rail, dual landing skids visible, long thin tail boom tapering to right with clear tail rotor hub, tall exposed central rotor shaft with plain small metallic hub at top. Rotor blades are fully omitted because they are animated in-engine. Right cell: EXACT same helicopter scale/colors and facing left with cracked cockpit glass, bent tail, damaged skids and an open buckled passenger cabin, as a falling wreck with broken short rotor shaft. Keep the same frame anchors and do not include unrelated people, debris, cloud or smoke. Match a charming dark fairy-tale action game rather than an actual military aircraft.",
+    "patrol": "Use case: stylized-concept. Production transparent sprite sheet for a 2D side-scrolling cartoon gothic zombie game. Landscape composition, exactly two equally sized columns, each contains one complete sprite, fully isolated with clear transparent space between cells. Strong near-black contours, intricate painterly hand-drawn details, stylized compact proportions and tactile worn painted metal with brass rivets. Precise lateral silhouette, all vehicles face LEFT with nose distinctly on the left. No floor, no background, no shadows outside silhouettes, no letters, no logos, no bullets or effects outside the sprites. Clear silhouettes at 300 pixels wide. Asset type: paired motion frames for an original threatening MILITARY AIR PATROL vehicle in a dark cartoon zombie runner. This is a chunky dieselpunk airborne assault craft, a different silhouette from a normal helicopter: armored moss-olive angular cockpit with a narrow glowing ochre visor, a prominent articulated twin-barrel gun pointing to the LEFT under the nose, slanted brass plates, worn dark green hull, tail stabilizer and compact rear vented horizontal ducted fans with dark open hubs. Two short lit fan rings integrated INTO the vehicle. Same vehicle both frames. Left cell flies in patrol pose with gun tucked slightly back. Right cell gun is extended aiming directly left, tiny red indicator on the muzzle mount, body proportions, perspective and pivot identical to first cell, no separate muzzle flash or projectile. Keep the gun readable, placed well inside the sprite bounds. Only original invented design with no insignia and no real brand.",
+    "cutout": "Use case: background-extraction. Remove the whole white/gray background and any pale outline halo from this exact two-frame videogame sprite sheet. Return true transparent RGBA, alpha exactly 0 throughout the background outside the two vehicle silhouettes, including every corner, the large empty top and bottom margins and the gutter. Keep the two existing objects exactly as drawn, preserving their relative position, sizes, facing, color, pose, line art, rivets, dark shadows and details. Keep all complete edges. Do not recolor, regenerate or redesign the actual aircraft. Do not draw white, matte, checkerboard, any ground, shadow, glow, or other visible background. Alpha cutout only."
+  },
+  "sources": {
+    "plane": "3a8d73c02e12c8028febf4287755d738ef0dd195da180fbd2635f3e44f0abd0c",
+    "helicopter": "3568f3cca2c0ebf48b36a7ac946fd90486c68c791bf7bc5f18649569ee13c533",
+    "patrol": "af545f3588fe2fc580d4f7031d6938a0b312c322a00741c25938199cd2531280"
+  },
+  "atlases": {
+    "aircraft": {
+      "tiles": {
+        "air_plane": {
+          "rect": [
+            6,
+            66,
+            500,
+            215
+          ],
+          "size": [
+            867,
+            372
+          ],
+          "pivot": [
+            0.5005767012687428,
+            0.5188172043010753
+          ],
+          "source_box": [
+            13,
+            257,
+            880,
+            629
+          ]
+        },
+        "air_plane_wreck": {
+          "rect": [
+            518,
+            61,
+            500,
+            226
+          ],
+          "size": [
+            861,
+            390
+          ],
+          "pivot": [
+            0.5040650406504065,
+            0.49230769230769234
+          ],
+          "source_box": [
+            906,
+            259,
+            1767,
+            649
+          ]
+        },
+        "air_helicopter": {
+          "rect": [
+            26,
+            354,
+            459,
+            336
+          ],
+          "size": [
+            829,
+            607
+          ],
+          "pivot": [
+            0.39806996381182147,
+            0.5535420098846787
+          ],
+          "source_box": [
+            25,
+            146,
+            854,
+            753
+          ]
+        },
+        "air_helicopter_wreck": {
+          "rect": [
+            518,
+            354,
+            500,
+            336
+          ],
+          "size": [
+            834,
+            561
+          ],
+          "pivot": [
+            0.40167865707434053,
+            0.5008912655971479
+          ],
+          "source_box": [
+            910,
+            206,
+            1744,
+            767
+          ]
+        },
+        "air_patrol": {
+          "rect": [
+            6,
+            730,
+            500,
+            280
+          ],
+          "size": [
+            821,
+            459
+          ],
+          "pivot": [
+            0.5006090133982948,
+            0.4989106753812636
+          ],
+          "source_box": [
+            37,
+            206,
+            858,
+            665
+          ]
+        },
+        "air_patrol_aim": {
+          "rect": [
+            518,
+            740,
+            500,
+            260
+          ],
+          "size": [
+            880,
+            458
+          ],
+          "pivot": [
+            0.5329545454545455,
+            0.4978165938864629
+          ],
+          "source_box": [
+            865,
+            207,
+            1745,
+            665
+          ]
+        }
+      }
+    }
+  }
+}

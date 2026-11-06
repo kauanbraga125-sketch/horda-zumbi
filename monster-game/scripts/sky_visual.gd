@@ -4,6 +4,7 @@ const BACKDROP = preload("res://assets/art/v153/sky.webp")
 const ATLAS = preload("res://assets/art/v153/props.webp")
 const Atmosphere = preload("res://scripts/sky_atmosphere.gd")
 const Civil = preload("res://scripts/sky_civilians.gd")
+const Air = preload("res://scripts/sky_aircraft.gd")
 var motion = preload("res://scripts/sky_motion.gd").new()
 # Sole positions in the atlas tile, including its transparent border.
 const PAD_FEET = [Vector2(.15, .835), Vector2(.50, .962), Vector2(.86, .835)]
@@ -105,18 +106,24 @@ func paint(g, r) -> void:
 	var speaker_pos = Vector2.ZERO
 	for e in s.objects:
 		var point: Vector2 = s.object_point(r, e, s.age)
-		if point.x < g.scenery.view_left - 142.0 or point.x > g.scenery.view_right + 142.0 or point.y < g.scenery.view_top - 205.0 or point.y > g.scenery.view_bottom + 135.0:
+		var margin = 204.0 if Air.is_aircraft(e.kind) else 142.0
+		if point.x < g.scenery.view_left - margin or point.x > g.scenery.view_right + margin or point.y < g.scenery.view_top - 205.0 or point.y > g.scenery.view_bottom + 135.0:
 			continue
 		if Civil.is_civil(e.kind):
 			Civil.paint(g, motion, e, point, s.age)
 			if e.kind == Civil.JETPACK and point.y >= g.scenery.view_top + 66.0:
 				speaker = e
 				speaker_pos = point
+		elif Air.is_aircraft(e.kind):
+			s.aircraft.paint(g, motion, s, e, point)
 		else:
 			motion.paint_prop(g, r, e, point, sprites)
+	s.aircraft.paint_shots(g, motion, r, s)
 	motion.paint_bursts(g, r)
 	var order: Array = r.members.filter(func(m): return not m.falling)
-	order.sort_custom(func(a, b): return float(a.y) < float(b.y) if not is_equal_approx(a.y, b.y) else float(a.x) < float(b.x))
+	order.sort_custom(func(a, b):
+		if (a.attack_left > 0.0) != (b.attack_left > 0.0): return a.attack_left <= 0.0
+		return float(a.y) < float(b.y) if not is_equal_approx(a.y, b.y) else float(a.x) < float(b.x))
 	for m in order:
 		var foot = Vector2(m.x, m.y)
 		if foot.x < g.scenery.view_left - 70.0 or foot.x > g.scenery.view_right + 70.0: continue
@@ -127,18 +134,24 @@ func paint(g, r) -> void:
 		var rank = int(m.formation_rank)
 		var kind = int(m.kind)
 		var state = "rise" if s.velocity > 35.0 else "fall"
+		var phase = float(m.run_phase)
+		s.captures.paint(g, motion, int(m.id))
+		if m.attack_left > 0.0:
+			state = "capture"
+			phase = 1.0 - float(m.attack_left) / float(m.attack_duration)
+			kind = int(m.attack_kind)
 		var tint = Color("ffb1a9").lerp(Color.WHITE, 1.0 - s.hurt_left * .85)
 		var arrival = float(m.get("sky_arrival", 0.0))
 		if arrival > 0.0:
 			tint = Color(Color("ebaeff").lerp(tint, 1.0 - arrival / .36), 1.0 - arrival * 1.55)
-		g.actor.paint(canvas, kind, foot, 112.0, float(m.run_phase), state, r.elapsed + rank * .06, 0.0, tint, false, 1.0, true, float(m.air_time), float(m.vy), r.cosmetics_for(m, kind))
+		g.actor.paint(canvas, kind, foot, 112.0, phase, state, r.elapsed + rank * .06, 0.0, tint, false, 1.0, true, float(m.air_time), float(m.vy), r.cosmetics_for(m, kind))
 	if not speaker.is_empty(): Civil.dialogue(g, speaker, speaker_pos, s.age)
 
 func paint_landing(g, r) -> void:
 	motion.paint_landing(g, r)
 
 func soul_target(view: Rect2) -> Vector2:
-	return view.position + Vector2(525, 119)
+	return view.position + Vector2(584, 74)
 
 func hud(g, r) -> void:
 	var s = r.sky
@@ -160,13 +173,14 @@ func hud(g, r) -> void:
 	g.home_menu.label(g, str(s.charges), charges_rect.position + Vector2(214, 61), 25, g.CREAM, false)
 	g.home_menu.label(g, "HORDA", horde_rect.position + Vector2(15, 23), 15, g.MINT, false)
 	g.home_menu.label(g, str(r.active_count()), horde_rect.position + Vector2(15, 60), 31, g.CORAL if s.hurt_left > 0.0 else g.CREAM, false)
+	g.home_menu.label(g, "ALMAS", horde_rect.position + Vector2(85, 23), 13, Color("c3a4e3"), false)
+	g.home_menu.label(g, str(r.souls), horde_rect.position + Vector2(85, 57), 21, g.CREAM, false)
 	g.home_menu.label(g, "PICO", peak_rect.position + Vector2(15, 23), 15, g.MINT, false)
 	g.home_menu.label(g, "%d m" % int(s.peak / 30.0), peak_rect.position + Vector2(15, 60), 31, g.GOLD, false)
 	g.home_menu.slab(g, pause_rect, Color("493053"), Color("bd915b"), 12, 4)
 	g.gameplay_ui.glyph(g, "pause", pause_rect.get_center(), 40, g.CREAM)
 	g.home_menu.register(g, pause_rect, "pause")
 	var metres = int(s.altitude / 30.0)
-	g.home_menu.label(g, "ALMAS %d" % int(r.souls), horde_rect.position + Vector2(4, 103), 17, Color("c3a4e3"), false)
 	var region = "CÉU PROFUNDO" if metres >= 300 else ("VENTOS MALDITOS" if metres >= 120 else "BRUMA DO CEMITÉRIO")
 	g.home_menu.label(g, region, edge + Vector2(4, 103), 17, Color("c3a4e3"), false)
 	var message = "TOQUE PARA SUBIR"

@@ -1,5 +1,5 @@
 {
-  "version": "0.10.56",
+  "version": "0.10.57",
   "class_count": 55,
   "files": [
     {
@@ -204,8 +204,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 128663,
-      "sha256": "72ef16b66122ba5adf373f5e0df572819720f12b576895e67a77fed7b5ba1d4b"
+      "bytes": 128972,
+      "sha256": "ae616a48bdc43558a1578f16ec148427f899380db9408398b787687e9e3b796c"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -334,8 +334,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 70684,
-      "sha256": "6db7d736cc369d43c27980f18f386a624671036fe37a73e8bbffebaefd9e30c4"
+      "bytes": 70793,
+      "sha256": "893a5093abae7d845b0c1e9664c512d5e72296b7834954d6fe014fb3938b530a"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -404,33 +404,43 @@
     },
     {
       "path": "res://scripts/sky.gd",
-      "bytes": 15123,
-      "sha256": "1f0b3a81af75dec377c0858c622dc53cefea99d4e1634561b78f8c1b0957964a"
+      "bytes": 16111,
+      "sha256": "c19e242d9bc9aa0d5cc534f8815f523b0358620ef9d54bc8370077d998f10b79"
+    },
+    {
+      "path": "res://scripts/sky_aircraft.gd",
+      "bytes": 12070,
+      "sha256": "dee18c57a10ac376d5fb71020620fe14d0d65c9138aa7fbd1bc183adfbfb8297"
     },
     {
       "path": "res://scripts/sky_atmosphere.gd",
-      "bytes": 4480,
-      "sha256": "ef7dec1a9497600320ccd93707cf456663b94e4ffd12adc06ea61e8dc99829ec"
+      "bytes": 4481,
+      "sha256": "8fd1cad66888352eb7ce5979aaf120e0c2e1a04d4485e43964f9900769ab1aaf"
+    },
+    {
+      "path": "res://scripts/sky_captures.gd",
+      "bytes": 4295,
+      "sha256": "aa977a8109943ad7eb7de7e9b31bc9dc1f4643dd09dbdeeabbc56f84e99f718a"
     },
     {
       "path": "res://scripts/sky_civilians.gd",
-      "bytes": 4767,
-      "sha256": "29cabf3ad6656aeca8debaad7b53833bcc1ffcddb4b06ed76e7c6af651053541"
+      "bytes": 4071,
+      "sha256": "9a227267289cc3b0f79bb5d6486928c317e62a77e6328d7e19fe1cfabc4a168a"
     },
     {
       "path": "res://scripts/sky_course.gd",
-      "bytes": 3330,
-      "sha256": "5dea5fedf9f9d2f972adee15f5f4d3f5e1e41d118f3fe0d8b17b293d5436f7b5"
+      "bytes": 3692,
+      "sha256": "063186703a16d605a7ccfc0323c0e7691c5252f3240f854e8eea6903cf7cd73c"
     },
     {
       "path": "res://scripts/sky_motion.gd",
-      "bytes": 10477,
-      "sha256": "ca2cffd161ab362763a13132df1fe207f052c1036283f544decf1603db8ebd1c"
+      "bytes": 10958,
+      "sha256": "cb5b32260ec915f44cb6cb1b18a726c9018dcba1d581f0de305dab9c9eb8c533"
     },
     {
       "path": "res://scripts/sky_visual.gd",
-      "bytes": 9435,
-      "sha256": "1ba7cfcd6e3fb9cecd61debc33ce9dbb3ca002e1246cfb0e7cf25c4d62ea05f0"
+      "bytes": 10027,
+      "sha256": "28979c7ad2bfffc4623d765a7d86875cff87ede4d2b8baec8dc4eea0fdd9fd11"
     },
     {
       "path": "res://scripts/soldier.gd",
@@ -1526,6 +1536,16 @@
       "path": "res://assets/art/v156/wind.webp",
       "bytes": 369936,
       "sha256": "e05f6f5b85d908d8b7c76d86d130036b975b9b4b3d7a6d1ccc6d28aa7ef10caa"
+    },
+    {
+      "path": "res://assets/art/v157/aircraft.json",
+      "bytes": 8424,
+      "sha256": "d72b1e1ef40d9ac5fbf7d9ee4615195b3284f570095507aef8551f278d2d58e1"
+    },
+    {
+      "path": "res://assets/art/v157/aircraft.webp",
+      "bytes": 885190,
+      "sha256": "0939bd7dbd5bcad6c8de54f1276212c268828f651b0a97e3186b44aed78fa6ed"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",

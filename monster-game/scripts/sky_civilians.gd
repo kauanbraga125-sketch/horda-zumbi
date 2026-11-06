@@ -23,23 +23,6 @@ static func alert(e: Dictionary, age: float, centre: Vector2, lead: Dictionary) 
 	if ahead < 0.0 or ahead > 550.0 or absf(centre.y - float(lead.y) + 53.0) > 250.0: return
 	e.alert_at = age
 
-static func capture(r, sky, prop: String, centre: Vector2) -> void:
-	var kind: int = r.recruit_kind()
-	var before: int = r.members.size()
-	r.add_member(kind, false, centre + Vector2(0, 47))
-	if r.members.size() > before:
-		var recruit: Dictionary = r.members[-1]
-		recruit.sky_arrival = .36
-		sky.spacing[int(recruit.id)] = r.FLOOR - float(recruit.y) - sky.altitude
-		r.recruits += 1
-		r.refresh_formation()
-		sky.reform_left = 1.1
-	r.souls += 1
-	r.mission_stats.civilians = int(r.mission_stats.get("civilians", 0)) + 1
-	sky.emit_burst(r, "civil", centre, {"civil": prop})
-	r.events.append({"type": "soul", "x": centre.x, "y": centre.y,
-		"kind": kind, "soldier": false, "from_vehicle": false})
-
 static func paint(g, motion, e: Dictionary, centre: Vector2, age: float) -> void:
 	if e.used_at >= 0.0: return
 	var canvas: Node2D = g.paint_target

@@ -14,8 +14,11 @@ const POSES = {
 }
 const Course = preload("res://scripts/sky_course.gd")
 const Civil = preload("res://scripts/sky_civilians.gd")
+const Air = preload("res://scripts/sky_aircraft.gd")
 var course = Course.new()
 var visual = preload("res://scripts/sky_visual.gd").new()
+var aircraft = Air.new()
+var captures = preload("res://scripts/sky_captures.gd").new()
 var pending = false
 var active = false
 var pad_world = 0.0
@@ -57,6 +60,8 @@ func reset() -> void:
 	notice_left = 0.0
 	objects.clear()
 	bursts.clear()
+	aircraft.shots.clear()
+	captures.clear()
 	landing.clear()
 	reform_left = 0.0
 	spacing.clear()
@@ -113,6 +118,8 @@ func begin(r, member: Dictionary) -> void:
 	spacing.clear()
 	objects.clear()
 	bursts.clear()
+	aircraft.shots.clear()
+	captures.clear()
 	landing.clear()
 	reform_left = 0.0
 	for e in r.entities:
@@ -180,6 +187,7 @@ func strike_length(e: Dictionary) -> float:
 	return lerpf(128.0, 164.0, e.pressure)
 
 func object_point(r, e: Dictionary, at: float) -> Vector2:
+	if Air.is_aircraft(e.kind): return aircraft.point(r, self, e, at)
 	var rhythm = float(e.height) * .013
 	var amplitude = 11.0 if e.kind == "bat" else 5.0
 	var y = r.FLOOR - float(e.height) + (19.0 if e.kind == "cloud" else -46.0)
@@ -212,6 +220,30 @@ func emit_burst(r, kind: String, point: Vector2, extra: Dictionary = {}) -> void
 	data.merge(extra)
 	bursts.append(data)
 
+func knock_down(r, speed: float) -> void:
+	velocity = minf(speed, velocity)
+	hurt_left = .68
+	impact_left = IMPACT_LOCK
+	recovering = true
+	boost_left = 0.0
+	offer_recovery(r)
+
+func lose_member(r, member_index: int, cause: String) -> bool:
+	# The last zombie can still take the recovery route back to the street.
+	if r.active_count() <= 1: return false
+	var member: Dictionary = r.members[member_index]
+	var previous: int = r.active_count()
+	var kind = int(member.kind)
+	var wear: Array = r.cosmetics_for(member, kind).duplicate()
+	var foot = Vector2(member.x, member.y)
+	r.damage(member_index, cause)
+	if r.active_count() >= previous: return false
+	spacing.erase(int(member.id))
+	emit_burst(r, "casualty", foot, {"member_kind": kind, "wear": wear})
+	r.refresh_formation()
+	reform_left = 1.1
+	return true
+
 func touch_object(r, e: Dictionary, point: Vector2, member_index: int) -> void:
 	e.used_at = age
 	var effect = {"x": point.x, "y": point.y, "prop": e.kind, "recovery": e.get("recovery", false)}
@@ -232,32 +264,17 @@ func touch_object(r, e: Dictionary, point: Vector2, member_index: int) -> void:
 				notice = "CORRENTE DE RESGATE"
 				course.rejoin(r, self, e)
 		"bat", "storm":
-			var knock = -170.0 if e.kind == "bat" else -240.0
-			velocity = minf(knock, velocity)
-			hurt_left = .68
-			impact_left = IMPACT_LOCK
-			recovering = true
-			boost_left = 0.0
+			knock_down(r, -170.0 if e.kind == "bat" else -240.0)
 			notice = "PERDEU ALTURA"
 			effect.type = "sky_hit"
-			offer_recovery(r)
-			if e.kind == "bat" and r.active_count() > 1:
-				var member: Dictionary = r.members[member_index]
-				var previous: int = r.active_count()
-				var kind = int(member.kind)
-				var wear: Array = r.cosmetics_for(member, kind).duplicate()
-				var foot = Vector2(member.x, member.y)
-				r.damage(member_index, "sky_bat")
-				if r.active_count() < previous:
-					notice = "MORCEGO • −1 HORDA"
-					effect.lost = 1
-					emit_burst(r, "casualty", foot, {"member_kind": kind, "wear": wear})
-					r.refresh_formation()
-					reform_left = 1.1
+			if e.kind == "bat" and lose_member(r, member_index, "sky_bat"):
+				notice = "MORCEGO • −1 HORDA"
+				effect.lost = 1
 		Civil.PARA_OCHRE, Civil.PARA_LILAC, Civil.JETPACK:
-			Civil.capture(r, self, e.kind, point)
-			notice = "+1 ALMA • CIVIL CAPTURADO"
-			effect.type = "sky_civil"
+			captures.add(r, point, int(r.members[member_index].id), e.kind)
+			emit_burst(r, "civil", point, {"civil": e.kind})
+			notice = "CAPTURANDO CIVIL"
+			effect.type = "sky_grab"
 	r.events.append(effect)
 	notice_left = 1.12
 
@@ -294,6 +311,10 @@ func update_contacts(r, travel: float, dt: float, previous_feet: Dictionary) -> 
 		var kind: String = e.kind
 		if e.used_at >= 0.0: continue
 		var point = object_point(r, e, age)
+		if Air.is_aircraft(kind):
+			var previous = object_point(r, e, age - dt) + Vector2(travel, 0.0)
+			aircraft.advance_craft(r, self, e, point, previous, previous_feet, lead)
+			continue
 		var civil = Civil.is_civil(kind)
 		var hazard = kind in ["bat", "storm"]
 		if hazard:
@@ -377,17 +398,22 @@ func advance(r, dt: float) -> void:
 		if reform_left > 0.0: m.x = move_toward(float(m.x), r.slot_x(i), dt * 185.0)
 		m.vy = -velocity
 		m.air_time += dt
+		m.attack_left = maxf(0.0, float(m.attack_left) - dt)
 	r.mission_stats.space_altitude = maxi(int(r.mission_stats.get("space_altitude", 0)), int(peak / 30.0))
 	r.mission_stats.space_distance = maxi(int(r.mission_stats.get("space_distance", 0)), int((r.world_px - start_world) / 30.0))
 	if altitude <= 0.0:
 		finish(r)
 		return
+	captures.advance(r, self, dt)
 	update_contacts(r, travel, dt, previous_feet)
+	aircraft.advance_shots(r, self, dt, travel, previous_feet)
 
 func finish(r) -> void:
+	captures.settle(r, self)
 	active = false
 	objects.clear()
 	bursts.clear()
+	aircraft.shots.clear()
 	var lead_index: int = r.leader_index()
 	var lead_x = float(r.members[lead_index].x) if lead_index >= 0 else float(r.ANCHOR)
 	landing = {"at": r.elapsed, "x": r.world_px + lead_x, "force": clampf(absf(velocity) / TERMINAL_FALL, .46, 1.0)}

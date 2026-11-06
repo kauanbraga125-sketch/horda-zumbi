@@ -2,6 +2,7 @@ extends RefCounted
 
 const ART = "res://assets/art/v155/"
 const FLIGHT_ART = "res://assets/art/v156/"
+const AIRCRAFT_ART = "res://assets/art/v157/"
 const Civil = preload("res://scripts/sky_civilians.gd")
 const FLAP = ["bat_up", "bat_mid", "bat_down", "bat_mid"]
 const IMPULSE = ["impulse_start", "impulse_open", "impulse_wisps"]
@@ -18,6 +19,7 @@ func warm() -> void:
 	load_frames(ART, manifest)
 	for point in manifest.eye_points: elder_eyes.append(Vector2(point[0], point[1]))
 	load_frames(FLIGHT_ART, JSON.parse_string(FileAccess.get_file_as_string(FLIGHT_ART + "sky_motion.json")))
+	load_frames(AIRCRAFT_ART, JSON.parse_string(FileAccess.get_file_as_string(AIRCRAFT_ART + "aircraft.json")))
 
 func load_frames(directory: String, manifest: Dictionary) -> void:
 	for name in manifest.atlases:
@@ -132,6 +134,12 @@ func paint_bursts(g, r) -> void:
 				burst_particles(canvas, origin + Vector2(-8, 28 + drop), t, LILAC, 9, 92.0, .35)
 			"civil":
 				Civil.paint_capture(canvas, self, b.civil, origin, t, fade)
+			"conversion":
+				sprite(canvas, "catch_wisp", origin, 92.0 + 42.0 * t, Color(.93, .72, 1, fade))
+				burst_particles(canvas, origin, t, LILAC, 13, 94.0, .48)
+			"air_scrape":
+				sprite(canvas, "catch_wisp", origin, 109.0 + 75.0 * t, Color(1, .75, .48, fade))
+				burst_particles(canvas, origin, t, AMBER, 16, 147.0, .62)
 			"ember":
 				halo(canvas, origin, 30.0 + 54.0 * t, LILAC, .70 * fade)
 				burst_particles(canvas, origin, t, LILAC, 12, 67.0, .23)

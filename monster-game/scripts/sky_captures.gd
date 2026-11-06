@@ -1,0 +1,116 @@
+extends RefCounted
+
+const PERSON_HEIGHT = 96.0
+
+var active: Array[Dictionary] = []
+
+func clear() -> void:
+	active.clear()
+
+func add(r, centre: Vector2, member_id: int, prop: String, variant: int = -1, delay: float = 0.0) -> void:
+	var foot = centre + Vector2(0.0, PERSON_HEIGHT * .5)
+	var passenger = variant >= 0
+	var person = {
+		"id": r.next_entity_id, "kind": "civilian", "variant": variant, "state": "normal",
+		"taken": false, "rescued": passenger, "from_vehicle": passenger, "group": -1,
+		"x": foot.x, "y": foot.y, "origin": foot + Vector2(r.world_px, 0.0),
+		"delay": delay, "prop": prop, "capturer": member_id,
+	}
+	r.next_entity_id += 1
+	active.append(person)
+	if delay <= 0.0: grip(r, person)
+
+func choose_member(r, person: Dictionary) -> Dictionary:
+	var preferred: Dictionary = r.member_by_id(int(person.capturer))
+	if not preferred.is_empty() and preferred.attack_left <= 0.0: return preferred
+	var best: Dictionary = {}
+	var cost = INF
+	for m in r.members:
+		if m.falling: continue
+		var next_cost = absf(float(m.x) - float(person.x)) + float(m.attack_left) * 500.0
+		if next_cost < cost:
+			best = m
+			cost = next_cost
+	return best
+
+func grip(r, person: Dictionary) -> void:
+	var member = choose_member(r, person)
+	if member.is_empty(): return
+	r.begin_capture(person, member)
+	if person.from_vehicle:
+		match int(person.variant):
+			0:
+				person.civil_key = "civil_casaco_azul_nerd"
+				person.civil_flip = true
+				person.civil_turn_left = 0.0
+			1:
+				person.woman_clip = "capture"
+				person.woman_reverse = true
+			2:
+				person.worker_time = 0.0
+		person.vx = 0.0
+
+func advance(r, sky, dt: float) -> void:
+	if active.is_empty(): return
+	for person in active:
+		if person.state == "normal":
+			person.delay -= dt
+			var waiting: Vector2 = person.origin - Vector2(r.world_px, 0.0)
+			person.x = waiting.x
+			person.y = waiting.y
+			if person.delay <= 0.0: grip(r, person)
+			continue
+		var member: Dictionary = r.member_by_id(int(person.capturer))
+		if member.is_empty():
+			member = choose_member(r, person)
+			if member.is_empty(): continue
+			person.capturer = member.id
+			member.attack_duration = person.capture_duration
+			member.attack_kind = member.kind
+			member.attack_left = person.capture_left
+		person.capture_left = maxf(0.0, float(person.capture_left) - dt)
+		var u = HordeCaptureMotion.progress(person)
+		var origin: Vector2 = person.origin - Vector2(r.world_px, 0.0)
+		var target = Vector2(member.x, member.y) + person.capture_offset
+		# Pull the passenger out of the cabin and into the same grip used on the street.
+		var foot = origin.lerp(target, smoothstep(0.0, .46, u))
+		person.x = foot.x
+		person.y = foot.y
+		person.worker_time = float(person.capture_duration) - float(person.capture_left)
+		if person.capture_left <= 0.0: complete(r, sky, person)
+	active = active.filter(func(person): return not person.taken)
+
+func complete(r, sky, person: Dictionary) -> void:
+	var before: int = r.members.size()
+	var foot = Vector2(person.x, person.y)
+	r.complete_capture(person, foot)
+	if r.members.size() > before:
+		var recruit: Dictionary = r.members[-1]
+		recruit.sky_arrival = .28
+		sky.spacing[int(recruit.id)] = r.FLOOR - float(recruit.y) - sky.altitude
+		r.refresh_formation()
+		sky.reform_left = 1.1
+	if person.taken:
+		var centre = foot - Vector2(0, 48)
+		sky.emit_burst(r, "conversion", centre)
+		r.events.append({"type": "sky_civil", "x": centre.x, "y": centre.y, "prop": person.prop, "passenger": person.from_vehicle})
+		if not person.from_vehicle:
+			sky.notice = "+1 ALMA • CIVIL CAPTURADO"
+			sky.notice_left = 1.12
+
+func settle(r, sky) -> void:
+	for person in active: complete(r, sky, person)
+	clear()
+
+func paint(g, motion, member_id: int) -> void:
+	for person in active:
+		if person.state != "capture" or int(person.capturer) != member_id: continue
+		if person.from_vehicle:
+			g.draw_civilian(person)
+			continue
+		var u = HordeCaptureMotion.progress(person)
+		var foot = Vector2(person.x, person.y)
+		var point = foot - Vector2(0, PERSON_HEIGHT * .5) + HordeCaptureMotion.offset(person, PERSON_HEIGHT)
+		var tint = HordeCaptureMotion.tint(person)
+		tint = tint.lerp(Color(.90, .65, 1.0, tint.a), smoothstep(.65, .98, u))
+		motion.sprite(g.paint_target, str(person.prop) + "_panic", point, 122.0, tint, HordeCaptureMotion.angle(person))

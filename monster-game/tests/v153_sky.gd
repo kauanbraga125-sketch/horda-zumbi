@@ -1,5 +1,6 @@
 extends "res://tests/v147_reveal.gd"
 
+const Air = preload("res://scripts/sky_aircraft.gd")
 var frames = 0
 var recording = false
 var routes: Array[Dictionary] = []
@@ -38,6 +39,17 @@ func pickup_sweep_test() -> void:
 	check(not sky.swept_pickup(m, before, target + Vector2(110, 0), target + Vector2(121, 0), sky.POSES.ember),
 		"a nearby ember outside the body stays in play")
 
+func aircraft_entry_test() -> void:
+	var hull: Rect2 = Air.SPECS[Air.PLANE].hull
+	check(Air.entry(Vector2(-40, -230), Vector2(-12, 81), hull).get("side", "") == "top",
+		"the feet hit the roof on a fast descent")
+	check(Air.entry(Vector2(-40, 220), Vector2(-12, 76), hull).get("side", "") == "under",
+		"the head hits the underside first during an ascent")
+	check(Air.entry(Vector2(-280, 35), Vector2(-12, 44), hull).get("side", "") == "front",
+		"the fuselage nose registers a frontal collision")
+	check(Air.entry(Vector2(-280, 190), Vector2(-12, 185), hull).is_empty(),
+		"passing beneath with head clearance is safe")
+
 func launcher_ground_test() -> void:
 	game.start_lab("sky", 6, 0)
 	step(1.1)
@@ -61,7 +73,7 @@ func launcher_ground_test() -> void:
 		check(visible_pixels > 5, "launcher foot at %d touches the stone surface" % int(foot.x))
 	check(placed.save_png(folder + "/launcher.png") == OK, "capture the launcher planted in the street")
 
-func play_route(label: String, taps: Array, capture: bool, restart: bool = false) -> Dictionary:
+func play_route(label: String, taps: Array, capture: bool, restart: bool = false, clip: Vector2 = Vector2.ZERO) -> Dictionary:
 	if restart: game.perform_action("lab_sky_restart")
 	else: game.start_lab("sky", 6, 0)
 	var r = game.runner
@@ -80,6 +92,11 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 	var touched: Array[String] = []
 	var timestamps: Array[Dictionary] = []
 	var civilians: Array[String] = []
+	var solo: Array[String] = []
+	var impacts: Array[Dictionary] = []
+	var shots_fired = 0
+	var shots_dodged = 0
+	var shots_hit = 0
 	var full_pickups = 0
 	var recovery_pickups = 0
 	var rescued = 0
@@ -87,7 +104,8 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 	var impact_altitude = 0.0
 	var fall_distance = 0.0
 	var previous_foot = Vector2.ZERO
-	var named_frames = [.50, 1.11, 2.04, 2.86, 3.38, 4.62, 5.16, 5.78, 6.04, 6.62, 7.95, 8.26, 8.66, 9.21, 11.60, 23.10, 25.80, 29.35]
+	var named_frames = [3.37, 3.88, 4.36, 8.63, 9.17, 10.22, 10.59, 10.80, 11.10, 11.41, 12.00,
+		14.66, 15.22, 15.62, 18.85, 19.60, 20.00, 20.28, 20.64, 21.00]
 	var next_sample = 0
 	var launch_pressed = false
 	for tick in range(4200):
@@ -100,6 +118,7 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 			spent += before - s.charges
 			taps_sent += 1
 		var before_impact: float = s.velocity
+		var before_souls: int = r.souls
 		r.advance(STEP, game.jump_held)
 		for e in r.events:
 			if e.type == "sky_launch":
@@ -116,7 +135,26 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 						label + ": an ember at full capacity is consumed without exceeding the cap")
 				if e.recovery: recovery_pickups += 1
 			if e.type == "sky_bounce" and e.recovery: rejoined += 1
-			if e.type == "sky_civil": civilians.append(e.prop)
+			if e.type == "sky_grab":
+				check(r.souls == before_souls and s.captures.active.any(func(person): return person.prop == e.prop and person.capture_left > .0),
+					label + ": the grab starts a capture animation before adding a recruit")
+			if e.type == "sky_civil":
+				civilians.append(e.prop)
+				if not e.passenger: solo.append(e.prop)
+			if e.type == "sky_aircraft":
+				impacts.append({"prop": e.prop, "side": e.side, "passengers": e.passengers, "lost": e.lost})
+				if e.side == "top" and e.prop != Air.PATROL:
+					check(s.velocity >= 900 and e.lost == 0 and r.souls == before_souls,
+						label + ": a roof stomp boosts immediately and starts passenger animations")
+				if e.side == "under" and e.prop != Air.PATROL:
+					check(s.velocity < 0 and e.lost == 0 and e.passengers == 0 and s.objects.any(func(obj): return obj.kind == e.prop and obj.used_at < 0),
+						label + ": underside contact blocks the rise and leaves the aircraft intact")
+				if e.side == "front" and e.prop != Air.PATROL:
+					check(s.velocity < 0 and e.lost == 1 and e.passengers > 0,
+						label + ": frontal impact costs a member and lets the survivors capture the passengers")
+			if e.type == "sky_aircraft_shot": shots_fired += 1
+			if e.type == "sky_aircraft_dodge": shots_dodged += 1
+			if e.type == "sky_bullet_hit": shots_hit += 1
 			if e.type == "sky_recovered":
 				rescued += 1
 				fall_distance = maxf(fall_distance, impact_altitude - s.altitude)
@@ -129,7 +167,7 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 				elif e.prop == "bat":
 					check(e.get("lost", 0) == 1, label + ": the bat removes one actual member")
 			if str(e.type).begins_with("sky_"):
-				timestamps.append({"event": e.type, "prop": e.get("prop", ""), "video_frame": frames,
+				timestamps.append({"event": e.type, "prop": e.get("prop", ""), "side": e.get("side", ""), "video_frame": frames,
 					"age": s.age, "altitude": s.altitude, "charges": s.charges, "horde": r.active_count()})
 		game.update_camera(STEP)
 		game.configure_layout()
@@ -142,7 +180,7 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 			height_per_frame = maxf(height_per_frame, absf(foot.y - previous_foot.y))
 		previous_foot = foot
 		started = started or s.active
-		if capture and tick % 2 == 0:
+		if capture and tick % 2 == 0 and (clip == Vector2.ZERO or (s.active and s.age >= clip.x and s.age <= clip.y)):
 			var frame = await picture(false)
 			assert(frame.save_jpg(folder + "/frame-%04d.jpg" % frames, .92) == OK)
 			frames += 1
@@ -166,7 +204,8 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 	var report = {"route": label, "peak_m": int(s.peak / 30.0), "taps_used": spent, "contacts": touched,
 		"events": timestamps, "camera_delta_px": height_per_frame, "gates": s.course.gate, "losses": r.losses,
 		"civilians": civilians, "full_pickups": full_pickups, "recovery_pickups": recovery_pickups,
-		"rescued": rescued, "rejoined": rejoined, "fall_distance_px": fall_distance}
+		"rescued": rescued, "rejoined": rejoined, "fall_distance_px": fall_distance, "solo": solo, "aircraft": impacts,
+		"shots_fired": shots_fired, "shots_dodged": shots_dodged, "shots_hit": shots_hit}
 	routes.append(report)
 	return report
 
@@ -177,6 +216,7 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute(folder)
 	skip_test()
 	pickup_sweep_test()
+	aircraft_entry_test()
 	root.size = Vector2i(1280, 720)
 	game = load("res://main.tscn").instantiate()
 	root.add_child(game)
@@ -187,16 +227,30 @@ func run() -> void:
 	game.set_process(false)
 	game.sound.set_enabled(false)
 	game.data = MonsterCatalog.defaults()
-	game.data.active_cosmetics = ["z_plumber", "s_ice"]
 	await launcher_ground_test()
-	var inputs = [1.90, 5.85, 6.80, 8.18, 13.33, 15.3001, 17.8168, 19.9168, 22.4501]
+	var inputs = [1.90, 5.85, 6.80, 8.18, 13.33, 16.20, 17.85, 19.12]
 	var ascent = await play_route("subida", inputs, recording)
-	check(ascent.peak_m >= 220 and ascent.gates >= 10, "timed taps climb across several generated gates after the recovery")
+	check(ascent.peak_m >= 155 and ascent.gates >= 7, "timed taps climb across generated gates after the recovery")
 	check("ember" in ascent.contacts and "balloon" in ascent.contacts and "cloud" in ascent.contacts, "the charge and both free boosts are reachable")
-	check(ascent.civilians == ["para_ochre", "para_lilac", "jetpack"], "both parachutists and the jetpack pilot join the horde")
+	check(ascent.solo == ["para_ochre", "para_lilac", "jetpack"], "both parachutists and the jetpack pilot join the horde")
 	check(ascent.full_pickups > 0, "the replay touches embers with a full charge meter")
-	check("storm" in ascent.contacts and ascent.recovery_pickups > 0 and ascent.rescued == 1 and ascent.rejoined == 1
+	check("storm" in ascent.contacts and ascent.recovery_pickups > 0 and ascent.rescued >= 1 and ascent.rejoined >= 1
 		and ascent.fall_distance_px > 320.0, "the storm gives a real drop with a reachable ember, tap and rescue cloud")
+	check(ascent.aircraft.any(func(hit): return hit.prop == Air.PLANE and hit.side == "top"), "the opening plane can be stomped from above")
+	check(ascent.aircraft.any(func(hit): return hit.prop == Air.HELICOPTER and hit.side == "top"), "the civilian helicopter uses the same roof rule")
+	check(ascent.civilians.count(Air.PLANE) == 4 and ascent.civilians.count(Air.HELICOPTER) == 2,
+		"all six passengers complete a capture animation and convert once")
+	check(ascent.shots_fired > 0 and ascent.shots_dodged > 0 and ascent.shots_hit == 0,
+		"the locked military shot can be dodged with a timed tap")
+	var under = await play_route("por_baixo", [1.9, 5.85, 6.8, 10.03], recording, true, Vector2(9.65, 12.30))
+	check(under.aircraft.any(func(hit): return hit.prop == Air.PLANE and hit.side == "under") and under.civilians.count(Air.PLANE) == 0,
+		"rising into the belly keeps the passenger plane in flight")
+	var front = await play_route("de_frente", [1.9, 5.85, 6.8, 9.84], recording, true, Vector2(9.50, 12.80))
+	check(front.aircraft.any(func(hit): return hit.prop == Air.PLANE and hit.side == "front" and hit.lost == 1)
+		and front.civilians.count(Air.PLANE) == 4, "the frontal run loses one zombie and recruits four passengers")
+	inputs[-1] = 19.68
+	var hit = await play_route("tiro", inputs, recording, true, Vector2(18.43, 20.90))
+	check(hit.shots_fired == 1 and hit.shots_hit == 1 and hit.losses == 1, "a late dodge lets a live bullet knock the horde down and remove one member")
 	var storm = await play_route("tempestade", [1.9], false, true)
 	check("storm" in storm.contacts and storm.rescued == 0 and storm.rejoined == 0 and storm.peak_m < ascent.peak_m,
 		"passing through a recovery ember without tapping still leads back to the road")

@@ -314,6 +314,12 @@ func consume_run_events() -> void :
 				else: sound.play("creeper_wing", -22)
 			"sky_warn": sound.play("power_warning" if e.prop == "storm" else "creeper_wing", -24)
 			"sky_hit": sound.play("space_hit", -14);shake = 3;effects.spark(point, CORAL, 15)
+			"sky_aircraft":
+				sound.play("metal_push" if e.side == "under" else "smash_plane", -16)
+				shake = 2.0 if e.side == "under" else 4.0
+			"sky_aircraft_warn": sound.play("power_warning", -18)
+			"sky_aircraft_shot": sound.play("gunshot", -14)
+			"sky_bullet_hit": sound.play("space_hit", -14);shake = 3.0
 			"sky_land":
 				effects.clear();sound.play("heavy_land", -13);shake = 6.0 * float(e.force)
 				sound.play("explosion", -24)

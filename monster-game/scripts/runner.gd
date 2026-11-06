@@ -1073,7 +1073,7 @@ func update_civilians(dt: float) -> void :
 			else:
 				e.y = ground_y(e.x) - absf(sin(e.age * (3.0 if e.pose == "hop" else 4.5) + e.bob)) * (42 if e.pose == "hop" else (9 if e.pose == "panic" else 0))
 
-func complete_capture(entity: Dictionary) -> void :
+func complete_capture(entity: Dictionary, airborne_join: Vector2 = Vector2(INF, INF)) -> void :
 	if entity.taken or dead or active_count() == 0: return
 	entity.taken = true;entity.state = "converted"
 	souls += 1;recruits += 1
@@ -1095,7 +1095,8 @@ func complete_capture(entity: Dictionary) -> void :
 	var join_x: = slot_x(members.size())
 
 
-	add_member(kind, false, Vector2(join_x, ground_y(join_x)))
+	var spawn = Vector2(join_x, ground_y(join_x)) if is_inf(airborne_join.x) else airborne_join
+	add_member(kind, false, spawn)
 	if not members.is_empty():
 		members[-1].arrival = 0.0
 		members[-1].reform_hold_until = elapsed
