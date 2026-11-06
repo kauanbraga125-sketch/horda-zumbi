@@ -1,0 +1,81 @@
+extends "res://tests/v134_visual.gd"
+## Previa nativa curta de uma queda completa, usando o codigo real da corrida.
+func run() -> void:
+	folder = OS.get_environment("HORDA_VALIDATION_DIR")
+	assert(not folder.is_empty())
+	DirAccess.make_dir_recursive_absolute(folder)
+	root.size = Vector2i(1280,720)
+	game = load("res://main.tscn").instantiate()
+	root.add_child(game)
+	await process_frame
+	game.test_mode = true
+	game.capture_freeze = true
+	game.set_physics_process(false)
+	game.sound.set_enabled(false)
+	game.data = MonsterCatalog.defaults()
+	game.data.wallet = 1000000
+	game.data.eyes = 10000
+	game.lab_count = 6
+	game.start_lab("sewer")
+	game.runner.start_developer("sewer",6,0,14142)
+	game.runner.developer_kind = ""
+	game.runner.power_owned = [3,4]
+	game.runner.entities.clear()
+	game.runner.events.clear()
+	game.runner.sewer.encounter.offer(game.runner,true)
+	game.lab_active = false
+	for i in range(game.runner.members.size()):
+		var m = game.runner.members[i]
+		m.kind = i%2
+		m.cosmetics_0 = ["z_plumber"] if i==0 else []
+		m.cosmetics_1 = ["s_ice"] if i==1 else []
+	var entry_started: bool = false
+	var entry_finished: bool = false
+	var frames: int = 420
+	var samples: Array = []
+	for frame in range(frames):
+		for substep in range(2):
+			game.runner.advance(STEP,false)
+			game.update_camera(STEP)
+			game.configure_layout()
+			game.consume_run_events()
+			game.update_run_visuals(STEP)
+			game.ui_time += STEP
+			game.toast_left = maxf(0,game.toast_left-STEP)
+			game.perfect_left = maxf(0,game.perfect_left-STEP)
+		var s = game.runner.sewer
+		if s.active and s.phase=="entry": entry_started = true
+		if s.active and s.phase=="ride":
+			entry_finished = true
+			# Esta previsualizacao valida a troca de cenarios, sem perigos do percurso.
+			s.next_encounter = 1e6
+			s.objects.clear()
+			s.life.next_scene = 1e6
+			s.life.people.clear()
+		samples.append({"time":float(frame+1)/30.0,"phase":s.phase,"phase_age":s.phase_age,"camera_zoom":game.camera_zoom,"drop":s.entry_drop(),"fall_age":s.fall_age(game.runner),"throat_depth":s.visual.shaft.throat_depth,"street_alpha":game.sewer_street_canvas.modulate.a,"members":game.runner.active_count(),"camera_shift":game.camera_ground_shift,"world":game.world_canvas.transform,"edge":s.shore_edge(),"geometry":s.visual.shaft.geometry(game,s),"feet":game.runner.members.map(func(m):return {"id":m.id,"x":m.x,"y":m.y,"absolute_y":m.y+(s.entry_drop() if s.phase=="entry" else s.SHAFT_DEPTH if s.active else 0.0),"pose":m.get("sewer_pose","run"),"screen":game.world_to_ui(Vector2(m.x,m.y))+game.layout_origin})})
+		game.configure_layout()
+		game.queue_redraw()
+		game.world_canvas.queue_redraw()
+		game.foreground_canvas.queue_redraw()
+		await process_frame
+		await RenderingServer.frame_post_draw
+		assert(root.get_texture().get_image().save_jpg(folder+"/frame-%04d.jpg" % frame,.94)==OK)
+		if frame%60==0: print("V147_PREVIEW_FRAME ",frame)
+	var summary = {"version":ProjectSettings.get_setting("application/config/version"),"frames":frames,"fps":30,"entry_started":entry_started,"entry_finished":entry_finished,"members":game.runner.active_count(),"samples":samples,"physical_device_tested":false}
+	var report = FileAccess.open(folder+"/transicao.json",FileAccess.WRITE)
+	report.store_string(JSON.stringify(summary,"  "))
+	report.close()
+	var ok: bool = entry_started and entry_finished and not game.runner.dead and game.runner.active_count()>0
+	print("V147_PREVIEW_DIAGNOSTIC ",JSON.stringify({"ok":ok,"started":entry_started,"finished":entry_finished,"dead":game.runner.dead,"members":game.runner.active_count(),"phase":game.runner.sewer.phase}))
+	if not ok:
+		push_error("V147: transition did not complete in preview window; see diagnostic above")
+		game.set_process(false)
+		game.queue_free()
+		quit(1)
+		return
+	game.set_process(false)
+	game.queue_free()
+	game = null
+	for i in range(8): await process_frame
+	print("V147_PREVIEW_OK ",frames," native frames")
+	quit()

@@ -31,7 +31,7 @@ func advance(r,dt: float) -> void:
 		if r.sewer.active: desired.y -= 30
 		point = desired if clock<=dt*1.5 else point.lerp(desired,1-exp(-dt*6))
 	if emotion_left>0 and not watched.is_empty(): warned = Vector2(watched.x,watched.y)
-	if (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
+	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
 	if clock>=chirp_at:
 		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp"})
 	if id=="fiapo" and cooldown<=0:
@@ -77,7 +77,7 @@ func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
 	if id!="agourinho" or rescued: return false
 	rescued = true;emotion_left = 1.6;target = Vector2(m.x,m.y);beam_left = .7
 	m.falling = false;m.vy = 0;m.hurt_left = 0;m.glide_left = 1.0
-	if not r.space.active and not r.sewer.active:
+	if not r.space.active and not r.sewer.active and not r.sky.active:
 		var safe_x = r.ANCHOR
 		for offset in range(0,700,35):
 			if r.has_floor(r.ANCHOR+offset): safe_x = r.ANCHOR+offset;break

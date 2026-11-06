@@ -1,0 +1,315 @@
+{
+  "version": "0.10.45",
+  "engine": "Godot 4.5.1 stable",
+  "native_rendering": true,
+  "renderer": "OpenGL Compatibility, Mesa llvmpipe",
+  "physical_device_tested": false,
+  "design": "A single world-space material connects native street underside, roots and soil, damp foundations and the existing sewer gallery. Spatial blending depends on depth, not phase age or viewport height.",
+  "fixtures": [
+    {
+      "viewport": [
+        1280,
+        720
+      ],
+      "members": 6
+    },
+    {
+      "viewport": [
+        1800,
+        810
+      ],
+      "members": 12
+    },
+    {
+      "viewport": [
+        960,
+        720
+      ],
+      "members": 12
+    }
+  ],
+  "mechanics": {
+    "suite": "tests/v140_sewer.gd",
+    "checks": 230,
+    "failures": []
+  },
+  "trajectories": {
+    "checks": 37424,
+    "failures": [],
+    "native_captures": 51
+  },
+  "street_clipping": {
+    "checks": 48,
+    "failures": [],
+    "handoffs": [
+      {
+        "fixture": "1280x720-6",
+        "mean_rgb_change": 0.000114839382076145,
+        "pixels": 14661
+      },
+      {
+        "fixture": "1800x810-12",
+        "mean_rgb_change": 8.04382401109653e-05,
+        "pixels": 23970
+      },
+      {
+        "fixture": "960x720-12",
+        "mean_rgb_change": 5.05661815881838e-05,
+        "pixels": 10935
+      }
+    ],
+    "physical_device_tested": false,
+    "version": "0.10.45"
+  },
+  "phase_image_comparisons": {
+    "checks": 21,
+    "comparisons": [
+      {
+        "changed_fraction": 0.0,
+        "label": "1280x720-6-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1280x720-6-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0015255530129672,
+        "label": "1280x720-6-entry-ride",
+        "mean_rgb_change": 0.000107731421375215,
+        "peak": 0.0941176488995552,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0015255530129672,
+        "label": "1280x720-6-ride-exit",
+        "mean_rgb_change": 0.000107731421375215,
+        "peak": 0.0941176488995552,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1800x810-12-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1800x810-12-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.00127323656735421,
+        "label": "1800x810-12-entry-ride",
+        "mean_rgb_change": 8.65745416378387e-05,
+        "peak": 0.0901960817476114,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.00127323656735421,
+        "label": "1800x810-12-ride-exit",
+        "mean_rgb_change": 8.65745416378387e-05,
+        "peak": 0.0901960817476114,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "960x720-12-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "960x720-12-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 4.64123271140815e-05,
+        "label": "960x720-12-entry-ride",
+        "mean_rgb_change": 9.52514438125446e-06,
+        "peak": 0.074509804447492,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 4.64123271140815e-05,
+        "label": "960x720-12-ride-exit",
+        "mean_rgb_change": 9.52514438125446e-06,
+        "peak": 0.074509804447492,
+        "pixels": 21546
+      }
+    ],
+    "failures": [],
+    "physical_device_tested": false,
+    "version": "0.10.45"
+  },
+  "startup_new": {
+    "checks": 15,
+    "failures": [],
+    "fixture": "new",
+    "physical_device_tested": false,
+    "version": "0.10.45"
+  },
+  "startup_existing": {
+    "checks": 16,
+    "failures": [],
+    "fixture": "existing",
+    "physical_device_tested": false,
+    "version": "0.10.45"
+  },
+  "preview": {
+    "suite": "tests/v145_preview.gd",
+    "frames": 420,
+    "fps": 30,
+    "seconds": 14,
+    "viewport": [
+      1280,
+      720
+    ],
+    "real_game": true,
+    "seed": 14142,
+    "scope": "The actual street approach, complete physical fall and boarding. Ride hazards are disabled after boarding so the environment remains visible. Sound is muted in capture."
+  },
+  "full_event": {
+    "captures": 5,
+    "completed": 1,
+    "contacts": [
+      {
+        "cause": "sewer_barrel",
+        "members": 7,
+        "time": 18.6500000000002
+      }
+    ],
+    "controlled_obstacles": 7,
+    "dock_arrival": true,
+    "duck_inputs": 3,
+    "encounters": [
+      {
+        "kind": "rubble",
+        "members": 6,
+        "time": 0.800000000000001
+      },
+      {
+        "kind": "pipe",
+        "members": 6,
+        "time": 3.46666666666666
+      },
+      {
+        "kind": "fugitive",
+        "members": 6,
+        "time": 6.13333333333332
+      },
+      {
+        "kind": "collapse",
+        "members": 6,
+        "time": 9.05000000000003
+      },
+      {
+        "kind": "gate",
+        "members": 8,
+        "time": 11.7166666666668
+      },
+      {
+        "kind": "rotor",
+        "members": 8,
+        "time": 14.3833333333336
+      },
+      {
+        "kind": "barrel",
+        "members": 8,
+        "time": 17.0500000000003
+      },
+      {
+        "kind": "rescue",
+        "members": 7,
+        "time": 19.7166666666668
+      },
+      {
+        "kind": "rubble",
+        "members": 9,
+        "time": 22.6333333333333
+      },
+      {
+        "kind": "gate",
+        "members": 9,
+        "time": 25.2999999999998
+      },
+      {
+        "kind": "fugitive",
+        "members": 9,
+        "time": 27.9666666666664
+      }
+    ],
+    "fps": 30,
+    "frames": 1500,
+    "fugitive_variants": [
+      {
+        "kind": "fugitive",
+        "members": 6,
+        "time": 6.13333333333332
+      },
+      {
+        "kind": "fugitive",
+        "members": 9,
+        "time": 27.9666666666664
+      }
+    ],
+    "losses": 1,
+    "members": 10,
+    "physical_device_tested": false,
+    "real_touch_inputs": true,
+    "run_seed": 14142,
+    "safe_passes": 7,
+    "scope": "full event with real touch inputs and one deliberately missed barrel",
+    "souls": 5,
+    "version": "0.10.45"
+  },
+  "visual_review": {
+    "intro_frames_examined": 420,
+    "method": "All introductory frames in sequential contact sheets, selected frames at original size, and the complete-event/exit sequence. Rendered comparisons independently detect background changes at phase boundaries.",
+    "additional_viewports_examined": [
+      [
+        1800,
+        810
+      ],
+      [
+        960,
+        720
+      ]
+    ],
+    "resolved": [
+      "literal horizontal tunnel removed from entrance",
+      "old foreground lintel removed",
+      "rectangular black gap above shaft removed",
+      "approach and descent use the same street/back-wall layers",
+      "gallery no longer appears as a new panel at water arrival",
+      "camera follows physical members and keeps falling feet in frame",
+      "wave emerges gradually from its physical water level",
+      "splash particles follow the descent offset",
+      "small wave geometry stays valid throughout growth"
+    ],
+    "limitation": "Visual review and automated checks cover the recorded fixtures; Android device appearance and performance have not been tested."
+  },
+  "deliverables": [
+    {
+      "file": "Horda-v0.10.45-Previa.mp4",
+      "bytes": 15366882,
+      "sha256": "9a8e5b1526fbf2670067cdb42534570c512c0c7a63d73fcf7e653e706ab8fc13"
+    },
+    {
+      "file": "Horda-v0.10.45-Comparacao.png",
+      "bytes": 2241284,
+      "sha256": "f4db626c69e0a873c7be4e19f8a166700c61aa222e6b4a0fe975fe313762e6d8"
+    }
+  ]
+}

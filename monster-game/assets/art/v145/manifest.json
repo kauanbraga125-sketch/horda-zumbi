@@ -1,0 +1,17 @@
+{
+  "version": "0.10.45",
+  "generation": "Built-in image generation, referenced to the existing street and sewer game art. Only format conversion after generation.",
+  "assets": [
+    {
+      "file": "soil_to_sewer.webp",
+      "kind": "continuous roots, soil and damp masonry background bridge",
+      "prompt": "Edit and combine the two supplied ACTUAL GAME TEXTURES into ONE production background texture that connects them continuously. Input 1 is the existing damp gothic sewer masonry and its exact richly painted art style; input 2 is the game's actual dark violet boulder-and-root soil under the running pavement. The output must be a single coherent VERTICAL MATERIAL TRANSITION, suitable as a background behind falling characters, roughly 1536 wide by 1536 high. Top: preserve the exact type of irregular violet slate boulders embedded in dark soil and exposed woody roots from input 2, but omit the flat horizontal pavement cap and any transparent black margins. Upper-middle: these same roots and broken boulders gradually thin out into rough ancient stone foundations. Lower-middle: the stone courses become the same damp, smaller blue-violet and teal masonry as the upper wall of input 1. Bottom: match the upper stone and rusty-pipe palette and painterly texture of input 1 so closely that this image can be feathered into that real sewer texture. Use shared continuous roots, cracks, moss and a few narrow vertical rusty pipes to connect the materials organically; no straight horizontal change of texture or color. Restrained ambient amber reflected light, no bright spotlight. It must remain one flat orthographic side-elevation back wall, not a perspective tunnel or illustration of a room. Do NOT include any ground, floor, catwalk, shelf, horizontal ledge, full-width beam, full-width horizontal pipe, water surface, literal tunnel entrance, character, jet ski, HUD, text, labels, frame, or black empty band. Keep the central falling area readable with lower contrast than the supplied source textures. Left and right edges should tile naturally as masonry and roots, with no cut-off lamps or distinct framing columns. The art fills the canvas and is fully opaque. Match the actual supplied game textures, not a new cute cartoon art style. This is a game asset to create an organic connection between the existing street soil and the existing sewer; it must NOT contain three separate scenes or panels.",
+      "source": "exec-1990db02-b367-4212-810e-acd26379117b.png",
+      "encoding": "WebP quality 94",
+      "width": 1254,
+      "height": 1254,
+      "bytes": 418768,
+      "sha256": "e4593b87bf19a37f5d8239065b807bad6f89d4ddd0695fe8b9b145bf1fc0ab30"
+    }
+  ]
+}

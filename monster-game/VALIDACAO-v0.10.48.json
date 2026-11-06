@@ -1,0 +1,607 @@
+{
+  "version": "0.10.48",
+  "engine": "Godot 4.5.1 stable",
+  "renderer": "OpenGL Compatibility, Mesa llvmpipe",
+  "native_rendering": true,
+  "physical_device_tested": false,
+  "android_performance_measured": false,
+  "scope": "Animated, world-space cloud banks across the street-to-sewer seam, with a short opaque rock edge behind the fog. No character, physics, camera or input changes.",
+  "fog": {
+    "checks": 21,
+    "failures": [],
+    "measurements": [
+      {
+        "cloud_motion": {
+          "changed": 4436,
+          "mean": 0.00299041164008583,
+          "peak": 0.0274509787559509,
+          "pixels": 19481
+        },
+        "fixture": "1280x720-6"
+      },
+      {
+        "fixture": "1280x720-6",
+        "opaque_wall": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 10879
+        },
+        "open_air_positive_control": {
+          "changed": 8544,
+          "mean": 0.0644353897510203,
+          "peak": 0.299346414705118,
+          "pixels": 8602
+        }
+      },
+      {
+        "deep_gallery_motion": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 31625
+        },
+        "fixture": "1280x720-6"
+      },
+      {
+        "cloud_motion": {
+          "changed": 5659,
+          "mean": 0.00253237641435888,
+          "peak": 0.0261437942584356,
+          "pixels": 30702
+        },
+        "fixture": "1800x810-12"
+      },
+      {
+        "fixture": "1800x810-12",
+        "opaque_wall": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 16128
+        },
+        "open_air_positive_control": {
+          "changed": 12999,
+          "mean": 0.0644141012856512,
+          "peak": 0.290196077277263,
+          "pixels": 13104
+        }
+      },
+      {
+        "deep_gallery_motion": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 47124
+        },
+        "fixture": "1800x810-12"
+      },
+      {
+        "cloud_motion": {
+          "changed": 2064,
+          "mean": 0.00238298659730481,
+          "peak": 0.0196078419685364,
+          "pixels": 12852
+        },
+        "fixture": "960x720-12"
+      },
+      {
+        "fixture": "960x720-12",
+        "opaque_wall": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 4158
+        },
+        "open_air_positive_control": {
+          "changed": 6804,
+          "mean": 0.0748252690261501,
+          "peak": 0.298039225240548,
+          "pixels": 6804
+        }
+      },
+      {
+        "deep_gallery_motion": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 18144
+        },
+        "fixture": "960x720-12"
+      }
+    ],
+    "physical_device_tested": false,
+    "version": "0.10.48"
+  },
+  "reveal": {
+    "checks": 52,
+    "failures": [],
+    "measurements": [
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "1280x720-6-approach",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 35926
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "1280x720-6-before-fall",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 35926
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 0.000319059348330746,
+        "expect_empty": true,
+        "fall_age": 0.0092647789369128,
+        "fixture": "1280x720-6-first-foot",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 35926
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "1280x720-6-falling",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 28842
+        },
+        "surface_y_pixels": 601.189514160156,
+        "type": "above_surface"
+      },
+      {
+        "drop": 572.59191114554,
+        "expect_empty": false,
+        "fall_age": 2.05926477893691,
+        "fixture": "1280x720-6-deeper",
+        "image_difference": {
+          "changed": 35926,
+          "mean": 0.528975176820302,
+          "peak": 0.59869281668216,
+          "pixels": 35926
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "1280x720-6-deeper-clip",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 35926
+        },
+        "type": "hidden_clip_boundary"
+      },
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "1800x810-12-approach",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 58905
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "1800x810-12-before-fall",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 58905
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 4.14875932809189e-05,
+        "expect_empty": true,
+        "fall_age": 0.00471932439145806,
+        "fixture": "1800x810-12-first-foot",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 58905
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "1800x810-12-falling",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 47481
+        },
+        "surface_y_pixels": 680.306274414062,
+        "type": "above_surface"
+      },
+      {
+        "drop": 468.490419553437,
+        "expect_empty": false,
+        "fall_age": 1.93805265772479,
+        "fixture": "1800x810-12-deeper",
+        "image_difference": {
+          "changed": 57037,
+          "mean": 0.483121679702822,
+          "peak": 0.579084971298774,
+          "pixels": 58905
+        },
+        "throat_depth": 180.0,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "1800x810-12-deeper-clip",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 58905
+        },
+        "type": "hidden_clip_boundary"
+      },
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "960x720-12-approach",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "throat_depth": 237.530278986151,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "960x720-12-before-fall",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "throat_depth": 237.530278986151,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 0.000159529674159853,
+        "expect_empty": true,
+        "fall_age": 0.0092647789369128,
+        "fixture": "960x720-12-first-foot",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "throat_depth": 237.530278986151,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "960x720-12-falling",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 18711
+        },
+        "surface_y_pixels": 543.259155273438,
+        "type": "above_surface"
+      },
+      {
+        "drop": 564.284250372288,
+        "expect_empty": false,
+        "fall_age": 2.05926477893691,
+        "fixture": "960x720-12-deeper",
+        "image_difference": {
+          "changed": 21483,
+          "mean": 0.404660500179068,
+          "peak": 0.586928110569715,
+          "pixels": 26838
+        },
+        "throat_depth": 237.530278986151,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "960x720-12-deeper-clip",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "type": "hidden_clip_boundary"
+      },
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "960x720-12-wide-view-approach",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "throat_depth": 314.777794731988,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 0.0,
+        "expect_empty": true,
+        "fall_age": -1.0,
+        "fixture": "960x720-12-wide-view-before-fall",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "throat_depth": 314.777794731988,
+        "type": "texture_visibility"
+      },
+      {
+        "drop": 0.000159529674159853,
+        "expect_empty": true,
+        "fall_age": 0.0092647789369128,
+        "fixture": "960x720-12-wide-view-first-foot",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "throat_depth": 314.777794731988,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "960x720-12-wide-view-falling",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 18711
+        },
+        "surface_y_pixels": 543.259155273438,
+        "type": "above_surface"
+      },
+      {
+        "drop": 564.785444114841,
+        "expect_empty": false,
+        "fall_age": 2.05926477893691,
+        "fixture": "960x720-12-wide-view-deeper",
+        "image_difference": {
+          "changed": 19242,
+          "mean": 0.362114446611649,
+          "peak": 0.586928110569715,
+          "pixels": 26838
+        },
+        "throat_depth": 314.777794731988,
+        "type": "texture_visibility"
+      },
+      {
+        "fixture": "960x720-12-wide-view-deeper-clip",
+        "image_difference": {
+          "changed": 0,
+          "mean": 0.0,
+          "peak": 0.0,
+          "pixels": 26838
+        },
+        "type": "hidden_clip_boundary"
+      }
+    ],
+    "physical_device_tested": false,
+    "version": "0.10.48"
+  },
+  "phase_surfaces": {
+    "checks": 21,
+    "comparisons": [
+      {
+        "changed_fraction": 0.0,
+        "label": "1280x720-6-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1280x720-6-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0015255530129672,
+        "label": "1280x720-6-entry-ride",
+        "mean_rgb_change": 0.000107640776433371,
+        "peak": 0.0941176488995552,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0015255530129672,
+        "label": "1280x720-6-ride-exit",
+        "mean_rgb_change": 0.000107640776433371,
+        "peak": 0.0941176488995552,
+        "pixels": 28842
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1800x810-12-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "1800x810-12-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.00127323656735421,
+        "label": "1800x810-12-entry-ride",
+        "mean_rgb_change": 8.65745415851367e-05,
+        "peak": 0.0901960817476114,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.00127323656735421,
+        "label": "1800x810-12-ride-exit",
+        "mean_rgb_change": 8.65745415851367e-05,
+        "peak": 0.0901960817476114,
+        "pixels": 47124
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "960x720-12-approach-entry",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 0.0,
+        "label": "960x720-12-depth-not-clock",
+        "mean_rgb_change": 0.0,
+        "peak": 0.0,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 4.64123271140815e-05,
+        "label": "960x720-12-entry-ride",
+        "mean_rgb_change": 9.70715361160971e-06,
+        "peak": 0.074509804447492,
+        "pixels": 21546
+      },
+      {
+        "changed_fraction": 4.64123271140815e-05,
+        "label": "960x720-12-ride-exit",
+        "mean_rgb_change": 9.70715361160971e-06,
+        "peak": 0.074509804447492,
+        "pixels": 21546
+      }
+    ],
+    "failures": [],
+    "physical_device_tested": false,
+    "version": "0.10.48"
+  },
+  "startup_new": {
+    "checks": 15,
+    "failures": [],
+    "fixture": "new",
+    "physical_device_tested": false,
+    "version": "0.10.48"
+  },
+  "motion_comparison_to_v147": {
+    "compared_frames": 420,
+    "compared_fields": [
+      "camera_shift",
+      "camera_zoom",
+      "drop",
+      "edge",
+      "fall_age",
+      "feet",
+      "geometry",
+      "members",
+      "phase",
+      "phase_age",
+      "street_alpha",
+      "throat_depth",
+      "time",
+      "world"
+    ],
+    "identical": true,
+    "changed_frames": []
+  },
+  "preview": {
+    "entry_finished": true,
+    "entry_started": true,
+    "fps": 30,
+    "frames": 420,
+    "members": 6,
+    "physical_device_tested": false,
+    "version": "0.10.48"
+  },
+  "preview_scope": "Native 1280x720, 30 fps, 14 seconds; real approach, fall and boarding, hazards disabled after boarding and audio muted.",
+  "visual_review": {
+    "consecutive_frames_examined": [
+      70,
+      189
+    ],
+    "original_size_frames": [
+      110,
+      125,
+      140
+    ],
+    "other_viewports_examined": [
+      [
+        1800,
+        810
+      ],
+      [
+        960,
+        720
+      ]
+    ],
+    "finding": "Soft moving mist fills the previously flat purple gap and conceals the short rock edge. The masonry behind it remains opaque, and the fog passes out of frame naturally as the camera descends."
+  },
+  "baseline": {
+    "source_commit": "2c15aca18b51516ac22a9a31fac2d5c24d665b56",
+    "file": "Horda-v0.10.47-Previa.mp4",
+    "sha256": "0938d2ab7ff1fe97ab31e534071dec3f0c7f33a5758eb02cf34ed2d495191e3b",
+    "matches_user_uploaded_video": true
+  },
+  "runtime_source_sha256": {
+    "monster-game/scripts/sewer_bridge.gdshader": "2f3ab9a5dc65c813852076fc6398f8cbbb15d8ecd75146485ed8d03a9c30cd5b",
+    "monster-game/scripts/sewer_shaft.gd": "edc2b273eecdc16f10d3f32152f9704e35f7fed72114005e9424e2b95031acf3"
+  },
+  "previous_full_cycle_validation": "VALIDACAO-v0.10.47.json; gameplay code is unchanged in v0.10.48.",
+  "deliverables": [
+    {
+      "file": "Horda-v0.10.48-Previa.mp4",
+      "bytes": 11197250,
+      "sha256": "dbc02abcc514174820eba1a137d43ad71922a517027a3698ae3670c13a25a759"
+    },
+    {
+      "file": "Horda-v0.10.48-Neblina.png",
+      "bytes": 1241018,
+      "sha256": "87c467615a0a89fc2e05d84e543ae6242ca0551bc1ddaba4a7020098601acd49"
+    }
+  ]
+}

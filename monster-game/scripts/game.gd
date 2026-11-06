@@ -79,9 +79,12 @@ var settings_from = "home"
 var slider_channel = ""
 var camera_focus = 0.0
 var camera_ground_shift = 0.0
+var camera_sewer_pan = 0.0
 var frozen_world_time = 0.0
 var foreground_canvas: Node2D
+var sewer_background_canvas: Node2D
 var sewer_street_canvas: Node2D
+var sewer_street_clip: Control
 var market_clip: Control
 var market_canvas: Node2D
 var views = HordeViews.new()
@@ -111,13 +114,14 @@ var fly_visual_states: Dictionary = {}
 var crowd_drawn = 0
 var lab_active = false
 var lab_count = 36
+var lab_sky_count = 6
 var lab_stage = 3
 var lab_kind = "bomb"
 var lab_data: Dictionary = {}
 var lab_context: Dictionary = {}
 var lab_saved_runner: HordeRun
-const LAB_KINDS = ["space", "sewer", "harvester", "spectral", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
-const LAB_LABELS = ["ESPAÇO • ABDUÇÃO MALDITA", "ESGOTO • FUGA DE JET SKI", "CAÇADOR NOTURNO", "MANTO ESPECTRAL", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
+const LAB_KINDS = ["sky", "sewer", "harvester", "spectral", "bomb", "air_bomb", "mixed", "gap", "collapse", "car", "helicopter", "tank", "convoy", "vehicles", "combined", "collision", "sprites", "npcs", "powers"]
+const LAB_LABELS = ["SUBIDA • CÉU SOMBRIO", "ESGOTO • FUGA DE JET SKI", "CAÇADOR NOTURNO", "MANTO ESPECTRAL", "BOMBAS TERRESTRES", "BOMBAS AÉREAS", "BOMBAS MISTAS", "BURACOS EM SEQUÊNCIA", "CHÃO QUE CAI", "TRÂNSITO HOSTIL", "HELICÓPTEROS", "TANQUES DO EXÉRCITO", "VEÍCULOS + HELICÓPTERO", "INFECÇÃO NOS VEÍCULOS", "DESAFIOS COMBINADOS", "COLISÕES E SUPERFÍCIES", "SPRITES DOS MONSTROS", "SPRITES DOS NPCs", "PODERES E PROTEÇÃO"]
 
 func _ready() -> void :
 	home_menu.attach(self)
@@ -125,7 +129,11 @@ func _ready() -> void :
 	paint_target = self
 	world_canvas = Node2D.new();world_canvas.z_index = -1
 	add_child(world_canvas);world_canvas.draw.connect(paint_world)
-	sewer_street_canvas = Node2D.new();sewer_street_canvas.z_index = -1;world_canvas.add_child(sewer_street_canvas);sewer_street_canvas.draw.connect(paint_sewer_street)
+	sewer_background_canvas = Node2D.new();sewer_background_canvas.z_index = -1;world_canvas.add_child(sewer_background_canvas)
+	var sewer_material = ShaderMaterial.new();sewer_material.shader = preload("res://scripts/sewer_bridge.gdshader");sewer_background_canvas.material = sewer_material
+	sewer_background_canvas.draw.connect(paint_sewer_background);sewer_background_canvas.visible = false
+	sewer_street_clip = Control.new();sewer_street_clip.z_index = -2;sewer_street_clip.clip_contents = true;sewer_street_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE;world_canvas.add_child(sewer_street_clip)
+	sewer_street_canvas = Node2D.new();sewer_street_clip.add_child(sewer_street_canvas);sewer_street_canvas.draw.connect(paint_sewer_street)
 	foreground_canvas = Node2D.new();world_canvas.add_child(foreground_canvas);foreground_canvas.draw.connect(paint_foreground)
 	var outline = ShaderMaterial.new();outline.shader = preload("res://scripts/foreground.gdshader");foreground_canvas.material = outline
 	market_clip = Control.new();market_clip.z_index = 3;market_clip.position = Vector2(339, 179);market_clip.size = Vector2(853, 435)
@@ -243,7 +251,7 @@ func start_run() -> void :
 	passenger_captures.clear()
 	fly_visual_states.clear()
 	fly_panic_until = -1.0
-	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0
+	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;camera_sewer_pan = 0
 	revive_used = false;revive_offered = false
 	run_settled = false;run_report = {};data.active_souls = 0
 	run_mission_report = {"points":0,"coins":0,"bonuses":0,"eyes":0}
@@ -277,14 +285,14 @@ func consume_run_events() -> void :
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
-			"sewer_dock": show_toast("O CHÃO CEDEU • ESGOTO ABAIXO",2.0)
+			"sewer_dock": show_toast("ENTRADA DO ESGOTO", 1.7)
 			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16)
 			"sewer_encounter":
 				runner.sewer.visual.notify(str(e.title))
 				if "COMPORTA" in str(e.title) or "CANO" in str(e.title): sound.play("sewer_gate",-20)
 			"sewer_hit": sound.play("sewer_splash",-15);shake = 3
 			"sewer_blast": effects.explosion(point);sound.play("explosion",-15);shake = 4
-			"sewer_collapse": effects.dust(point,10,1.3);sound.play("heavy_land",-20);shake = 2
+			"sewer_collapse": sound.play("sewer_gate",-20)
 			"sewer_fugitives": runner.sewer.visual.notify("JET-SKI ALCANÇADO • +%d ALMAS" % int(e.count))
 			"sewer_exit": sound.play("space_boost",-14);runner.sewer.visual.notify("RAMPA À FRENTE • DE VOLTA À CORRIDA!")
 			"sewer_land":
@@ -297,6 +305,39 @@ func consume_run_events() -> void :
 			"field_power": sound.play("perk",-14);show_toast(str(e.title),2.1)
 			"civil_drop": sound.play("creeper_wing",-13)
 			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)
+			"sky_launch":
+				effects.clear();sound.play("space_boost", -14);effects.spark(point, MINT, 18)
+			"sky_boost": sound.play("space_boost", -16)
+			"sky_charge": sound.play("space_energy", -14 if e.gained > 0 else -22)
+			"sky_bounce":
+				if e.prop == "balloon": sound.play("glass_break", -17)
+				else: sound.play("creeper_wing", -22)
+			"sky_warn": sound.play("power_warning" if e.prop == "storm" else "creeper_wing", -24)
+			"sky_hit": sound.play("space_hit", -14);shake = 3;effects.spark(point, CORAL, 15)
+			"sky_aircraft":
+				sound.play("metal_push" if e.side == "under" else "smash_plane", -16)
+				shake = 2.0 if e.side == "under" else 4.0
+			"sky_aircraft_warn": sound.play("power_warning", -18)
+			"sky_aircraft_shot": sound.play("gunshot", -14)
+			"sky_bullet_hit": sound.play("space_hit", -14);shake = 3.0
+			"sky_meteor": sound.play("smash", -16);shake = 3.0
+			"sky_singularity": sound.play("space_hit", -14);shake = 4.0
+			"sky_cosmic_warn": sound.play("power_warning", -23)
+			"sky_orbit_grab":
+				if e.prop != "astronaut": sound.play("glass_break", -19)
+			"sky_tardis_grab":
+				sound.play("glass_break", -12);shake = 3.0
+			"sky_tardis_phase":
+				match e.phase:
+					"rewind": sound.play("space_beam", -19)
+					"repeat": sound.play("glass_break", -17);shake = 2.0
+					"open": sound.play("space_discovery", -17)
+			"sky_tardis_release": sound.play("space_capture", -18)
+			"sky_land":
+				effects.clear();sound.play("heavy_land", -13);shake = 6.0 * float(e.force)
+				sound.play("explosion", -24)
+				var return_label = "TÚNEL %d" % e.to_tunnel if e.to_tunnel > runner.sky.start_tunnel else "PICO %d m" % e.peak
+				show_toast("DE VOLTA À CORRIDA • " + return_label, 2.5)
 			"space_boost": sound.play("space_boost",-13);effects.spark(point,MINT,24)
 			"space_ship_hit": sound.play("space_hit",-17);effects.spark(point,CORAL,6)
 			"space_smash": sound.play("space_smash",-12);effects.spark(point,CORAL,14);shake = 3
@@ -411,7 +452,7 @@ func consume_run_events() -> void :
 				shake = 2.5 if int(e.kind) == 3 else 5.0
 				var death_point: Vector2 = Vector2(float(e.get("foot_x", point.x)), float(e.get("foot_y", point.y))) if int(e.kind) in [2, 3] else point
 				if bool(e.get("in_space",false)): runner.space.visual.casualty(e)
-				elif not bool(e.get("in_sewer",false)): effects.death(int(e.kind), death_point)
+				elif not bool(e.get("in_sewer",false)) and not bool(e.get("in_sky",false)): effects.death(int(e.kind), death_point)
 			"shot": sound.play("gunshot", -17)
 			"explosion": sound.play("explosion", -14);effects.explosion(point);shake = 8
 			"tunnel": sound.play("tunnel", -18)
@@ -485,6 +526,9 @@ func open_market(tab: int = 0) -> void :
 
 func perform_action(action: String) -> void :
 	if birds_ui.action(self,action): return
+	if action == "journey_sewer" and screen == "run":
+		runner.sewer.encounter.select_sewer(runner)
+		return
 	if action=="home_sewer_test" and screen=="home": start_lab("sewer");return
 	if action=="sewer_duck" and screen=="run" and runner.sewer.active:
 		jump_touches.clear();jump_held = false;runner.sewer.request_duck(runner);return
@@ -494,7 +538,9 @@ func perform_action(action: String) -> void :
 		else: runner.sewer.left = .01
 		return
 	if action == "home_space_test" and screen == "home":
-		start_lab("space");return
+		start_lab("sky", 6, 0);return
+	if action == "lab_sky_restart" and lab_active and lab_kind == "sky":
+		start_lab("sky", lab_sky_count, runner.developer_stage);return
 	if prepare_ui.action(self, action): return
 	if codex.action(self,action): return
 	if hub.action(self, action): return
@@ -738,6 +784,8 @@ func _input(event: InputEvent) -> void :
 		if event.keycode == KEY_SPACE:
 			if event.pressed and screen == "run" and runner.transform_left <= 0: jump_touches[-2] = true;jump_held = true;runner.jump()
 			elif not event.pressed: release_touch(-2)
+		elif event.pressed and event.keycode == KEY_DOWN and screen == "run":
+			perform_action("journey_sewer")
 		elif event.pressed and event.keycode in [KEY_ESCAPE, KEY_BACK]:
 			if screen == "run": perform_action("pause")
 			elif screen == "pause": perform_action("resume")
@@ -820,12 +868,16 @@ func currency() -> void :
 func backdrop() -> void :
 	if runner.sewer.active and screen in ["run","pause","results"]:
 		runner.sewer.visual.background(self,runner.sewer);return
+	if runner.sewer.encounter.cutout_pending() and screen in ["run","pause","results"]:
+		return # The same clipped street layer is used before and after the first fall.
 	if runner.space.active and screen in ["run","pause","results"]:
 		if runner.space.visual.ground_visible(runner.space): scenery.paint(paint_target,runner,ui_time)
 		runner.space.paint_background(self)
 		return
 	if screen in ["run", "pause", "results"]:
-		scenery.paint(paint_target, runner, ui_time)
+		if not runner.sky.active or not runner.sky.visual.covers_background(self, runner):
+			scenery.paint(paint_target, runner, ui_time)
+		if runner.sky.active: runner.sky.visual.paint_background(self, runner)
 	elif screen in ["home", "market"]:
 		home_menu.backdrop(self, full_rect())
 	else:
@@ -892,7 +944,7 @@ func draw_home() -> void :
 		var left = d.level.position.x
 		var width = (d.help.end.x - left - 24) / 4
 		var top = d.level.end.y + 12
-		var labels = ["EVENTO ESPAÇO","EVENTO ESGOTO","AVES MALDITAS","REPOR 1M"]
+		var labels = ["TESTAR SUBIDA","EVENTO ESGOTO","AVES MALDITAS","REPOR 1M"]
 		var actions = ["home_space_test","home_sewer_test","birds_open","developer_test_funds"]
 		for i in range(4): button(Rect2(left+i*(width+8),top,width,52),labels[i],actions[i],Color("4c786a") if i<3 else Color("513c67"),-2,18)
 	else:
@@ -942,9 +994,15 @@ func draw_run() -> void :
 		runner.space.paint(self)
 		effects.paint(paint_target,art,actor)
 		return
+	if runner.sky.active and scenery.view_bottom < runner.FLOOR - 220.0:
+		runner.sky.visual.paint(self, runner)
+		effects.paint(paint_target, art, actor)
+		return
 	var captured_by_id: Dictionary = {}
 	ground(runner.world_px)
-	if runner.sewer.encounter.pending: runner.sewer.visual.dock(self,runner.sewer)
+	runner.sky.visual.launcher(self, runner)
+	draw_sewer_marker()
+	runner.sky.visual.paint_landing(self, runner)
 	effects.paint_wrecks(paint_target, art, ui_time, scenery.view_left)
 	scenery.paint_front(paint_target, runner)
 	effects.draw_trails(paint_target, actor, runner.elapsed)
@@ -1012,6 +1070,10 @@ func draw_run() -> void :
 	passenger_captures.paint(paint_target, art, runner, false)
 	crowd_drawn = visible.size()
 
+	if runner.sky.active:
+		runner.sky.visual.paint(self, runner)
+		effects.paint(paint_target, art, actor)
+		return
 	var draw_order: Array = visible.keys()
 	draw_order.sort_custom(func(a, b):
 		var ay = float(runner.members[a].y) - runner.member_depth(a)
@@ -1069,6 +1131,14 @@ func draw_run() -> void :
 
 func draw_run_hud() -> void :
 	gameplay_ui.hud(self)
+	var encounter = runner.sewer.encounter
+	if screen == "run" and encounter.pending and not encounter.sewer_armed:
+		var view = full_rect()
+		var card = Rect2(view.end.x - 342.0, view.position.y + 121.0, 314.0, 100.0)
+		panel(card, Color("221a30"), Color("a88768"), 14)
+		var label = "ESGOTO OU TRAMPOLIM" if runner.sky.pending else "DESVIO OPCIONAL"
+		text(label, card.position + Vector2(157, 26), 15, MINT, true, true)
+		button(Rect2(card.position + Vector2(12, 38), Vector2(290, 48)), "ENTRAR NO ESGOTO", "journey_sewer", Color("3f675e"), -2, 21)
 	if not runner.space.active: hub.draw_run_notice(self)
 	if perfect_left > 0 and not runner.space.active:
 		var alpha = minf(1,perfect_left*3)
@@ -1077,6 +1147,21 @@ func draw_run_hud() -> void :
 
 func draw_pause() -> void :
 	views.pause(self)
+
+func draw_sewer_marker() -> void:
+	var encounter = runner.sewer.encounter
+	if not encounter.pending or encounter.sewer_armed: return
+	var x = encounter.dock_world - runner.world_px - runner.sewer.DOCK_TO_EDGE
+	if x < scenery.view_left - 115.0 or x > scenery.view_right + 115.0: return
+	var floor_y = runner.ground_y(x)
+	paint_target.draw_set_transform(Vector2(x, floor_y + 2), 0.0, Vector2(59.0, 15.0))
+	paint_target.draw_circle(Vector2.ZERO, 1.0, Color("171022"), true, -1, true)
+	paint_target.draw_circle(Vector2.ZERO, .83, Color("795c50"), false, .12, true)
+	paint_target.draw_set_transform(Vector2.ZERO)
+	for i in range(-2, 3):
+		paint_target.draw_line(Vector2(x + 16 * i, floor_y - 6), Vector2(x + 16 * i, floor_y + 10), Color("69515b"), 3.0, true)
+	panel(Rect2(x - 60.0, floor_y - 67.0, 120.0, 32.0), Color("292239"), Color("9a785d"), 8)
+	text("ESGOTO", Vector2(x, floor_y - 44), 17, MINT, true, true)
 
 func draw_results() -> void :
 	views.results(self)
@@ -1406,8 +1491,8 @@ func animation_state(member: Dictionary) -> String:
 func update_run_visuals(dt: float) -> void :
 	var cabin = get_node_or_null("SpaceCabin") as SubViewport
 	if is_instance_valid(cabin): cabin.render_target_update_mode = SubViewport.UPDATE_ALWAYS if runner.space.active and runner.space.battle.pilot_left>0 else SubViewport.UPDATE_DISABLED
-	if runner.space.active or runner.sewer.active:
-		effects.update(dt,0);ui_effects.update(dt,0)
+	if runner.space.active or runner.sewer.active or runner.sky.active:
+		effects.update(dt, runner.speed * .65 if runner.sky.active else 0.0);ui_effects.update(dt,0)
 		sound.update_course(runner,screen == "run" and not runner.dead)
 		return
 	passenger_captures.update(dt, runner, effects)
@@ -1702,24 +1787,89 @@ func draw_credits() -> void :
 	for i in range(lines.size()): wrapped(lines[i], Vector2(94, 190 + i * 51), 1092, 17, CREAM, 2)
 	button(Rect2(69, 641, 240, 61), "VOLTAR", "back", Color("513c67"), -2, 23)
 
+func pan_sewer_camera(left: float,right: float,dt: float) -> void:
+	var frame = full_rect()
+	var projected_left = CAMERA_ANCHOR.x + (left-runner.ANCHOR)*camera_zoom
+	var projected_right = CAMERA_ANCHOR.x + (right-runner.ANCHOR)*camera_zoom
+	var minimum = frame.position.x+74.0-projected_left
+	var maximum = frame.end.x-74.0-projected_right
+	var target = clampf(0.0,minf(minimum,maximum),maxf(minimum,maximum))
+	camera_sewer_pan = lerpf(camera_sewer_pan,target,1-exp(-dt*6.0))
+	camera_sewer_pan = clampf(camera_sewer_pan,minimum-66.0,maximum+66.0)
+
 func update_camera(dt: float) -> void :
-	if runner.sewer.active:
-		var sewer_zoom = 1.0
+	if runner.sewer.active and not runner.sewer.boats.is_empty():
+		var fleet = runner.sewer.fleet_size()
+		var safe_top = -layout_origin.y+155.0;var safe_bottom = 720.0+layout_origin.y-30.0
+		var fleet_zoom = minf(1.0,minf((full_rect().size.x-180.0)/fleet.x,(safe_bottom-safe_top)/fleet.y))
+		var required_right = runner.sewer.boat_x(runner,0)+runner.sewer.HULL_HALF_WIDTH
+		var required_left = runner.sewer.boat_x(runner,runner.sewer.boats.size()-1)-runner.sewer.HULL_HALF_WIDTH
+		var sewer_zoom = fleet_zoom
 		if runner.sewer.phase=="entry":
-			sewer_zoom = lerpf(CAMERA_BASE_ZOOM,1.0,smoothstep(.12,1.1,runner.sewer.phase_age))
-			var highest = runner.FLOOR;var lowest = -INF
+			if runner.members.is_empty(): return
+			var falling = maxf(0,runner.sewer.fall_age(runner))
+			var all_onboard = runner.members.all(func(m):return bool(m.get("sewer_onboard",false)))
+			var anchored_zoom = fleet_zoom
+			if required_right>runner.ANCHOR:
+				anchored_zoom = minf(anchored_zoom,(full_rect().end.x-CAMERA_ANCHOR.x-24)/(required_right-runner.ANCHOR))
+			if required_left<runner.ANCHOR:
+				anchored_zoom = minf(anchored_zoom,(CAMERA_ANCHOR.x-full_rect().position.x-24)/(runner.ANCHOR-required_left))
+			sewer_zoom = lerpf(CAMERA_BASE_ZOOM,.82,smoothstep(.10,1.75,falling))
+			sewer_zoom = lerpf(sewer_zoom,1.0,smoothstep(3.85,runner.sewer.ENTRY_SECONDS,runner.sewer.phase_age))
+			sewer_zoom = minf(sewer_zoom,lerpf(CAMERA_BASE_ZOOM,anchored_zoom,smoothstep(.15,1.5,falling)))
+			if all_onboard: sewer_zoom = fleet_zoom
+			var highest = INF;var lowest = -INF
 			for member in runner.members:
 				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+8)
-			var safe_top = -layout_origin.y+165;var safe_bottom = 720+layout_origin.y-30
-			sewer_zoom = minf(sewer_zoom,(safe_bottom-safe_top)/maxf(1,lowest-highest))
-			camera_zoom = move_toward(camera_zoom,maxf(.68,sewer_zoom),dt*1.8)
+			var fit = (safe_bottom-safe_top)/maxf(1,lowest-highest)
+			sewer_zoom = minf(sewer_zoom,fit)
+			camera_zoom = minf(fit,lerpf(camera_zoom,sewer_zoom,1-exp(-dt*6.0)))
 			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
 			var upper = safe_bottom-(CAMERA_ANCHOR.y+(lowest-runner.FLOOR)*camera_zoom)
 			var shift = clampf(0,minf(lower,upper),upper)
-			camera_ground_shift = move_toward(camera_ground_shift,shift,dt*850)
+			if all_onboard:
+				var gallery_top = runner.sewer.visual.shaft.geometry(self,runner.sewer).gallery_top+30.0
+				shift = minf(shift,(runner.FLOOR-gallery_top)*camera_zoom-CAMERA_ANCHOR.y-layout_origin.y)
+			camera_ground_shift = lerpf(camera_ground_shift,shift,1-exp(-dt*9.0))
+			camera_ground_shift = clampf(camera_ground_shift,minf(lower,upper),maxf(lower,upper))
+			if all_onboard: pan_sewer_camera(required_left,required_right,dt)
 			return
-		if runner.sewer.phase=="exit": sewer_zoom = lerpf(1.0,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
-		camera_zoom = move_toward(camera_zoom,sewer_zoom,dt*1.1);camera_ground_shift = move_toward(camera_ground_shift,0,dt*600);return
+		var target_shift = 0.0
+		if runner.sewer.phase=="exit":
+			sewer_zoom = lerpf(fleet_zoom,CAMERA_BASE_ZOOM,smoothstep(.38,1,runner.sewer.phase_age/runner.sewer.EXIT_SECONDS))
+			var highest = INF;var lowest = -INF;var leftmost = INF;var rightmost = -INF
+			for member in runner.members:
+				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+24)
+				leftmost = minf(leftmost,float(member.x)-68);rightmost = maxf(rightmost,float(member.x)+90)
+			var fit = (safe_bottom-safe_top)/maxf(1,lowest-highest)
+			fit = minf(fit,(full_rect().size.x-150.0)/maxf(1.0,rightmost-leftmost))
+			camera_zoom = minf(fit,lerpf(camera_zoom,minf(sewer_zoom,fit),1-exp(-dt*6.0)))
+			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
+			var upper = safe_bottom-(CAMERA_ANCHOR.y+(lowest-runner.FLOOR)*camera_zoom)
+			target_shift = clampf(0,minf(lower,upper),upper)
+			camera_ground_shift = clampf(lerpf(camera_ground_shift,target_shift,1-exp(-dt*9.0)),minf(lower,upper),maxf(lower,upper))
+			pan_sewer_camera(leftmost,rightmost,dt)
+			return
+		if runner.sewer.phase=="ride":
+			var low = runner.sewer.WATER-24+(runner.sewer.lanes()-1)*runner.sewer.LANE_SPACE+runner.sewer.HULL_HEIGHT*.5
+			var high = runner.sewer.WATER-24-114.0
+			var lower = safe_top-(CAMERA_ANCHOR.y+(high-runner.FLOOR)*camera_zoom)
+			var upper = safe_bottom-(CAMERA_ANCHOR.y+(low-runner.FLOOR)*camera_zoom)
+			target_shift = clampf(0,minf(lower,upper),upper)
+			var gallery_top = runner.sewer.visual.shaft.geometry(self,runner.sewer).gallery_top+30.0
+			target_shift = minf(target_shift,(runner.FLOOR-gallery_top)*camera_zoom-CAMERA_ANCHOR.y-layout_origin.y)
+		camera_zoom = minf(move_toward(camera_zoom,sewer_zoom,dt*1.1),(full_rect().size.x-40.0)/fleet.x)
+		camera_ground_shift = move_toward(camera_ground_shift,target_shift,dt*600)
+		pan_sewer_camera(required_left,required_right,dt)
+		return
+	camera_sewer_pan = move_toward(camera_sewer_pan,0.0,dt*290.0)
+	if runner.sky.active:
+		var height: float = runner.sky.altitude
+		camera_zoom = lerpf(CAMERA_BASE_ZOOM, 1.0, smoothstep(80.0, 500.0, height))
+		var lift = maxf(0.0, height * camera_zoom - 150.0)
+		var easing = minf(lift, 140.0)
+		camera_ground_shift = easing * easing / 280.0 + maxf(0.0, lift - 140.0)
+		return
 	if runner.space.active:
 		var s = runner.space
 		var transition = s.visual.transition_progress(s)
@@ -1761,16 +1911,31 @@ func configure_layout() -> void :
 			market_canvas.position = - grid.position
 	var zoom = prepare_ui.camera_zoom(self) if screen == "prepare" else camera_zoom
 	world_canvas.scale = Vector2.ONE * zoom
-	world_canvas.position = CAMERA_ANCHOR + Vector2(0, 0 if screen == "prepare" else camera_ground_shift) - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * zoom
+	var camera_offset = Vector2.ZERO if screen == "prepare" else Vector2(camera_sewer_pan,camera_ground_shift)
+	world_canvas.position = CAMERA_ANCHOR + camera_offset - Vector2(HordeRun.ANCHOR, HordeRun.FLOOR) * zoom
 	world_canvas.visible = screen in ["run", "pause", "results", "revive", "prepare"]
-	if is_instance_valid(sewer_street_canvas):
-		sewer_street_canvas.visible = runner.sewer.active and runner.sewer.phase in ["entry","exit"]
-		sewer_street_canvas.position.y = -runner.sewer.entry_drop() if runner.sewer.active and runner.sewer.phase=="entry" else 0.0
-		sewer_street_canvas.queue_redraw()
 	scenery.view_left = ( - layout_origin.x - world_canvas.position.x) / zoom
 	scenery.view_right = (1280 + layout_origin.x - world_canvas.position.x) / zoom
 	scenery.view_top = ( - layout_origin.y - world_canvas.position.y) / zoom
 	scenery.view_bottom = (720 + layout_origin.y - world_canvas.position.y) / zoom
+	if is_instance_valid(sewer_street_canvas):
+		var entrance_open: bool = runner.sewer.encounter.cutout_pending()
+		var entering: bool = entrance_open or (runner.sewer.active and runner.sewer.phase=="entry")
+		var visible_street: bool = entrance_open or (runner.sewer.active and runner.sewer.phase in ["entry","exit"])
+		var drop: float = runner.sewer.entry_drop() if entering else 0.0
+		var cover: float = runner.sewer.visual.shaft.throat_depth+224.0
+		var bottom = minf(scenery.view_bottom,runner.FLOOR-drop+cover) if entering else scenery.view_bottom
+		sewer_street_clip.position = Vector2(scenery.view_left,scenery.view_top)
+		sewer_street_clip.size = Vector2(scenery.view_right-scenery.view_left,maxf(0,bottom-scenery.view_top))
+		sewer_street_clip.visible = visible_street and sewer_street_clip.size.y>0
+		sewer_street_canvas.visible = visible_street
+		var street_shift = -drop*.40
+		if runner.sewer.active and runner.sewer.phase=="exit":
+			street_shift = runner.sewer.exit_rise(runner)-runner.sewer.EXIT_ELEVATION
+		sewer_street_canvas.position = -sewer_street_clip.position+Vector2(0,street_shift)
+		sewer_street_canvas.modulate.a = 1.0
+		if visible_street: sewer_street_canvas.queue_redraw()
+	runner.sewer.visual.shaft.configure(self,runner.sewer)
 	if screen != "prepare":
 		runner.view_left = scenery.view_left
 		runner.view_right = scenery.view_right
@@ -1783,11 +1948,18 @@ func full_rect() -> Rect2:
 func world_to_ui(point: Vector2) -> Vector2:
 	return world_canvas.transform * point
 
+func paint_sewer_background() -> void:
+	var view = Rect2(scenery.view_left,scenery.view_top,scenery.view_right-scenery.view_left,scenery.view_bottom-scenery.view_top)
+	sewer_background_canvas.draw_rect(view.grow(8),Color.WHITE)
+
 func paint_sewer_street() -> void:
-	if not runner.sewer.active or runner.sewer.phase not in ["entry","exit"]: return
+	if not runner.sewer.encounter.cutout_pending() and (not runner.sewer.active or runner.sewer.phase not in ["entry","exit"]): return
 	var target = paint_target;paint_target = sewer_street_canvas
+	var top = scenery.view_top;var bottom = scenery.view_bottom
+	var street_shift = sewer_street_canvas.position.y+sewer_street_clip.position.y
+	scenery.view_top -= street_shift;scenery.view_bottom -= street_shift
 	scenery.paint(paint_target,runner,frozen_world_time if screen=="pause" else ui_time)
-	if runner.sewer.phase=="exit": ground(runner.world_px)
+	scenery.view_top = top;scenery.view_bottom = bottom
 	paint_target = target
 
 func paint_world() -> void :
@@ -1970,18 +2142,23 @@ func preview_sprite() -> void :
 	add_child(suite)
 	await suite.run(self)
 
-func start_lab(kind: String) -> void :
+func start_lab(kind: String, count: int = -1, stage: int = -1) -> void :
 	passenger_captures.clear()
 	if not lab_active:
 		lab_saved_runner = runner;lab_data = data.duplicate(true);lab_active = true
 		lab_context = {"settings_from": settings_from, "stats": last_stats.duplicate(true), "challenges": run_challenges.duplicate(), "settled": run_settled, "report": run_report.duplicate(true)}
 	lab_kind = kind;runner = HordeRun.new()
-	runner.start_developer(kind, lab_count, lab_stage)
+	runner.start_developer(kind, lab_count if count < 1 else count, lab_stage if stage < 0 else stage)
 	runner.bird.configure(data)
 	runner.jump_delay_step = lab_delay;lab_hitboxes = kind == "collision"
 	if kind == "powers": runner.power_owned = [2,3,4,5,6];runner.levels.frenzy = 1
 	if kind in ["harvester","spectral"]:
 		runner.developer_kind = "";runner.power_owned = [3,4,5,6];runner.blessings.begin(runner,5 if kind == "harvester" else 6)
+	if kind == "sky":
+		lab_sky_count = runner.active_count()
+		runner.active_cosmetics = data.get("active_cosmetics", []).duplicate()
+		for i in range(runner.members.size()): runner.members[i].kind = 1 if i % 2 == 1 else 0
+		runner.sewer.encounter.offer(runner, true, "space")
 	if kind == "space":
 		runner.developer_kind = "";runner.active_cosmetics = []
 		for item in HordeMeta.COSMETICS: runner.active_cosmetics.append(item.id)
@@ -1995,11 +2172,11 @@ func start_lab(kind: String) -> void :
 		runner.developer_kind = "";runner.power_owned = [3,4];runner.active_cosmetics = data.get("active_cosmetics",[]).duplicate()
 		for i in range(runner.members.size()): runner.members[i].kind = 1 if i%3==1 else 0
 		runner.entities.clear();runner.events.clear();runner.sewer.encounter.offer(runner,true)
-	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;perfect_left = 0
+	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;camera_sewer_pan = 0;perfect_left = 0
 	effects.clear();ui_effects.clear();scenery.reset();end_delay = -1
 	last_save = 0;last_stats.clear();run_challenges.clear();trail_tick = 0
 	change_screen("run")
-	if kind!="sewer": show_toast("TESTE: " + LAB_LABELS[LAB_KINDS.find(kind)], 2.5)
+	if kind not in ["sewer", "sky", "space"]: show_toast("TESTE: " + LAB_LABELS[LAB_KINDS.find(kind)], 2.5)
 
 func leave_lab() -> void :
 	if not lab_active: return

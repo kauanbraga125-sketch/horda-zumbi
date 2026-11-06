@@ -1,0 +1,121 @@
+{
+  "generator": "OpenAI ImageGen",
+  "prompts": {
+    "sky": "Use case: stylized-concept.\nAsset type: ONE vertically scrollable 2D painted videogame background for a prototype of Horda Zumbi, a stylized dark-fantasy zombie runner.\nPrimary request: paint an atmospheric Halloween NIGHT SKY seen while climbing above a gothic city. This is a pure sky panorama with airy cloud layers, for a camera moving smoothly upward through the entire same painting. Portrait 2:3 composition, native detailed game painting.\nLower quarter: dusk-colored smoky lavender and mauve luminous cloud-bank that can dissolve into the violet sky over a gothic street. No buildings, hills, land, horizon line or solid surfaces. Middle: loosely scattered layered violet, indigo and dusty mauve cloud formations, receding to soft dark purple shadows, with gently warm silver-pink rim light, readable depth, and calm open regions in the middle. Upper quarter: clouds become thinner, deep navy-indigo with a few pinprick stars. Keep clouds irregular, organic, varied and softly fading at their edges, with a sense of space and height. No large moon disk or sun disk. No straight seams or panels.\nVisual style: richly textured 2D hand-painted videogame scenery, gothic cartoon dark fantasy, the look of a polished side-scrolling Halloween platformer. Controlled value contrast because small flying green and orange objects must read over it. Subtle textured brushwork, deep purples and blue, hints of amber/pink edges. Edge to edge, fully opaque. Only the one environment painting. No characters, HUD, words, borders, collage, space ships, planets or gameplay props.",
+    "sprites": "Use case: stylized-concept.\nAsset type: production transparent side-view 2D game sprite sheet for Horda Zumbi, a polished gothic cartoon Halloween runner.\nPrimary request: ONE landscape RGBA atlas with exactly SIX isolated, separately readable sprites on an exactly even THREE-column TWO-row grid. Every sprite is centered in its own cell with generous empty gutters, 12% clear space around all sides, no overlap and no stray pixels outside the cell. Real alpha transparency, including gaps between pieces. These are six objects on the game's upward route.\nTop row LEFT to RIGHT:\n1. A wide, LOW gothic cemetery trampoline viewed from the side and slightly above, with a visibly flat sprung stretched DARK PURPLE canvas one can stand on, a strong antique brass and purple metal rim, two or three chunky old coil spring legs firmly supporting it, tiny bone decoration. Clear horizontal top and readable legs. Aspect about 2.5:1. No character.\n2. One collectible SOUL EMBER. A compact bright lavender-magenta glowing flame wisp with a little ivory skull-shaped core, purple flame tips and just a few matching tiny sparks. Strong simple drop-like silhouette that reads at 35 px. No gold coin or lettering.\n3. An enchanted floating skeletal BALLOON. Ivory weathered skull with bright soft teal eye glow, two thin dark gold dangling ties, subtle dark turquoise rim light. Centered isolated recognizable silhouette. Friendly upward bounce object.\nBottom row LEFT to RIGHT:\n4. A compact horizontally elongated GHOST CLOUD as a free upward-bounce platform. Soft ghostly pale aqua and greenish ivory fog with an oval tufted solid-looking top and thin fading violet underside, subtle tiny hollow friendly ghost eyes, airy edges. Clear teal silhouette, width roughly double the height. No lightning.\n5. One menacing dark plum cemetery BAT seen flying left in 3/4 profile, both angular purple wings spread, tiny warm ember-red eyes, rusty red rims, a clear dark shape against night sky. Wide distinct silhouette. No surrounding swarm or sky.\n6. One dark compact STORM CLOUD with sharp warm amber-red lightning fork hanging just below it, charcoal violet and plum billows, small orange rim highlights, foreboding distinct hazard silhouette. No ground.\nMedium: hand-painted and richly textured videogame art with crisp sculpted cartoon contours, dark purple shadows, judicious black outlines, antique warm highlights, original distinct shapes. Side-scroller side view. All sprites have strong silhouette and reasonable readable values. No text, dividers, frame borders, checkerboard, scenery or colored backdrop. True isolated transparent art with sparse effects confined to each tile."
+  },
+  "source_sha256": {
+    "sky": "9bfd1f35ef1929a61840488708bebb909130dec0a0b0964f8fb8a577d3666a06",
+    "props": "809dc1d5deba848d3478946b00f0666e90ff3d8ecacfdba5493832be28bd276d"
+  },
+  "sprites": {
+    "pad": {
+      "rect": [
+        8,
+        84,
+        304,
+        152
+      ],
+      "source_cell": [
+        0,
+        0
+      ],
+      "source_bbox": [
+        29,
+        176,
+        490,
+        406
+      ]
+    },
+    "ember": {
+      "rect": [
+        386,
+        8,
+        187,
+        304
+      ],
+      "source_cell": [
+        1,
+        0
+      ],
+      "source_bbox": [
+        144,
+        59,
+        374,
+        432
+      ]
+    },
+    "balloon": {
+      "rect": [
+        706,
+        8,
+        188,
+        304
+      ],
+      "source_cell": [
+        2,
+        0
+      ],
+      "source_bbox": [
+        124,
+        54,
+        380,
+        469
+      ]
+    },
+    "cloud": {
+      "rect": [
+        8,
+        416,
+        304,
+        127
+      ],
+      "source_cell": [
+        0,
+        1
+      ],
+      "source_bbox": [
+        26,
+        164,
+        486,
+        356
+      ]
+    },
+    "bat": {
+      "rect": [
+        328,
+        384,
+        304,
+        191
+      ],
+      "source_cell": [
+        1,
+        1
+      ],
+      "source_bbox": [
+        15,
+        85,
+        498,
+        388
+      ]
+    },
+    "storm": {
+      "rect": [
+        648,
+        351,
+        304,
+        258
+      ],
+      "source_cell": [
+        2,
+        1
+      ],
+      "source_bbox": [
+        32,
+        67,
+        480,
+        447
+      ]
+    }
+  }
+}

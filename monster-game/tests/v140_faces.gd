@@ -22,10 +22,14 @@ func run() -> void:
 	for pose_index in range(12):
 		sheet.pose_index = pose_index;sheet.queue_redraw();await process_frame;await process_frame;await RenderingServer.frame_post_draw
 		var im = view.get_texture().get_image()
+		var ctl = sheet.controls()
+		var index = int(ctl.seat)*4+posmod(int(ctl.time*8),4)
+		var tuck = clampf(ctl.motion,0.0,1.0) if ctl.state=="duck" else 0.0
 		for i in range(HordeCosmeticCatalog.ITEMS.size()):
-			var entry = HordeCosmeticCatalog.ITEMS[i];var f = game.actor.sewer_riders.pose(game.actor.cosmetics,int(entry.kind),pose_index)
+			var entry = HordeCosmeticCatalog.ITEMS[i];var f = game.actor.sewer_riders.pose(game.actor.cosmetics,int(entry.kind),index)
 			var old: Dictionary = game.actor.cosmetics.frames[f.source_key]
-			var foot = Vector2(93+i%7*182,165+int(i/7)*152);var transform = Transform2D(0,foot-Vector2(0,36));transform.x *= .25;transform.y *= .25;transform.origin -= transform.basis_xform(Vector2(f.anchor[0],f.anchor[1]));transform = transform*f.head_transform
+			var foot = Vector2(93+i%7*182,165+int(i/7)*152);var transform = Transform2D(0,foot-Vector2(0,36));transform.x *= .25;transform.y *= .25;transform.origin -= transform.basis_xform(Vector2(f.anchor[0],f.anchor[1]))
+			transform = game.actor.sewer_riders.crouch_transforms(transform,f,int(entry.kind),tuck).head*f.head_transform
 			var eye = Vector2(old.landmarks.near[0],old.landmarks.near[1]);var chin = Vector2(old.landmarks.chin[0],old.landmarks.chin[1])
 			for source in [eye,eye.lerp(chin,.45),eye.lerp(chin,.72)]:
 				var p = transform*source;var alpha = 0.0
@@ -35,7 +39,7 @@ func run() -> void:
 				if alpha<.90:failures.append("opaque face %s pose%d alpha%.2f" % [entry.id,pose_index,alpha])
 	var folder = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not folder.is_empty():
-		DirAccess.make_dir_recursive_absolute(folder);var f = FileAccess.open(folder+"/faces.json",FileAccess.WRITE);f.store_string(JSON.stringify({"version":"0.10.40","checks":checks,"failures":failures,"poses":12,"accessories":35,"transparent_render_target":true},"  "));f.close()
+		DirAccess.make_dir_recursive_absolute(folder);var f = FileAccess.open(folder+"/faces.json",FileAccess.WRITE);f.store_string(JSON.stringify({"version":ProjectSettings.get_setting("application/config/version"),"checks":checks,"failures":failures,"poses":12,"accessories":35,"transparent_render_target":true},"  "));f.close()
 	print("V140_FACES ",JSON.stringify({"checks":checks,"failures":failures}));sheet.queue_free();view.queue_free();game.set_process(false);game.queue_free();game = null
 	for i in range(8): await process_frame
 	preload("res://scripts/sewer_art.gd").textures.clear();quit(0 if failures.is_empty() else 1)

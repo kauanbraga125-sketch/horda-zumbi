@@ -1,6 +1,8 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.41 — espaço e esgoto como eventos aleatórios**.
+A versão em desenvolvimento **0.10.58** liga o Céu Sombrio à Atmosfera Sombria com meteoros, singularidades e resgates orbitais. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
+
+O último APK publicado em Releases continua sendo a **0.10.41**.
 
 **Para editar e compilar pelo próprio GitHub:** [guia de continuação](CONTINUAR-NO-GITHUB.md) · [compilar novo APK dos fontes no Actions](https://github.com/kauanbraga125-sketch/horda-zumbi/actions/workflows/horda-compilar-apk.yml). Alterações em `monster-game/` geram uma compilação de teste automaticamente; o botão **Run workflow** permite escolher a branch. Baixe o APK em **Artifacts** da execução concluída.
 

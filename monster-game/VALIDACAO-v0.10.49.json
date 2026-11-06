@@ -1,0 +1,853 @@
+{
+  "version": "0.10.49",
+  "engine": "Godot 4.5.1 stable",
+  "renderer": "OpenGL Compatibility, Mesa llvmpipe",
+  "native_rendering": true,
+  "physical_device_tested": false,
+  "android_performance_measured": false,
+  "scope": "One smaller solo craft per actual horde member, stable individual formation and landings, fleet camera framing, denser spatial mist and upper transition wall outside the viewport after boarding.",
+  "runtime_base_commit": "85c26e527e559c6a1affb73bc913383ed94e2110",
+  "validation": {
+    "solo_fleet": {
+      "captures": 35,
+      "checks": 44405,
+      "failures": [],
+      "measurements": [
+        {
+          "boats": 6,
+          "fixture": "1280x720-6-boarded",
+          "shift": -1.92846612273479,
+          "upper_wall_end_ui": -10.1906623840332,
+          "viewport_top_ui": 0.0,
+          "zoom": 0.999001390291559
+        },
+        {
+          "boats": 6,
+          "fixture": "1280x720-6-ride",
+          "shift": 0.0,
+          "upper_wall_end_ui": -9.0,
+          "viewport_top_ui": 0.0,
+          "zoom": 1.0
+        },
+        {
+          "boats": 12,
+          "fixture": "1800x810-12-boarded",
+          "shift": -43.3774364009737,
+          "upper_wall_end_ui": -51.5548553466797,
+          "viewport_top_ui": 0.0,
+          "zoom": 0.999007254308668
+        },
+        {
+          "boats": 12,
+          "fixture": "1800x810-12-ride",
+          "shift": -46.0,
+          "upper_wall_end_ui": -55.0,
+          "viewport_top_ui": 0.0,
+          "zoom": 1.0
+        },
+        {
+          "boats": 12,
+          "fixture": "960x720-12-boarded",
+          "shift": -122.118488800654,
+          "upper_wall_end_ui": -130.288558959961,
+          "viewport_top_ui": -120.0,
+          "zoom": 0.999007298783249
+        },
+        {
+          "boats": 12,
+          "fixture": "960x720-12-ride",
+          "shift": -120.0,
+          "upper_wall_end_ui": -129.0,
+          "viewport_top_ui": -120.0,
+          "zoom": 1.0
+        },
+        {
+          "boats": 20,
+          "fixture": "1280x720-20-boarded",
+          "shift": -97.4687459765028,
+          "upper_wall_end_ui": -83.1168594360352,
+          "viewport_top_ui": 0.0,
+          "zoom": 0.962432470995509
+        },
+        {
+          "boats": 20,
+          "fixture": "1280x720-20-ride",
+          "shift": -103.012259194396,
+          "upper_wall_end_ui": -89.2469863891602,
+          "viewport_top_ui": 0.0,
+          "zoom": 0.963222416812609
+        },
+        {
+          "boats": 64,
+          "fixture": "1280x720-64-boarded",
+          "shift": -240.912470408805,
+          "upper_wall_end_ui": -5.4423713684082,
+          "viewport_top_ui": 0.0,
+          "zoom": 0.605072776055269
+        },
+        {
+          "boats": 64,
+          "fixture": "1280x720-64-ride",
+          "shift": -240.905613672348,
+          "upper_wall_end_ui": -5.44561958312988,
+          "viewport_top_ui": 0.0,
+          "zoom": 0.60507276447156
+        }
+      ],
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "trajectories": {
+      "checks": 37649,
+      "failures": [],
+      "native_captures": 51,
+      "physical_device_tested": false,
+      "version": "0.10.41"
+    },
+    "sewer_mechanics": {
+      "checks": 235,
+      "failures": [],
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "sewer_systems": {
+      "base_rate_sample": [
+        6081,
+        2472,
+        936,
+        396,
+        115
+      ],
+      "checks": 66,
+      "failures": [],
+      "physical_device_tested": false
+    },
+    "journeys": {
+      "checks": 5163,
+      "event_distribution": {
+        "sewer": 14,
+        "space": 10
+      },
+      "failed_rolls": 8,
+      "failures": [],
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "descent": {
+      "checks": 48,
+      "failures": [],
+      "handoffs": [
+        {
+          "fixture": "1280x720-6",
+          "mean_rgb_change": 0.000104942508628819,
+          "pixels": 14661
+        },
+        {
+          "fixture": "1800x810-12",
+          "mean_rgb_change": 5.67157767446793e-05,
+          "pixels": 23970
+        },
+        {
+          "fixture": "960x720-12",
+          "mean_rgb_change": 6.24008195676594e-05,
+          "pixels": 10935
+        }
+      ],
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "phase_surfaces": {
+      "checks": 21,
+      "comparisons": [
+        {
+          "changed_fraction": 0.0,
+          "label": "1280x720-6-approach-entry",
+          "mean_rgb_change": 0.0,
+          "peak": 0.0,
+          "pixels": 28842
+        },
+        {
+          "changed_fraction": 0.0,
+          "label": "1280x720-6-depth-not-clock",
+          "mean_rgb_change": 0.0,
+          "peak": 0.0,
+          "pixels": 28842
+        },
+        {
+          "changed_fraction": 0.00145620969419596,
+          "label": "1280x720-6-entry-ride",
+          "mean_rgb_change": 0.000109498994630522,
+          "peak": 0.0954248399163286,
+          "pixels": 28842
+        },
+        {
+          "changed_fraction": 0.00145620969419596,
+          "label": "1280x720-6-ride-exit",
+          "mean_rgb_change": 0.000109498994630522,
+          "peak": 0.0954248399163286,
+          "pixels": 28842
+        },
+        {
+          "changed_fraction": 0.0,
+          "label": "1800x810-12-approach-entry",
+          "mean_rgb_change": 0.0,
+          "peak": 0.0,
+          "pixels": 47124
+        },
+        {
+          "changed_fraction": 0.0,
+          "label": "1800x810-12-depth-not-clock",
+          "mean_rgb_change": 0.0,
+          "peak": 0.0,
+          "pixels": 47124
+        },
+        {
+          "changed_fraction": 0.00125201595789831,
+          "label": "1800x810-12-entry-ride",
+          "mean_rgb_change": 8.81002070959061e-05,
+          "peak": 0.0941176495204369,
+          "pixels": 47124
+        },
+        {
+          "changed_fraction": 0.00125201595789831,
+          "label": "1800x810-12-ride-exit",
+          "mean_rgb_change": 8.81002070959061e-05,
+          "peak": 0.0941176495204369,
+          "pixels": 47124
+        },
+        {
+          "changed_fraction": 0.0,
+          "label": "960x720-12-approach-entry",
+          "mean_rgb_change": 0.0,
+          "peak": 0.0,
+          "pixels": 21546
+        },
+        {
+          "changed_fraction": 0.0,
+          "label": "960x720-12-depth-not-clock",
+          "mean_rgb_change": 0.0,
+          "peak": 0.0,
+          "pixels": 21546
+        },
+        {
+          "changed_fraction": 0.00153160679476469,
+          "label": "960x720-12-entry-ride",
+          "mean_rgb_change": 0.000106232662670606,
+          "peak": 0.0928104606767495,
+          "pixels": 21546
+        },
+        {
+          "changed_fraction": 0.00153160679476469,
+          "label": "960x720-12-ride-exit",
+          "mean_rgb_change": 0.000106232662670606,
+          "peak": 0.0928104606767495,
+          "pixels": 21546
+        }
+      ],
+      "failures": [],
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "depth_reveal": {
+      "checks": 52,
+      "failures": [],
+      "measurements": [
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "1280x720-6-approach",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 35926
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "1280x720-6-before-fall",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 35926
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 0.000319059348330746,
+          "expect_empty": true,
+          "fall_age": 0.0092647789369128,
+          "fixture": "1280x720-6-first-foot",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 35926
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "1280x720-6-falling",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 28842
+          },
+          "surface_y_pixels": 601.189514160156,
+          "type": "above_surface"
+        },
+        {
+          "drop": 572.59191114554,
+          "expect_empty": false,
+          "fall_age": 2.05926477893691,
+          "fixture": "1280x720-6-deeper",
+          "image_difference": {
+            "changed": 35926,
+            "mean": 0.476973660841597,
+            "peak": 0.59869281668216,
+            "pixels": 35926
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "1280x720-6-deeper-clip",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 35926
+          },
+          "type": "hidden_clip_boundary"
+        },
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "1800x810-12-approach",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 58905
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "1800x810-12-before-fall",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 58905
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 4.14875932809189e-05,
+          "expect_empty": true,
+          "fall_age": 0.00471932439145806,
+          "fixture": "1800x810-12-first-foot",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 58905
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "1800x810-12-falling",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 47481
+          },
+          "surface_y_pixels": 680.306274414062,
+          "type": "above_surface"
+        },
+        {
+          "drop": 468.490419553437,
+          "expect_empty": false,
+          "fall_age": 1.93805265772479,
+          "fixture": "1800x810-12-deeper",
+          "image_difference": {
+            "changed": 56325,
+            "mean": 0.42300691823654,
+            "peak": 0.581699350227912,
+            "pixels": 58905
+          },
+          "throat_depth": 180.0,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "1800x810-12-deeper-clip",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 58905
+          },
+          "type": "hidden_clip_boundary"
+        },
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "960x720-12-approach",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "throat_depth": 237.530278986151,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "960x720-12-before-fall",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "throat_depth": 237.530278986151,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 0.000159529674159853,
+          "expect_empty": true,
+          "fall_age": 0.0092647789369128,
+          "fixture": "960x720-12-first-foot",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "throat_depth": 237.530278986151,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "960x720-12-falling",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 18711
+          },
+          "surface_y_pixels": 543.259155273438,
+          "type": "above_surface"
+        },
+        {
+          "drop": 564.284250372288,
+          "expect_empty": false,
+          "fall_age": 2.05926477893691,
+          "fixture": "960x720-12-deeper",
+          "image_difference": {
+            "changed": 21259,
+            "mean": 0.357928597081031,
+            "peak": 0.586928110569715,
+            "pixels": 26838
+          },
+          "throat_depth": 237.530278986151,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "960x720-12-deeper-clip",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "type": "hidden_clip_boundary"
+        },
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "960x720-12-wide-view-approach",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "throat_depth": 314.777794731988,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 0.0,
+          "expect_empty": true,
+          "fall_age": -1.0,
+          "fixture": "960x720-12-wide-view-before-fall",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "throat_depth": 314.777794731988,
+          "type": "texture_visibility"
+        },
+        {
+          "drop": 0.000159529674159853,
+          "expect_empty": true,
+          "fall_age": 0.0092647789369128,
+          "fixture": "960x720-12-wide-view-first-foot",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "throat_depth": 314.777794731988,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "960x720-12-wide-view-falling",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 18711
+          },
+          "surface_y_pixels": 543.259155273438,
+          "type": "above_surface"
+        },
+        {
+          "drop": 564.785444114841,
+          "expect_empty": false,
+          "fall_age": 2.05926477893691,
+          "fixture": "960x720-12-wide-view-deeper",
+          "image_difference": {
+            "changed": 18981,
+            "mean": 0.321085703412009,
+            "peak": 0.586928110569715,
+            "pixels": 26838
+          },
+          "throat_depth": 314.777794731988,
+          "type": "texture_visibility"
+        },
+        {
+          "fixture": "960x720-12-wide-view-deeper-clip",
+          "image_difference": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 26838
+          },
+          "type": "hidden_clip_boundary"
+        }
+      ],
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "fog": {
+      "checks": 21,
+      "failures": [],
+      "measurements": [
+        {
+          "cloud_motion": {
+            "changed": 5584,
+            "mean": 0.00374059794324414,
+            "peak": 0.02875816822052,
+            "pixels": 19481
+          },
+          "fixture": "1280x720-6"
+        },
+        {
+          "fixture": "1280x720-6",
+          "opaque_wall": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 10879
+          },
+          "open_air_positive_control": {
+            "changed": 6717,
+            "mean": 0.040405105597623,
+            "peak": 0.279738571494818,
+            "pixels": 8602
+          }
+        },
+        {
+          "deep_gallery_motion": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 24541
+          },
+          "fixture": "1280x720-6"
+        },
+        {
+          "cloud_motion": {
+            "changed": 7573,
+            "mean": 0.00317766879535228,
+            "peak": 0.02875816822052,
+            "pixels": 30702
+          },
+          "fixture": "1800x810-12"
+        },
+        {
+          "fixture": "1800x810-12",
+          "opaque_wall": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 16128
+          },
+          "open_air_positive_control": {
+            "changed": 10564,
+            "mean": 0.0424188210585897,
+            "peak": 0.269281047706803,
+            "pixels": 13104
+          }
+        },
+        {
+          "deep_gallery_motion": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 34272
+          },
+          "fixture": "1800x810-12"
+        },
+        {
+          "cloud_motion": {
+            "changed": 3136,
+            "mean": 0.00326360034472203,
+            "peak": 0.0235294153292974,
+            "pixels": 12852
+          },
+          "fixture": "960x720-12"
+        },
+        {
+          "fixture": "960x720-12",
+          "opaque_wall": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 4158
+          },
+          "open_air_positive_control": {
+            "changed": 5937,
+            "mean": 0.0565098214043292,
+            "peak": 0.287581710144877,
+            "pixels": 6804
+          }
+        },
+        {
+          "deep_gallery_motion": {
+            "changed": 0,
+            "mean": 0.0,
+            "peak": 0.0,
+            "pixels": 15309
+          },
+          "fixture": "960x720-12"
+        }
+      ],
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "startup_new": {
+      "checks": 15,
+      "failures": [],
+      "fixture": "new",
+      "physical_device_tested": false,
+      "version": "0.10.49"
+    },
+    "full_cycle": {
+      "captures": 5,
+      "completed": 1,
+      "contacts": [
+        {
+          "cause": "sewer_collapse",
+          "members": 7,
+          "time": 11.0666666666668
+        },
+        {
+          "cause": "sewer_barrel",
+          "members": 6,
+          "time": 18.6833333333336
+        }
+      ],
+      "controlled_obstacles": 7,
+      "dock_arrival": true,
+      "duck_inputs": 3,
+      "encounters": [
+        {
+          "kind": "rubble",
+          "members": 6,
+          "time": 0.800000000000001
+        },
+        {
+          "kind": "pipe",
+          "members": 6,
+          "time": 3.46666666666666
+        },
+        {
+          "kind": "fugitive",
+          "members": 6,
+          "time": 6.13333333333332
+        },
+        {
+          "kind": "collapse",
+          "members": 6,
+          "time": 9.05000000000003
+        },
+        {
+          "kind": "gate",
+          "members": 7,
+          "time": 11.7166666666668
+        },
+        {
+          "kind": "rotor",
+          "members": 7,
+          "time": 14.3833333333336
+        },
+        {
+          "kind": "barrel",
+          "members": 7,
+          "time": 17.0500000000003
+        },
+        {
+          "kind": "rescue",
+          "members": 6,
+          "time": 19.7166666666668
+        },
+        {
+          "kind": "rubble",
+          "members": 8,
+          "time": 22.6333333333333
+        },
+        {
+          "kind": "gate",
+          "members": 8,
+          "time": 25.2999999999998
+        },
+        {
+          "kind": "fugitive",
+          "members": 8,
+          "time": 27.9666666666664
+        }
+      ],
+      "fps": 30,
+      "frames": 1500,
+      "fugitive_variants": [
+        {
+          "kind": "fugitive",
+          "members": 6,
+          "time": 6.13333333333332
+        },
+        {
+          "kind": "fugitive",
+          "members": 8,
+          "time": 27.9666666666664
+        }
+      ],
+      "losses": 2,
+      "members": 9,
+      "physical_device_tested": false,
+      "real_touch_inputs": true,
+      "run_seed": 14142,
+      "safe_passes": 6,
+      "scope": "full event with real touch inputs and one deliberately missed barrel",
+      "souls": 5,
+      "version": "0.10.49"
+    }
+  },
+  "preview": {
+    "entry_finished": true,
+    "entry_started": true,
+    "fps": 30,
+    "frames": 420,
+    "members": 6,
+    "physical_device_tested": false,
+    "version": "0.10.49"
+  },
+  "preview_scope": "Native 1280x720, 30 fps, 14 seconds; actual approach, fall and boarding; hazards disabled after boarding for visual inspection; audio muted.",
+  "visual_review": {
+    "consecutive_frames_examined": [
+      70,
+      213
+    ],
+    "consecutive_frame_count": 144,
+    "original_size_frames": [
+      125,
+      190,
+      240
+    ],
+    "additional_captures_examined": [
+      "960x720-12-ride",
+      "1280x720-64-ride"
+    ],
+    "finding": "Every character boards a compact individual hull; dense moving mist covers the material seams; the upper wall leaves the viewport by camera movement once the group has boarded."
+  },
+  "baseline": {
+    "version": "0.10.48",
+    "file": "Horda-v0.10.48-Previa.mp4",
+    "sha256": "dbc02abcc514174820eba1a137d43ad71922a517027a3698ae3670c13a25a759",
+    "matches_user_uploaded_video": true,
+    "comparison": "Same deterministic preview scene and frame times. Individual craft destinations and camera framing were intentionally changed."
+  },
+  "art": {
+    "runtime_asset": "assets/art/v149/jetski_solo.webp",
+    "source_asset": "tools/art_sources/v149/jetski_solo.webp",
+    "prompt_and_production_metadata": "assets/art/v149/manifest.json",
+    "runtime_size": [
+      1024,
+      451
+    ],
+    "seats_per_craft": 1,
+    "fog_animation": "Existing world-space shader with increased densities and a lower cloud bank, no new fog raster sequence."
+  },
+  "runtime_source_sha256": {
+    "monster-game/scripts/game.gd": "3f5b81bc0a62c0f6ff444d648afb1cd7fe3ce0e7efd1914a8e5b16b60315d9b0",
+    "monster-game/scripts/sewer.gd": "1e34c570300683fd7432b22589f478cc0914ce917419329db1ee70696a7f96f5",
+    "monster-game/scripts/sewer_art.gd": "fdd2acfd5e58bf7c8c7bf38f62b656f4130783e898905963e924bd7bfe1ef71b",
+    "monster-game/scripts/sewer_bridge.gdshader": "e60ac10964e5852997332a5a344551881efd1be663c2a89fc5e57ff2b8918ce2",
+    "monster-game/scripts/sewer_presentation.gd": "f9dae4b22bbc97c44b7b3d165b0a35dcc47ceb55ebbbcb09529bcf90055f6912",
+    "monster-game/scripts/sewer_shaft.gd": "edc2b273eecdc16f10d3f32152f9704e35f7fed72114005e9424e2b95031acf3",
+    "monster-game/assets/art/v149/jetski_solo.webp": "7ab8235516118e1f5bfbce12723182b180ca9e94fe37f3fdc274926a9ed45251",
+    "monster-game/assets/art/v149/manifest.json": "e30e1ae18d063eb3a824c2e2287ea0891efb00da4661daa576e145f6b4233c7a",
+    "monster-game/tools/art_sources/v149/jetski_solo.webp": "1d41562a2cd2098c53cea968c92e4ec263361d99c30e7d9dbea2218bcda83437",
+    "monster-game/startup_integrity.json": "f567e0e3cfc4d07238aaa76a7b1e8504c88c0d094d6a79beeceff41cd2d2ad3e"
+  },
+  "deliverables": [
+    {
+      "file": "Horda-v0.10.49-Previa.mp4",
+      "bytes": 11996299,
+      "sha256": "03b106a35423d0a41eb09476772d585db9950ca6d0dbd5150cdaca08d0810d3a",
+      "url": "https://chatgpt.com/library?file_id=libfile_a18d363e535881918e61b1b502dd44d3&account_id=personal"
+    },
+    {
+      "file": "Horda-v0.10.49-Comparacao.png",
+      "bytes": 1841517,
+      "sha256": "834eb88c6ac419e429ea294b9c1c67595478a562942d3edb0101604a69435203",
+      "url": "https://chatgpt.com/library?file_id=libfile_4af5930ad86c8191a2822c714195bde5&account_id=personal"
+    }
+  ],
+  "ci": "Current commit is checked separately by the Android and native visual workflows; see PR #6 checks and its description for the run URLs."
+}

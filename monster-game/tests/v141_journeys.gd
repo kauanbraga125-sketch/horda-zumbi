@@ -14,14 +14,24 @@ func road(seed_value: int = 13942):
 	for t in r.tunnels:
 		if r.world_px>=float(t.entry) and r.world_px<=float(t.entry)+float(t.length): r.world_px = float(t.entry)+float(t.length)+300
 	return r
-func offered(r) -> bool: return r.space.active or r.sewer.encounter.pending or r.sewer.active
+func offered(r) -> bool: return r.sky.pending or r.sky.active or r.sewer.encounter.pending or r.sewer.active
 func roll(r) -> void:
 	for i in range(30):
 		if offered(r): return
 		r.elapsed = r.sewer.encounter.next_at+.01;r.sewer.encounter.tick(r)
 func finish(r,kind: String) -> void:
-	if kind=="space": r.space.finish(r)
+	if kind=="space":
+		var tapped = false
+		for tick in range(600):
+			if r.sky.pending and not tapped and r.sky.pad_world - r.world_px - r.ANCHOR <= 195.0:
+				r.jump()
+				r.release_jump()
+				tapped = true
+			r.advance(DT)
+			if not r.sky.pending and not r.sky.active: break
 	else:
+		if r.sewer.encounter.pending and not r.sewer.encounter.sewer_armed:
+			r.sewer.encounter.select_sewer(r)
 		if not r.sewer.active: r.sewer.begin(r,true)
 		r.sewer.finish(r)
 func boat_run():
@@ -36,22 +46,24 @@ func run() -> void:
 	var misses = 0
 	for seed_value in range(24):
 		var r = road(seed_value);var e = r.sewer.encounter;var deadline = float(e.next_at)
-		check(deadline>=45 and deadline<=75,"first roll respects a normal-run interval")
+		check(deadline >= e.FIRST_WINDOW.x and deadline <= e.FIRST_WINDOW.y, "first roll respects a normal-run interval")
 		r.elapsed = deadline-.1;e.tick(r);check(not offered(r),"nothing starts before the deadline")
 		r.elapsed = deadline+.01;e.tick(r)
 		if not offered(r): misses += 1;check(e.next_at>r.elapsed,"a failed chance schedules another opportunity")
 		roll(r);check(offered(r),"ordinary safe road eventually offers a journey")
 		var kind = str(e.offered_kind);kinds[kind] = int(kinds.get(kind,0))+1
-		check(kind in ["space","sewer"] and r.bonuses==0,"journeys do not increment power pickup statistics")
+		check(kind in ["space","sewer","both"] and r.bonuses==0,"journeys do not increment power pickup statistics")
 		check(not e.offer(r,true,"sewer" if kind=="space" else "space"),"active journey cannot overlap the other type")
 		if kind=="space":
-			check(r.space.phase=="ascent" and r.space.left==30 and 4 not in r.power_owned,"natural abduction uses the ship ascent without buying or collecting a power")
+			check(r.sky.pending and not r.sky.active and not r.space.active and 4 not in r.power_owned,"the natural ascent offers an optional trampoline on the street")
 			check(7 not in r.power_owned and 8 not in r.power_owned,"natural events do not grant unpurchased combat powers")
-		var ids = r.members.map(func(m):return int(m.id));finish(r,kind)
+		if kind=="both":
+			check(r.sky.pending and e.pending and not e.sewer_armed, "both physical entries are offered without committing")
+		var ids = r.members.map(func(m):return int(m.id));finish(r,"sewer" if kind=="both" else kind)
 		check(r.members.map(func(m):return int(m.id))==ids and r.souls==0,"return preserves actual members and earned souls")
-		check(e.next_at>=r.elapsed+105 and e.completed_count==1,"shared return cooldown starts only once")
+		check(e.next_at>=r.elapsed+e.RETURN_WINDOW.x and e.completed_count==1,"shared return cooldown starts only once")
 		var count = e.offered;r.elapsed += 10;e.tick(r);check(e.offered==count,"a completed trip cannot immediately roll another")
-		roll(r);check(e.offered_kind!=kind,"the next successful natural event avoids repeating the last scenery")
+		roll(r);check(e.offered_kind in ["space", "sewer", "both"],"the next eligible roll offers an independent route choice")
 	check(misses>0 and kinds.has("space") and kinds.has("sewer"),"seeds cover failed rolls and both event families")
 	var r = road();r.perk_left = 3;r.perk_kind = 3
 	check(not r.sewer.encounter.offer(r,false,"space") and not r.sewer.encounter.offer(r,false,"sewer"),"active transformations block both journeys")
@@ -89,7 +101,7 @@ func run() -> void:
 		for i in range(30):r.advance(DT,false)
 		check(s.captured==count and r.souls==count,"captured craft cannot duplicate its occupants")
 		var ids: Array = []
-		for b in s.boats: ids.append_array(b.ids);check(b.ids.size()<=2,"recruits continue using at most two seats")
+		for b in s.boats: ids.append_array(b.ids);check(b.ids.size()==1,"each recruit has a solo ski")
 		check(ids.size()==r.active_count() and ids.all(func(id):return ids.count(id)==1),"recruitment keeps stable unique passenger identities")
 	for type in ["rescue","fugitive"]:
 		r = boat_run();var s = r.sewer;var tail = s.boats[-1]
@@ -97,7 +109,7 @@ func run() -> void:
 		for i in range(100): r.advance(DT,false)
 		var amount = 2 if type=="fugitive" else 1
 		check(s.captured==amount and r.souls==amount,"capture at the trailing craft finishes even beyond the visible edge "+type)
-	var report = {"version":"0.10.41","checks":checks,"failures":failures,"event_distribution":kinds,"failed_rolls":misses,"physical_device_tested":false}
+	var report = {"version":ProjectSettings.get_setting("application/config/version"),"checks":checks,"failures":failures,"event_distribution":kinds,"failed_rolls":misses,"physical_device_tested":false}
 	var folder = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not folder.is_empty():
 		DirAccess.make_dir_recursive_absolute(folder);var f = FileAccess.open(folder+"/journeys.json",FileAccess.WRITE);f.store_string(JSON.stringify(report,"  "));f.close()
