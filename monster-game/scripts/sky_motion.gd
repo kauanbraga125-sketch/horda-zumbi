@@ -4,6 +4,7 @@ const ART = "res://assets/art/v155/"
 const FLIGHT_ART = "res://assets/art/v156/"
 const AIRCRAFT_ART = "res://assets/art/v157/"
 const ORBIT_ART = "res://assets/art/v158/"
+const SPACE_ART = "res://assets/art/v159/"
 const Civil = preload("res://scripts/sky_civilians.gd")
 const FLAP = ["bat_up", "bat_mid", "bat_down", "bat_mid"]
 const IMPULSE = ["impulse_start", "impulse_open", "impulse_wisps"]
@@ -22,6 +23,7 @@ func warm() -> void:
 	load_frames(FLIGHT_ART, JSON.parse_string(FileAccess.get_file_as_string(FLIGHT_ART + "sky_motion.json")))
 	load_frames(AIRCRAFT_ART, JSON.parse_string(FileAccess.get_file_as_string(AIRCRAFT_ART + "aircraft.json")))
 	load_frames(ORBIT_ART, JSON.parse_string(FileAccess.get_file_as_string(ORBIT_ART + "orbit.json")))
+	load_frames(SPACE_ART, JSON.parse_string(FileAccess.get_file_as_string(SPACE_ART + "tardis.json")))
 
 func load_frames(directory: String, manifest: Dictionary) -> void:
 	for name in manifest.atlases:

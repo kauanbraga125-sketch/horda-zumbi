@@ -125,6 +125,7 @@ func paint(g, r) -> void:
 			Cosmic.paint(g, motion, s, e, point)
 		else:
 			motion.paint_prop(g, r, e, point, sprites)
+	s.tardis.paint(g, motion, s, r)
 	s.aircraft.paint_shots(g, motion, r, s)
 	motion.paint_bursts(g, r)
 	var order: Array = r.members.filter(func(m): return not m.falling)
@@ -190,6 +191,10 @@ func hud(g, r) -> void:
 	var metres = int(s.altitude / 30.0)
 	var region = "ATMOSFERA SOMBRIA" if Orbit.blend(s.altitude) >= .66 else ("VENTOS MALDITOS" if metres >= 120 else "BRUMA DO CEMITÉRIO")
 	var region_tint = Color("c3a4e3").lerp(Color("ffc6ad"), Orbit.blend(s.altitude))
+	var deep_space = Orbit.space_blend(s.altitude)
+	if deep_space >= .56:
+		region = "UNIVERSO MALIGNO"
+		region_tint = region_tint.lerp(Color("a3e9ff"), deep_space)
 	g.home_menu.label(g, region, edge + Vector2(4, 103), 17, region_tint, false)
 	var message = "TOQUE PARA SUBIR"
 	var colour = g.CREAM

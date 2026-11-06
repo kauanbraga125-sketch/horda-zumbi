@@ -1,6 +1,7 @@
 extends RefCounted
 
 const PERSON_HEIGHT = 96.0
+const Tardis = preload("res://scripts/sky_tardis.gd")
 
 var active: Array[Dictionary] = []
 
@@ -94,7 +95,9 @@ func complete(r, sky, person: Dictionary) -> void:
 		var centre = foot - Vector2(0, 48)
 		sky.emit_burst(r, "conversion", centre)
 		r.events.append({"type": "sky_civil", "x": centre.x, "y": centre.y, "prop": person.prop, "passenger": person.from_vehicle})
-		if not person.from_vehicle:
+		if person.prop == Tardis.KIND:
+			sky.tardis.confirm_capture(sky)
+		elif not person.from_vehicle:
 			sky.notice = "+1 ALMA • CIVIL CAPTURADO"
 			sky.notice_left = 1.12
 

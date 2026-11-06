@@ -4,6 +4,7 @@ extends RefCounted
 const Civil = preload("res://scripts/sky_civilians.gd")
 const Air = preload("res://scripts/sky_aircraft.gd")
 const Cosmic = preload("res://scripts/sky_cosmic.gd")
+const Tardis = preload("res://scripts/sky_tardis.gd")
 const OPENING = [
 	[.54, 435.0, "ember"], [1.12, 634.0, "balloon"],
 	[1.78, 1040.0, "ember"], [2.58, 1230.0, "bat"], [2.88, 1440.0, "ember"],
@@ -18,6 +19,7 @@ const OPENING = [
 var random = RandomNumberGenerator.new()
 var gate = 0
 var orbit_gate = 0
+var tardis_offered = false
 var next_x = 0.0
 var next_height = 0.0
 var speed = 0.0
@@ -29,6 +31,7 @@ func start(r, sky) -> void:
 	random.seed = int(r.run_seed) ^ roundi(r.world_px) ^ 0x5a71
 	gate = 0
 	orbit_gate = 0
+	tardis_offered = false
 	speed = r.speed
 	var origin = r.world_px + r.ANCHOR
 	for entry in OPENING:
@@ -47,6 +50,7 @@ func rejoin(r, sky, support: Dictionary) -> void:
 	for i in range(sky.objects.size() - 1, -1, -1):
 		var e: Dictionary = sky.objects[i]
 		if e.get("generated", false) and float(e.x) > horizon:
+			if e.kind == Tardis.KIND and e.used_at < 0.0: tardis_offered = false
 			sky.objects.remove_at(i)
 	var rock = Cosmic.ROCKS.has(support.kind)
 	next_x = float(support.x) + speed * .83
@@ -111,6 +115,9 @@ func place_orbit_leg(sky) -> void:
 	var side_time = 1.45
 	var side_height = next_height + lift * side_time - .5 * sky.GRAVITY * side_time * side_time
 	var prop = [Cosmic.ASTRONAUT, Cosmic.SATELLITE, Cosmic.UFO, Cosmic.HOLE][orbit_gate % 4]
+	if not tardis_offered and next_height >= Tardis.MIN_HEIGHT and prop != Cosmic.HOLE:
+		tardis_offered = true
+		prop = Tardis.KIND
 	var bonus_height = side_height + (53.0 if prop == Cosmic.HOLE else (122.0 if small else 103.0))
 	add(sky, prop, next_x + speed * side_time, bonus_height)
 	next_x += seconds * speed

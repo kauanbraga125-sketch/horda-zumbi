@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Air = preload("res://scripts/sky_aircraft.gd")
+const Tardis = preload("res://scripts/sky_tardis.gd")
 const SMALL = "meteor_small"
 const LARGE = "meteor_large"
 const HOLE = "singularity"
@@ -16,7 +17,7 @@ const ROCKS = {
 }
 
 static func is_prop(kind: String) -> bool:
-	return ROCKS.has(kind) or kind in [HOLE, ASTRONAUT, SATELLITE, UFO]
+	return ROCKS.has(kind) or kind in [HOLE, ASTRONAUT, SATELLITE, UFO, Tardis.KIND]
 
 static func point(r, sky, e: Dictionary, age: float) -> Vector2:
 	var t = age + float(e.height) * .008
@@ -29,6 +30,8 @@ static func point(r, sky, e: Dictionary, age: float) -> Vector2:
 		return base
 	if e.kind == HOLE:
 		return base + Vector2(0.0, sin(t * .8) * 8.0)
+	if e.kind == Tardis.KIND:
+		return base + Tardis.drift(t)
 	var swing = Vector2(sin(t * 2.0) * 18.0, sin(t * 2.6) * 12.0 - 46.0)
 	if e.kind == ASTRONAUT and e.alert_at >= 0.0:
 		swing += Vector2(24, -19) * smoothstep(.04, .76, age - float(e.alert_at))
@@ -40,6 +43,8 @@ static func contact(r, sky, e: Dictionary, now: Vector2, before: Vector2, previo
 		rock_contact(r, sky, e, now, before, previous_feet)
 	elif e.kind == HOLE:
 		hole_contact(r, sky, e, now, before, previous_feet, dt)
+	elif e.kind == Tardis.KIND:
+		sky.tardis.contact(r, sky, e, now, before, previous_feet)
 	else:
 		civil_contact(r, sky, e, now, before, previous_feet)
 
@@ -134,6 +139,9 @@ static func paint(g, motion, sky, e: Dictionary, pos: Vector2) -> void:
 		return
 	if kind == HOLE:
 		paint_hole(canvas, motion, pos, time, spent if used else -1.0)
+		return
+	if kind == Tardis.KIND:
+		if not used: Tardis.paint_idle(g, motion, pos, time)
 		return
 	if kind == ASTRONAUT:
 		if used: return

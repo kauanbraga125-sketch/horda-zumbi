@@ -325,6 +325,14 @@ func consume_run_events() -> void :
 			"sky_cosmic_warn": sound.play("power_warning", -23)
 			"sky_orbit_grab":
 				if e.prop != "astronaut": sound.play("glass_break", -19)
+			"sky_tardis_grab":
+				sound.play("glass_break", -12);shake = 3.0
+			"sky_tardis_phase":
+				match e.phase:
+					"rewind": sound.play("space_beam", -19)
+					"repeat": sound.play("glass_break", -17);shake = 2.0
+					"open": sound.play("space_discovery", -17)
+			"sky_tardis_release": sound.play("space_capture", -18)
 			"sky_land":
 				effects.clear();sound.play("heavy_land", -13);shake = 6.0 * float(e.force)
 				sound.play("explosion", -24)

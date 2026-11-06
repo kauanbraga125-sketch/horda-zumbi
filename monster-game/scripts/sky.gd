@@ -16,10 +16,12 @@ const Course = preload("res://scripts/sky_course.gd")
 const Civil = preload("res://scripts/sky_civilians.gd")
 const Air = preload("res://scripts/sky_aircraft.gd")
 const Cosmic = preload("res://scripts/sky_cosmic.gd")
+const Tardis = preload("res://scripts/sky_tardis.gd")
 var course = Course.new()
 var visual = preload("res://scripts/sky_visual.gd").new()
 var aircraft = Air.new()
 var captures = preload("res://scripts/sky_captures.gd").new()
+var tardis = Tardis.new()
 var pending = false
 var active = false
 var pad_world = 0.0
@@ -63,6 +65,7 @@ func reset() -> void:
 	bursts.clear()
 	aircraft.shots.clear()
 	captures.clear()
+	tardis.clear()
 	landing.clear()
 	reform_left = 0.0
 	spacing.clear()
@@ -121,6 +124,7 @@ func begin(r, member: Dictionary) -> void:
 	bursts.clear()
 	aircraft.shots.clear()
 	captures.clear()
+	tardis.clear()
 	landing.clear()
 	reform_left = 0.0
 	for e in r.entities:
@@ -428,10 +432,12 @@ func advance(r, dt: float) -> void:
 		finish(r)
 		return
 	captures.advance(r, self, dt)
+	tardis.advance(r, self)
 	update_contacts(r, travel, dt, previous_feet)
 	aircraft.advance_shots(r, self, dt, travel, previous_feet)
 
 func finish(r) -> void:
+	tardis.settle(r, self)
 	captures.settle(r, self)
 	active = false
 	objects.clear()
