@@ -7,14 +7,14 @@ var active: Array[Dictionary] = []
 func clear() -> void:
 	active.clear()
 
-func add(r, centre: Vector2, member_id: int, prop: String, variant: int = -1, delay: float = 0.0) -> void:
+func add(r, centre: Vector2, member_id: int, prop: String, variant: int = -1, delay: float = 0.0, sprite: String = "") -> void:
 	var foot = centre + Vector2(0.0, PERSON_HEIGHT * .5)
 	var passenger = variant >= 0
 	var person = {
 		"id": r.next_entity_id, "kind": "civilian", "variant": variant, "state": "normal",
 		"taken": false, "rescued": passenger, "from_vehicle": passenger, "group": -1,
 		"x": foot.x, "y": foot.y, "origin": foot + Vector2(r.world_px, 0.0),
-		"delay": delay, "prop": prop, "capturer": member_id,
+		"delay": delay, "prop": prop, "capturer": member_id, "sprite": sprite,
 	}
 	r.next_entity_id += 1
 	active.append(person)
@@ -37,7 +37,7 @@ func grip(r, person: Dictionary) -> void:
 	var member = choose_member(r, person)
 	if member.is_empty(): return
 	r.begin_capture(person, member)
-	if person.from_vehicle:
+	if person.from_vehicle and person.sprite.is_empty():
 		match int(person.variant):
 			0:
 				person.civil_key = "civil_casaco_azul_nerd"
@@ -105,7 +105,7 @@ func settle(r, sky) -> void:
 func paint(g, motion, member_id: int) -> void:
 	for person in active:
 		if person.state != "capture" or int(person.capturer) != member_id: continue
-		if person.from_vehicle:
+		if person.from_vehicle and person.sprite.is_empty():
 			g.draw_civilian(person)
 			continue
 		var u = HordeCaptureMotion.progress(person)
@@ -113,4 +113,6 @@ func paint(g, motion, member_id: int) -> void:
 		var point = foot - Vector2(0, PERSON_HEIGHT * .5) + HordeCaptureMotion.offset(person, PERSON_HEIGHT)
 		var tint = HordeCaptureMotion.tint(person)
 		tint = tint.lerp(Color(.90, .65, 1.0, tint.a), smoothstep(.65, .98, u))
-		motion.sprite(g.paint_target, str(person.prop) + "_panic", point, 122.0, tint, HordeCaptureMotion.angle(person))
+		var key: String = str(person.prop) + "_panic" if person.sprite.is_empty() else person.sprite
+		if key == "orbit_alien_caught" and u < .26: key = "orbit_alien_float"
+		motion.sprite(g.paint_target, key, point, 122.0, tint, HordeCaptureMotion.angle(person))

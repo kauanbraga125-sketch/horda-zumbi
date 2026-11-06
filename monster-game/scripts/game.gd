@@ -320,6 +320,11 @@ func consume_run_events() -> void :
 			"sky_aircraft_warn": sound.play("power_warning", -18)
 			"sky_aircraft_shot": sound.play("gunshot", -14)
 			"sky_bullet_hit": sound.play("space_hit", -14);shake = 3.0
+			"sky_meteor": sound.play("smash", -16);shake = 3.0
+			"sky_singularity": sound.play("space_hit", -14);shake = 4.0
+			"sky_cosmic_warn": sound.play("power_warning", -23)
+			"sky_orbit_grab":
+				if e.prop != "astronaut": sound.play("glass_break", -19)
 			"sky_land":
 				effects.clear();sound.play("heavy_land", -13);shake = 6.0 * float(e.force)
 				sound.play("explosion", -24)

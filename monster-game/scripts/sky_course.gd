@@ -3,6 +3,7 @@ extends RefCounted
 # Opening sequence teaches both kinds of lift before the generated climb.
 const Civil = preload("res://scripts/sky_civilians.gd")
 const Air = preload("res://scripts/sky_aircraft.gd")
+const Cosmic = preload("res://scripts/sky_cosmic.gd")
 const OPENING = [
 	[.54, 435.0, "ember"], [1.12, 634.0, "balloon"],
 	[1.78, 1040.0, "ember"], [2.58, 1230.0, "bat"], [2.88, 1440.0, "ember"],
@@ -16,6 +17,7 @@ const OPENING = [
 
 var random = RandomNumberGenerator.new()
 var gate = 0
+var orbit_gate = 0
 var next_x = 0.0
 var next_height = 0.0
 var speed = 0.0
@@ -26,6 +28,7 @@ static func pressure(height: float) -> float:
 func start(r, sky) -> void:
 	random.seed = int(r.run_seed) ^ roundi(r.world_px) ^ 0x5a71
 	gate = 0
+	orbit_gate = 0
 	speed = r.speed
 	var origin = r.world_px + r.ANCHOR
 	for entry in OPENING:
@@ -45,17 +48,21 @@ func rejoin(r, sky, support: Dictionary) -> void:
 		var e: Dictionary = sky.objects[i]
 		if e.get("generated", false) and float(e.x) > horizon:
 			sky.objects.remove_at(i)
+	var rock = Cosmic.ROCKS.has(support.kind)
 	next_x = float(support.x) + speed * .83
-	next_height = float(support.height) + 411.0
+	next_height = float(support.height) + (548.0 if rock else 411.0)
 	add(sky, "ember", next_x, next_height)
 	next_x = float(support.x) + speed * 2.33
-	next_height = float(support.height) + 585.0
+	next_height = float(support.height) + (650.0 if rock else 585.0)
 
 func add(sky, kind: String, x: float, height: float) -> void:
 	var object: Dictionary = sky.add_object(kind, x, height)
 	object.generated = true
 
 func place_leg(sky) -> void:
+	if next_height >= Cosmic.FIRST_METEOR:
+		place_orbit_leg(sky)
+		return
 	var difficulty = pressure(next_height)
 	# A free lift alone cannot reach the next support. The brasa between
 	# them pays for the extra tap if the player times it well.
@@ -89,3 +96,24 @@ func place_leg(sky) -> void:
 	next_x += seconds * speed
 	next_height += rise
 	gate += 1
+
+func place_orbit_leg(sky) -> void:
+	var small = orbit_gate % 2 == 0
+	var kind = Cosmic.SMALL if small else Cosmic.LARGE
+	var lift: float = Cosmic.ROCKS[kind].lift
+	var difficulty = pressure(next_height)
+	var seconds = (2.28 if small else 2.54) + random.randf_range(-.05, .065)
+	var rise = lerpf(592.0, 737.0, difficulty) + random.randf_range(-22.0, 23.0)
+	add(sky, kind, next_x, next_height)
+	var ember_time = .86
+	var arc = lift * ember_time - .5 * sky.GRAVITY * ember_time * ember_time
+	add(sky, "ember", next_x + speed * ember_time, next_height + arc + 58.0)
+	var side_time = 1.45
+	var side_height = next_height + lift * side_time - .5 * sky.GRAVITY * side_time * side_time
+	var prop = [Cosmic.ASTRONAUT, Cosmic.SATELLITE, Cosmic.UFO, Cosmic.HOLE][orbit_gate % 4]
+	var bonus_height = side_height + (53.0 if prop == Cosmic.HOLE else (122.0 if small else 103.0))
+	add(sky, prop, next_x + speed * side_time, bonus_height)
+	next_x += seconds * speed
+	next_height += rise
+	gate += 1
+	orbit_gate += 1

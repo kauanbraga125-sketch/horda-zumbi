@@ -15,6 +15,7 @@ const POSES = {
 const Course = preload("res://scripts/sky_course.gd")
 const Civil = preload("res://scripts/sky_civilians.gd")
 const Air = preload("res://scripts/sky_aircraft.gd")
+const Cosmic = preload("res://scripts/sky_cosmic.gd")
 var course = Course.new()
 var visual = preload("res://scripts/sky_visual.gd").new()
 var aircraft = Air.new()
@@ -188,6 +189,7 @@ func strike_length(e: Dictionary) -> float:
 
 func object_point(r, e: Dictionary, at: float) -> Vector2:
 	if Air.is_aircraft(e.kind): return aircraft.point(r, self, e, at)
+	if Cosmic.is_prop(e.kind): return Cosmic.point(r, self, e, at)
 	var rhythm = float(e.height) * .013
 	var amplitude = 11.0 if e.kind == "bat" else 5.0
 	var y = r.FLOOR - float(e.height) + (19.0 if e.kind == "cloud" else -46.0)
@@ -228,7 +230,18 @@ func knock_down(r, speed: float) -> void:
 	boost_left = 0.0
 	offer_recovery(r)
 
-func lose_member(r, member_index: int, cause: String) -> bool:
+func block_rise(r, depth: float, speed: float) -> void:
+	var correction = minf(depth, altitude)
+	altitude -= correction
+	velocity = minf(velocity, speed)
+	cooldown = maxf(cooldown, .20)
+	boost_left = 0.0
+	for m in r.members:
+		if m.falling: continue
+		m.y += correction
+		m.vy = -velocity
+
+func lose_member(r, member_index: int, cause: String, sink: Vector2 = Vector2(INF, INF)) -> bool:
 	# The last zombie can still take the recovery route back to the street.
 	if r.active_count() <= 1: return false
 	var member: Dictionary = r.members[member_index]
@@ -239,7 +252,10 @@ func lose_member(r, member_index: int, cause: String) -> bool:
 	r.damage(member_index, cause)
 	if r.active_count() >= previous: return false
 	spacing.erase(int(member.id))
-	emit_burst(r, "casualty", foot, {"member_kind": kind, "wear": wear})
+	if is_inf(sink.x):
+		emit_burst(r, "casualty", foot, {"member_kind": kind, "wear": wear})
+	else:
+		emit_burst(r, "swallow", foot, {"member_kind": kind, "wear": wear, "sink": sink + Vector2(r.world_px, 0.0)})
 	r.refresh_formation()
 	reform_left = 1.1
 	return true
@@ -290,9 +306,11 @@ func offer_recovery(r) -> void:
 	var ember = add_object("ember", origin + r.speed * .90, height_after_drop(.76))
 	ember.recovery = true
 	# A late tap meets the support after the fall. Passing beneath it still leads to the road.
-	var cloud_height = height_after_drop(.76) + 370.0
-	var cloud = add_object("cloud", origin + r.speed * 1.59, cloud_height)
-	cloud.recovery = true
+	var in_orbit = altitude >= Cosmic.FIRST_METEOR
+	var support_kind = Cosmic.SMALL if in_orbit else "cloud"
+	var support = add_object(support_kind, origin + r.speed * (2.38 if in_orbit else 1.59),
+		height_after_drop(.76) + (500.0 if in_orbit else 370.0))
+	support.recovery = true
 
 func swept_pickup(m: Dictionary, previous_feet: Dictionary, point: Vector2, previous_point: Vector2, radius: Vector2) -> bool:
 	var foot = Vector2(m.x, m.y)
@@ -306,6 +324,7 @@ func swept_pickup(m: Dictionary, previous_feet: Dictionary, point: Vector2, prev
 func update_contacts(r, travel: float, dt: float, previous_feet: Dictionary) -> void:
 	var lead_index: int = r.leader_index()
 	var lead: Dictionary = r.members[lead_index] if lead_index >= 0 else {}
+	var reach = float(r.ANCHOR) if lead.is_empty() else maxf(float(r.ANCHOR), float(lead.x))
 	# A hit or recovery can add a route while processing contacts.
 	for e in objects.duplicate():
 		var kind: String = e.kind
@@ -315,6 +334,11 @@ func update_contacts(r, travel: float, dt: float, previous_feet: Dictionary) -> 
 			var previous = object_point(r, e, age - dt) + Vector2(travel, 0.0)
 			aircraft.advance_craft(r, self, e, point, previous, previous_feet, lead)
 			continue
+		if Cosmic.is_prop(kind):
+			if point.x < r.view_left - 160.0 or point.x > reach + 520.0: continue
+			var previous = object_point(r, e, age - dt) + Vector2(travel, 0.0)
+			Cosmic.contact(r, self, e, point, previous, previous_feet, dt)
+			continue
 		var civil = Civil.is_civil(kind)
 		var hazard = kind in ["bat", "storm"]
 		if hazard:
@@ -323,7 +347,6 @@ func update_contacts(r, travel: float, dt: float, previous_feet: Dictionary) -> 
 		var radius: Vector2 = Vector2(63, 74) if civil else POSES[kind]
 		if point.x < r.view_left - radius.x: continue
 		if civil: Civil.alert(e, age, point, lead)
-		var reach = float(r.ANCHOR) if lead.is_empty() else maxf(float(r.ANCHOR), float(lead.x))
 		if point.x > reach + radius.x + travel + 38.0: continue
 		var striking = kind == "storm" and hazard_phase(e) == "attack"
 		if kind == "storm" and not striking: continue

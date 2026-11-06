@@ -80,15 +80,7 @@ func advance_craft(r, sky, craft: Dictionary, centre: Vector2, old_centre: Vecto
 		event.lost = int(sky.lose_member(r, member_index, "vehicle"))
 		sky.notice = "IMPACTO COM A PATRULHA"
 	elif side == "under":
-		var correction = minf(float(closest.correction), sky.altitude)
-		sky.altitude -= correction
-		sky.velocity = minf(sky.velocity, -85.0)
-		sky.cooldown = maxf(sky.cooldown, .20)
-		sky.boost_left = 0.0
-		for m in r.members:
-			if m.falling: continue
-			m.y += correction
-			m.vy = -sky.velocity
+		sky.block_rise(r, float(closest.correction), -85.0)
 		if craft.get("bumped_under", false): return
 		craft.bumped_under = true
 		sky.emit_burst(r, "air_scrape", Vector2(member.x, member.y - HEAD_HEIGHT))

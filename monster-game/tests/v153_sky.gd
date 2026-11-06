@@ -1,6 +1,8 @@
 extends "res://tests/v147_reveal.gd"
 
 const Air = preload("res://scripts/sky_aircraft.gd")
+const Cosmic = preload("res://scripts/sky_cosmic.gd")
+const Orbit = preload("res://scripts/sky_cosmic_vista.gd")
 var frames = 0
 var recording = false
 var routes: Array[Dictionary] = []
@@ -97,6 +99,10 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 	var shots_fired = 0
 	var shots_dodged = 0
 	var shots_hit = 0
+	var meteors: Array[String] = []
+	var swallowed = 0
+	var orbit_step = 0.0
+	var last_orbit_alpha = 0.0
 	var full_pickups = 0
 	var recovery_pickups = 0
 	var rescued = 0
@@ -106,6 +112,9 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 	var previous_foot = Vector2.ZERO
 	var named_frames = [3.37, 3.88, 4.36, 8.63, 9.17, 10.22, 10.59, 10.80, 11.10, 11.41, 12.00,
 		14.66, 15.22, 15.62, 18.85, 19.60, 20.00, 20.28, 20.64, 21.00]
+	if label == "orbita":
+		named_frames = [14.1, 16.3, 18.9, 20.80, 22.55, 23.08, 23.27, 24.08, 24.63, 25.19,
+			25.50, 26.39, 26.88, 28.92, 29.31, 30.94, 31.71, 32.06, 32.30, 34.3, 36.5, 38.9]
 	var next_sample = 0
 	var launch_pressed = false
 	for tick in range(4200):
@@ -120,6 +129,9 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 		var before_impact: float = s.velocity
 		var before_souls: int = r.souls
 		r.advance(STEP, game.jump_held)
+		var alpha = Orbit.blend(s.altitude)
+		orbit_step = maxf(orbit_step, absf(alpha - last_orbit_alpha))
+		last_orbit_alpha = alpha
 		for e in r.events:
 			if e.type == "sky_launch":
 				launch_count += 1
@@ -138,6 +150,17 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 			if e.type == "sky_grab":
 				check(r.souls == before_souls and s.captures.active.any(func(person): return person.prop == e.prop and person.capture_left > .0),
 					label + ": the grab starts a capture animation before adding a recruit")
+			if e.type == "sky_orbit_grab":
+				check(r.souls == before_souls and s.captures.active.any(func(person): return person.prop == e.prop and not person.sprite.is_empty()),
+					label + ": orbital passengers start a capture before conversion")
+			if e.type == "sky_meteor":
+				meteors.append(e.prop)
+				check(s.velocity >= float(Cosmic.ROCKS[e.prop].lift) and s.bursts.any(func(b): return b.kind == "meteor_shatter" and b.at == s.age),
+					label + ": a meteor shatters and immediately launches the horde")
+			if e.type == "sky_singularity":
+				swallowed += int(e.lost)
+				check(s.velocity < 0 and s.recovering and e.lost == 1 and s.bursts.any(func(b): return b.kind == "swallow" and b.at == s.age),
+					label + ": the core pulls one shrinking zombie in and opens a recovery window")
 			if e.type == "sky_civil":
 				civilians.append(e.prop)
 				if not e.passenger: solo.append(e.prop)
@@ -205,7 +228,8 @@ func play_route(label: String, taps: Array, capture: bool, restart: bool = false
 		"events": timestamps, "camera_delta_px": height_per_frame, "gates": s.course.gate, "losses": r.losses,
 		"civilians": civilians, "full_pickups": full_pickups, "recovery_pickups": recovery_pickups,
 		"rescued": rescued, "rejoined": rejoined, "fall_distance_px": fall_distance, "solo": solo, "aircraft": impacts,
-		"shots_fired": shots_fired, "shots_dodged": shots_dodged, "shots_hit": shots_hit}
+		"shots_fired": shots_fired, "shots_dodged": shots_dodged, "shots_hit": shots_hit,
+		"meteors": meteors, "swallowed": swallowed, "orbit_step": orbit_step}
 	routes.append(report)
 	return report
 
@@ -229,7 +253,7 @@ func run() -> void:
 	game.data = MonsterCatalog.defaults()
 	await launcher_ground_test()
 	var inputs = [1.90, 5.85, 6.80, 8.18, 13.33, 16.20, 17.85, 19.12]
-	var ascent = await play_route("subida", inputs, recording)
+	var ascent = await play_route("subida", inputs, false)
 	check(ascent.peak_m >= 155 and ascent.gates >= 7, "timed taps climb across generated gates after the recovery")
 	check("ember" in ascent.contacts and "balloon" in ascent.contacts and "cloud" in ascent.contacts, "the charge and both free boosts are reachable")
 	check(ascent.solo == ["para_ochre", "para_lilac", "jetpack"], "both parachutists and the jetpack pilot join the horde")
@@ -242,20 +266,28 @@ func run() -> void:
 		"all six passengers complete a capture animation and convert once")
 	check(ascent.shots_fired > 0 and ascent.shots_dodged > 0 and ascent.shots_hit == 0,
 		"the locked military shot can be dodged with a timed tap")
-	var under = await play_route("por_baixo", [1.9, 5.85, 6.8, 10.03], recording, true, Vector2(9.65, 12.30))
+	var under = await play_route("por_baixo", [1.9, 5.85, 6.8, 10.03], false, true)
 	check(under.aircraft.any(func(hit): return hit.prop == Air.PLANE and hit.side == "under") and under.civilians.count(Air.PLANE) == 0,
 		"rising into the belly keeps the passenger plane in flight")
-	var front = await play_route("de_frente", [1.9, 5.85, 6.8, 9.84], recording, true, Vector2(9.50, 12.80))
+	var front = await play_route("de_frente", [1.9, 5.85, 6.8, 9.84], false, true)
 	check(front.aircraft.any(func(hit): return hit.prop == Air.PLANE and hit.side == "front" and hit.lost == 1)
 		and front.civilians.count(Air.PLANE) == 4, "the frontal run loses one zombie and recruits four passengers")
 	inputs[-1] = 19.68
-	var hit = await play_route("tiro", inputs, recording, true, Vector2(18.43, 20.90))
+	var hit = await play_route("tiro", inputs, false, true)
 	check(hit.shots_fired == 1 and hit.shots_hit == 1 and hit.losses == 1, "a late dodge lets a live bullet knock the horde down and remove one member")
 	var storm = await play_route("tempestade", [1.9], false, true)
 	check("storm" in storm.contacts and storm.rescued == 0 and storm.rejoined == 0 and storm.peak_m < ascent.peak_m,
 		"passing through a recovery ember without tapping still leads back to the road")
 	var bat = await play_route("morcego", [2.22], false, true)
 	check("bat" in bat.contacts and bat.losses == 1 and bat.peak_m < storm.peak_m, "the opening bat punishes a late tap")
+	inputs[-1] = 19.12
+	inputs.append_array([21.55, 23.42, 25.78, 28.42])
+	var orbit = await play_route("orbita", inputs, recording, true)
+	check(orbit.peak_m >= 310 and orbit.orbit_step < .02, "the same climb reaches orbit with a continuous altitude-based crossfade")
+	check(orbit.meteors == [Cosmic.SMALL, Cosmic.LARGE, Cosmic.SMALL, Cosmic.LARGE], "the upper course supports a chain of both meteor sizes")
+	check(orbit.civilians.count(Cosmic.ASTRONAUT) == 1 and orbit.civilians.count(Cosmic.SATELLITE) == 1
+		and orbit.civilians.count(Cosmic.UFO) == 2, "the astronaut, satellite and alien shuttle contribute all four recruits")
+	check(orbit.swallowed == 1 and orbit.losses == 1, "one singularity consumes one member and the remaining horde reaches the road")
 	var report = {"version": str(ProjectSettings.get_setting("application/config/version")), "checks": checks, "failures": failures, "video_frames": frames, "routes": routes}
 	var out = FileAccess.open(folder + "/sky.json", FileAccess.WRITE)
 	out.store_string(JSON.stringify(report, "  "))

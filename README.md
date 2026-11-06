@@ -1,6 +1,6 @@
 # Horda Zumbi
 
-A versão em desenvolvimento **0.10.57** adiciona capturas animadas, aeronaves civis e patrulhas armadas ao Céu Sombrio. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
+A versão em desenvolvimento **0.10.58** liga o Céu Sombrio à Atmosfera Sombria com meteoros, singularidades e resgates orbitais. [Detalhes dos jet skis individuais](monster-game/TRANSICAO-v0.10.49.md).
 
 O último APK publicado em Releases continua sendo a **0.10.41**.
 

@@ -3,6 +3,7 @@ extends RefCounted
 const ART = "res://assets/art/v155/"
 const FLIGHT_ART = "res://assets/art/v156/"
 const AIRCRAFT_ART = "res://assets/art/v157/"
+const ORBIT_ART = "res://assets/art/v158/"
 const Civil = preload("res://scripts/sky_civilians.gd")
 const FLAP = ["bat_up", "bat_mid", "bat_down", "bat_mid"]
 const IMPULSE = ["impulse_start", "impulse_open", "impulse_wisps"]
@@ -20,6 +21,7 @@ func warm() -> void:
 	for point in manifest.eye_points: elder_eyes.append(Vector2(point[0], point[1]))
 	load_frames(FLIGHT_ART, JSON.parse_string(FileAccess.get_file_as_string(FLIGHT_ART + "sky_motion.json")))
 	load_frames(AIRCRAFT_ART, JSON.parse_string(FileAccess.get_file_as_string(AIRCRAFT_ART + "aircraft.json")))
+	load_frames(ORBIT_ART, JSON.parse_string(FileAccess.get_file_as_string(ORBIT_ART + "orbit.json")))
 
 func load_frames(directory: String, manifest: Dictionary) -> void:
 	for name in manifest.atlases:
@@ -140,6 +142,20 @@ func paint_bursts(g, r) -> void:
 			"air_scrape":
 				sprite(canvas, "catch_wisp", origin, 109.0 + 75.0 * t, Color(1, .75, .48, fade))
 				burst_particles(canvas, origin, t, AMBER, 16, 147.0, .62)
+			"meteor_shatter":
+				var width: float = b.width
+				var point = origin + Vector2(-44.0 * t, 80.0 * t * t)
+				var scale = width / float(frames.meteor_shards.size.x)
+				sprite(canvas, "meteor_shards", point, scale * (1.0 + .91 * t), Color(1, .87, .68, fade), .48 * t)
+				burst_particles(canvas, point, t, Color("ff995e"), 16, 162.0, .2)
+			"swallow":
+				var sink: Vector2 = b.sink - Vector2(r.world_px, 0.0)
+				var pull = smoothstep(0.0, 1.0, t)
+				var swirl = Vector2.from_angle(t * TAU * 1.13) * (sin(t * PI) * 31.0)
+				var foot = origin.lerp(sink, pull) + swirl
+				var tint = Color(1, .85, .78, 1.0 - smoothstep(.68, 1.0, t))
+				g.actor.paint(canvas, int(b.member_kind), foot, lerpf(112.0, 5.0, pull),
+					0.0, "fall", elapsed, 0.0, tint, false, 1.0, true, elapsed, 260.0, b.wear)
 			"ember":
 				halo(canvas, origin, 30.0 + 54.0 * t, LILAC, .70 * fade)
 				burst_particles(canvas, origin, t, LILAC, 12, 67.0, .23)

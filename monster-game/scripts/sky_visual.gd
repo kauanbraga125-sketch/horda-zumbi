@@ -5,6 +5,8 @@ const ATLAS = preload("res://assets/art/v153/props.webp")
 const Atmosphere = preload("res://scripts/sky_atmosphere.gd")
 const Civil = preload("res://scripts/sky_civilians.gd")
 const Air = preload("res://scripts/sky_aircraft.gd")
+const Cosmic = preload("res://scripts/sky_cosmic.gd")
+const Orbit = preload("res://scripts/sky_cosmic_vista.gd")
 var motion = preload("res://scripts/sky_motion.gd").new()
 # Sole positions in the atlas tile, including its transparent border.
 const PAD_FEET = [Vector2(.15, .835), Vector2(.50, .962), Vector2(.86, .835)]
@@ -47,6 +49,8 @@ func paint_background(g, r) -> void:
 		if y > top and y < bottom: bands.append(y)
 	bands.append(bottom)
 	var high_tint = Color.WHITE.lerp(Color("b3b7e4"), smoothstep(4600.0, 13000.0, s.altitude))
+	var orbit = Orbit.blend(s.altitude)
+	high_tint = high_tint.lerp(Color("d7adc6"), orbit * .42)
 	var u0 = (left - image_left) / width
 	var u1 = (right - image_left) / width
 	for i in range(bands.size() - 1):
@@ -60,7 +64,8 @@ func paint_background(g, r) -> void:
 		var uv = PackedVector2Array([Vector2(u0, v0), Vector2(u1, v0), Vector2(u1, v1), Vector2(u0, v1)])
 		var tint = PackedColorArray([Color(high_tint, a0), Color(high_tint, a0), Color(high_tint, a1), Color(high_tint, a1)])
 		g.paint_target.draw_polygon(quad, tint, uv, BACKDROP)
-	Atmosphere.paint(g, r, motion, blend)
+	Atmosphere.paint(g, r, motion, blend * (1.0 - orbit))
+	Orbit.paint(g, r, motion)
 
 func launcher(g, r) -> void:
 	var s = r.sky
@@ -116,6 +121,8 @@ func paint(g, r) -> void:
 				speaker_pos = point
 		elif Air.is_aircraft(e.kind):
 			s.aircraft.paint(g, motion, s, e, point)
+		elif Cosmic.is_prop(e.kind):
+			Cosmic.paint(g, motion, s, e, point)
 		else:
 			motion.paint_prop(g, r, e, point, sprites)
 	s.aircraft.paint_shots(g, motion, r, s)
@@ -181,8 +188,9 @@ func hud(g, r) -> void:
 	g.gameplay_ui.glyph(g, "pause", pause_rect.get_center(), 40, g.CREAM)
 	g.home_menu.register(g, pause_rect, "pause")
 	var metres = int(s.altitude / 30.0)
-	var region = "CÉU PROFUNDO" if metres >= 300 else ("VENTOS MALDITOS" if metres >= 120 else "BRUMA DO CEMITÉRIO")
-	g.home_menu.label(g, region, edge + Vector2(4, 103), 17, Color("c3a4e3"), false)
+	var region = "ATMOSFERA SOMBRIA" if Orbit.blend(s.altitude) >= .66 else ("VENTOS MALDITOS" if metres >= 120 else "BRUMA DO CEMITÉRIO")
+	var region_tint = Color("c3a4e3").lerp(Color("ffc6ad"), Orbit.blend(s.altitude))
+	g.home_menu.label(g, region, edge + Vector2(4, 103), 17, region_tint, false)
 	var message = "TOQUE PARA SUBIR"
 	var colour = g.CREAM
 	if s.charges <= 0:
