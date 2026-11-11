@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/chain-v127-lossless.ctex"
+path="res://.godot/imported/chain.png-54ab7b4066acf61649624d1d7639cf3f.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v127/chain.png"
-dest_files=["res://.godot/imported/chain-v127-lossless.ctex"]
+dest_files=["res://.godot/imported/chain.png-54ab7b4066acf61649624d1d7639cf3f.ctex"]
 
 [params]
 

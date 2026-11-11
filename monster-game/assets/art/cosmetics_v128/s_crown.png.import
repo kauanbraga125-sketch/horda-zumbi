@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/s_crown-v128-lossless.ctex"
+path="res://.godot/imported/s_crown.png-6d88950f833515f84da1fdd500bdf432.ctex"
 metadata={"vram_texture":false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v128/s_crown.png"
-dest_files=["res://.godot/imported/s_crown-v128-lossless.ctex"]
+dest_files=["res://.godot/imported/s_crown.png-6d88950f833515f84da1fdd500bdf432.ctex"]
 
 [params]
 

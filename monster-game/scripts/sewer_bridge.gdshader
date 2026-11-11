@@ -15,6 +15,7 @@ uniform float effect_time = 0.0;
 uniform float water_clock = 0.0;
 uniform float water_scroll = 0.0;
 uniform float shore_edge = 800.0;
+uniform float opening_width = 200.0;
 uniform bool opening_mask = false;
 uniform bool exit_mode = false;
 uniform float exit_opening = 0.0;
@@ -141,7 +142,14 @@ void fragment() {
 	if (opening_mask) {
 		float chips = (soft_noise(vec2(depth * 0.04, 7.6)) - 0.5) * 16.0;
 		float retreat = clamp(depth * 0.53, 0.0, 148.0);
-		opacity *= smoothstep(chips - retreat - 26.0, chips - retreat * 0.70 + 8.0, from_edge);
+		float mouth = smoothstep(0.0, 6.0, depth) * (1.0 - smoothstep(95.0, 240.0, depth));
+		color = mix(color, vec3(0.027, 0.021, 0.043), mouth * 0.85);
+		opacity = max(opacity, mouth * 0.99);
+		float near_bank = smoothstep(chips - retreat - 26.0, chips - retreat * 0.70 + 8.0, from_edge);
+		float far_bank = 1.0 - smoothstep(opening_width + retreat - 8.0, opening_width + retreat + 26.0, from_edge);
+		// The two road banks end above the gallery instead of forming an
+		// infinitely thick wall that the falling horde would pass through.
+		opacity *= mix(near_bank * far_bank, 1.0, smoothstep(180.0, 330.0, depth));
 	}
 	if (exit_mode) {
 		float opening = mix(-0.22, 0.73, exit_opening) + irregularity * 0.0012;

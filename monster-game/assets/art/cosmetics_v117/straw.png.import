@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/straw-v117-lossless.ctex"
+path="res://.godot/imported/straw.png-661c244efdb41ac8baadaec92eb31789.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v117/straw.png"
-dest_files=["res://.godot/imported/straw-v117-lossless.ctex"]
+dest_files=["res://.godot/imported/straw.png-661c244efdb41ac8baadaec92eb31789.ctex"]
 
 [params]
 

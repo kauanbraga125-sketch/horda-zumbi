@@ -358,6 +358,9 @@ func member_floor(m: Dictionary) -> Dictionary:
 func reform_x(m: Dictionary, target: float, dt: float, blockers = null) -> float:
 
 	if float(m.get("reform_hold_until", 0.0)) > elapsed: return float(m.x)
+	# Keep every follower's takeoff point stable through this road branch.
+	# Reordering a crowded formation mid-jump could pull a safe arc into the hole.
+	if sewer.encounter.pending and (float(m.vy)<0 or float(m.y)<FLOOR-2.0 or not m.jump_queue.is_empty()): return float(m.x)
 	var airborne = float(m.y) < float(m.get("surface_y", ground_y(float(m.x)))) - 4.0
 	var candidate: = move_toward(float(m.x), target, dt * (HordeTuning.REFORM_AIR_SPEED if airborne else HordeTuning.REFORM_WALK_SPEED))
 	if not airborne:
@@ -479,6 +482,7 @@ func spawn_next_pattern() -> void :
 	next_pattern_world = finish_world - ANCHOR;pattern_index += 1;next_segment = pattern_index + 1
 
 func has_floor(x: float) -> bool:
+	if sewer.encounter.contains(self, x): return false
 	if boost_protected(): return true
 	if inside_tunnel(): return true
 	for e in physics_gaps:
@@ -710,6 +714,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	for entity in entities:
 		if not entity.taken and MonsterCatalog.VEHICLES.has(entity.kind): blockers.append(entity)
 	var launcher_contact: Dictionary = {}
+	var sewer_contact = false
 	for i in range(members.size() - 1, -1, -1):
 		var m = members[i]
 		var previous_x = float(m.x)
@@ -786,13 +791,15 @@ func advance(dt: float, jump_held: bool = false) -> void :
 				m.landed_at = elapsed - dt + dt * clampf((floor_y - previous_y) / maxf(1e-05, float(m.y) - previous_y), 0, 1) if not was_grounded else float(m.get("landed_at", -1))
 				m.y = floor_y;m.vy = 0;m.air_jumps = 0
 			if boost_protected() and not m.falling and m.y > floor_y: m.y = floor_y;m.vy = 0.0
-			if m.y > FLOOR + 12:
+			if sewer.encounter.contains(self, float(m.x)) and float(m.y) > FLOOR + .01 and float(m.vy) > 0:
+				sewer_contact = true
+			elif m.y > FLOOR + 12:
 				if not m.falling: m.death_kind = perk_kind if perk_left > 0 else int(m.kind)
 				cached_active = -1
 				m.falling = true;m.jump_queue.clear();m.jump_delay = -1.0;m.jump_at = -1.0;m.coyote = 0.0;m.glide_left = 0.0
 		if not m.falling: HordeBalance.resolve_ceiling(m, previous_y, physics_surfaces)
-		if m.y > FLOOR + 145 and active_count() == 0: rescue_from_pit()
-		if m.y > FLOOR + 170:
+		if m.y > FLOOR + 145 and active_count() == 0 and not sewer_contact: rescue_from_pit()
+		if m.y > FLOOR + 170 and not sewer_contact:
 			remove_member(i, "fall")
 		elif int(m.formation_rank) < 3 and not m.falling and m.y >= floor_y - 0.1 and m.y <= floor_y + 0.1 and floor_here and m.jump_delay < 0:
 			var phase = int(float(m.run_phase) * 2)
@@ -805,6 +812,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 	if not launcher_contact.is_empty():
 		sky.begin(self, launcher_contact)
 		return
+	if sewer_contact and sewer.encounter.enter(self): return
 	sky.pass_launcher(self)
 	for e in entities:
 		if e.taken: continue

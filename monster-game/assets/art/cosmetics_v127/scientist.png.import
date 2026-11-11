@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/scientist-v127-lossless.ctex"
+path="res://.godot/imported/scientist.png-0b7be31d67d0baa6cae04ccd27ec391c.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v127/scientist.png"
-dest_files=["res://.godot/imported/scientist-v127-lossless.ctex"]
+dest_files=["res://.godot/imported/scientist.png-0b7be31d67d0baa6cae04ccd27ec391c.ctex"]
 
 [params]
 

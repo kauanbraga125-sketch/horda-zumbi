@@ -50,6 +50,7 @@ func configure(g,s) -> void:
 	mat.set_shader_parameter("water_clock",s.age)
 	mat.set_shader_parameter("water_scroll",s.scroll)
 	mat.set_shader_parameter("shore_edge",p.edge)
+	mat.set_shader_parameter("opening_width",s.entry_gap_width if s.active else s.encounter.gap_width)
 	mat.set_shader_parameter("opening_mask",not s.active or s.phase=="entry")
 	var exiting: bool = s.active and s.phase=="exit"
 	mat.set_shader_parameter("exit_mode",exiting)

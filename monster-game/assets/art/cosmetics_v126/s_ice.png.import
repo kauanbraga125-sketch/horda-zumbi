@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/s_ice-v126-lossless.ctex"
+path="res://.godot/imported/s_ice.png-18e35ca94c461bc71c01f5ac19915b03.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v126/s_ice.png"
-dest_files=["res://.godot/imported/s_ice-v126-lossless.ctex"]
+dest_files=["res://.godot/imported/s_ice.png-18e35ca94c461bc71c01f5ac19915b03.ctex"]
 
 [params]
 

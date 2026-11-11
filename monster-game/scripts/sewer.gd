@@ -71,6 +71,7 @@ var sequence: Array = []
 var rush_left = 0.0
 var layout_rows = 1
 var entry_edge_world = 0.0
+var entry_gap_width = 200.0
 var entry_travel = 0.0
 var descent_camera = 0.0
 var exit_ramp_origin = LEAD+160.0
@@ -104,6 +105,7 @@ func begin(r,force: bool = false) -> bool:
 	if r.dead: return false
 	if not encounter.pending: visual.shaft.reset_cover()
 	entry_edge_world = encounter.dock_world-DOCK_TO_EDGE if encounter.pending else r.world_px+LEAD-DOCK_TO_EDGE
+	entry_gap_width = encounter.gap_width if encounter.pending else 200.0
 	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 32.0;left = duration
 	pressure = .23;serial = 0;scroll = 0;next_encounter = .8;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
 	duck_buffer = 0;clean_streak = 0;rush_left = 0;encounter.pending = false
@@ -116,6 +118,7 @@ func begin(r,force: bool = false) -> bool:
 	r.perk_left = 0;r.perk_kind = -1;r.transform_left = 0;r.boost_left = 0;r.blessings.reset()
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
 	for m in r.members:
+		m.sewer_entry_vy = maxf(0.0,float(m.vy)) if float(m.y)>r.FLOOR else 0.0
 		starts[int(m.id)] = Vector2(m.x,m.y);m.sewer_pose = "run";m.sewer_board = 0.0;m.jump_queue.clear();m.jump_at = -1;m.jump_delay = -1;m.falling = false;m.vy = 0;m.roof_id = -1
 		m.sewer_drop_at = -1.0;m.sewer_onboard = false
 	# Assign forward slots to the members already farthest along the street.
@@ -252,6 +255,8 @@ func dock_x(r,slot: int) -> float:
 	return boat_x(r,index) if index>=0 else LEAD
 func dock_y(_r,_slot: int) -> float: return WATER-24
 func shore_edge() -> float: return entry_edge_world-start_world-entry_travel if active and phase=="entry" else LEAD-DOCK_TO_EDGE
+func far_edge(r) -> float:
+	return shore_edge()+entry_gap_width if active and phase=="entry" else encounter.right(r)
 func entry_blend() -> float: return smoothstep(3.15,ENTRY_SECONDS,phase_age)
 func ramp_left(_r) -> float: return exit_ramp_origin-exit_speed*phase_age
 func takeoff_at(_r,b: Dictionary) -> float:
@@ -523,11 +528,16 @@ func _update_members(r,_dt: float) -> void:
 					m.sewer_pose = "run" if start.y>=r.FLOOR-6 or phase_age>=.4 else "board"
 				else:
 					var target = Vector2(b.x,b.y+entry_drop())+local.rotated(float(b.angle))
-					var duration_fall = sqrt(2*maxf(1,target.y-r.FLOOR)/ENTRY_GRAVITY)
+					var origin_y = maxf(r.FLOOR,start.y)
+					var initial_vy = float(m.get("sewer_entry_vy",0.0))
+					var duration_fall = (sqrt(initial_vy*initial_vy+2*ENTRY_GRAVITY*maxf(1,target.y-origin_y))-initial_vy)/ENTRY_GRAVITY
 					var falling_time = maxf(0,phase_age-float(m.sewer_drop_at))
 					var u = clampf(falling_time/duration_fall,0,1)
-					var travel = u+u*u-u*u*u
-					foot = Vector2(lerpf(start.x,target.x,travel),r.FLOOR+.5*ENTRY_GRAVITY*falling_time*falling_time-entry_drop())
+					# First fall inside the hole; move toward the boats below the road.
+					var clear_road = (sqrt(initial_vy*initial_vy+2*ENTRY_GRAVITY*encounter.ROAD_THICKNESS)-initial_vy)/ENTRY_GRAVITY
+					var travel = smoothstep(clear_road,duration_fall,falling_time)
+					var shaft_x = start.x-r.speed*falling_time
+					foot = Vector2(lerpf(shaft_x,target.x,travel),origin_y+initial_vy*falling_time+.5*ENTRY_GRAVITY*falling_time*falling_time-entry_drop())
 					m.sewer_pose = "board";m.sewer_board = u
 					if u>=1:
 						foot = target-Vector2(0,entry_drop());m.sewer_pose = "ride"

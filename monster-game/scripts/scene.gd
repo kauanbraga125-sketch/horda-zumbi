@@ -86,6 +86,11 @@ func road_end(run: HordeRun) -> float:
 	if run.sewer.active and run.sewer.phase=="entry": return run.sewer.shore_edge()
 	return INF
 
+func road_resume(run: HordeRun) -> float:
+	if run.sewer.encounter.cutout_pending(): return run.sewer.encounter.right(run)
+	if run.sewer.active and run.sewer.phase=="entry": return run.sewer.far_edge(run)
+	return INF
+
 func street_rect(canvas: Node2D,rect: Rect2,color: Color,_edge: float) -> void:
 	# This is distant atmosphere, not the physical walkable road.
 	canvas.draw_rect(rect,color)
@@ -104,8 +109,8 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 		var offset = fposmod(run.world_px * [0.055, 0.19, 0.48][layer], width)
 		for tile in range(-1, 3):
 			var dest = Rect2(tile * width - offset, bottom - height, width + 1, height)
-			if not is_inf(edge) and layer>0: feather_bank(canvas,texture,dest,left,right,edge,layer==2)
-			else: clip_texture(canvas,texture,dest,left,right)
+			# Distant scenery continues behind both banks of the road opening.
+			clip_texture(canvas,texture,dest,left,right)
 	if area == 0:
 		for i in range(2):
 			var point = Vector2(fposmod(i * 770 - run.world_px * 0.52, 1540) - 140, HordeRun.FLOOR - 111)

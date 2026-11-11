@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/s_chaos-v126-lossless.ctex"
+path="res://.godot/imported/s_chaos.png-13a722f7c77caee4fd84a7c90a05378a.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v126/s_chaos.png"
-dest_files=["res://.godot/imported/s_chaos-v126-lossless.ctex"]
+dest_files=["res://.godot/imported/s_chaos.png-13a722f7c77caee4fd84a7c90a05378a.ctex"]
 
 [params]
 

@@ -1131,14 +1131,6 @@ func draw_run() -> void :
 
 func draw_run_hud() -> void :
 	gameplay_ui.hud(self)
-	var encounter = runner.sewer.encounter
-	if screen == "run" and encounter.pending and not encounter.sewer_armed:
-		var view = full_rect()
-		var card = Rect2(view.end.x - 342.0, view.position.y + 121.0, 314.0, 100.0)
-		panel(card, Color("221a30"), Color("a88768"), 14)
-		var label = "ESGOTO OU TRAMPOLIM" if runner.sky.pending else "DESVIO OPCIONAL"
-		text(label, card.position + Vector2(157, 26), 15, MINT, true, true)
-		button(Rect2(card.position + Vector2(12, 38), Vector2(290, 48)), "ENTRAR NO ESGOTO", "journey_sewer", Color("3f675e"), -2, 21)
 	if not runner.space.active: hub.draw_run_notice(self)
 	if perfect_left > 0 and not runner.space.active:
 		var alpha = minf(1,perfect_left*3)
@@ -1150,18 +1142,15 @@ func draw_pause() -> void :
 
 func draw_sewer_marker() -> void:
 	var encounter = runner.sewer.encounter
-	if not encounter.pending or encounter.sewer_armed: return
-	var x = encounter.dock_world - runner.world_px - runner.sewer.DOCK_TO_EDGE
-	if x < scenery.view_left - 115.0 or x > scenery.view_right + 115.0: return
-	var floor_y = runner.ground_y(x)
-	paint_target.draw_set_transform(Vector2(x, floor_y + 2), 0.0, Vector2(59.0, 15.0))
-	paint_target.draw_circle(Vector2.ZERO, 1.0, Color("171022"), true, -1, true)
-	paint_target.draw_circle(Vector2.ZERO, .83, Color("795c50"), false, .12, true)
-	paint_target.draw_set_transform(Vector2.ZERO)
-	for i in range(-2, 3):
-		paint_target.draw_line(Vector2(x + 16 * i, floor_y - 6), Vector2(x + 16 * i, floor_y + 10), Color("69515b"), 3.0, true)
-	panel(Rect2(x - 60.0, floor_y - 67.0, 120.0, 32.0), Color("292239"), Color("9a785d"), 8)
-	text("ESGOTO", Vector2(x, floor_y - 44), 17, MINT, true, true)
+	if not encounter.pending: return
+	var x = (encounter.left(runner) + encounter.right(runner)) * .5
+	if x < scenery.view_left - 130.0 or x > scenery.view_right + 130.0: return
+	var floor_y = runner.FLOOR
+	var rect = Rect2(x - 118.0, floor_y - 113.0, 236.0, 57.0)
+	panel(rect, Color("241b32"), Color("9a785d"), 9)
+	text("ESGOTO", Vector2(x, rect.position.y + 23.0), 19, MINT, true, true)
+	text("SALTO LONGO: SEGURE", Vector2(x, rect.position.y + 44.0), 14, CREAM, true, true)
+	paint_target.draw_line(Vector2(x,floor_y-50),Vector2(x,floor_y-18),Color("9a785d"),2.0,true)
 
 func draw_results() -> void :
 	views.results(self)
@@ -1819,9 +1808,13 @@ func update_camera(dt: float) -> void :
 			sewer_zoom = minf(sewer_zoom,lerpf(CAMERA_BASE_ZOOM,anchored_zoom,smoothstep(.15,1.5,falling)))
 			if all_onboard: sewer_zoom = fleet_zoom
 			var highest = INF;var lowest = -INF
+			var falling_left = required_left;var falling_right = required_right
 			for member in runner.members:
 				highest = minf(highest,float(member.y)-118);lowest = maxf(lowest,float(member.y)+8)
+				falling_left = minf(falling_left,float(member.x)-65.0)
+				falling_right = maxf(falling_right,float(member.x)+65.0)
 			var fit = (safe_bottom-safe_top)/maxf(1,lowest-highest)
+			fit = minf(fit,(full_rect().size.x-150.0)/maxf(1.0,falling_right-falling_left))
 			sewer_zoom = minf(sewer_zoom,fit)
 			camera_zoom = minf(fit,lerpf(camera_zoom,sewer_zoom,1-exp(-dt*6.0)))
 			var lower = safe_top-(CAMERA_ANCHOR.y+(highest-runner.FLOOR)*camera_zoom)
@@ -1832,7 +1825,7 @@ func update_camera(dt: float) -> void :
 				shift = minf(shift,(runner.FLOOR-gallery_top)*camera_zoom-CAMERA_ANCHOR.y-layout_origin.y)
 			camera_ground_shift = lerpf(camera_ground_shift,shift,1-exp(-dt*9.0))
 			camera_ground_shift = clampf(camera_ground_shift,minf(lower,upper),maxf(lower,upper))
-			if all_onboard: pan_sewer_camera(required_left,required_right,dt)
+			pan_sewer_camera(falling_left,falling_right,dt)
 			return
 		var target_shift = 0.0
 		if runner.sewer.phase=="exit":
@@ -2171,7 +2164,7 @@ func start_lab(kind: String, count: int = -1, stage: int = -1) -> void :
 	if kind == "sewer":
 		runner.developer_kind = "";runner.power_owned = [3,4];runner.active_cosmetics = data.get("active_cosmetics",[]).duplicate()
 		for i in range(runner.members.size()): runner.members[i].kind = 1 if i%3==1 else 0
-		runner.entities.clear();runner.events.clear();runner.sewer.encounter.offer(runner,true)
+		runner.entities.clear();runner.events.clear();runner.sewer.encounter.offer(runner,true,"both")
 	camera_focus = 0;camera_zoom = CAMERA_BASE_ZOOM;camera_ground_shift = 0;camera_sewer_pan = 0;perfect_left = 0
 	effects.clear();ui_effects.clear();scenery.reset();end_delay = -1
 	last_save = 0;last_stats.clear();run_challenges.clear();trail_tick = 0

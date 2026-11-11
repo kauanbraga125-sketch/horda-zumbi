@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/skull-v127-lossless.ctex"
+path="res://.godot/imported/skull.png-18b8fbce2321cf17315f42e5380b7515.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v127/skull.png"
-dest_files=["res://.godot/imported/skull-v127-lossless.ctex"]
+dest_files=["res://.godot/imported/skull.png-18b8fbce2321cf17315f42e5380b7515.ctex"]
 
 [params]
 

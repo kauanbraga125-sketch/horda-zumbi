@@ -1,0 +1,584 @@
+{
+  "version": "0.10.61",
+  "route_tests": {
+    "cases": [
+      {
+        "choice": "sewer",
+        "entered_at": 2.4,
+        "fps": 30,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 26.1663208007812,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 30,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 605.160886112612,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 30,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 218.777777777778,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.4,
+        "fps": 30,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 214.217702040794,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 30,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 615.738945272002,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 30,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 218.777777777778,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.4,
+        "fps": 30,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 62.8941440974821,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 30,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 624.364238834623,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 30,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 218.777777777778,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.4,
+        "fps": 60,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 26.4171752929688,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 60,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 609.703516667416,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 60,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 218.881944444444,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.4,
+        "fps": 60,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 206.46478841918,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 60,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 620.565360938465,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 60,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 218.881944444444,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.4,
+        "fps": 60,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 65.8473750757402,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 60,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 628.91618571013,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 60,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 218.881944444444,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.39999999999999,
+        "fps": 120,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 26.6638793945312,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 120,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 606.227834722974,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 120,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 1,
+        "peak_jump": 218.881944444444,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.39999999999999,
+        "fps": 120,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 202.341773731402,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 120,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 618.118345714188,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 120,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 6,
+        "peak_jump": 218.881944444444,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      },
+      {
+        "choice": "sewer",
+        "entered_at": 2.39166666666666,
+        "fps": 120,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 52.8795302129286,
+        "route": "sewer",
+        "sewer_phase": "ride",
+        "sky_active": false
+      },
+      {
+        "choice": "sky",
+        "entered_at": -1.0,
+        "fps": 120,
+        "landing_on_far_bank": false,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 625.465093808606,
+        "route": "sky",
+        "sewer_phase": "ground",
+        "sky_active": true
+      },
+      {
+        "choice": "street",
+        "entered_at": -1.0,
+        "fps": 120,
+        "landing_on_far_bank": true,
+        "losses": 0,
+        "members": 20,
+        "peak_jump": 218.881944444444,
+        "route": "street",
+        "sewer_phase": "ground",
+        "sky_active": false
+      }
+    ],
+    "failures": [],
+    "physical_device_tested": false,
+    "version": "0.10.61"
+  },
+  "native_preview": {
+    "sky": {
+      "choice": "sky",
+      "fps": 30,
+      "frames": 210,
+      "losses": 0,
+      "members": 6,
+      "physical_device_tested": false,
+      "real_touch_input": true,
+      "route": "sky",
+      "trace": [
+        {
+          "camera_drop": 0.0,
+          "frame": 0,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 30,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 60,
+          "members": 6,
+          "phase": "ground",
+          "route": "sky",
+          "sky": true
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 90,
+          "members": 6,
+          "phase": "ground",
+          "route": "sky",
+          "sky": true
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 120,
+          "members": 6,
+          "phase": "ground",
+          "route": "sky",
+          "sky": true
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 150,
+          "members": 6,
+          "phase": "ground",
+          "route": "sky",
+          "sky": true
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 180,
+          "members": 6,
+          "phase": "ground",
+          "route": "sky",
+          "sky": false
+        }
+      ]
+    },
+    "sewer": {
+      "choice": "sewer",
+      "fps": 30,
+      "frames": 310,
+      "losses": 0,
+      "members": 6,
+      "physical_device_tested": false,
+      "real_touch_input": true,
+      "route": "sewer",
+      "trace": [
+        {
+          "camera_drop": 0.0,
+          "frame": 0,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 30,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 60,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 19.2884902892776,
+          "frame": 90,
+          "members": 6,
+          "phase": "entry",
+          "route": "sewer",
+          "sky": false
+        },
+        {
+          "camera_drop": 311.411675279374,
+          "frame": 120,
+          "members": 6,
+          "phase": "entry",
+          "route": "sewer",
+          "sky": false
+        },
+        {
+          "camera_drop": 961.095048027073,
+          "frame": 150,
+          "members": 6,
+          "phase": "entry",
+          "route": "sewer",
+          "sky": false
+        },
+        {
+          "camera_drop": 1099.57796524323,
+          "frame": 180,
+          "members": 6,
+          "phase": "entry",
+          "route": "sewer",
+          "sky": false
+        },
+        {
+          "camera_drop": 1099.99895388043,
+          "frame": 210,
+          "members": 6,
+          "phase": "entry",
+          "route": "sewer",
+          "sky": false
+        },
+        {
+          "camera_drop": 1099.99999740693,
+          "frame": 240,
+          "members": 6,
+          "phase": "entry",
+          "route": "sewer",
+          "sky": false
+        },
+        {
+          "camera_drop": 1100.0,
+          "frame": 270,
+          "members": 6,
+          "phase": "ride",
+          "route": "sewer",
+          "sky": false
+        },
+        {
+          "camera_drop": 1100.0,
+          "frame": 300,
+          "members": 6,
+          "phase": "ride",
+          "route": "sewer",
+          "sky": false
+        }
+      ]
+    },
+    "street": {
+      "choice": "street",
+      "fps": 30,
+      "frames": 180,
+      "losses": 0,
+      "members": 6,
+      "physical_device_tested": false,
+      "real_touch_input": true,
+      "route": "street",
+      "trace": [
+        {
+          "camera_drop": 0.0,
+          "frame": 0,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 30,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 60,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 90,
+          "members": 6,
+          "phase": "ground",
+          "route": "",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 120,
+          "members": 6,
+          "phase": "ground",
+          "route": "street",
+          "sky": false
+        },
+        {
+          "camera_drop": 0.0,
+          "frame": 150,
+          "members": 6,
+          "phase": "ground",
+          "route": "street",
+          "sky": false
+        }
+      ]
+    }
+  },
+  "android_build": {
+    "version": "0.10.61",
+    "version_code": 164,
+    "base_sha256": "944132b54c758bd053351bb1e25d8b6b93b5717845eb5f709b3c50fc7472c8b7",
+    "sha256": "70fbd1f1886ad782352b2f5d2d269b8adf413523179c6dfc745860a480f915c5",
+    "package": "com.kauan.noitedahorda.rotas",
+    "audit_files": 338,
+    "resource_count": 1388,
+    "android_layout": {
+      "min_sdk": 24,
+      "target_sdk": 35,
+      "extract_native_libs": true,
+      "resources_arsc_compression": 0,
+      "resources_arsc_offset": 28444536,
+      "resources_arsc_bytes": 59356
+    },
+    "physical_device_tested": false
+  },
+  "physical_device_tested": false,
+  "github_publication": "Pending owner approval after automatic review rejection"
+}

@@ -103,7 +103,7 @@ func launcher(g, r) -> void:
 	if not s.pending or x < r.ANCHOR - 12.0: return
 	var cue = Vector2(x, floor_y - 159.0)
 	var rect = Rect2(cue - Vector2(123.0, 29.0), Vector2(246.0, 49.0))
-	var ready = x - r.ANCHOR < clampf(r.speed * .83, 225.0, 420.0)
+	var ready = x - r.ANCHOR < clampf(r.speed * .44, 105.0, 230.0)
 	g.panel(rect, Color("301b43"), g.GOLD if ready else Color("b992c8"), 12, 2)
 	g.text("PULE AGORA" if ready else "PULE PARA SUBIR", cue + Vector2(0, 4), 21, g.GOLD if ready else g.CREAM, true, true, 3)
 	var arrow = cue + Vector2(0, 34.0 + sin(g.ui_time * 6.2) * 4.0)

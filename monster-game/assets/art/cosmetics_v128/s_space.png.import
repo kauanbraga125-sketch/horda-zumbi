@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/s_space-v128-lossless.ctex"
+path="res://.godot/imported/s_space.png-2a27c041be4284a413de42457aa7e890.ctex"
 metadata={"vram_texture":false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v128/s_space.png"
-dest_files=["res://.godot/imported/s_space-v128-lossless.ctex"]
+dest_files=["res://.godot/imported/s_space.png-2a27c041be4284a413de42457aa7e890.ctex"]
 
 [params]
 
