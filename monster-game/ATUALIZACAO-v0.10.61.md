@@ -39,5 +39,7 @@ godot --headless --path monster-game --script res://tests/v161_lab.gd
 Build-Tools 35. O APK de teste usa `com.kauan.noitedahorda.rotas`, instalando em
 separado das edições anteriores. A chave de teste fica fora do versionamento.
 
-Os dois commits locais separam a recuperação da 0.10.60 e esta correção. A
-publicação no GitHub aguarda autorização do proprietário.
+A recuperação da 0.10.60 e esta correção ficam em commits separados. Os fontes
+estão publicados na branch `fix/sewer-three-routes-v161`, com autorização do
+proprietário. A integração à `main` fica em revisão enquanto o APK é testado
+no aparelho físico.

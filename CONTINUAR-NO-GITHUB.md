@@ -1,10 +1,10 @@
 # Continuar o Horda Zumbi pelo GitHub
 
-A base atual é **0.10.41**, preservada na tag [v0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.41). Os fontes completos, sprites, áudio, licenças e testes estão em [`monster-game/`](monster-game/). Nenhum serviço deste chat é necessário para editar ou compilar.
+Os fontes desta branch estão na versão **0.10.61**, com a entrada física do esgoto e as três rotas descritas em [`ATUALIZACAO-v0.10.61.md`](monster-game/ATUALIZACAO-v0.10.61.md). O projeto completo, sprites, áudio, licenças e testes estão em [`monster-game/`](monster-game/). A release [v0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.41) permanece como base nativa Android da compilação automática.
 
 ## Editar e baixar um novo APK
 
-1. Abra [`monster-game/`](monster-game/) na branch **main**. Use o lápis para editar um arquivo ou pressione **.** no repositório para abrir o editor web do GitHub.
+1. Abra [`monster-game/`](monster-game/) na branch **fix/sewer-three-routes-v161**. Use o lápis para editar um arquivo ou pressione **.** no repositório para abrir o editor web do GitHub.
 2. Salve suas mudanças com **Commit changes**. Para trabalhar separado, crie uma branch e um pull request; a compilação também roda no pull request.
 3. Abra [Actions → Horda Zumbi — compilar APK dos fontes](https://github.com/kauanbraga125-sketch/horda-zumbi/actions/workflows/horda-compilar-apk.yml).
 4. A compilação começa após alterações em `monster-game/`. Para iniciar manualmente, clique em **Run workflow**, escolha a branch e deixe `assinatura: teste`.
