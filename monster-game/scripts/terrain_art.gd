@@ -1,6 +1,17 @@
 class_name HordeTerrainArt
 extends RefCounted
 
+const SEWER_BANK_INSET = 128.0
+const SEWER_BANK_PROFILE = [
+	Vector2(0, 0), Vector2(-3, 8), Vector2(-12, 17), Vector2(-7, 25),
+	Vector2(-25, 38), Vector2(-19, 49), Vector2(-38, 66), Vector2(-48, 87),
+	Vector2(-40, 101), Vector2(-60, 123), Vector2(-57, 146), Vector2(-76, 171),
+	Vector2(-72, 198), Vector2(-98, 230), Vector2(-92, 264), Vector2(-126, 321),
+]
+const SEWER_LIP_SOURCE = Rect2(207, 564, 209, 311)
+const SEWER_LIP_SCALE = 0.365
+const SEWER_CHIPS = [Rect2(1474, 382, 44, 49), Rect2(1610, 349, 58, 69), Rect2(1523, 346, 22, 33)]
+
 static func cell(texture: Texture2D, index: int) -> Rect2:
 	var x1 = roundf(index % 4 * texture.get_width() / 4.0)
 	var x2 = roundf((index % 4 + 1) * texture.get_width() / 4.0)
@@ -11,6 +22,57 @@ static func pit_edge(g, edge: float, floor_y: float, right_bank: bool) -> void :
 	var source = cell(g.art.terrain_parts, 5 if right_bank else 4)
 	source.position += Vector2(94 if right_bank else 290, 118);source.size = Vector2(150, 314)
 	g.paint_target.draw_texture_rect_region(g.art.terrain_parts, Rect2(edge - (12 if right_bank else 44), floor_y - 1, 55, 115), source)
+
+static func sewer_bank_outline(inside: float, edge: float, top: float, bottom: float, right_bank: bool = false) -> PackedVector2Array:
+	var direction = 1.0 if right_bank else -1.0
+	var outer = edge + direction*maxf((inside-edge)*direction,SEWER_BANK_INSET)
+	var outline = PackedVector2Array([Vector2(outer, top)])
+	for point in SEWER_BANK_PROFILE:
+		outline.append(Vector2(edge-direction*point.x,top+point.y))
+	var end_y = maxf(bottom, top + SEWER_BANK_PROFILE[-1].y + 1)
+	outline.append(Vector2(edge-direction*SEWER_BANK_PROFILE[-1].x,end_y))
+	outline.append(Vector2(outer,end_y))
+	return outline
+
+static func sewer_bank_piece(canvas: Node2D, dest: Rect2, outline: PackedVector2Array, texture: Texture2D = null, source: Rect2 = Rect2()) -> void:
+	if dest.size.y <= 0: return
+	var quad = PackedVector2Array([dest.position, Vector2(dest.end.x, dest.position.y), dest.end, Vector2(dest.position.x, dest.end.y)])
+	for polygon in Geometry2D.intersect_polygons(quad, outline):
+		if texture == null:
+			canvas.draw_colored_polygon(polygon, Color("20172f"))
+		else:
+			var uvs = PackedVector2Array()
+			for point in polygon:
+				uvs.append((source.position + (point - dest.position) / dest.size * source.size) / texture.get_size())
+			canvas.draw_polygon(polygon, PackedColorArray([Color.WHITE]), uvs, texture)
+
+static func sewer_lip(g, edge: float, top: float) -> void:
+	# The authored roots and broken stones overlap the original road texture.
+	# Feather only the joins that sit inside the rock face.
+	var texture: Texture2D = g.art.terrain_parts
+	var size = SEWER_LIP_SOURCE.size * SEWER_LIP_SCALE
+	var origin = Vector2(edge + 16.0 - size.x, top)
+	if origin.x + size.x <= g.scenery.view_left or origin.x >= g.scenery.view_right: return
+	var xs = [0.0, 0.4, 1.0]
+	var ys = [0.0, 0.76, 1.0]
+	for column in range(2):
+		for row in range(2):
+			var corners = [Vector2(xs[column], ys[row]), Vector2(xs[column + 1], ys[row]), Vector2(xs[column + 1], ys[row + 1]), Vector2(xs[column], ys[row + 1])]
+			var points = PackedVector2Array()
+			var uvs = PackedVector2Array()
+			var colors = PackedColorArray()
+			for uv in corners:
+				points.append(origin + uv * size)
+				uvs.append((SEWER_LIP_SOURCE.position + uv * SEWER_LIP_SOURCE.size) / texture.get_size())
+				colors.append(Color(1, 1, 1, minf(uv.x / xs[1], 1) * minf((1 - uv.y) / (1 - ys[1]), 1)))
+			g.paint_target.draw_polygon(points, colors, uvs, texture)
+
+static func sewer_chip(g, index: int, point: Vector2, width: float, angle: float, alpha: float) -> void:
+	var source: Rect2 = SEWER_CHIPS[index % SEWER_CHIPS.size()]
+	var size = source.size * width / source.size.x
+	g.paint_target.draw_set_transform(point, angle)
+	g.paint_target.draw_texture_rect_region(g.art.terrain_parts, Rect2(-size * 0.5, size), source, Color(1, 1, 1, alpha))
+	g.paint_target.draw_set_transform(Vector2.ZERO)
 
 static func elevation(g, edge: float, floor_y: float, height: float, right_bank: bool) -> void :
 	var source = cell(g.art.terrain_parts, 7 if right_bank else 6)

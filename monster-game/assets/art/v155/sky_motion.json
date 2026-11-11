@@ -1,0 +1,431 @@
+{
+  "generator": "OpenAI ImageGen",
+  "prompts": {
+    "bat": "Use case: stylized-concept. Production 2D game animation atlas on true transparent alpha, a 1536×1024 landscape sheet exactly 3 columns and 2 rows of equal square cells, left to right, top to bottom. One consistent large dangerous dark-fantasy vampire bat across six animation frames. Creature faces LEFT, in side-on three-quarter view, aggressive glowing amber eyes, tapered ears, dark violet-black body, wine-magenta leathery wings with sharp charcoal outlined finger bones and thin copper rim light. Dense hand-painted gothic videogame sprite style, crisp game-readable silhouettes like detailed 2D cemetery monsters, subtle texture, no hard pixelation. Same character design, body size, facing and body anchor in the very CENTER of each cell; retain complete wings within cell with generous 10% padding. Row 1: both wings at their fully raised upstroke; wide nearly horizontal middle beat; both wings distinctly swept downward and slightly tucked in downstroke. Row 2: wings curled around its body in a clear braking windup, bright eyes; fast forward attack lunge to the left with wide open fangs and wings sharply swept BACK to the right; open wings pitching back in recovery. Distinct anatomical wing poses, no duplicating same silhouette. Isolated empty transparent gutters, no borders, no shadows behind silhouettes, no ground, no effects trailing off the cells, no text, no watermark.",
+    "vista": "Use case: stylized-concept. A production alpha sprite atlas of six DISTANT moving parallax elements for a dark fairy-tale cemetery game, on true transparent background. Strict landscape 1536×1024 canvas with 3 equal columns and 2 equal rows. One independently cuttable item centered in each cell, at least 8% completely clear padding in each cell. Artwork in painterly side-scrolling gothic game style, low-contrast nocturnal purple-blue with edges picked in dull mauve; naturally readable silhouette at game scale. ROW 1: an enormous ancient Cthulhu-like kraken-headed figure seen face-on, head and shoulders with deep shadowed dark eye sockets, wispy trailing tentacles and a crown of uneven spines, fades to transparent fog at bottom, NO eye lights (added by engine), both eyes clearly positioned left and right of middle; distant black wyvern flying LEFT with wide wings in a high stroke; the SAME wyvern same scale and body anchor flying LEFT with wings distinctly lowered. ROW 2: side silhouette of a witch with long ragged pointed hat and cape on her broom flying LEFT; broad very low and horizontal isolated painterly lavender ragged cloud ribbon with transparent breaks and soft alpha edges, no hard rectangle; a second broad, faint, dark plum fog bank with diffused feathered edges. Cloud sprites are beautiful and irregular, not simple ovals. No additional background, no text, no borders, no labels, no fake checkerboard, no solid black rectangle.",
+    "effects": "Use case: stylized-concept. A game-ready transparent effects sprite sheet in detailed painted gothic dark-fantasy 2D side-scroller style. True alpha, clean cutout borders. Strict 1536×1024 landscape, 3 columns × 2 equal square rows; six separate centrally placed sprites, each fits its own cell with generous clear gutters. Row 1 left: a flat wide horizontal bright green-gray ghost cloud platform, recognizable little dark hollow eyes in pale teal woolly vapor, wispy trailing edge, dramatic detailed texture. Middle: the SAME friendly ghost cloud in a squashed low-profile recoil pose, face readable, mint vapor curling upwards at the sides, centered with same width. Right: an isolated compact threatening slate-violet thunderhead with billowing dark puff lobes and faint warm underlighting, no lightning in this cell, wide. Row 2 left: ONE tall isolated jagged branching magical lightning bolt, hot ivory and amber core with small violet/red fringe, thin branches, predominantly vertical, no cloud. Middle: TWO or three angular antique ivory-gold skull shell fragments with dark crack edges and a few tiny mint spirit sparks, wide clearly broken splinter silhouette, no intact skull, no rings. Right: a broad horizontal low-impact burst of dusty gray-violet stone powder, two thick irregular lobes of dust erupting to the sides from a central point at bottom, tiny loose bits of dark stone, dense near the floor then dissolving into transparent alpha, slightly candle-warm tips, no fireball. No scene, no fonts, no labels, no backgrounds, no square cell outlines."
+  },
+  "atlases": {
+    "bat": {
+      "source_sha256": "85e8a4f20ad44cd5b12c2077abf5096dafab39e788188151509d2798971074d1",
+      "tiles": {
+        "bat_up": {
+          "rect": [
+            6,
+            35,
+            316,
+            258
+          ],
+          "size": [
+            473,
+            386
+          ],
+          "pivot": [
+            0.4418604651162791,
+            0.694300518134715
+          ],
+          "source_box": [
+            22,
+            13,
+            495,
+            399
+          ]
+        },
+        "bat_mid": {
+          "rect": [
+            334,
+            87,
+            316,
+            153
+          ],
+          "size": [
+            530,
+            256
+          ],
+          "pivot": [
+            0.4528301886792453,
+            0.53515625
+          ],
+          "source_box": [
+            504,
+            143,
+            1034,
+            399
+          ]
+        },
+        "bat_down": {
+          "rect": [
+            662,
+            39,
+            316,
+            250
+          ],
+          "size": [
+            407,
+            322
+          ],
+          "pivot": [
+            0.48894348894348894,
+            0.30124223602484473
+          ],
+          "source_box": [
+            1072,
+            164,
+            1479,
+            486
+          ]
+        },
+        "bat_warn": {
+          "rect": [
+            6,
+            336,
+            315,
+            312
+          ],
+          "size": [
+            315,
+            312
+          ],
+          "pivot": [
+            0.4222222222222222,
+            0.38782051282051283
+          ],
+          "source_box": [
+            93,
+            647,
+            408,
+            959
+          ]
+        },
+        "bat_attack": {
+          "rect": [
+            334,
+            388,
+            316,
+            207
+          ],
+          "size": [
+            494,
+            323
+          ],
+          "pivot": [
+            0.2834008097165992,
+            0.5975232198142415
+          ],
+          "source_box": [
+            523,
+            585,
+            1017,
+            908
+          ]
+        },
+        "bat_recover": {
+          "rect": [
+            662,
+            391,
+            316,
+            201
+          ],
+          "size": [
+            496,
+            316
+          ],
+          "pivot": [
+            0.48588709677419356,
+            0.6012658227848101
+          ],
+          "source_box": [
+            1031,
+            591,
+            1527,
+            907
+          ]
+        }
+      }
+    },
+    "vista": {
+      "source_sha256": "90a7462e3d79aa64a63f7f0d22c1d8c0225e9a5d6fc712bb7568a7df5e1d5a1c",
+      "tiles": {
+        "elder": {
+          "rect": [
+            12,
+            6,
+            384,
+            396
+          ],
+          "size": [
+            479,
+            494
+          ],
+          "pivot": [
+            0.5052192066805845,
+            0.5101214574898786
+          ],
+          "source_box": [
+            27,
+            18,
+            506,
+            512
+          ]
+        },
+        "dragon_up": {
+          "rect": [
+            414,
+            70,
+            396,
+            267
+          ],
+          "size": [
+            453,
+            305
+          ],
+          "pivot": [
+            0.45695364238410596,
+            0.7016393442622951
+          ],
+          "source_box": [
+            549,
+            70,
+            1002,
+            375
+          ]
+        },
+        "dragon_down": {
+          "rect": [
+            822,
+            102,
+            396,
+            203
+          ],
+          "size": [
+            444,
+            228
+          ],
+          "pivot": [
+            0.46621621621621623,
+            0.19298245614035087
+          ],
+          "source_box": [
+            1059,
+            242,
+            1503,
+            470
+          ]
+        },
+        "witch": {
+          "rect": [
+            6,
+            477,
+            396,
+            269
+          ],
+          "size": [
+            455,
+            309
+          ],
+          "pivot": [
+            0.45494505494505494,
+            0.5242718446601942
+          ],
+          "source_box": [
+            45,
+            620,
+            500,
+            929
+          ]
+        },
+        "mist_front": {
+          "rect": [
+            414,
+            534,
+            396,
+            155
+          ],
+          "size": [
+            512,
+            200
+          ],
+          "pivot": [
+            0.5,
+            0.48
+          ],
+          "source_box": [
+            512,
+            645,
+            1024,
+            845
+          ]
+        },
+        "mist_far": {
+          "rect": [
+            822,
+            511,
+            396,
+            202
+          ],
+          "size": [
+            509,
+            259
+          ],
+          "pivot": [
+            0.5068762278978389,
+            0.5212355212355212
+          ],
+          "source_box": [
+            1024,
+            614,
+            1533,
+            873
+          ]
+        }
+      }
+    },
+    "effects": {
+      "source_sha256": "a95e63aa48455ed9b4a5dc16e70cbf47dc1481bbab72b2db44b9bbc888090f69",
+      "tiles": {
+        "ghost": {
+          "rect": [
+            6,
+            98,
+            316,
+            131
+          ],
+          "size": [
+            508,
+            210
+          ],
+          "pivot": [
+            0.5019685039370079,
+            0.47619047619047616
+          ],
+          "source_box": [
+            4,
+            157,
+            512,
+            367
+          ]
+        },
+        "ghost_squash": {
+          "rect": [
+            334,
+            109,
+            316,
+            109
+          ],
+          "size": [
+            466,
+            161
+          ],
+          "pivot": [
+            0.5343347639484979,
+            0.639751552795031
+          ],
+          "source_box": [
+            534,
+            223,
+            1000,
+            384
+          ]
+        },
+        "storm_body": {
+          "rect": [
+            662,
+            79,
+            316,
+            169
+          ],
+          "size": [
+            507,
+            271
+          ],
+          "pivot": [
+            0.5009861932938856,
+            0.5276752767527675
+          ],
+          "source_box": [
+            1025,
+            107,
+            1532,
+            378
+          ]
+        },
+        "bolt": {
+          "rect": [
+            84,
+            334,
+            159,
+            316
+          ],
+          "size": [
+            252,
+            501
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            138,
+            512,
+            390,
+            1013
+          ]
+        },
+        "skull_shards": {
+          "rect": [
+            334,
+            399,
+            316,
+            185
+          ],
+          "size": [
+            427,
+            250
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            537,
+            631,
+            964,
+            881
+          ]
+        },
+        "impact": {
+          "rect": [
+            662,
+            420,
+            316,
+            143
+          ],
+          "size": [
+            505,
+            228
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            1024,
+            652,
+            1529,
+            880
+          ]
+        }
+      }
+    }
+  },
+  "eye_points": [
+    [
+      0.4321503131524008,
+      0.34615384615384615
+    ],
+    [
+      0.5803757828810021,
+      0.35020242914979755
+    ]
+  ]
+}

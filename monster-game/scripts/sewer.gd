@@ -1,16 +1,36 @@
 extends RefCounted
 ## A temporary chapter of the SAME run. Boats contain stable member IDs.
 const WATER = 555.0
-const ENTRY_SECONDS = 5.2
+const ENTRY_SECONDS = 5.7
 const EXIT_SECONDS = 6.4
-const SHAFT_DEPTH = 680.0
-const ENTRY_GRAVITY = 620.0
+const SHAFT_DEPTH = 1100.0
+const ENTRY_GRAVITY = 460.0
+const GALLERY_PARALLAX = 0.28
 const RAMP_WIDTH = 500.0
-const RAMP_LIFT = 150.0
+const RAMP_INSET = 12.0
+const RAMP_RUN = 465.0
+const RAMP_DECK_Y = WATER + 15.0
+const RAMP_TEXTURE_DECK = 150.0
+const EXIT_ELEVATION = 330.0
+const EXIT_GRAVITY = 620.0
+const EXIT_FORWARD_SPEED = 134.0
 const CAPTURE_SECONDS = 1.05
-const SEATS = 2
+const SEATS = 1
+const HULL_HEIGHT = 82.0
+const HULL_WATERLINE = HULL_HEIGHT * 0.5 - 2.0
+const HULL_HALF_WIDTH = 105.0
+const COLUMN_SPACE = 210.0
+const LANE_SPACE = 46.0
+const PILOT_ANCHOR = Vector2(-8,21)
 const LEAD = 790.0
 const DOCK_TO_EDGE = 232.0
+const JUMP_SPEED = 860.0
+const JUMP_GRAVITY = 1650.0
+const JUMP_HELD_GRAVITY = 1250.0
+const DUCK_SECONDS = 1.25
+const DUCK_LOWER_TIME = 0.14
+const DUCK_RISE_TIME = 0.19
+const COIN_REACH = Vector2(110.0, 78.0)
 var active = false
 var phase = "ground"
 var age = 0.0
@@ -49,77 +69,151 @@ var duck_buffer = 0.0
 var clean_streak = 0
 var sequence: Array = []
 var rush_left = 0.0
-var layout_columns = 3
+var layout_rows = 1
 var entry_edge_world = 0.0
 var entry_travel = 0.0
+var descent_camera = 0.0
+var exit_ramp_origin = LEAD+160.0
+var exit_speed = 705.0
+var exit_first = 0.0
+var exit_last = 0.0
+var exit_wave_x = 0.0
+var exit_gap = 380.0
+var planned_slots: Dictionary = {}
+var entry_min_lead = 0.0
+var rider_order: Array[int] = []
+var rider_index: Dictionary = {}
 
 func reset(seed_value: int) -> void:
+	visual.shaft.reset_cover()
 	active = false;phase = "ground";age = 0;phase_age = 0;ride_age = 0;completed = 0;captured = 0;hits = 0
 	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();random.seed = seed_value^0x536e2
-	life.reset();braking = 0;jump_hold_until = -1;entry_travel = 0
-	encounter.reset(seed_value);duck_buffer = 0;clean_streak = 0;sequence.clear();rush_left = 0;layout_columns = 3
+	rider_order.clear()
+	rider_index.clear()
+	life.reset();braking = 0;jump_hold_until = -1;entry_travel = 0;descent_camera = 0.0;exit_ramp_origin = LEAD+160.0;exit_speed = 705.0
+	encounter.reset(seed_value);duck_buffer = 0;clean_streak = 0;sequence.clear();rush_left = 0;layout_rows = 1;planned_slots.clear();entry_min_lead = 0.0
+	exit_first = 0;exit_last = 0;exit_wave_x = 0;exit_gap = 380.0
 
 func begin(r,force: bool = false) -> bool:
-	if active or r.space.active or r.dead or r.active_count()<=0: return false
+	if active or r.space.active or r.sky.active or r.sky.pending or r.dead or r.active_count()<=0: return false
 	if not force and not r.power_eligible(): return false
 	for e in r.entities:
 		if e.state=="capture" and e.kind in ["civilian","police","soldier"]: r.complete_capture(e)
 	for i in range(r.members.size()-1,-1,-1):
 		if r.members[i].falling: r.remove_member(i,"fall")
 	if r.dead: return false
+	if not encounter.pending: visual.shaft.reset_cover()
 	entry_edge_world = encounter.dock_world-DOCK_TO_EDGE if encounter.pending else r.world_px+LEAD-DOCK_TO_EDGE
 	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 32.0;left = duration
 	pressure = .23;serial = 0;scroll = 0;next_encounter = .8;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
 	duck_buffer = 0;clean_streak = 0;rush_left = 0;encounter.pending = false
 	sequence.assign(["rubble","pipe","fugitive","barrel","gate","rotor","collapse","rescue","rubble","gate","fugitive","barrel"])
 	if random.randf()<.5: sequence[3] = "collapse";sequence[6] = "barrel"
-	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number();entry_travel = 0
-	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();lane_count = 1;layout_columns = 3
+	captured = 0;hits = 0;start_world = r.world_px;start_tunnel = r.tunnel_number();entry_travel = 0;descent_camera = 0.0
+	boats.clear();objects.clear();starts.clear();splashes.clear();casualties.clear();history.clear();lane_count = 1
+	layout_rows = maxi(1, floori(sqrt(float(r.active_count()))))
 	life.reset();braking = 0;jump_hold_until = -1
 	r.perk_left = 0;r.perk_kind = -1;r.transform_left = 0;r.boost_left = 0;r.blessings.reset()
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
 	for m in r.members:
 		starts[int(m.id)] = Vector2(m.x,m.y);m.sewer_pose = "run";m.sewer_board = 0.0;m.jump_queue.clear();m.jump_at = -1;m.jump_delay = -1;m.falling = false;m.vy = 0;m.roof_id = -1
 		m.sewer_drop_at = -1.0;m.sewer_onboard = false
+	# Assign forward slots to the members already farthest along the street.
+	# The required lead can wait offscreen while the fall camera opens out.
+	planned_slots.clear();entry_min_lead = 0.0
+	var ordered = r.members.duplicate();ordered.sort_custom(func(a,b):return a.x>b.x if a.x!=b.x else a.id<b.id)
+	for rank in range(ordered.size()):
+		planned_slots[int(ordered[rank].id)] = rank
+		entry_min_lead = maxf(entry_min_lead,float(ordered[rank].x)-PILOT_ANCHOR.x+slot_offset(rank)+2.0)
 	assign_boats(r)
 	r.mission_stats.sewer_trips = int(r.mission_stats.get("sewer_trips",0))+1
 	r.events.append({"type":"sewer_begin"})
 	return true
 
 func water_y(x: float) -> float:
-	var influence = exp(-pow((x-wave_edge())/180.0,2)) if phase=="ride" else 0.0
+	return water_surface(x, wave_edge() if phase == "ride" else INF)
+
+func water_surface(x: float, edge: float) -> float:
+	var influence = exp(-pow((x-edge)/180.0,2)) if edge != INF else 0.0
 	return WATER+sin(x*.013+age*2.4)*7+sin(x*.027-age*3.3)*3+sin(x*.044-age*9)*5*influence
 
+func boat_waterline(boat: Dictionary) -> float:
+	var depth = float(boat.get("depth", 0.0))
+	if phase == "entry": depth += entry_depth()
+	return water_y(float(boat.x)) + depth - 24.0 + HULL_WATERLINE
+
 func assign_boats(r) -> void:
-	var living: Array = []
-	for m in r.members: living.append(int(m.id))
+	var unchanged: bool = rider_order.size() == r.members.size() and boats.size() == r.members.size()
+	if unchanged:
+		for i in range(r.members.size()):
+			if rider_order[i] != int(r.members[i].id):
+				unchanged = false
+				break
+	if unchanged: return
+	rider_order.clear()
+	rider_index.clear()
+	for i in range(r.members.size()):
+		var id = int(r.members[i].id)
+		rider_order.append(id)
+		rider_index[id] = i
 	for b in boats:
-		b.ids = b.ids.filter(func(id):return id in living)
+		b.ids = b.ids.filter(func(id): return rider_index.has(id))
 	boats = boats.filter(func(b):return not b.ids.is_empty())
 	var assigned: Array = []
 	for b in boats: assigned.append_array(b.ids)
-	for id in living:
+	for id in rider_order:
 		if id in assigned: continue
 		var seat: Dictionary = {}
 		for candidate in boats:
 			if candidate.ids.size()<SEATS: seat = candidate;break
 		if seat.is_empty():
-			var slot = 0
-			while boats.any(func(b):return int(b.slot)==slot): slot += 1
-			seat = {"id":id,"slot":slot,"ids":[],"x":400.0,"y":WATER-24,"vy":0.0,"previous_y":WATER-24,"jump_at":-1.0,"held":0.0,"bump":0.0,"angle":0.0,"arrival":age,"duck_at":-1.0,"duck_left":0.0}
-			boats.append(seat);lane_count = maxi(lane_count,slot_lane(slot)+1);layout_columns = maxi(layout_columns,slot_column(slot)+1)
+			var tail_slot = -1
+			for b in boats: tail_slot = maxi(tail_slot, int(b.slot))
+			var slot = int(planned_slots.get(id, tail_slot + 1))
+			var predecessor: Dictionary = boats.back() if not boats.is_empty() else {}
+			# The first rendered entry frame already uses the underground water level.
+			var depth = float(slot_lane(slot)) * LANE_SPACE
+			var initial_y = WATER - 24.0 + (entry_depth() if phase=="entry" else depth)
+			seat = {"id":id,"slot":slot,"ids":[],"x":400.0,"y":initial_y,"depth":depth if phase=="ride" else 0.0,"vy":0.0,"previous_y":initial_y,"jump_at":-1.0,"held":0.0,"bump":0.0,"angle":0.0,"arrival":age,"duck_at":-1.0,"duck_left":0.0,"duck_pose":0.0}
+			boats.append(seat)
 			seat.x = boat_x(r,boats.size()-1)
+			seat.previous_x = seat.x
+			if phase=="ride" and not predecessor.is_empty():
+				var delay = maxf(0.0,float(predecessor.x)-float(seat.x))/scroll_speed(r)
+				if predecessor.jump_at>=0.0 or predecessor.vy!=0.0:
+					var from = float(predecessor.jump_at) if predecessor.jump_at>=0.0 else age-float(predecessor.held)
+					seat.jump_at = maxf(age,from+delay)
+					seat.hold_for = predecessor.get("hold_for",0.08)
+				if predecessor.duck_at>=0.0:
+					seat.duck_at = predecessor.duck_at+delay
+				elif predecessor.duck_left>0.0:
+					var start = age-DUCK_SECONDS+float(predecessor.duck_left)+delay
+					if start>age: seat.duck_at = start
+					else: seat.duck_left = DUCK_SECONDS+start-age
 		seat.ids.append(id)
-	boats.sort_custom(func(a,b):return slot_column(int(a.slot))*3+slot_lane(int(a.slot))<slot_column(int(b.slot))*3+slot_lane(int(b.slot)))
+	boats.sort_custom(func(a,b):return a.slot<b.slot)
+	lane_count = 1
+	for b in boats: lane_count = maxi(lane_count,slot_lane(int(b.slot))+1)
+
+func member_index(r, id: int) -> int:
+	var index = int(rider_index.get(id, -1))
+	if index >= 0 and index < r.members.size() and int(r.members[index].id) == id: return index
+	return r.members.find_custom(func(member): return int(member.id) == id)
 
 func lanes() -> int: return lane_count
 
-func slot_column(slot: int) -> int: return slot%3 if slot<9 else 3+int((slot-9)/3)
-func slot_lane(slot: int) -> int: return int(slot/3) if slot<9 else (slot-9)%3
+func slot_lane(slot: int) -> int: return slot % layout_rows
+func slot_offset(slot: int) -> float: return slot * COLUMN_SPACE / layout_rows
 
-func boat_x(r,index: int) -> float:
-	var b = boats[index];var space = minf(215,430.0/maxi(1,layout_columns-1))
-	return maxf(r.view_left+330,minf(LEAD,r.view_right-250)-slot_column(int(b.slot))*space-slot_lane(int(b.slot))*42)
+func fleet_size() -> Vector2:
+	var span = slot_offset(int(boats.back().slot)-int(boats.front().slot)) if not boats.is_empty() else 0.0
+	return Vector2(span+HULL_HALF_WIDTH*2,(lane_count-1)*LANE_SPACE+154)
+
+func boat_x(_r,index: int) -> float:
+	return maxf(entry_min_lead,LEAD) - slot_offset(int(boats[index].slot))
+
+func duck_pose(remaining: float) -> float:
+	return smoothstep(0.0, DUCK_LOWER_TIME, DUCK_SECONDS - remaining) * smoothstep(0.0, DUCK_RISE_TIME, remaining)
 
 func request_jump(r) -> void:
 	if not active or phase!="ride": return
@@ -143,32 +237,123 @@ func request_duck(r) -> void:
 		b.duck_at = age+travel;b.jump_at = -1
 	r.events.append({"type":"sewer_duck"})
 
-func entry_launch() -> float: return smoothstep(3.35,ENTRY_SECONDS,phase_age)
-func entry_drop() -> float: return SHAFT_DEPTH*smoothstep(.55,3.6,phase_age)
+func entry_launch() -> float: return smoothstep(3.65,ENTRY_SECONDS,phase_age)
+func fall_age(r) -> float:
+	var first = INF
+	for member in r.members:
+		var at = float(member.get("sewer_drop_at",-1.0))
+		if at>=0: first = minf(first,at)
+	return -1.0 if is_inf(first) else maxf(0,phase_age-first)
+
+func entry_drop() -> float: return descent_camera
 func entry_depth() -> float: return SHAFT_DEPTH-entry_drop()
 func dock_x(r,slot: int) -> float:
 	var index = boats.find_custom(func(b):return int(b.slot)==slot)
 	return boat_x(r,index) if index>=0 else LEAD
 func dock_y(_r,_slot: int) -> float: return WATER-24
 func shore_edge() -> float: return entry_edge_world-start_world-entry_travel if active and phase=="entry" else LEAD-DOCK_TO_EDGE
-func entry_blend() -> float: return 1.0 if phase_age>=3.55 else 0.0
-func exit_blend() -> float: return 1.0 if phase_age>=3.5 else 0.0
-func ramp_left(r) -> float: return LEAD+160-scroll_speed(r)*phase_age
-func takeoff_at(r,b: Dictionary) -> float: return (LEAD+160+RAMP_WIDTH-float(b.get("exit_x",b.x)))/scroll_speed(r)
-func exit_rise(r) -> float:
-	var last = 1.2
-	for b in boats: last = maxf(last,takeoff_at(r,b))
-	return 900*smoothstep(last+.08,last+1.22,phase_age)
+func entry_blend() -> float: return smoothstep(3.15,ENTRY_SECONDS,phase_age)
+func ramp_left(_r) -> float: return exit_ramp_origin-exit_speed*phase_age
+func takeoff_at(_r,b: Dictionary) -> float:
+	return (exit_ramp_origin+RAMP_INSET+RAMP_RUN-float(b.get("exit_x",b.x)))/exit_speed
+
+func exit_rise(_r) -> float:
+	return EXIT_ELEVATION * smoothstep(exit_first, exit_first + 1.02, phase_age)
+
+func exit_opening() -> float:
+	return smoothstep(exit_first + 0.16, exit_first + 1.18, phase_age)
+
+func exit_clear() -> float:
+	return smoothstep(exit_last + 0.06, exit_last + 0.92, phase_age)
+
+func exit_bank(r) -> float:
+	return ramp_left(r) + RAMP_INSET + RAMP_RUN + exit_gap
+
+func ramp_deck(x: float) -> float:
+	# Fit to the painted tread and curled lip of the existing ramp.
+	var u = clampf(x / RAMP_RUN, 0.0, 1.0)
+	return RAMP_DECK_Y - 122.0 * u - 27.0 * pow(u, 8.0)
+
+func ramp_angle(x: float) -> float:
+	var u = clampf(x / RAMP_RUN, 0.0, 1.0)
+	return -atan((122.0 + 216.0 * pow(u, 7.0)) / RAMP_RUN)
+
+func exit_upward() -> float:
+	return clampf(-tan(ramp_angle(RAMP_RUN)) * exit_speed, 520.0, 650.0)
+
+func exit_level_velocity(r) -> float:
+	var lip = ramp_deck(RAMP_RUN) - HULL_WATERLINE * cos(ramp_angle(RAMP_RUN))
+	var elevation = lip + PILOT_ANCHOR.y - (r.FLOOR - EXIT_ELEVATION)
+	var upward = exit_upward()
+	return sqrt(maxf(0.0,upward*upward-2.0*EXIT_GRAVITY*elevation))
+
 func exit_boat(r,b: Dictionary) -> Dictionary:
-	var x = float(b.get("exit_x",b.x));var local = clampf((x-ramp_left(r))/RAMP_WIDTH,0,1)
-	var launch = phase_age-takeoff_at(r,b)
-	var y = float(b.get("exit_y",WATER-24))-RAMP_LIFT*local
-	var angle = -.29*sin(local*PI*.5)
-	if launch>=0:
-		x += launch*150;y = WATER-24-RAMP_LIFT-110*sin(clampf(launch/1.1,0,1)*PI*.5)
-		angle = lerpf(-.29,.05,smoothstep(0,1.1,launch))
-		if launch>1.1: x += (launch-1.1)*130;y += pow(launch-1.1,2)*290;angle += (launch-1.1)*.65
-	return {"p":Vector2(x,y),"angle":angle,"launch":launch}
+	var x = float(b.get("exit_x",b.x))
+	var distance = x - ramp_left(r) - RAMP_INSET
+	var launch = phase_age - takeoff_at(r, b)
+	var rise = exit_rise(r)
+	var merge = smoothstep(-320.0, 0.0, distance)
+	var angle = ramp_angle(distance)
+	var deck = Vector2(x, ramp_deck(distance) + rise)
+	var hull = deck - Vector2(0, HULL_WATERLINE).rotated(angle)
+	var waterline = lerpf(boat_waterline(b), RAMP_DECK_Y, merge) + rise
+	var foot: Vector2
+	var opacity = 1.0
+	var land_time = INF
+	var detach_time = 0.58
+	var speed_y = 0.0
+	if distance < 0.0:
+		var from_y = lerpf(float(b.get("exit_y",b.y)) + rise, boat_waterline(b) - HULL_WATERLINE + rise, smoothstep(0.0, 0.6, phase_age))
+		hull = Vector2(x, from_y).lerp(hull, merge)
+		angle = lerpf(float(b.angle), angle, merge)
+	if launch >= 0.0:
+		var upward = exit_upward()
+		land_time = (upward + exit_level_velocity(r)) / EXIT_GRAVITY
+		var air = minf(launch, land_time)
+		speed_y = -upward + EXIT_GRAVITY * air
+		hull += Vector2(EXIT_FORWARD_SPEED * air, -upward * air + 0.5 * EXIT_GRAVITY * air * air)
+		angle = lerpf(angle, 0.03, smoothstep(0.0, 0.92, air))
+		foot = hull + PILOT_ANCHOR.rotated(angle)
+		var separated = maxf(0, launch - detach_time)
+		hull += Vector2(-150.0, 475.0) * separated * separated
+		angle += separated * 0.8
+		opacity = 1.0 - smoothstep(0.20, 0.70, separated)
+	else:
+		foot = hull + PILOT_ANCHOR.rotated(angle)
+	return {"p":hull,"foot":foot,"angle":angle,"launch":launch,"detach":detach_time,"land_time":land_time,"vy":speed_y,"opacity":opacity,"depth":float(b.depth)*(1.0-merge),"waterline":waterline,"water_contact":1.0-smoothstep(-65.0,0.0,distance)}
+
+func wave_strength() -> float:
+	if phase == "entry": return smoothstep(3.7, ENTRY_SECONDS, phase_age)
+	if phase == "exit": return 1.0 - smoothstep(0.0, 1.35, phase_age)
+	return 1.0
+
+func object_surface(e: Dictionary) -> Vector2:
+	return Vector2(e.x, water_y(e.x) + 15.0 + float(e.get("water_depth",0.0)))
+
+func coin_position(e: Dictionary) -> Vector2:
+	return Vector2(e.x, float(e.y) + float(e.get("water_depth",0.0)))
+
+func coin_contact(e: Dictionary, b: Dictionary) -> bool:
+	if absf(float(e.x) - float(b.x)) > COIN_REACH.x + absf(float(e.x) - float(e.previous_x)) + 18.0: return false
+	var point = coin_position(e)
+	var before = Vector2(e.previous_x, point.y) - Vector2(b.previous_x, b.previous_y - 24.0)
+	var now = point - Vector2(b.x, b.y - 24.0)
+	if Geometry2D.get_closest_point_to_segment(Vector2.ZERO, before/COIN_REACH, now/COIN_REACH).length_squared() <= 1.0:
+		return true
+	# The one coin row remains shared by the depth lanes.
+	var projected = Vector2(0, float(b.depth)-float(e.get("water_depth",0.0)))
+	return Geometry2D.get_closest_point_to_segment(Vector2.ZERO, (before+projected)/COIN_REACH, (now+projected)/COIN_REACH).length_squared() <= 1.0
+
+func spike_extension(e: Dictionary) -> float:
+	var up = smoothstep(0.0, 0.19, float(e.age)-float(e.get("warning",0.85)))
+	return up * (1.0 - smoothstep(0.0, 0.31, float(e.age)-float(e.get("retract_at",INF))))
+
+func coin_height(i: int, offset: float, speed: float, kind: String) -> float:
+	if kind not in ["rubble","barrel","rotor","collapse"]: return WATER - 58.0
+	var flight = (0.53 if kind=="rubble" else 0.45) + offset / speed
+	var after_hold = maxf(0.0, flight - 0.19)
+	var lift = JUMP_SPEED * flight - 0.5 * JUMP_HELD_GRAVITY * flight * flight - 0.5 * (JUMP_GRAVITY-JUMP_HELD_GRAVITY) * after_hold * after_hold
+	return WATER - 13.0 - lift + 2.0 * sin(i * PI / 4.0)
 
 func reward_line() -> void:
 	if not active or phase!="ride": return
@@ -176,7 +361,9 @@ func reward_line() -> void:
 
 func add_object(kind: String,x: float,y: float,extra: Dictionary = {}) -> Dictionary:
 	var span = {"rubble":100.0,"barrel":36.0,"pipe":112.0,"gate":118.0,"rotor":42.0,"collapse":44.0,"fugitive":90.0}.get(kind,65.0)
-	var e = {"kind":kind,"x":x,"previous_x":x,"y":y,"taken":false,"state":"normal","age":0.0,"contacts":{},"row":-1,"width":span,"damaged":false,"passed":false}
+	var depth = float(boats.front().get("depth",0.0)) if not boats.is_empty() else 0.0
+	depth += minf(22.0, float(lane_count-1)*LANE_SPACE*0.32)
+	var e = {"kind":kind,"x":x,"previous_x":x,"y":y,"water_depth":depth,"taken":false,"state":"normal","age":0.0,"contacts":{},"row":-1,"width":span,"damaged":false,"passed":false}
 	e.merge(extra,true);objects.append(e);return e
 
 func spawn(r,kind: String = "") -> void:
@@ -185,13 +372,16 @@ func spawn(r,kind: String = "") -> void:
 	var speed = scroll_speed(r);var x = maxf(r.view_right+90,boats[0].x+speed*1.85)
 	var e = add_object(type,x,WATER-35,{"encounter":serial,"variant":serial%3})
 	if type in ["pipe","gate"]: e.y = WATER-90;e.ceiling_attached = true
-	if type=="collapse": e.y = WATER+80;e.warning = .85;e.landed = false
+	if type=="collapse":
+		var visible_x = minf(r.view_right-80.0,boats[0].x+speed*0.62)
+		e.warning = maxf(0.85,(x-visible_x)/speed)
+		e.landed = false
 	if type=="rescue": e.y = WATER-8;e.variant = serial%3
 	if type=="fugitive": e.y = WATER-24;e.variant = 2 if random.randf()<.60 else random.randi_range(0,1)
 	var row = r.new_coin_row(5)
 	for i in range(5):
-		var height = (120+sin(i*PI/4)*35) if type in ["rubble","barrel","rotor","collapse"] else 58.0
-		add_object("coin",x-152+i*76,WATER-height,{"coin_row":row})
+		var offset = -152.0 + i * 76.0
+		add_object("coin",x+offset,coin_height(i,offset,speed,type),{"coin_row":row})
 	history.append({"kind":type,"time":ride_age,"members":r.active_count()})
 	next_encounter = 2.65 if type not in ["rescue","fugitive"] else 2.9
 	var titles = {"pipe":"CANO BAIXO • ABAIXE!","gate":"COMPORTA FECHANDO • ABAIXE!","rescue":"SOBREVIVENTE À FRENTE • RESGATE","fugitive":"JET-SKI FUGINDO • ALCANCE OS SOBREVIVENTES!","rubble":"NAUFRÁGIO • SALTE!","barrel":"BARRIL EXPLOSIVO • SALTE!","rotor":"BOMBA GIRATÓRIA • SEGURE O SALTO!","collapse":"ESPINHO NA ÁGUA • SALTE!"}
@@ -201,18 +391,23 @@ func scroll_speed(r) -> float: return clampf((r.view_right-r.view_left)*.49,565,
 
 func tail_x() -> float:
 	var tail = LEAD
-	for b in boats: tail = minf(tail,float(b.x)-130)
+	for b in boats: tail = minf(tail,float(b.x)-HULL_HALF_WIDTH)
 	return tail
 
-func wave_edge() -> float: return maxf(camera_left+190,tail_x()-lerpf(50,-25,pressure))
+func wave_edge() -> float:
+	return wave_edge_at(tail_x())
+
+func wave_edge_at(tail: float) -> float:
+	return maxf(camera_left+155.0,tail) + lerpf(-50.0,25.0,pressure)
 
 func _world(r,dt: float) -> void:
 	var target = HordeDirector.stage_speed(r.tunnel_number())*1.10
 	r.cruise_speed = move_toward(r.cruise_speed,target,dt*90);r.speed = r.cruise_speed;r.last_effective_speed = r.speed;r.time_scale = 1
-	r.world_px += r.speed*dt;r.update_tunnels();r.hit_grace = maxf(0,r.hit_grace-dt)
-	for e in r.entities: e.x -= r.speed*dt
-	if r.tunnel_number()!=r.last_tunnel:
-		r.last_tunnel = r.tunnel_number();r.events.append({"type":"tunnel","area":r.area(),"number":r.last_tunnel})
+	var travel = (exit_speed if phase=="exit" else float(r.speed))*dt
+	r.world_px += travel
+	r.update_tunnels(true)
+	r.hit_grace = maxf(0,r.hit_grace-dt)
+	for e in r.entities: e.x -= travel
 
 func advance(r,dt: float,held: bool) -> void:
 	if not active or r.dead: return
@@ -231,57 +426,92 @@ func advance(r,dt: float,held: bool) -> void:
 			list[i].age += dt
 			if list[i].age>1: list.remove_at(i)
 	if phase=="exit":
+		scroll += exit_speed * dt
 		_update_members(r,dt)
-		if phase_age>=EXIT_SECONDS: finish(r)
+		if phase_age>=EXIT_SECONDS or (phase_age>exit_last+1.0 and exit_formed(r)): finish(r)
 		return
 	if phase=="ride":
 		ride_age += dt;left = maxf(0,left-dt);scroll += scroll_speed(r)*dt
 		next_encounter -= dt;pressure = move_toward(pressure,.28+ride_age/duration*.16,dt*.018);wave_cooldown = maxf(0,wave_cooldown-dt)
 		if next_encounter<=0 and left>3.6: spawn(r)
+	var tail = tail_x() if phase == "ride" else INF
 	for i in range(boats.size()):
 		var b = boats[i]
-		b.depth = lerpf(float(b.get("depth",0)),float(slot_lane(int(b.slot)))*40,1-exp(-dt*5))
-		var floor_y = water_y(b.x)-24+float(b.depth)
+		b.depth = lerpf(float(b.get("depth",0)),float(slot_lane(int(b.slot)))*LANE_SPACE,1-exp(-dt*5))
+		var floor_y = water_surface(b.x, wave_edge_at(tail) if tail != INF else INF)-24+float(b.depth)
+		b.previous_x = b.x
 		b.x = lerpf(float(b.x),boat_x(r,i)+float(b.bump),1-exp(-dt*8));b.bump = move_toward(b.bump,0,dt*38);b.previous_y = b.y
+		if tail != INF:
+			var moved_tail = float(b.x) - HULL_HALF_WIDTH
+			if moved_tail < tail: tail = moved_tail
+			elif float(b.previous_x) - HULL_HALF_WIDTH == tail and moved_tail > tail: tail = tail_x()
 		b.duck_left = maxf(0,b.duck_left-dt)
-		if b.duck_at>=0 and age>=b.duck_at: b.duck_at = -1;b.duck_left = 1.25
+		if b.duck_at>=0 and age>=b.duck_at: b.duck_at = -1;b.duck_left = DUCK_SECONDS
+		b.duck_pose = duck_pose(b.duck_left)
 		if phase=="entry":
 			b.x = boat_x(r,i);b.y = floor_y+entry_depth()
-			b.vy = 0;b.angle = sin(age*4+i)*.012
+			b.vy = 0;b.angle = sin(age*4+i)*.012;b.water_touch_at = age
 			continue
 		if b.jump_at>=0 and age>=b.jump_at:
-			b.jump_at = -1;b.vy = -860;b.held = 0;splash(Vector2(b.x-38,b.y+27),false)
+			b.jump_at = -1;b.vy = -JUMP_SPEED;b.held = 0
+			splash(Vector2(b.x - 82, boat_waterline(b)), false, "takeoff")
 		if b.y<floor_y-1 or b.vy<0:
 			b.held += dt
-			b.vy += (1250 if b.vy<0 and b.held<=float(b.get("hold_for",.08))+dt*.6 else 1650)*dt
+			b.vy += (JUMP_HELD_GRAVITY if b.vy<0 and b.held<=float(b.get("hold_for",.08))+dt*.6 else JUMP_GRAVITY)*dt
 			b.y += b.vy*dt
 			if b.y>=floor_y:
-				b.y = floor_y;b.vy = 0;splash(Vector2(b.x,b.y+28),false)
+				b.y = floor_y;b.vy = 0
+				splash(Vector2(b.x, boat_waterline(b)), false, "landing")
 		else: b.y = floor_y;b.vy = 0
+		if b.vy == 0: b.water_touch_at = age
 		b.angle = clampf(b.vy*.00023,-.18,.17)+sin(age*3+i)*.015
-	if phase=="entry" and phase_age>=ENTRY_SECONDS: phase = "ride";phase_age = 0;r.hit_grace = .8
+	if phase=="entry" and phase_age>=ENTRY_SECONDS:
+		var remaining = SHAFT_DEPTH-descent_camera
+		for b in boats: b.y -= remaining;b.previous_y -= remaining
+		for item in splashes: item.p.y -= remaining
+		descent_camera = SHAFT_DEPTH;phase = "ride";phase_age = 0;r.hit_grace = .8
 	if phase=="ride":
 		_update_objects(r,dt)
 		if pressure>=.94 and wave_cooldown<=0 and not boats.is_empty():
 			var b = boats[-1];damage_boat(r,b,"sewer_wave");wave_cooldown = 2.2;pressure = .69
-		if left<=0 and not r.dead:
-			for e in objects:
-				if not e.taken and e.state=="capture": complete_rescue(r,e)
-			objects.clear()
-			prepare_landing(r);phase = "exit";phase_age = 0
-			for b in boats: b.exit_x = b.x;b.exit_y = b.y
-			for m in r.members: starts[int(m.id)] = Vector2(m.x,m.y)
-			r.events.append({"type":"sewer_exit"})
+		if left<=0 and not r.dead: begin_exit(r)
 	_update_members(r,dt)
+
+func begin_exit(r) -> void:
+	for e in objects:
+		if not e.taken and e.state=="capture": complete_rescue(r,e)
+		elif e.kind=="coin" and not e.taken: r.miss_coin_row(e)
+	objects.clear()
+	exit_wave_x = wave_edge()
+	exit_ramp_origin = boats.front().x + 350.0 - RAMP_INSET
+	exit_speed = maxf(scroll_speed(r), (exit_ramp_origin+RAMP_INSET+RAMP_RUN-boats.back().x)/(EXIT_SECONDS-2.0))
+	var rise_time = (exit_upward()-exit_level_velocity(r))/EXIT_GRAVITY
+	exit_gap = (exit_speed+EXIT_FORWARD_SPEED)*rise_time+84.0
+	for b in boats:
+		b.exit_x = b.x
+		b.exit_y = b.y
+	exit_first = takeoff_at(r, boats.front())
+	exit_last = takeoff_at(r, boats.back())
+	prepare_landing(r)
+	phase = "exit"
+	phase_age = 0.0
+	r.events.append({"type":"sewer_exit"})
+
+func exit_formed(r) -> bool:
+	for i in range(r.members.size()):
+		var member = r.members[i]
+		if member.sewer_pose!="land" or absf(float(member.x)-r.slot_x(i))>3.0: return false
+	return true
 
 func _update_members(r,_dt: float) -> void:
 	for b in boats:
 		for seat in range(b.ids.size()):
-			var index = r.members.find_custom(func(m):return int(m.id)==int(b.ids[seat]))
+			var index = member_index(r, int(b.ids[seat]))
 			if index<0: continue
 			var m = r.members[index]
-			var local = Vector2(18-seat*80,21);var foot = Vector2(b.x,b.y)+local.rotated(float(b.angle))
-			m.sewer_pose = "duck" if b.duck_left>.12 else "ride"
+			var local = PILOT_ANCHOR;var foot = Vector2(b.x,b.y)+local.rotated(float(b.angle))
+			var speed_y = float(b.vy)
+			m.sewer_pose = "duck" if b.duck_pose>.001 else "ride"
 			if phase=="entry":
 				var start = Vector2(starts.get(int(m.id),foot))
 				if float(m.get("sewer_drop_at",-1))<0 and shore_edge()<=start.x:
@@ -302,53 +532,85 @@ func _update_members(r,_dt: float) -> void:
 					if u>=1:
 						foot = target-Vector2(0,entry_drop());m.sewer_pose = "ride"
 						if not bool(m.get("sewer_onboard",false)):
-							m.sewer_onboard = true;splash(Vector2(b.x,b.y+28),false)
+							m.sewer_onboard = true
+							splash(Vector2(b.x, boat_waterline(b)), false, "boarding")
 			elif phase=="exit":
-				var flight = exit_boat(r,b);var launch = float(flight.launch)
-				foot = Vector2(flight.p)+local.rotated(float(flight.angle));m.sewer_angle = flight.angle
-				if launch>1.1:
-					var detach = Vector2(float(b.get("exit_x",b.x))+165,WATER-24-RAMP_LIFT-110)+local.rotated(.05)
-					var air = launch-1.1;var t = clampf((air-.35)/1.55,0,1)
-					foot = detach.lerp(Vector2(r.slot_x(index),r.FLOOR),smoothstep(0,1,t))+Vector2(0,-sin(clampf(air/.35,0,1)*PI)*13)
-					m.sewer_pose = "land" if t>=1 else "return"
-				else: m.sewer_pose = "ride"
+				var flight = exit_boat(r,b)
+				var launch = float(flight.launch)
+				var land_time = float(flight.land_time)
+				foot = flight.foot
+				speed_y = flight.vy
+				m.sewer_angle = flight.angle
+				m.sewer_pose = "ride"
+				if launch > float(flight.detach):
+					foot.y = lerpf(foot.y,r.FLOOR,smoothstep(land_time-0.09,land_time,launch))
+					m.sewer_pose = "return"
+					if launch>=land_time:
+						var slot: float = r.slot_x(index)
+						var convergence = clampf(absf(float(m.x)-slot)*4.0,135.0,exit_speed-100.0)
+						foot = Vector2(move_toward(float(m.x),slot,_dt*convergence),r.FLOOR)
+						speed_y = 0.0
+						m.sewer_pose = "land"
 
-			m.x = foot.x;m.y = foot.y;m.vy = b.vy;m.falling = false;m.roof_id = -1;m.air_time += _dt;m.air_pose = 0;m.jump_queue.clear();m.run_phase += _dt*.75
+			m.x = foot.x;m.y = foot.y;m.vy = speed_y;m.falling = false;m.roof_id = -1;m.air_time += _dt;m.air_pose = 0;m.jump_queue.clear();m.run_phase += _dt*.75
 			if phase!="exit": m.sewer_angle = b.angle
 			m.hurt_left = maxf(0,float(m.hurt_left)-_dt)
+
+	if phase=="entry": _follow_descent(r,_dt)
+
+func _follow_descent(r,dt: float) -> void:
+	if r.members.is_empty(): return
+	var previous = descent_camera
+	var sum = 0.0
+	for m in r.members: sum += float(m.y)+previous
+	var landing = WATER-3.0+SHAFT_DEPTH-r.FLOOR
+	var target = SHAFT_DEPTH*clampf((sum/r.members.size()-r.FLOOR)/landing,0,1)
+	descent_camera = lerpf(previous,target,1-exp(-dt*6.0))
+	var motion = descent_camera-previous
+	for m in r.members: m.y -= motion
+	for b in boats: b.y -= motion;b.previous_y -= motion
+	for item in splashes: item.p.y -= motion
 
 func _update_objects(r,dt: float) -> void:
 	var step = scroll_speed(r)*dt
 	for e in objects:
 		e.previous_x = e.x;e.x -= step*(.74 if e.kind=="fugitive" else 1.0);e.age += dt
-		if e.kind=="collapse" and not e.taken:
-			var drop = maxf(0,float(e.age)-float(e.get("warning",1.0)))
-			e.y = lerpf(WATER+80,WATER-50,smoothstep(0,.28,drop))
-			if drop>=.28 and not bool(e.get("landed",false)):
-				e.landed = true;splash(Vector2(e.x,WATER-20),false);r.events.append({"type":"sewer_collapse","x":e.x,"y":e.y})
 		if e.taken: continue
 		if e.state=="capture":
 			if e.age>=CAPTURE_SECONDS:
 				complete_rescue(r,e)
 			continue
+		var spike = spike_extension(e) if e.kind=="collapse" else 0.0
+		if spike > 0.26 and not bool(e.get("landed",false)):
+			e.landed = true
+			var surface = object_surface(e)
+			splash(surface,false)
+			r.events.append({"type":"sewer_collapse","x":surface.x,"y":surface.y})
 		for b in boats:
 			if e.taken or r.dead: break
-			var hazard = e.kind in ["rubble","barrel","pipe","gate","rotor","collapse"]
-			var cross = minf(e.previous_x,e.x)-e.width<=b.x+(112 if hazard else 0) and maxf(e.previous_x,e.x)+e.width>=b.x-(115 if hazard else 0)
-			if not cross: continue
 			if e.kind=="coin":
-				if absf(float(b.y)-42-float(e.y))<67:
-					e.taken = true;r.coins += 1;r.collect_coin_row(e);r.events.append({"type":"coin","amount":1,"x":e.x,"y":e.y,"physical_pickup":true})
-			elif e.kind in ["rescue","fugitive"]:
-				if absf(float(b.y)-float(e.y))<115:
-					e.state = "capture";e.age = 0;e.capture_boat_id = b.id;e.capture_origin = Vector2(e.x,e.y);splash(Vector2(e.x,WATER),false)
+				if coin_contact(e,b):
+					e.taken = true
+					r.coins += 1
+					r.collect_coin_row(e)
+					var coin = coin_position(e)
+					r.events.append({"type":"coin","amount":1,"x":coin.x,"y":coin.y,"physical_pickup":true,"sewer_airborne":boat_waterline(b)-HULL_WATERLINE-b.y>24.0})
+				continue
+			var hazard = e.kind in ["rubble","barrel","pipe","gate","rotor","collapse"]
+			var cross = minf(e.previous_x,e.x)-e.width<=b.x+(HULL_HALF_WIDTH-12 if hazard else 0) and maxf(e.previous_x,e.x)+e.width>=b.x-(HULL_HALF_WIDTH-12 if hazard else 0)
+			if not cross: continue
+			if e.kind in ["rescue","fugitive"]:
+				if absf(float(b.y)-float(b.get("depth",0))-float(e.y))<115:
+					e.state = "capture";e.age = 0;e.capture_boat_id = b.id;e.capture_origin = object_surface(e)
+					splash(e.capture_origin,false)
+					break
 			elif not e.contacts.has(b.id):
 				var depth = float(b.get("depth",0))
 				var lift = water_y(b.x)-24+depth-float(b.y)
 				var clearance = 77.0
 				if e.kind=="rotor": clearance = 123-minf(30,maxf(0,absf(float(e.x)-float(b.x))-50)*.3)
-				var collide = (b.duck_left<=.10 or lift>22) if e.kind in ["pipe","gate"] else lift<clearance
-				if e.kind=="collapse" and not bool(e.get("landed",false)): collide = false
+				var collide = (b.duck_pose<.45 or lift>22) if e.kind in ["pipe","gate"] else lift<clearance
+				if e.kind=="collapse": collide = spike>=0.62 and lift<116.0*spike
 				if collide:
 					e.contacts[b.id] = true
 					e.damaged = true;b.bump = -23;b.vy = maxf(b.vy,190)
@@ -356,10 +618,13 @@ func _update_objects(r,dt: float) -> void:
 					if int(e.get("damage_count",0))<2:
 						e.damage_count = int(e.get("damage_count",0))+1;damage_boat(r,b,"sewer_"+str(e.kind))
 					if e.kind not in ["pipe","gate","collapse","rotor"]:
-						e.taken = true;splash(Vector2(e.x,WATER-25),e.kind=="barrel")
-						if e.kind=="barrel": r.events.append({"type":"sewer_blast","x":e.x,"y":WATER-35})
+						e.taken = true
+						var surface = object_surface(e)
+						splash(surface,e.kind=="barrel")
+						if e.kind=="barrel": r.events.append({"type":"sewer_blast","x":surface.x,"y":surface.y-50.0})
 		if not e.passed and e.kind in ["rubble","barrel","pipe","gate","rotor","collapse"] and not boats.is_empty() and e.x<tail_x()-70:
 			e.passed = true
+			if e.kind=="collapse": e.retract_at = e.age
 			if not e.damaged: safe_jumps += 1;r.clean_jumps += 1;clean_streak += 1;pressure = maxf(.12,pressure-.045)
 	for i in range(objects.size()-1,-1,-1):
 		if (objects[i].state!="capture" and objects[i].x<r.view_left-180) or (objects[i].taken and objects[i].age>1):
@@ -369,12 +634,12 @@ func _update_objects(r,dt: float) -> void:
 func damage_boat(r,b: Dictionary,cause: String) -> void:
 	if r.hit_grace>0: return
 	for id in b.ids.duplicate():
-		var index = r.members.find_custom(func(m):return int(m.id)==int(id))
+		var index = member_index(r, int(id))
 		if index<0: continue
 		var before = r.losses;r.damage(index,cause)
 		r.hit_grace = maxf(r.hit_grace,.8);pressure = minf(1,pressure+.21);b.bump = -25;braking = 1;clean_streak = 0
 		if r.losses>before: hits += 1;clean_exit = false
-		splash(Vector2(b.x,b.y),false);r.events.append({"type":"sewer_hit","x":b.x,"y":b.y,"cause":cause});break
+		splash(Vector2(b.x,boat_waterline(b)),false);r.events.append({"type":"sewer_hit","x":b.x,"y":b.y,"cause":cause});break
 
 func complete_rescue(r,e: Dictionary) -> void:
 	if e.taken: return
@@ -388,9 +653,9 @@ func complete_rescue(r,e: Dictionary) -> void:
 	assign_boats(r)
 	if e.kind=="fugitive": r.events.append({"type":"sewer_fugitives","count":count})
 
-func splash(point: Vector2,explosion: bool) -> void:
+func splash(point: Vector2,explosion: bool,motion: String = "impact") -> void:
 	if splashes.size()>16: splashes.pop_front()
-	splashes.append({"p":point,"age":0.0,"explosion":explosion})
+	splashes.append({"p":point,"age":0.0,"explosion":explosion,"motion":motion,"scroll":scroll})
 
 func casualty(r,m: Dictionary,kind: int) -> void:
 	if casualties.size()>=10: casualties.pop_front()
@@ -408,6 +673,7 @@ func reserve_ground(r,end: float) -> void:
 
 func finish(r) -> void:
 	prepare_landing(r);active = false;phase = "ground";completed += 1
+	r.update_tunnels()
 	r.recovery_left = 2.5;r.recovery_speed = HordeDirector.stage_speed(r.tunnel_number());r.hit_grace = 2.2;r.cached_active = -1
 	r.jump_buffer_until = -1;r.wave_holds.clear();r.wave_durations.clear();r.wave_started.clear()
 	for i in range(r.members.size()):
