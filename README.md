@@ -1,8 +1,8 @@
 # Horda Zumbi
 
-Versão de testes atual nesta branch: **0.10.62 — gigante no horizonte e abertura persistente durante o pula-pula**.
+Versão de testes atual nesta branch: **0.10.63 — serra distante e gigante caminhando sobre o relevo**.
 
-Detalhes e validação: [atualização 0.10.62](monster-game/ATUALIZACAO-v0.10.62.md) · [relatório](monster-game/VALIDACAO-v0.10.62.json). O céu mantém os impulsos, capturas e obstáculos; a prévia reproduz uma jornada contínua de 53 segundos, até 381 m e de volta à rua.
+Detalhes e validação: [atualização 0.10.63](monster-game/ATUALIZACAO-v0.10.63.md) · [relatório](monster-game/VALIDACAO-v0.10.63.json). O gigante permanece na altitude da montanha enquanto a horda sobe e desce. Três cadeias de montanhas, névoa e velocidades diferentes dão profundidade ao cenário. A abertura persistente e as três rotas físicas continuam preservadas. A prévia acompanha uma jornada de 53 segundos, até 381 m e de volta à rua.
 
 A release Android histórica abaixo continua na **0.10.41**. Para compilar os fontes desta branch, use o workflow indicado no guia.
 

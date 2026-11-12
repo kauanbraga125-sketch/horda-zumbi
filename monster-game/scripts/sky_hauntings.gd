@@ -7,8 +7,7 @@ const ORBIT_MIN = 10030.0
 const LENGTH = 6.4
 const VIOLET = Color("a38dd7")
 const CYAN = Color("86e8e2")
-const WALKER_ANCHOR = Vector2(1165.0,650.0)
-const WALKER_DEPTH = .018
+const Landscape = preload("res://scripts/sky_landscape.gd")
 const WALKER_SCALE = 260.0
 
 var random = RandomNumberGenerator.new()
@@ -33,18 +32,16 @@ func advance(dt: float, height: float) -> void:
 		next_at = clock + random.randf_range(16.0, 24.0)
 
 static func walker_position(view: Rect2, camera: Vector2, time: float) -> Vector2:
-	# A landmark in a distant plane: no viewport-height anchor or camera sine.
-	# Its slow walk is independent of the horde's vertical motion.
-	var anchor = WALKER_ANCHOR-Vector2(fposmod(time*11.0,3200.0),0.0)
-	return view.position+anchor-camera*WALKER_DEPTH
+	return Landscape.walker_position(view,camera,time)
 
 static func walker(canvas: Node2D, motion, view: Rect2, camera: Vector2, time: float, visibility: float) -> void:
 	if visibility <= .01: return
 	var foot = walker_position(view,camera,time)
-	if foot.x < view.position.x - 205.0 or foot.x > view.end.x + 205.0: return
+	if not view.grow(320.0).has_point(foot): return
 	var opacity = visibility * .32 * smoothstep(.7, 2.6, time)
 	var stride = time * 1.25
 	var frame = int(floor(stride)) % WALK.size()
+	Landscape.contact_shadow(canvas,foot,visibility)
 	# Low contrast and a small soft edge put the silhouette beyond the playfield.
 	for offset in [Vector2(-1.1,0),Vector2(1.1,0),Vector2(0,-.8),Vector2(0,.8)]:
 		motion.sprite(canvas,WALK[frame],foot+offset,WALKER_SCALE,Color(.61,.60,.76,opacity*.065))

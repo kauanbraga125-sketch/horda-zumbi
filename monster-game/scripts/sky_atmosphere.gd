@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Hauntings = preload("res://scripts/sky_hauntings.gd")
+const Landscape = preload("res://scripts/sky_landscape.gd")
 const ELDER_DEPTH = .16
 const DRAGON_DEPTH = .22
 const WITCH_DEPTH = .29
@@ -19,6 +20,7 @@ static func paint(g, r, motion, visibility: float) -> void:
 	var camera = Vector2(r.world_px - s.start_world + left, top)
 	var t: float = s.age
 	clouds(canvas, motion, view, camera * .085 + Vector2(t * 5.0, 0), false, visibility)
+	Landscape.paint(canvas,motion,view,camera,t,visibility)
 	Hauntings.walker(canvas, motion, view, camera, t, visibility)
 
 	var elder = project(Vector2(1365.0, -124.0), camera, ELDER_DEPTH)

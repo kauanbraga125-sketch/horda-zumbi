@@ -33,9 +33,10 @@ func run() -> void:
 		var high_view = Rect2(Vector2(-100,-3400),size)
 		var low = Hauntings.walker_position(low_view,Vector2(600,-400),8.0)-low_view.position
 		var high = Hauntings.walker_position(high_view,Vector2(600,-3400),8.0)-high_view.position
-		check(high.y>low.y and high.y-low.y<150.0,"Giant follows the horde's altitude instead of remaining distant")
+		check(is_equal_approx(high.y-low.y,3000.0),"Giant follows the camera instead of remaining on its world ridge")
 		var later = Hauntings.walker_position(low_view,Vector2(600,-400),11.0)-low_view.position
-		check(absf(later.y-low.y)<.01,"Walking animation shifts the giant's horizon height")
+		var terrain_delta = preload("res://scripts/sky_landscape.gd").walker_anchor(11.0).y-preload("res://scripts/sky_landscape.gd").walker_anchor(8.0).y
+		check(absf(later.y-low.y-terrain_delta)<.01,"Walking animation moves the giant off its supporting terrain")
 	var small = Hauntings.walker_position(Rect2(0,-400,1280,600),Vector2(0,-400),8.0)
 	var tall = Hauntings.walker_position(Rect2(0,-400,1280,900),Vector2(0,-400),8.0)
 	check(absf(small.y-tall.y)<.01,"Viewport resize moves the giant's anchor")
@@ -70,7 +71,7 @@ func run() -> void:
 		if r.sewer.active:break
 	check(r.sewer.active and not r.sky.active,"Returning onto the hole did not enter the sewer")
 	check(not r.dead and r.active_count()==6,"Returning over the same opening loses the horde")
-	var report = {"version":"0.10.62","checks":checks,"failures":failures,"physical_device_tested":false}
+	var report = {"version":ProjectSettings.get_setting("application/config/version"),"checks":checks,"failures":failures,"physical_device_tested":false}
 	var path = OS.get_environment("HORDA_VALIDATION_DIR")
 	if not path.is_empty():
 		DirAccess.make_dir_recursive_absolute(path)

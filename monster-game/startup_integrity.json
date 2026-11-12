@@ -1,5 +1,5 @@
 {
-  "version": "0.10.62",
+  "version": "0.10.63",
   "class_count": 55,
   "files": [
     {
@@ -968,6 +968,16 @@
       "sha256": "fc9d152644d2862555f746c1b8eaa9ab06c0612f148981889114f0f77bf1c2c1"
     },
     {
+      "path": "res://assets/art/v163/mountains.webp",
+      "bytes": 127208,
+      "sha256": "70f6695c2f141441c45ec579f6bc688fc5fe20b3585ced6e0b90517c5f463ab0"
+    },
+    {
+      "path": "res://assets/art/v163/ridge.json",
+      "bytes": 21502,
+      "sha256": "12e7f6717c805d69861876a854c97aebf926ef31d7957b042511bf3a40f4d653"
+    },
+    {
       "path": "res://assets/audio/adventure_v132/creeper_wing.pcm",
       "bytes": 35840,
       "sha256": "046b452cb46f9abef0d436bbb54b9030f4647d93be3b71eaf16c1e724242beb2"
@@ -1544,8 +1554,8 @@
     },
     {
       "path": "res://scripts/sky_atmosphere.gd",
-      "bytes": 4604,
-      "sha256": "c6e7bac1466b946208d4a7cf9124b84be9bcfbb0920eb7bca6aec2279aa639c8"
+      "bytes": 4721,
+      "sha256": "efbeb5fab27cf88dd54ea43a3c908d943376d36466421359178571db89562e8a"
     },
     {
       "path": "res://scripts/sky_captures.gd",
@@ -1574,8 +1584,13 @@
     },
     {
       "path": "res://scripts/sky_hauntings.gd",
-      "bytes": 6107,
-      "sha256": "99917fce1de246ddb86dec8cabd84b3ab570dc932747ce1772ed7061285af6e3"
+      "bytes": 5916,
+      "sha256": "709ab7d042a678216034d49c0ab37aac2f26fda04dae5bf47a57adf04d810f00"
+    },
+    {
+      "path": "res://scripts/sky_landscape.gd",
+      "bytes": 3652,
+      "sha256": "9832b3fd9502bfa4c58803caf1bfa31626a7cf176c0b61fd30093246ac931cd6"
     },
     {
       "path": "res://scripts/sky_motion.gd",
