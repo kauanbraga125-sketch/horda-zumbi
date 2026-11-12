@@ -1,12 +1,18 @@
 # Horda Zumbi
 
-Versão de testes atual nesta branch: **0.10.66 — céus vivos, criaturas e encontros animados**.
+Versão de testes atual: **0.10.67 — músicas, efeitos e três rotas físicas**.
 
-Detalhes e validação: [atualização 0.10.66](monster-game/ATUALIZACAO-v0.10.66.md) · [relatório](monster-game/VALIDACAO-v0.10.66.json). Verme listrado caçando um viajante, duelo de kaijus nas tempestades, caça extraterrestre entre destroços orbitais e carro do tempo no universo. Cada cena usa poses próprias, efeitos de distância e uma altitude fixa no mundo. Os cenários detalhados, os colossos, a abertura persistente e as três rotas físicas continuam preservados. A prévia acompanha 53 segundos de gameplay, até 381 m e de volta à rua; uma inspeção separada de 32 segundos mostra os ciclos completos das novas animações.
+- [Baixar o APK Android ARM64 0.10.67](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.67/Horda-Zumbi-v0.10.67-GitHub-TESTE-ARM64.apk)
+- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.67.md)
+- [Código-fonte, sprites e áudios](monster-game/)
 
-A release Android histórica abaixo continua na **0.10.41**. Para compilar os fontes desta branch, use o workflow indicado no guia.
+Nove músicas acompanham as regiões do céu, do espaço e do esgoto. Os 23 efeitos incluem duas variações do pula-pula e os sons das criaturas e dos encontros animados. A versão inclui as três rotas físicas e os cenários da 0.10.66.
+
+A edição instala como **Horda GitHub Teste**, com progresso próprio. A compilação e a abertura são verificadas no GitHub; o teste em aparelho físico continua pendente.
 
 **Para editar e compilar pelo próprio GitHub:** [guia de continuação](CONTINUAR-NO-GITHUB.md) · [compilar novo APK dos fontes no Actions](https://github.com/kauanbraga125-sketch/horda-zumbi/actions/workflows/horda-compilar-apk.yml). Alterações em `monster-game/` geram uma compilação de teste automaticamente; o botão **Run workflow** permite escolher a branch. Baixe o APK em **Artifacts** da execução concluída.
+
+## Histórico da edição 0.10.41
 
 - [Baixar o APK 0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.41/Horda-Zumbi-v0.10.41-TESTE-1M-ESGOTO-ARM64.apk)
 - [Projeto Godot completo](monster-game/)

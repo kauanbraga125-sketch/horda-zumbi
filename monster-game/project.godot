@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Horda Zumbi 0.10.66"
-config/version="0.10.66"
+config/name="Horda Zumbi 0.10.67"
+config/version="0.10.67"
 run/main_scene="res://boot.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 

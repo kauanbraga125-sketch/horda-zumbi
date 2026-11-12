@@ -234,7 +234,7 @@ func change_screen(next: String) -> void :
 	pressed_button = ""
 	jump_touches.clear()
 	jump_held = false
-	sound.set_music(("space_music" if runner.space.active else "midnight_late" if runner.tunnel_number() >= 6 else "midnight_run") if next in ["run", "pause"] or (next == "settings" and settings_from == "pause") else "moon_menu")
+	sound.set_music(sound.course_music(runner) if next in ["run", "pause"] or (next == "settings" and settings_from == "pause") else "moon_menu")
 	sound.set_menu(next == "home")
 	sound.set_area(runner.area(), next == "run" and not runner.dead)
 	sound.update_course(runner, next == "run" and not runner.dead)
@@ -306,7 +306,7 @@ func consume_run_events() -> void :
 			"civil_drop": sound.play("creeper_wing",-13)
 			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)
 			"sky_launch":
-				effects.clear();sound.play("space_boost", -14);effects.spark(point, MINT, 18)
+				effects.clear();sound.play_extra("trampoline", -7);effects.spark(point, MINT, 18)
 			"sky_boost": sound.play("space_boost", -16)
 			"sky_charge": sound.play("space_energy", -14 if e.gained > 0 else -22)
 			"sky_bounce":
@@ -322,7 +322,7 @@ func consume_run_events() -> void :
 			"sky_bullet_hit": sound.play("space_hit", -14);shake = 3.0
 			"sky_meteor": sound.play("smash", -16);shake = 3.0
 			"sky_singularity": sound.play("space_hit", -14);shake = 4.0
-			"sky_cosmic_warn": sound.play("power_warning", -23)
+			"sky_cosmic_warn": sound.play("power_warning", -23);sound.play_extra("vortex", -17, 4.0)
 			"sky_orbit_grab":
 				if e.prop != "astronaut": sound.play("glass_break", -19)
 			"sky_tardis_grab":
@@ -1484,6 +1484,7 @@ func update_run_visuals(dt: float) -> void :
 	if runner.space.active or runner.sewer.active or runner.sky.active:
 		effects.update(dt, runner.speed * .65 if runner.sky.active else 0.0);ui_effects.update(dt,0)
 		sound.update_course(runner,screen == "run" and not runner.dead)
+		sound.update_scene(runner,scenery,screen == "run" and not runner.dead)
 		return
 	passenger_captures.update(dt, runner, effects)
 	effects.update(dt, 0 if runner.dead else runner.speed);ui_effects.update(dt, 0)
