@@ -1,10 +1,12 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.67 — músicas, efeitos e três rotas físicas**.
+Versão de testes atual: **0.10.68 — cliques sincronizados**.
 
-- [Baixar o APK Android ARM64 0.10.67](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.67/Horda-Zumbi-v0.10.67-GitHub-TESTE-ARM64.apk)
-- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.67.md)
+- [Baixar o APK Android ARM64 0.10.68](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.68/Horda-Zumbi-v0.10.68-GitHub-TESTE-ARM64.apk)
+- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.68.md)
 - [Código-fonte, sprites e áudios](monster-game/)
+
+Os sons de abrir o mercado e de voltar começam junto da navegação, com o início quase silencioso removido das quatro variações.
 
 Nove músicas acompanham as regiões do céu, do espaço e do esgoto. Os 23 efeitos incluem duas variações do pula-pula e os sons das criaturas e dos encontros animados. A versão inclui as três rotas físicas e os cenários da 0.10.66.
 

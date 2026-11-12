@@ -1,0 +1,76 @@
+{
+  "version": "0.10.68",
+  "base_commit": "5e60b271988b05d9e816b553c812e395291bd5a9",
+  "change": "Remove leading near-silence from all four confirm/back navigation cue variants.",
+  "audio": {
+    "version": "0.10.68",
+    "source_tag": "v0.10.67",
+    "scope": "UI_01 confirm/open and UI_02 back; both variants",
+    "processing": "Crop to 4 ms before the first 1 ms RMS frame at -30 dBFS; 1.5 ms boundary fade; preserve gain and tail; mono 44100 Hz Vorbis quality 7.",
+    "measurement": "Decoded output, 1 ms RMS frames, -30 dBFS threshold. Excludes operating system and audio device latency.",
+    "files": [
+      {
+        "file": "assets/audio/v7/v7_ui_01_1.ogg",
+        "original_sha256": "b96d4d38e3fcd01b46a9125fb66079732525baaeba8c09c10cc79749d17b3077",
+        "sha256": "b7385a035998c9ddfce5810d9778a585db9a1cc8b35c02f6e4075e80e31c75b9",
+        "trimmed_ms": 401.088,
+        "onset_before_ms": 405.079,
+        "onset_after_ms": 3.991,
+        "duration_before_seconds": 1.11,
+        "duration_seconds": 0.706009,
+        "peak_dbfs": -2.87
+      },
+      {
+        "file": "assets/audio/v7/v7_ui_01_2.ogg",
+        "original_sha256": "a6afb6ef535e8f071d9af57458de5269c5c52725c12412928fb9cdb30998d6c1",
+        "sha256": "badbded4e5a7bcc86cf69715d6731c633112a3c5190cfd79d918e5fca9a35134",
+        "trimmed_ms": 677.46,
+        "onset_before_ms": 681.451,
+        "onset_after_ms": 3.991,
+        "duration_before_seconds": 1.11,
+        "duration_seconds": 0.429637,
+        "peak_dbfs": -4.658
+      },
+      {
+        "file": "assets/audio/v7/v7_ui_02_1.ogg",
+        "original_sha256": "85efb0e0e93451adf8eadeebb03e14d3163f87e6f73da858b694c691ccd253e2",
+        "sha256": "a63b55c91c07c095a591a0743d8dcce083f02036c880b3afa0193889181e67d3",
+        "trimmed_ms": 733.333,
+        "onset_before_ms": 737.324,
+        "onset_after_ms": 3.991,
+        "duration_before_seconds": 1.11,
+        "duration_seconds": 0.377324,
+        "peak_dbfs": -7.311
+      },
+      {
+        "file": "assets/audio/v7/v7_ui_02_2.ogg",
+        "original_sha256": "7ec8b3cf660d167c8e81bf6a6b1ad0926e81068d44591f1a0a99769d097a7ac2",
+        "sha256": "99752c9bb3742fd5416bbde164d78da111457e24991a0e9c71f55ee03503f9af",
+        "trimmed_ms": 580.68,
+        "onset_before_ms": 584.671,
+        "onset_after_ms": 3.991,
+        "duration_before_seconds": 1.11,
+        "duration_seconds": 0.526417,
+        "peak_dbfs": -11.118
+      }
+    ]
+  },
+  "navigation_integration": {
+    "checks": 15,
+    "failures": [],
+    "physical_device_tested": false,
+    "variants": [
+      "v7_ui_01_1",
+      "v7_ui_02_1",
+      "v7_ui_01_2",
+      "v7_ui_02_2"
+    ],
+    "version": "0.10.68"
+  },
+  "source_boot_verified": true,
+  "gameplay_scripts_unchanged": true,
+  "other_audio_files_unchanged": true,
+  "startup_files": 393,
+  "physical_device_tested": false,
+  "scope_note": "This verifies decoded cue onset and menu action dispatch. Phone/audio-device latency needs listening on the device. The legacy v140 sewer suite has known outdated expectations and is outside this audio-only change."
+}

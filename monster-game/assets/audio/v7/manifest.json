@@ -668,5 +668,6 @@
       "target_lufs": -27,
       "classification_confirmed": true
     }
-  ]
+  ],
+  "navigation_timing_update": "0.10.68: UI_01 and UI_02 onset-aligned; measurements and hashes in ../v168/manifest.json"
 }
