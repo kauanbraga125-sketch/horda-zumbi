@@ -1,0 +1,164 @@
+shader_type canvas_item;
+render_mode unshaded;
+
+uniform sampler2D soil_texture : source_color, filter_linear, repeat_disable;
+uniform sampler2D sewer_texture : source_color, filter_linear, repeat_disable;
+uniform sampler2D bank_texture : source_color, filter_linear, repeat_disable;
+uniform float surface_y = 574.0;
+uniform float gallery_offset = 460.0;
+uniform float gallery_width = 1330.0;
+uniform float gallery_height = 760.0;
+uniform float scroll_x = 0.0;
+uniform float soil_scroll_x = 0.0;
+uniform float throat_depth = 180.0;
+uniform float effect_time = 0.0;
+uniform float water_clock = 0.0;
+uniform float water_scroll = 0.0;
+uniform float shore_edge = 800.0;
+uniform float opening_width = 200.0;
+uniform bool opening_mask = false;
+uniform bool exit_mode = false;
+uniform float exit_opening = 0.0;
+uniform float exit_clear = 0.0;
+uniform float exit_bank = 0.0;
+varying vec2 scene_position;
+
+float hash21(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float soft_noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), f.x),
+		mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0)), f.x), f.y);
+}
+
+float cloud_noise(vec2 p) {
+	return (soft_noise(p) + 0.5 * soft_noise(p * 2.07 + vec2(13.4, 8.2))
+		+ 0.25 * soft_noise(p * 4.13 + vec2(7.1, 19.6))) / 1.75;
+}
+
+vec4 joined_sample(sampler2D image, float x, float y, float width, float overlap) {
+	float stride = width - overlap;
+	float at = mod(x, stride);
+	vec4 current = texture(image, vec2(at / width, clamp(y, 0.0, 1.0)));
+	vec4 previous = texture(image, vec2((at + stride) / width, clamp(y, 0.0, 1.0)));
+	return mix(previous, current, smoothstep(0.0, overlap, at));
+}
+
+void vertex() {
+	scene_position = VERTEX;
+}
+
+void fragment() {
+	float x = scene_position.x + scroll_x;
+	float soil_x = scene_position.x + soil_scroll_x;
+	float depth = scene_position.y - surface_y;
+	float irregularity = (soft_noise(vec2(x * 0.007, depth * 0.006)) - 0.5) * 100.0;
+	float join = smoothstep(gallery_offset - 20.0 + irregularity * 0.25,
+		gallery_offset + 8.0 + irregularity * 0.25, depth);
+	vec4 soil = joined_sample(soil_texture, soil_x, (depth + 105.0) / 1155.0, 1050.0, 160.0);
+	float gallery_v = (depth - gallery_offset) / gallery_height;
+	vec4 sewer = joined_sample(sewer_texture, x, gallery_v, gallery_width, 140.0);
+	// Extend the painted water from the far bank in world space. The reflected
+	// lanterns keep their horizontal anchors as the surface moves around them.
+	float water_depth = (gallery_v - 0.708) * gallery_height;
+	if (water_depth > 0.0) {
+		float near_water = smoothstep(0.0, 280.0, water_depth);
+		float painted = 0.708 + water_depth / gallery_height;
+		float extension = max(0.0, painted - 0.86);
+		float v = min(painted, 0.86) + 0.13 - abs(mod(extension, 0.26) - 0.13);
+		float current = sin(water_depth * 0.128 - water_clock * 3.4 + sin(x * 0.009) * 1.8)
+			+ 0.46 * sin(x * 0.027 + water_depth * 0.071 + water_clock * 4.7 + water_scroll * 0.015);
+		float deep = smoothstep(175.0, 390.0, water_depth);
+		float shear = current * (0.85 + near_water * 4.2) + deep * sin(water_depth * 0.023) * 28.0;
+		vec4 water = joined_sample(sewer_texture, x + shear, v + current * 0.0018,
+			gallery_width, 140.0);
+		water.rgb *= mix(vec3(1.0), vec3(0.88, 0.96, 1.0), near_water)
+			* mix(vec3(1.0), vec3(0.60, 0.80, 0.83), deep);
+		sewer = mix(sewer, water, smoothstep(0.0, 44.0, water_depth));
+	}
+	// The opening is air, not a stone panel at the height of the road. The
+	// already-existing wall is deeper, with an irregular spatial reveal.
+	float broken_top = throat_depth + soft_noise(vec2(soil_x * 0.008, 3.8)) * 64.0;
+	// A short, solid rock edge sits behind a separate moving cloud bank.
+	// A long alpha ramp made the masonry look like a transparent ghost.
+	float wall = smoothstep(broken_top, broken_top + 28.0, depth);
+	vec3 fog = mix(vec3(0.20392, 0.12549, 0.28627), vec3(0.055, 0.038, 0.095),
+		smoothstep(24.0, throat_depth + 180.0, depth));
+	vec3 color = mix(fog, mix(soil.rgb, sewer.rgb, join), wall);
+	float opacity = mix(smoothstep(2.0,throat_depth+120.0,depth)*0.78,1.0,wall);
+	float from_edge = scene_position.x - shore_edge;
+	float across = max(0.0, from_edge);
+	// A recessed shoulder gives the mouth some rock relief before the deep wall enters view.
+	if (opening_mask && depth > 0.0 && depth < throat_depth + 18.0 && from_edge > -175.0 && across < 780.0) {
+		float relief = soft_noise(vec2((from_edge + 53.0) * 0.013, 2.8));
+		float rim = 6.0 + relief * 16.0 + 18.0 * sin(clamp(across / 630.0, 0.0, 1.0) * 3.14159);
+		float recess = smoothstep(rim, rim + 23.0, depth)
+			* (1.0 - smoothstep(throat_depth * 0.72, throat_depth + 18.0, depth))
+			* (1.0 - smoothstep(250.0, 780.0, across));
+		vec3 strata = texture(bank_texture, vec2(fract((from_edge + 87.0) / 510.0),
+			mix(0.24, 0.84, clamp((depth - rim) / 200.0, 0.0, 1.0)))).rgb;
+		vec3 shadow = mix(vec3(0.045, 0.039, 0.072), strata * vec3(0.53, 0.61, 0.80), 0.81);
+		float shade = recess * 0.89;
+		float combined = shade + opacity * (1.0 - shade);
+		color = (shadow * shade + color * opacity * (1.0 - shade)) / max(combined, 0.0001);
+		opacity = combined;
+	}
+	if (depth > 0.0 && depth < gallery_offset + 115.0) {
+		vec2 p = vec2((scene_position.x + scroll_x * 0.22) * 0.0042, depth * 0.010);
+		float drift = effect_time * 0.055;
+		float curl = soft_noise(p * 0.48 + vec2(drift * 0.36, 7.3));
+		float mass = cloud_noise(p + vec2(-drift, drift * 0.24 + curl * 0.7));
+		float wisps = cloud_noise(p * vec2(1.8, 1.3) + vec2(drift * 0.7, -drift * 0.38));
+		float crest = throat_depth * 0.68 + (curl - 0.5) * 105.0;
+		float upper_bank = exp(-pow((depth - crest) / (82.0 + curl * 45.0), 2.0));
+		float lip_bank = exp(-pow((depth - broken_top - 2.0) / 66.0, 2.0));
+		float lower_bank = exp(-pow((depth - gallery_offset + 5.0 - (curl - 0.5) * 60.0) / 98.0, 2.0));
+		float volume = smoothstep(0.23, 0.76, mass * 0.78 + wisps * 0.30);
+		float mouth_mist = 0.0;
+		if (opening_mask && across < 465.0 && depth < 170.0) {
+			float rise = soft_noise(vec2(from_edge * 0.013 - drift * 0.75, depth * 0.025 + drift * 4.8));
+			float crest_y = 35.0 + across * 0.075 + (curl - 0.5) * 52.0;
+			mouth_mist = exp(-pow((depth - crest_y) / (23.0 + volume * 13.0), 2.0))
+				* smoothstep(0.23, 0.77, rise * 0.72 + volume * 0.28)
+				* (1.0 - smoothstep(85.0, 465.0, across))
+				* (1.0 - smoothstep(135.0, 170.0, depth));
+		}
+		float envelope = smoothstep(3.0, 55.0, depth)
+			* (1.0 - smoothstep(gallery_offset - 5.0, gallery_offset + 110.0, depth));
+		float mist = clamp((upper_bank * (0.40 + volume * 0.78)
+			+ lip_bank * 0.68 + lower_bank * (0.25 + volume * 0.45) + mouth_mist * 0.56) * envelope, 0.0, 0.985);
+		vec3 cloud = mix(vec3(0.15, 0.17, 0.25), vec3(0.36, 0.32, 0.44),
+			clamp(volume * 0.72 + wisps * 0.36, 0.0, 1.0));
+		cloud = mix(cloud, vec3(0.16, 0.24, 0.28), smoothstep(throat_depth, throat_depth + 180.0, depth) * 0.35);
+		cloud = mix(cloud, vec3(0.21, 0.29, 0.33), mouth_mist * 0.55);
+		float combined = mist + opacity * (1.0 - mist);
+		color = (cloud * mist + color * opacity * (1.0 - mist)) / max(combined, 0.0001);
+		opacity = combined;
+	}
+	if (opening_mask) {
+		float chips = (soft_noise(vec2(depth * 0.04, 7.6)) - 0.5) * 16.0;
+		float retreat = clamp(depth * 0.53, 0.0, 148.0);
+		float mouth = smoothstep(0.0, 6.0, depth) * (1.0 - smoothstep(95.0, 240.0, depth));
+		color = mix(color, vec3(0.027, 0.021, 0.043), mouth * 0.85);
+		opacity = max(opacity, mouth * 0.99);
+		float near_bank = smoothstep(chips - retreat - 26.0, chips - retreat * 0.70 + 8.0, from_edge);
+		float far_bank = 1.0 - smoothstep(opening_width + retreat - 8.0, opening_width + retreat + 26.0, from_edge);
+		// The two road banks end above the gallery instead of forming an
+		// infinitely thick wall that the falling horde would pass through.
+		opacity *= mix(near_bank * far_bank, 1.0, smoothstep(180.0, 330.0, depth));
+	}
+	if (exit_mode) {
+		float opening = mix(-0.22, 0.73, exit_opening) + irregularity * 0.0012;
+		float beyond = smoothstep(exit_bank - 320.0 + irregularity, exit_bank + 12.0 + irregularity, scene_position.x);
+		float air = (1.0 - smoothstep(opening - 0.08, opening + 0.10, gallery_v))
+			* (1.0 - smoothstep(0.54, 0.71, gallery_v)) * smoothstep(0.0, 0.14, exit_opening) * beyond;
+		float reveal = max(air, exit_clear);
+		color = mix(color, vec3(0.19, 0.16, 0.28), reveal * (1.0 - reveal) * 1.15);
+		opacity *= 1.0 - reveal;
+	}
+	COLOR = vec4(color, opacity) * COLOR;
+}

@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/s_plague-v128-lossless.ctex"
+path="res://.godot/imported/s_plague.png-a9d74320603d03e14c48570727849a03.ctex"
 metadata={"vram_texture":false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v128/s_plague.png"
-dest_files=["res://.godot/imported/s_plague-v128-lossless.ctex"]
+dest_files=["res://.godot/imported/s_plague.png-a9d74320603d03e14c48570727849a03.ctex"]
 
 [params]
 

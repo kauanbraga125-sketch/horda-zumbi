@@ -1,0 +1,646 @@
+{
+  "version": "0.10.63",
+  "android_version_code": 166,
+  "engine": "4.5.1.stable",
+  "landscape": {
+    "checks": 223,
+    "failures": [],
+    "feet_follow_painted_skyline": true,
+    "leaves_view_above_ridge": true,
+    "physical_device_tested": false,
+    "version": "0.10.63",
+    "world_altitude_independent_of_camera": true
+  },
+  "regressions": {
+    "checks": 1800,
+    "failures": [],
+    "physical_device_tested": false,
+    "version": "0.10.63"
+  },
+  "startup": {
+    "resources_checked": 341,
+    "classes": 55,
+    "scene_loaded": true
+  },
+  "physics_and_input_trace_identical_to_v162": true,
+  "gameplay": {
+    "seed": 16210,
+    "frames": 1576,
+    "fps": 30,
+    "duration_seconds": 52.5333333333333,
+    "real_touch_input": true,
+    "physics": "unchanged; normal boosts, captures and hazards",
+    "peak_meters": 381.298160100926,
+    "returned_to_street": true,
+    "members": 14,
+    "souls": 9,
+    "events": {
+      "sky_aircraft": 1,
+      "sky_boost": 30,
+      "sky_bounce": 5,
+      "sky_charge": 21,
+      "sky_civil": 9,
+      "sky_cosmic_warn": 1,
+      "sky_grab": 3,
+      "sky_hit": 1,
+      "sky_land": 1,
+      "sky_launch": 1,
+      "sky_meteor": 3,
+      "sky_orbit_grab": 3,
+      "sky_recovered": 2,
+      "sky_singularity": 1,
+      "sky_warn": 4
+    },
+    "touches": [
+      {
+        "action": "trampoline_jump",
+        "time": 1.41666666666667
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 971.414627778526,
+        "time": 3.74999999999999
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 1742.72573888964,
+        "time": 7.54999999999998
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 1921.22573888964,
+        "time": 7.78333333333331
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 2428.20351666741,
+        "time": 9.25000000000004
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 2671.87018333408,
+        "time": 9.58333333333339
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 3163.73685000074,
+        "time": 11.1333333333335
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 3686.91462777852,
+        "time": 12.9000000000002
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 4200.6924055563,
+        "time": 14.316666666667
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 5060.4924055563,
+        "time": 17.9500000000003
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 6278.93685000074,
+        "time": 21.1333333333334
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 7353.00351666741,
+        "time": 24.6166666666665
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 7553.98129444519,
+        "time": 24.8833333333332
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 8071.34796111185,
+        "time": 25.9833333333331
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 8345.04796111186,
+        "time": 28.083333333333
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 9086.45591413888,
+        "time": 32.1833333333328
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 9302.33369191666,
+        "time": 32.7499999999994
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 9480.83369191666,
+        "time": 32.9833333333327
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 9659.33369191666,
+        "time": 33.2166666666661
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 9837.83369191666,
+        "time": 33.4499999999994
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 10322.3336919167,
+        "time": 34.3499999999993
+      },
+      {
+        "action": "sky_tap",
+        "altitude": 10843.66702525,
+        "time": 35.6833333333326
+      }
+    ],
+    "trace": [
+      {
+        "charges": 0,
+        "frame": 0,
+        "height": 0.0,
+        "hole_visible": true,
+        "members": 6,
+        "peak": 0.0,
+        "sky": false
+      },
+      {
+        "charges": 0,
+        "frame": 30,
+        "height": 0.0,
+        "hole_visible": true,
+        "members": 6,
+        "peak": 0.0,
+        "sky": false
+      },
+      {
+        "charges": 2,
+        "frame": 60,
+        "height": 49.6035166674166,
+        "hole_visible": true,
+        "members": 6,
+        "peak": 49.6035166674166,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 90,
+        "height": 583.936850000749,
+        "hole_visible": true,
+        "members": 6,
+        "peak": 583.936850000749,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 120,
+        "height": 1183.34796111186,
+        "hole_visible": true,
+        "members": 6,
+        "peak": 1183.34796111186,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 150,
+        "height": 1495.01462777853,
+        "hole_visible": false,
+        "members": 6,
+        "peak": 1495.58129444519,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 180,
+        "height": 1785.94796111186,
+        "hole_visible": false,
+        "members": 7,
+        "peak": 1785.94796111186,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 210,
+        "height": 1936.28129444519,
+        "hole_visible": false,
+        "members": 7,
+        "peak": 1962.72573888964,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 240,
+        "height": 2111.05907222297,
+        "hole_visible": false,
+        "members": 7,
+        "peak": 2111.05907222297,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 270,
+        "height": 2445.3924055563,
+        "hole_visible": false,
+        "members": 8,
+        "peak": 2445.3924055563,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 300,
+        "height": 2982.97018333408,
+        "hole_visible": false,
+        "members": 8,
+        "peak": 2982.97018333408,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 330,
+        "height": 3181.30351666741,
+        "hole_visible": false,
+        "members": 8,
+        "peak": 3196.03685000074,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 360,
+        "height": 3694.13685000074,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 3694.13685000074,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 390,
+        "height": 3793.44796111185,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 3793.44796111185,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 420,
+        "height": 4207.11462777852,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 4207.11462777852,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 450,
+        "height": 4631.17018333408,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 4631.17018333408,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 480,
+        "height": 4648.17018333407,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 4724.85907222296,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 510,
+        "height": 5135.65907222296,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 5135.65907222296,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 540,
+        "height": 5128.4924055563,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 5174.43685000074,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 570,
+        "height": 5675.24796111186,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 5675.24796111186,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 600,
+        "height": 5896.50351666741,
+        "hole_visible": false,
+        "members": 9,
+        "peak": 5896.50351666741,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 630,
+        "height": 6278.17018333408,
+        "hole_visible": false,
+        "members": 11,
+        "peak": 6278.17018333408,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 660,
+        "height": 6763.43685000074,
+        "hole_visible": false,
+        "members": 11,
+        "peak": 6763.43685000074,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 690,
+        "height": 6927.61462777852,
+        "hole_visible": false,
+        "members": 11,
+        "peak": 6927.61462777852,
+        "sky": true
+      },
+      {
+        "charges": 5,
+        "frame": 720,
+        "height": 7394.61462777852,
+        "hole_visible": false,
+        "members": 11,
+        "peak": 7394.61462777852,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 750,
+        "height": 7672.98129444519,
+        "hole_visible": false,
+        "members": 11,
+        "peak": 7672.98129444519,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 780,
+        "height": 8112.71462777852,
+        "hole_visible": false,
+        "members": 12,
+        "peak": 8112.71462777852,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 810,
+        "height": 8583.04796111186,
+        "hole_visible": false,
+        "members": 12,
+        "peak": 8583.04796111186,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 840,
+        "height": 8373.38129444519,
+        "hole_visible": false,
+        "members": 12,
+        "peak": 8595.51462777853,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 870,
+        "height": 8840.31462777852,
+        "hole_visible": false,
+        "members": 12,
+        "peak": 8840.31462777852,
+        "sky": true
+      },
+      {
+        "charges": 3,
+        "frame": 900,
+        "height": 8774.24796111186,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 8869.21462777853,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 930,
+        "height": 9464.57843089245,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 9464.57843089245,
+        "sky": true
+      },
+      {
+        "charges": 4,
+        "frame": 960,
+        "height": 9207.15591413888,
+        "hole_visible": false,
+        "members": 13,
+        "peak": 9537.22884380216,
+        "sky": true
+      },
+      {
+        "charges": 2,
+        "frame": 990,
+        "height": 9522.20035858333,
+        "hole_visible": false,
+        "members": 13,
+        "peak": 9537.22884380216,
+        "sky": true
+      },
+      {
+        "charges": 1,
+        "frame": 1020,
+        "height": 10214.66702525,
+        "hole_visible": false,
+        "members": 13,
+        "peak": 10214.66702525,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1050,
+        "height": 10740.5336919167,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 10740.5336919167,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1080,
+        "height": 11097.5336919167,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11097.5336919167,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1110,
+        "height": 11363.86702525,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11367.8336919167,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1140,
+        "height": 10950.2003585833,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11367.8336919167,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1170,
+        "height": 11309.8781363611,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11367.8336919167,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1200,
+        "height": 11324.3448030278,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1230,
+        "height": 10576.6781363611,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1260,
+        "height": 9402.94480302781,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1290,
+        "height": 8222.94480302784,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1320,
+        "height": 7042.94480302783,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1350,
+        "height": 5862.94480302781,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1380,
+        "height": 4682.94480302779,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1410,
+        "height": 3502.94480302779,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1440,
+        "height": 2322.94480302779,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1470,
+        "height": 1142.94480302779,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": true
+      },
+      {
+        "charges": 0,
+        "frame": 1500,
+        "height": 0.0,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": false
+      },
+      {
+        "charges": 0,
+        "frame": 1530,
+        "height": 0.0,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": false
+      },
+      {
+        "charges": 0,
+        "frame": 1560,
+        "height": 0.0,
+        "hole_visible": false,
+        "members": 14,
+        "peak": 11438.9448030278,
+        "sky": false
+      }
+    ]
+  },
+  "physical_device_tested": false
+}

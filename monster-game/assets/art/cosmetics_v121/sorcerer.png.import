@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/sorcerer-v121-lossless.ctex"
+path="res://.godot/imported/sorcerer.png-350f6693ecab155365e39d4141ee2aec.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v121/sorcerer.png"
-dest_files=["res://.godot/imported/sorcerer-v121-lossless.ctex"]
+dest_files=["res://.godot/imported/sorcerer.png-350f6693ecab155365e39d4141ee2aec.ctex"]
 
 [params]
 

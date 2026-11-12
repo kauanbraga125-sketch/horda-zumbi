@@ -1,6 +1,17 @@
 class_name HordeSound
 extends Node
 signal result_cue(name: String, pitch: float, volume: float)
+signal scene_cue(name: String, volume: float, pan: float)
+
+const Score = preload("res://scripts/course_score.gd")
+var score = Score.new()
+var soundscape = preload("res://scripts/course_soundscape.gd").new()
+var distant_players: Array[AudioStreamPlayer] = []
+var distant_panners: Array[AudioEffectPanner] = []
+var extra_cooldowns: Dictionary = {}
+var distant_fixed: Array[bool] = []
+var distant_points: Array[Vector2] = []
+var distant_base: Array[float] = []
 
 var enabled = true
 var music: AudioStreamPlayer
@@ -44,6 +55,16 @@ func _ready() -> void :
 	for bus in ["HordeMusic", "HordeEffects", "HordeVoices"]:
 		if AudioServer.get_bus_index(bus) < 0:
 			AudioServer.add_bus();AudioServer.set_bus_name(AudioServer.bus_count - 1, bus)
+	for i in range(3):
+		var bus = "HordeDistant"+str(i)
+		if AudioServer.get_bus_index(bus)<0:
+			AudioServer.add_bus();AudioServer.set_bus_name(AudioServer.bus_count-1,bus)
+		var index = AudioServer.get_bus_index(bus)
+		AudioServer.set_bus_send(index,"HordeEffects")
+		if AudioServer.get_bus_effect_count(index)==0:AudioServer.add_bus_effect(index,AudioEffectPanner.new())
+		distant_panners.append(AudioServer.get_bus_effect(index,0))
+		var distant = AudioStreamPlayer.new();distant.bus = bus;add_child(distant);distant_players.append(distant)
+		distant_fixed.append(false);distant_points.append(Vector2.ZERO);distant_base.append(-20.0)
 	for i in range(2):
 		var player = AudioStreamPlayer.new();player.bus = "HordeMusic";add_child(player);music_players.append(player)
 	music = music_players[0]
@@ -106,12 +127,13 @@ func set_mix(value: Dictionary) -> void :
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index(bus), linear_to_db(maxf(0.0001, mix_levels[channel])))
 
 func _process(dt: float) -> void :
+	for key in extra_cooldowns:extra_cooldowns[key] = maxf(0.0,float(extra_cooldowns[key])-dt)
 	if is_instance_valid(result_liquid): result_liquid.volume_db=move_toward(result_liquid.volume_db,result_fill_target,dt*100)
 	duck_left = maxf(0, duck_left - dt)
 	for i in range(2):
 		atmosphere_weights[i] = move_toward(atmosphere_weights[i], atmosphere_targets[i], dt / 1.1)
 		atmosphere[i].volume_db = -13 + linear_to_db(maxf(0.0001, atmosphere_weights[i]))
-		if atmosphere_weights[i] <= 0.001 and atmosphere_targets[i] == 0: atmosphere[i].stop()
+		if atmosphere_weights[i] <= 0.001 and atmosphere_targets[i] == 0 and atmosphere[i].playing: atmosphere[i].stop()
 	var voice_active = false
 	for p in players:
 		if p.playing and p.bus == "HordeVoices" and mix_levels.voices > 0.001: voice_active = true;break
@@ -121,20 +143,20 @@ func _process(dt: float) -> void :
 	for i in range(2):
 		music_weights[i] = move_toward(music_weights[i], music_targets[i], dt / 0.95)
 		music_players[i].volume_db = -6 + duck_db + linear_to_db(maxf(0.0001, music_weights[i]))
-		if music_weights[i] <= 0.001 and music_targets[i] == 0: music_players[i].stop()
+		if music_weights[i] <= 0.001 and music_targets[i] == 0 and music_players[i].playing: music_players[i].stop()
 
 func set_enabled(value: bool) -> void :
 	enabled = value
-	for player in music_players + atmosphere + [ambience, rotor, engine, fire, wings, cauldron, footsteps, heavy_steps, jar_loop, result_liquid]: player.stream_paused = not value
+	for player in music_players + atmosphere + distant_players + [ambience, rotor, engine, fire, wings, cauldron, footsteps, heavy_steps, jar_loop, result_liquid]: player.stream_paused = not value
 	if not value:
-		for player in players: player.stop()
+		for player in players + distant_players: player.stop()
 
 func set_music(name: String) -> void :
 	if track == name: return
 	track = name
 	music_targets[music_index] = 0
 	music_index = 1 - music_index;music = music_players[music_index]
-	music.stream = clips[name];music.volume_db = -80;music.play();music.stream_paused = not enabled
+	music.stream = clips[name] if clips.has(name) else score.music(name);music.volume_db = -80;music.play();music.stream_paused = not enabled
 	music_weights[music_index] = 0;music_targets[music_index] = 1
 
 func set_area(area: int, running: bool) -> void :
@@ -181,18 +203,25 @@ func play(name: String, volume: float = -12) -> void :
 	chosen.pitch_scale = 1.0 if name in ["perk", "finish", "challenge", "tunnel", "transform_fly", "transform_mask", "car_crash"] else randf_range(0.985, 1.025)
 	chosen.play()
 
+func course_music(run) -> String:
+	return score.choose(run)
+
 func update_course(run: HordeRun, running: bool, burning: bool = false) -> void :
 	if not running:
-		for p in [rotor, engine, fire, wings, footsteps, heavy_steps]: p.stop()
+		for p in [rotor, engine, fire, wings, footsteps, heavy_steps] + distant_players:
+			if p.playing:p.stop()
 		set_atmosphere("")
 		return
+	set_music(course_music(run))
 	if run.sewer.active:
-		for p in [rotor,fire,wings,footsteps,heavy_steps]: p.stop()
-		set_music("midnight_late");set_atmosphere("");set_loop(engine,"sewer_rush",true,-20+run.sewer.pressure*8);return
-	if run.space.active:
-		for p in [rotor,engine,fire,wings,footsteps,heavy_steps]: p.stop()
-		set_atmosphere("");set_music("space_music");return
-	set_music("midnight_late" if run.tunnel_number() >= 6 else "midnight_run")
+		for p in [rotor,fire,wings,footsteps,heavy_steps]:
+			if p.playing:p.stop()
+		set_atmosphere("");set_loop(engine,"sewer_rush",true,-20+run.sewer.pressure*8);return
+	if run.space.active or run.sky.active:
+		for p in [rotor,engine,fire,wings,footsteps,heavy_steps]:
+			if p.playing:p.stop()
+		set_atmosphere(score.ambient())
+		return
 	var heli_distance = 2000.0; var engine_distance = 2000.0; var aircraft = false; var motorcycle = false
 	for entity in run.entities:
 		if entity.taken: continue
@@ -212,9 +241,12 @@ func update_course(run: HordeRun, running: bool, burning: bool = false) -> void 
 	set_atmosphere("AMB_04" if run.inside_tunnel() else ("AMB_00" if run.area() == 1 else ""))
 
 func set_loop(player: AudioStreamPlayer, name: String, active: bool, volume: float) -> void :
-	if not active: player.stop();return
+	if not active:
+		if player.playing:player.stop()
+		return
 	if not player.playing or player.stream != clips[name]: player.stream = clips[name];player.play()
-	player.volume_db = volume;player.stream_paused = not enabled
+	if absf(player.volume_db-volume)>.05:player.volume_db = volume
+	if player.stream_paused==enabled:player.stream_paused = not enabled
 
 func choose_variant(group: String) -> String:
 	if not variants.has(group): return ""
@@ -255,7 +287,7 @@ func set_atmosphere(group: String) -> void :
 	if group.is_empty(): return
 	atmosphere_index = 1 - atmosphere_index
 	var p = atmosphere[atmosphere_index]
-	p.stream = clips[choose_variant(group)];p.volume_db = -70;p.play();p.stream_paused = not enabled
+	p.stream = score.effect(group.trim_prefix("NEW_")) if group.begins_with("NEW_") else clips[choose_variant(group)];p.volume_db = -70;p.play();p.stream_paused = not enabled
 	atmosphere_weights[atmosphere_index] = 0;atmosphere_targets[atmosphere_index] = 1
 
 func results_one_shot(name: String, pitch: float = 1.0, volume: float = -14) -> void:
@@ -280,3 +312,60 @@ func results_fill(active: bool, portion: float = 0.0) -> void:
 		if enabled: result_cue.emit("result_fill",result_liquid.pitch_scale,-9)
 	result_fill_target=-9+sin(portion*PI)*2;duck_left=maxf(duck_left,0.15)
 	result_liquid.stream_paused=not enabled
+
+
+func update_scene(run, scenery, running: bool) -> void:
+	if not running:return
+	var view = Rect2(Vector2(scenery.view_left,scenery.view_top),Vector2(scenery.view_right-scenery.view_left,scenery.view_bottom-scenery.view_top))
+	var camera = Vector2(run.world_px-run.sky.start_world+view.position.x,view.position.y)
+	if run.sky.active:
+		for i in range(distant_players.size()):
+			if distant_players[i].playing and distant_fixed[i]:update_distant(i,view)
+	elif not run.sewer.active:
+		for player in distant_players:player.stop()
+	soundscape.advance(self,run,view,camera)
+
+func play_extra(key: String, volume: float = -10.0, cooldown: float = .10) -> void:
+	if not enabled or float(extra_cooldowns.get(key,0.0))>0:return
+	for player in players:
+		if player.playing:continue
+		player.bus = "HordeEffects";player.stream = score.effect(key)
+		player.pitch_scale = 1.0;player.volume_db = volume;player.play()
+		extra_cooldowns[key] = cooldown;scene_cue.emit(key,volume,0.0);return
+
+func play_distant(key: String, volume: float, pan: float, pitch: float = 1.0) -> void:
+	if not enabled:return
+	for i in range(distant_players.size()):
+		var player = distant_players[i]
+		if player.playing:continue
+		distant_fixed[i] = false
+		player.stream = score.effect(key);player.volume_db = volume;player.pitch_scale = pitch
+		distant_panners[i].pan = clampf(pan,-.75,.75);player.play();scene_cue.emit(key,volume,pan);return
+
+func play_energy_fallback(volume: float, pan: float) -> void:
+	if not enabled:return
+	for i in range(distant_players.size()):
+		var player = distant_players[i]
+		if player.playing:continue
+		distant_fixed[i] = false
+		player.stream = clips.space_dash;player.volume_db = volume;player.pitch_scale = 1.18
+		distant_panners[i].pan = clampf(pan,-.75,.75);player.play();scene_cue.emit("plasma_existing",volume,pan);return
+
+
+func play_distant_at(key: String, volume: float, point: Vector2, view: Rect2, pitch: float = 1.0, offset: float = 0.0) -> void:
+	if not enabled:return
+	for i in range(distant_players.size()):
+		var player = distant_players[i]
+		if player.playing:continue
+		player.stream = score.effect(key);player.pitch_scale = pitch
+		distant_fixed[i] = true;distant_points[i] = point;distant_base[i] = volume
+		update_distant(i,view)
+		player.play(offset);scene_cue.emit(key,player.volume_db,distant_panners[i].pan);return
+
+func update_distant(index: int, view: Rect2) -> void:
+	var point = distant_points[index]
+	var mix = soundscape.spatial(point,view)
+	var edge = Vector2(clampf(point.x,view.position.x,view.end.x),clampf(point.y,view.position.y,view.end.y))
+	var retreat = minf(52.0,point.distance_to(edge)*.045)
+	distant_players[index].volume_db = distant_base[index]-mix.y-retreat
+	distant_panners[index].pan = mix.x

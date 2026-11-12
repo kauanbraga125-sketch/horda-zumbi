@@ -1,8 +1,18 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.41 — espaço e esgoto como eventos aleatórios**.
+Versão de testes atual: **0.10.67 — músicas, efeitos e três rotas físicas**.
+
+- [Baixar o APK Android ARM64 0.10.67](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.67/Horda-Zumbi-v0.10.67-GitHub-TESTE-ARM64.apk)
+- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.67.md)
+- [Código-fonte, sprites e áudios](monster-game/)
+
+Nove músicas acompanham as regiões do céu, do espaço e do esgoto. Os 23 efeitos incluem duas variações do pula-pula e os sons das criaturas e dos encontros animados. A versão inclui as três rotas físicas e os cenários da 0.10.66.
+
+A edição instala como **Horda GitHub Teste**, com progresso próprio. A compilação e a abertura são verificadas no GitHub; o teste em aparelho físico continua pendente.
 
 **Para editar e compilar pelo próprio GitHub:** [guia de continuação](CONTINUAR-NO-GITHUB.md) · [compilar novo APK dos fontes no Actions](https://github.com/kauanbraga125-sketch/horda-zumbi/actions/workflows/horda-compilar-apk.yml). Alterações em `monster-game/` geram uma compilação de teste automaticamente; o botão **Run workflow** permite escolher a branch. Baixe o APK em **Artifacts** da execução concluída.
+
+## Histórico da edição 0.10.41
 
 - [Baixar o APK 0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.41/Horda-Zumbi-v0.10.41-TESTE-1M-ESGOTO-ARM64.apk)
 - [Projeto Godot completo](monster-game/)

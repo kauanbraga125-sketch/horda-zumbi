@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/cape-v127-lossless.ctex"
+path="res://.godot/imported/cape.png-fbc1f67747513541aca2ee14dc5f5e77.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v127/cape.png"
-dest_files=["res://.godot/imported/cape-v127-lossless.ctex"]
+dest_files=["res://.godot/imported/cape.png-fbc1f67747513541aca2ee14dc5f5e77.ctex"]
 
 [params]
 

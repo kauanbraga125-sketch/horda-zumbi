@@ -1,0 +1,434 @@
+{
+  "version": "0.10.67",
+  "encoding": "Ogg Vorbis in .bin; lazy decoding, no duplicate imported stream",
+  "music": {
+    "sky_mist": {
+      "file": "music_sky_mist.bin",
+      "source": "Midnight_Graveyard_Kart_Dash.mp3",
+      "source_sha256": "e1b13a054a831c325b41e34ef4d9c109a50cc83c568e6ad3e06fcd57e6eb665f",
+      "duration": 178.207347,
+      "bytes": 2490018,
+      "sha256": "2752b7af44daa3b8737d868c4628f7b8c86f22c8e898eca81563a47721fa2a4b",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "sky_storm": {
+      "file": "music_sky_storm.bin",
+      "source": "Storm_Over_The_Floating_Isles.mp3",
+      "source_sha256": "813b7d3775a757ac60d55edd90a919c57f5d314693f32708cd91c7938e667620",
+      "duration": 180.662857,
+      "bytes": 2462561,
+      "sha256": "5b230b2c5ed94f5c6620ff7c8d66899c36c35fc1dae0809a783f3a660097e7bd",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "sky_atmosphere": {
+      "file": "music_sky_atmosphere.bin",
+      "source": "The_Last_Airlock.mp3",
+      "source_sha256": "8f0937eaa9971668a78eae331546a4f724cd121cea0d12f061ea17fdc035ac8e",
+      "duration": 175.307755,
+      "bytes": 2283663,
+      "sha256": "513a84ebada42e135f4464e503d3a28019457835d5f52c4c5e9ba3e8d2c35d81",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "sky_universe": {
+      "file": "music_sky_universe.bin",
+      "source": "The_Unmaker’s_Reach.mp3",
+      "source_sha256": "3837544a702a910d32e8d32c14ab52618fc9b36108d263fe886975d2b0461a80",
+      "duration": 182.804898,
+      "bytes": 2420183,
+      "sha256": "0dadfd0f702613b49f1de5be35797a92d05b96440ad01c7ec8811eb1d9efee34",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "sewer": {
+      "file": "music_sewer.bin",
+      "source": "The_Floodgate_Turn.mp3",
+      "source_sha256": "5ccc586f0a197d33d8317c1ac89d4e71edf005ed9a65b8b9714906a153519810",
+      "duration": 181.289796,
+      "bytes": 2516602,
+      "sha256": "858c2ffcd61eec107a198da4480d85a86c7841422b94ee6b17f5bfc8507027a8",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "space_earth": {
+      "file": "music_space_earth.bin",
+      "source": "Gravity_s_Edge.mp3",
+      "source_sha256": "d57b02942ff731787c6c146cc8298b6c53912f511eba8e33f237e2220a6721c1",
+      "duration": 113.136327,
+      "bytes": 1417800,
+      "sha256": "63a0018c6c4643bad6ef959a9110b1173c1af071ea4582292c1e3b04ee67103c",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "space_graveyard": {
+      "file": "music_space_graveyard.bin",
+      "source": "Beneath_the_Wreckage.mp3",
+      "source_sha256": "3b84881630ab6d25159dd5663c7c8b17834526b0d67201ce59a86bb1a0ebc2f8",
+      "duration": 178.468571,
+      "bytes": 2291454,
+      "sha256": "42f7e7c34233625272f661913493cfbd42c7b7e168ab5b22a44e27e817958a57",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "space_nest": {
+      "file": "music_space_nest.bin",
+      "source": "Under_A_Pale_Carapace.mp3",
+      "source_sha256": "203e54c3eb63adb365a324ff41b2b87a439ddf21ff8fab75dc3d749dd7de9a02",
+      "duration": 177.319184,
+      "bytes": 2348166,
+      "sha256": "f834be0114a657f524116407f5fb1766d5d09367bcd71d6bd6e98d6855c0c057",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    },
+    "space_horizon": {
+      "file": "music_space_horizon.bin",
+      "source": "Colossus_at_the_Gate.mp3",
+      "source_sha256": "7bf68b087d0712b6be2014075a0aa5e6f8b419ccf65f6954feac7dee7da06841",
+      "duration": 176.875102,
+      "bytes": 2330131,
+      "sha256": "6afb7ac82413c2b7cb4c27287ec27e4817e8a6847d7fe32a51231da4d7d7b971",
+      "normalization": "two-pass loudnorm -20 LUFS, -2 dBTP, LRA 9",
+      "loop": true
+    }
+  },
+  "effects": {
+    "mist": [
+      {
+        "code": "S01",
+        "file": "mist_1.bin",
+        "source": "Crie_uma_ambiência_s_#1-1794500353994.mp3",
+        "source_sha256": "c98cc967684b77e6d532864587e0b135c5e3f8cd9514826adb6dba1d43aa62c0",
+        "duration": 12.0,
+        "gain_db": 22.53321,
+        "bytes": 94078,
+        "sha256": "8915241e72fb722c9185bfd8fc7bb4911fa560dbb02cf8a7e1a4b8c821ebd969",
+        "loop": true,
+        "estimated": false
+      }
+    ],
+    "storm": [
+      {
+        "code": "S02",
+        "file": "storm_1.bin",
+        "source": "Crie_uma_ambiência_s vento forte_#1-1794500353994.mp3",
+        "source_sha256": "e388c1939c5e5dc30046187163eec3888bfb5898d11a30c59617ef3e76d6ba73",
+        "duration": 12.0,
+        "gain_db": 17.78155,
+        "bytes": 98135,
+        "sha256": "9b891b20dc5794ab4002830bccbfb6eda6815f4df44ce78603810053c6ed9cfd",
+        "loop": true,
+        "estimated": false
+      }
+    ],
+    "orbit": [
+      {
+        "code": "S03",
+        "file": "orbit_1.bin",
+        "source": "Crie_uma_ambiência_d cemiterio_#3-1794500467505.mp3",
+        "source_sha256": "016dd0a35e065b325cef3500d3582d7f62cda66e2e9f613c74d3958cff58a7fe",
+        "duration": 12.0,
+        "gain_db": 17.28757,
+        "bytes": 98971,
+        "sha256": "c1566913535490db1e15b420bb0c1724afa3ac253fa25084857a68afebf70040",
+        "loop": true,
+        "estimated": false
+      }
+    ],
+    "abyss": [
+      {
+        "code": "S04",
+        "file": "abyss_1.bin",
+        "source": "Crie_uma_ambiência_s universo_#1-1794500518122.mp3",
+        "source_sha256": "82c554e62fc7f8cc1b32fbd387971c1c2f560039ed2986f0b5084253089798e4",
+        "duration": 12.0,
+        "gain_db": 8.52276,
+        "bytes": 90237,
+        "sha256": "f15b4c9246041b3dbeb02e5bab285217f992aba996e848d07cdd3e63c9d93f00",
+        "loop": true,
+        "estimated": false
+      }
+    ],
+    "thunder": [
+      {
+        "code": "S05",
+        "file": "thunder_1.bin",
+        "source": "Crie_um_único_trovão_#4-1794500573522.mp3",
+        "source_sha256": "c14a438cdfd428b66b8bec63605f86cd0066b52ec329fe1fd2b518ca2a5c3c0c",
+        "duration": 4.16,
+        "gain_db": 19.09347,
+        "bytes": 33153,
+        "sha256": "b4843b8566495109c70239fcb895a5bbc516264a288aa4faed839512a07590c0",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "step": [
+      {
+        "code": "S06",
+        "file": "step_1.bin",
+        "source": "Crie_um_único_passo__#4-1794500611083.mp3",
+        "source_sha256": "c5f3e2d27311935300380771923614f91b7f5bee1cf8fcf712374e90a9fe5bff",
+        "duration": 2.0,
+        "gain_db": 14.95008,
+        "bytes": 19359,
+        "sha256": "d9bceeb68f666c61768ca769bdf13813e59691316027af7803ff44548e6607b2",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "elder": [
+      {
+        "code": "S07",
+        "file": "elder_1.bin",
+        "source": "Crie_uma_expiração_s_#1-1794500663585.mp3",
+        "source_sha256": "3c3db6847c39a09be7ee6efc43d81aa4049b49cf741192b4ec58e85414c946a0",
+        "duration": 4.08,
+        "gain_db": 22.83669,
+        "bytes": 37161,
+        "sha256": "0ce5c611af0c177c95d64ce2257c49d9762a7b0e4241150066ad0008f69625b7",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "dragon": [
+      {
+        "code": "S08",
+        "file": "dragon_1.bin",
+        "source": "Crie_um_rugido_origi_#2-1794500704242.mp3",
+        "source_sha256": "38c6395bcf77b188553a4d5d551e11753f705a2cb1ca7309bdde520d502e9f69",
+        "duration": 4.08,
+        "gain_db": 0.34838,
+        "bytes": 33613,
+        "sha256": "907d2c16d21852400e5358c396102b0eec2c67c698d8901ba9b0f73959dc668d",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "witch": [
+      {
+        "code": "S09",
+        "file": "witch_1.bin",
+        "source": "Crie_uma_risada_curt_#3-1794500761392.mp3",
+        "source_sha256": "09bfafcf4f1915d1fb28bae2522e5a7a2e6a73c6c4c96e67656175f7946f7901",
+        "duration": 3.2,
+        "gain_db": 4.42218,
+        "bytes": 28316,
+        "sha256": "58b36b12cae6ac9903adbfe2930feabbe2749f6bc2c3be6fb8a97a2ee3b6e502",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "worm_lunge": [
+      {
+        "code": "S10",
+        "file": "worm_lunge_1.bin",
+        "source": "Crie_o_efeito_de_uma_#2-1794500861026.mp3",
+        "source_sha256": "4934f137c8a5283a7df8116bb4665fa6c1b8920800b9a2754ba95e8830869e4f",
+        "duration": 2.0,
+        "gain_db": -6.9042,
+        "bytes": 18525,
+        "sha256": "6cc839fb485ed1ab34f97f45f7abd7b545f0848c503aca94a4c8af0122b8e1e8",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "worm_burp": [
+      {
+        "code": "S11",
+        "file": "worm_burp_1.bin",
+        "source": "Crie_uma_pequena_seq monstro comendo tudo_#2-1794500908285.mp3",
+        "source_sha256": "918cb6db989afc79fa5abc90eb204c733ebbfafbb2ca792d8ce757b6a87aa9d8",
+        "duration": 3.28,
+        "gain_db": -2.42669,
+        "bytes": 29332,
+        "sha256": "735a912d61894e8032d9c47ad7c4a18faad9f523b683dbb4735ff1ba5986dfcc",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "ape": [
+      {
+        "code": "S12",
+        "file": "ape_1.bin",
+        "source": "Crie_um_rugido_origi_#4-1794500965842.mp3",
+        "source_sha256": "2b9fa64b7f508df9bb111cef33200e99c9e1acc925ac1be94d4a01b28e8a5a2a",
+        "duration": 3.28,
+        "gain_db": 9.49543,
+        "bytes": 28796,
+        "sha256": "b7e85b60bf3ed8a45ae1723d12918be54e628cd52e61572bedd2ab50815a736e",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "reptile": [
+      {
+        "code": "S13",
+        "file": "reptile_1.bin",
+        "source": "Crie_um_rugido_origi reptil_#2-1794500993498.mp3",
+        "source_sha256": "e6890802ece9619d3d08da3659fc7169d0f86e13f16b3ce38154679672bc4238",
+        "duration": 3.28,
+        "gain_db": -6.66376,
+        "bytes": 22338,
+        "sha256": "5d13f6963ab92cf832243d61053363cc3fc598c1645afd3141e5b241946ad880",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "impact": [
+      {
+        "code": "S14",
+        "file": "impact_1.bin",
+        "source": "Crie_um_único_impact_#2-1794501058577.mp3",
+        "source_sha256": "5467732f2f5a311c6e406bfbf3e72cdd192fe091456d8baf1d9324f65e73e791",
+        "duration": 2.0,
+        "gain_db": -0.33755,
+        "bytes": 18285,
+        "sha256": "e97442ce89a81b3c81df261ee1c11ce2eef4c6e910e46e4f8cd1277d9c418bac",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "breath": [
+      {
+        "code": "S15",
+        "file": "breath_1.bin",
+        "source": "Crie_um_sopro_de_ene_#3-1794501090764.mp3",
+        "source_sha256": "279e73369896173544ac0e184d9cd0c40a120f36af9b17015b6ba5de8f47883d",
+        "duration": 3.0,
+        "gain_db": 16.54358,
+        "bytes": 26269,
+        "sha256": "fcb9a3eb3e94405aa9a63d9d966ed4ea2d7c506df2e443c950dde0b591598d3b",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "alien": [
+      {
+        "code": "S16",
+        "file": "alien_1.bin",
+        "source": "Crie_uma_vocalização_#3-1794501121977.mp3",
+        "source_sha256": "79ccb8adfa7ba228e13fa3594de29b86d6a22a6c2f437700c2bbb503fe962d60",
+        "duration": 2.0,
+        "gain_db": -0.74048,
+        "bytes": 18164,
+        "sha256": "1d0c7705c4b25e5fa0759657eb902a7fdbbf13b0927626f3520d6f8783eeca9e",
+        "loop": false,
+        "estimated": true
+      }
+    ],
+    "cloak": [
+      {
+        "code": "S18",
+        "file": "cloak_1.bin",
+        "source": "Crie_o_efeito_de_ati_#4-1794501155171.mp3",
+        "source_sha256": "12b6c637072be72236329a307ac8be73d581ce321bd35b20a6ca5ab197a13e15",
+        "duration": 2.0,
+        "gain_db": 2.27158,
+        "bytes": 18870,
+        "sha256": "2affafc07ae7333b28c96eeeda73ad4a61eea0d247aa463bed905968b5b275f5",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "planet": [
+      {
+        "code": "S20",
+        "file": "planet_1.bin",
+        "source": "Crie_o_som_de_uma_cr_#4-1794501206854.mp3",
+        "source_sha256": "1498f05a057f1eebfb4bebdae5fd15b0aa7d554c6b3b09c16f5f6f58ea457192",
+        "duration": 3.2,
+        "gain_db": 10.88853,
+        "bytes": 26623,
+        "sha256": "e18820aa8a8856dfe7232f95d82ca153f73846eae3fb04e18ac030c5f5a07568",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "time_car": [
+      {
+        "code": "S21",
+        "file": "time_car_1.bin",
+        "source": "Crie_a_passagem_de_u_#4-1794501245445.mp3",
+        "source_sha256": "0b4b86723e75691bdcb1015e4077c3dd6f723bf70f28fccde3133302815aeff1",
+        "duration": 5.28,
+        "gain_db": -3.37269,
+        "bytes": 41853,
+        "sha256": "c2cffdccd9d56811ff95bab293a80c3921bb76136b0205a6a5d1e1c32631f6e0",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "flood": [
+      {
+        "code": "S22",
+        "file": "flood_1.bin",
+        "source": "Crie_uma_vocalização_#4-1794501285372.mp3",
+        "source_sha256": "7c96cbf776c55129c72485eea402c087be2326e890a81f110cf84b45cb8349d6",
+        "duration": 5.28,
+        "gain_db": 23.05006,
+        "bytes": 47550,
+        "sha256": "19b88146c609774466782772d3e8a67629976c931621717a7512b8eceb803c3b",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "vortex": [
+      {
+        "code": "S23",
+        "file": "vortex_1.bin",
+        "source": "Crie_o_efeito_de_um_sucção_#3-1794501393672.mp3",
+        "source_sha256": "691ac5c3f1b9cb4574a024eb8dac9adf1ce68f774b0200d19ce3372c07af9220",
+        "duration": 3.88,
+        "gain_db": 13.29574,
+        "bytes": 32708,
+        "sha256": "62c9576be7238f8c92317b9dcc431b9bda75312ef87b6efe79b5b317e4d23637",
+        "loop": false,
+        "estimated": false
+      }
+    ],
+    "trampoline": [
+      {
+        "code": "S24",
+        "file": "trampoline_1.bin",
+        "source": "Crie_um_efeito_curtopula pula_#4-1794501483455.mp3",
+        "source_sha256": "9afdcba766b7c9ec97760551d8c3493bbc9737780f44605ed1820adf604c8a5e",
+        "duration": 1.0,
+        "gain_db": -0.10414,
+        "bytes": 11137,
+        "sha256": "8509290cff15c21b5444fb74c4a4955737f33d32b9674fa878cdb1e1bae00ccf",
+        "loop": false,
+        "estimated": false
+      },
+      {
+        "code": "S24",
+        "file": "trampoline_2.bin",
+        "source": "pula pula.mp3",
+        "source_sha256": "099156b08871b204f0578d45c52e83271ae56ed0e9546cf5195712c7627e7b20",
+        "duration": 1.0,
+        "gain_db": 6.18588,
+        "bytes": 11134,
+        "sha256": "ac9d3b6867b56b6b16f7140d7a8a0785fdfd0e8b3a97a6203ada437b230a7af0",
+        "loop": false,
+        "estimated": false
+      }
+    ]
+  },
+  "identification": {
+    "basis": "user confirmed generation order, filename prompt prefixes and timestamps",
+    "estimated": [
+      "S16 assigned to alien attack by generation position; semantic identity not independently confirmed"
+    ],
+    "fallbacks": {
+      "S17": "No independently identified hunter click; cloak and plasma action cues remain available.",
+      "S19": "Reuses existing original space_dash effect as energy projectile."
+    },
+    "deduplicated": [
+      "archive item 22 is byte-identical to S11 item 10"
+    ],
+    "variants": [
+      "Both distinct S24 uploads are retained and alternated."
+    ]
+  }
+}

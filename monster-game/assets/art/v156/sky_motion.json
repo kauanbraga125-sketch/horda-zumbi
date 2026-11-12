@@ -1,0 +1,487 @@
+{
+  "generator": "OpenAI ImageGen",
+  "prompts": {
+    "people": "Use case: stylized-concept. Production animation sprite atlas for a detailed cartoon gothic 2D side-scrolling zombie runner. True transparent alpha. Strict 3 columns and 3 rows of equal cells, square 1536 by 1536 composition. Nine separate cuttable sprites with clean blackish contour and rich painterly detailed color. Face LEFT in readable three-quarter view, same head and pelvis anchors in each row, stable costumes, no ground. Each row is one civilian, with three poses left to right: steady flying pose; nervous look back / body pitches as arms shift; exaggerated full panic pose with arms out but same body scale. ROW 1 the same male young mail carrier with golden amber scarf, tan leather aviator cap and green olive flight suit, dark boots, short brown curls, open honest cartoon face; hangs upright in a harness with knees bent, straps in hands, parachute and cords omitted because added separately in engine. ROW 2 the same female young adult sky explorer, black curly hair, lilac jacket, pale cyan shirt, brown flying boots and red goggles resting on forehead, hangs in upright parachute harness with legs bent and straps in hands, parachute and cords omitted. ROW 3 the same nervous middle-aged inventor in a muted purple pilot jumpsuit, brassy aviator goggles, short teal scarf, boots, and a compact strapped brass twin-nozzle backpack jetpack worn visibly on back in each pose. He hovers with knees bent and bobs, arms free, no exhaust flames (added separately). Consistent warm highlights and dark outline like high-quality hand-painted dark fairy-tale game NPC sprites. Expressive readable faces at small size. Each sprite fully within its own grid cell with 8 percent transparent empty gutters. No labels, no writing, no borders, no checkered or fake background, no floor shadow, no additional objects.",
+    "equipment": "Use case: stylized-concept. Game asset atlas on true transparent alpha, 3 columns × 2 rows of equal square cells, 1536x1024 landscape. Six separately cuttable sprites, each centered with clear gutters. Crisp detailed hand-painted side-scrolling dark fairy-tale game asset style, not photorealism. Top left: wide inflated vintage parachute canopy, warm bronze ochre and buff cream sewn panels, dark red stitching and a scalloped bottom, three-quarter left view, canopy only, no cords or person. Top middle: same shape but muted rich lilac and seafoam panels, parchment highlights, canopy only no cords. Top right: a collapsed ochre canopy in a compact crumpled trailing silhouette, separate dangling cloth, no cords. Bottom left: collapsed lilac and seafoam parachute canopy, same readable trailing shape. Bottom middle: compact short downward two-lobed turquoise and gold jetpack exhaust, separated two closely spaced flares, dark edges, transparent taper, fits small backpack nozzle. Bottom right: stretched magenta-blue two-jet exhaust version with bright ivory-turquoise core, downward, no smoke rectangle. One sprite in each cell, no people, no text, no borders, genuine transparent background, 10% blank alpha gutters.",
+    "wind": "Use case: stylized-concept. Crisp painted magical VFX sprite atlas for a dark fairy-tale zombie runner, true transparent alpha. Exactly 3 columns × 2 equal rows, landscape 1536x1024. Each of six cells has one independently cuttable element, generously clear alpha gutters. Upper row left to right: three consecutive animation stages of a magical upward impulse viewed from side, originates at the top under the runners and disperses DOWNWARD: first compact lavender-blue sharp compression spark with pointed tail; second dynamic turquoise and violet diverging swept taper with bright violet edges, mostly transparent center and irregular energy flecks; third fragmented falling wisps and detached flecks of same turquoise and violet energy leaving translucent trails. Lower row left to right: two long sparse individual wind streaks for downward fall (art points upward with tapered top, cool desaturated periwinkle, side-on), short slanted speed shear blue-white, and a small indigo puff with a gold-lilac star spark at center for a caught-updraft contact. Graphic curves and brushwork matched to crisp painted gothic 2D game VFX. Isolated clear silhouettes, no backgrounds, no labels, no watermark, no rectangular halos. Artwork meant to be layered over the real game behind the characters."
+  },
+  "atlases": {
+    "people": {
+      "source_sha256": "4d3346c129c77aa2b9943cc6747f5deb845c9cc7fb42109acd1e689e7162d250",
+      "tiles": {
+        "para_ochre_steady": {
+          "rect": [
+            43,
+            6,
+            226,
+            300
+          ],
+          "size": [
+            312,
+            415
+          ],
+          "pivot": [
+            0.3782051282051282,
+            0.5204819277108433
+          ],
+          "source_box": [
+            91,
+            0,
+            403,
+            415
+          ]
+        },
+        "para_ochre_nervous": {
+          "rect": [
+            359,
+            6,
+            218,
+            300
+          ],
+          "size": [
+            301,
+            415
+          ],
+          "pivot": [
+            0.4053156146179402,
+            0.5204819277108433
+          ],
+          "source_box": [
+            488,
+            0,
+            789,
+            415
+          ]
+        },
+        "para_ochre_panic": {
+          "rect": [
+            640,
+            6,
+            280,
+            300
+          ],
+          "size": [
+            384,
+            411
+          ],
+          "pivot": [
+            0.4765625,
+            0.5206812652068127
+          ],
+          "source_box": [
+            825,
+            2,
+            1209,
+            413
+          ]
+        },
+        "para_lilac_steady": {
+          "rect": [
+            56,
+            318,
+            199,
+            300
+          ],
+          "size": [
+            277,
+            417
+          ],
+          "pivot": [
+            0.4584837545126354,
+            0.49640287769784175
+          ],
+          "source_box": [
+            77,
+            418,
+            354,
+            835
+          ]
+        },
+        "para_lilac_nervous": {
+          "rect": [
+            366,
+            318,
+            204,
+            300
+          ],
+          "size": [
+            283,
+            416
+          ],
+          "pivot": [
+            0.49823321554770317,
+            0.4951923076923077
+          ],
+          "source_box": [
+            463,
+            419,
+            746,
+            835
+          ]
+        },
+        "para_lilac_panic": {
+          "rect": [
+            653,
+            318,
+            254,
+            300
+          ],
+          "size": [
+            352,
+            416
+          ],
+          "pivot": [
+            0.4943181818181818,
+            0.4951923076923077
+          ],
+          "source_box": [
+            833,
+            419,
+            1185,
+            835
+          ]
+        },
+        "jetpack_steady": {
+          "rect": [
+            48,
+            630,
+            216,
+            300
+          ],
+          "size": [
+            298,
+            413
+          ],
+          "pivot": [
+            0.43288590604026844,
+            0.4891041162227603
+          ],
+          "source_box": [
+            63,
+            841,
+            361,
+            1254
+          ]
+        },
+        "jetpack_nervous": {
+          "rect": [
+            360,
+            630,
+            216,
+            300
+          ],
+          "size": [
+            298,
+            414
+          ],
+          "pivot": [
+            0.4395973154362416,
+            0.49033816425120774
+          ],
+          "source_box": [
+            452,
+            840,
+            750,
+            1254
+          ]
+        },
+        "jetpack_panic": {
+          "rect": [
+            637,
+            630,
+            285,
+            300
+          ],
+          "size": [
+            392,
+            413
+          ],
+          "pivot": [
+            0.548469387755102,
+            0.4891041162227603
+          ],
+          "source_box": [
+            792,
+            841,
+            1184,
+            1254
+          ]
+        }
+      }
+    },
+    "equipment": {
+      "source_sha256": "9166131eb722aa6c25651ef5290c7721401d19cf5a1bab0e96dbbd24ee701684",
+      "tiles": {
+        "chute_ochre": {
+          "rect": [
+            6,
+            46,
+            300,
+            219
+          ],
+          "size": [
+            492,
+            359
+          ],
+          "pivot": [
+            0.48577235772357724,
+            0.5097493036211699
+          ],
+          "source_box": [
+            8,
+            73,
+            500,
+            432
+          ]
+        },
+        "chute_lilac": {
+          "rect": [
+            318,
+            46,
+            300,
+            219
+          ],
+          "size": [
+            492,
+            359
+          ],
+          "pivot": [
+            0.483739837398374,
+            0.5097493036211699
+          ],
+          "source_box": [
+            521,
+            73,
+            1013,
+            432
+          ]
+        },
+        "folded_ochre": {
+          "rect": [
+            630,
+            46,
+            300,
+            219
+          ],
+          "size": [
+            488,
+            356
+          ],
+          "pivot": [
+            0.4733606557377049,
+            0.47191011235955055
+          ],
+          "source_box": [
+            1037,
+            85,
+            1525,
+            441
+          ]
+        },
+        "folded_lilac": {
+          "rect": [
+            6,
+            358,
+            300,
+            219
+          ],
+          "size": [
+            489,
+            357
+          ],
+          "pivot": [
+            0.48057259713701433,
+            0.47058823529411764
+          ],
+          "source_box": [
+            13,
+            596,
+            502,
+            953
+          ]
+        },
+        "jet_short": {
+          "rect": [
+            336,
+            319,
+            264,
+            297
+          ],
+          "size": [
+            264,
+            297
+          ],
+          "pivot": [
+            0.49242424242424243,
+            0.026936026936026935
+          ],
+          "source_box": [
+            636,
+            622,
+            900,
+            919
+          ]
+        },
+        "jet_long": {
+          "rect": [
+            680,
+            318,
+            199,
+            300
+          ],
+          "size": [
+            304,
+            458
+          ],
+          "pivot": [
+            0.4967105263157895,
+            0.019650655021834062
+          ],
+          "source_box": [
+            1132,
+            544,
+            1436,
+            1002
+          ]
+        }
+      }
+    },
+    "wind": {
+      "source_sha256": "d90f14a15ba0f7fd8eed36ec2581864a4e97970a0bd57768dd2a17fc64fcf8ec",
+      "tiles": {
+        "impulse_start": {
+          "rect": [
+            6,
+            31,
+            300,
+            250
+          ],
+          "size": [
+            320,
+            267
+          ],
+          "pivot": [
+            0.515625,
+            0.20224719101123595
+          ],
+          "source_box": [
+            95,
+            76,
+            415,
+            343
+          ]
+        },
+        "impulse_open": {
+          "rect": [
+            318,
+            40,
+            300,
+            232
+          ],
+          "size": [
+            491,
+            379
+          ],
+          "pivot": [
+            0.5071283095723014,
+            0.09762532981530343
+          ],
+          "source_box": [
+            512,
+            76,
+            1003,
+            455
+          ]
+        },
+        "impulse_wisps": {
+          "rect": [
+            630,
+            10,
+            300,
+            291
+          ],
+          "size": [
+            419,
+            406
+          ],
+          "pivot": [
+            0.5011933174224343,
+            0.10098522167487685
+          ],
+          "source_box": [
+            1058,
+            75,
+            1477,
+            481
+          ]
+        },
+        "fall_wind": {
+          "rect": [
+            48,
+            318,
+            216,
+            300
+          ],
+          "size": [
+            327,
+            455
+          ],
+          "pivot": [
+            0.5259938837920489,
+            0.5010989010989011
+          ],
+          "source_box": [
+            62,
+            539,
+            389,
+            994
+          ]
+        },
+        "rise_wind": {
+          "rect": [
+            318,
+            403,
+            300,
+            130
+          ],
+          "size": [
+            412,
+            179
+          ],
+          "pivot": [
+            0.5,
+            0.5139664804469274
+          ],
+          "source_box": [
+            557,
+            677,
+            969,
+            856
+          ]
+        },
+        "catch_wisp": {
+          "rect": [
+            630,
+            357,
+            300,
+            222
+          ],
+          "size": [
+            329,
+            243
+          ],
+          "pivot": [
+            0.49848024316109424,
+            0.5761316872427984
+          ],
+          "source_box": [
+            1129,
+            630,
+            1458,
+            873
+          ]
+        }
+      }
+    }
+  }
+}

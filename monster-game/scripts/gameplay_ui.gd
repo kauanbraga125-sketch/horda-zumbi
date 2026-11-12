@@ -23,6 +23,8 @@ func hud_layout(view: Rect2) -> Dictionary:
 		"effect": Rect2(pause_rect.position.x - 332, top, 308, 78)}
 
 func counter_target(g, index: int) -> Vector2:
+	if g.runner.sky.active and index == 2:
+		return g.runner.sky.visual.soul_target(g.full_rect())
 	if g.runner.space.active:
 		var d = g.runner.space.visual.layout(g.full_rect())
 		return d.coins.get_center() if index==3 else d.horde.get_center()
@@ -61,6 +63,9 @@ func glyph(g, kind: String, point: Vector2, size: float, color: Color) -> void :
 					if (row + col) % 2 == 0: g.draw_rect(Rect2(origin + Vector2(col, row) * cell, Vector2.ONE * cell), Color("31203f"))
 
 func hud(g) -> void :
+	if g.runner.sky.active:
+		g.runner.sky.visual.hud(g, g.runner)
+		return
 	if g.runner.sewer.active:
 		g.runner.sewer.visual.hud(g,g.runner.sewer);return
 	if g.runner.space.active:
@@ -87,6 +92,9 @@ func hud(g) -> void :
 	glyph(g, "pause", pause_rect.get_center(), 40, g.CREAM)
 	g.home_menu.register(g, pause_rect, "pause")
 	g.home_menu.label(g, ("TESTE  •  " + g.LAB_LABELS[g.LAB_KINDS.find(g.lab_kind)] if g.lab_active else MonsterCatalog.AREAS[g.runner.area()].name.to_upper() + "  •  TÚNEL " + str(g.runner.tunnel_number())), d.location, 19, MonsterCatalog.AREAS[g.runner.area()].color, false, 680)
+	if g.lab_active and g.lab_kind == "sky" and not g.runner.sky.pending:
+		var retry = Rect2(pause_rect.end.x - 182.0, pause_rect.end.y + 12.0, 182.0, 41.0)
+		g.button(retry, "TENTAR DE NOVO", "lab_sky_restart", Color("513c67"), -2, 16)
 	var effect: Rect2 = d.effect
 	if g.runner.space.active:
 		g.runner.space.paint_hud(g)
@@ -207,45 +215,78 @@ func pause(g) -> void :
 	action_button(g, d.home, "MENU", "home", "home")
 	action_button(g, d.settings, "CONFIGURAÇÕES", "settings", "settings")
 
-func ground(g, offset: float, terrain_run: HordeRun = null) -> void :
+func ground(g, offset: float, terrain_run: HordeRun = null) -> void:
 	var run: HordeRun = g.runner if terrain_run == null else terrain_run
-	var left: float = g.scenery.view_left
+	var exiting = run.sewer.active and run.sewer.phase == "exit"
+	var descending = run.sewer.active and run.sewer.phase == "entry"
+	var bank_start: float = run.sewer.exit_bank(run) if exiting else -INF
+	var lift: float = run.sewer.exit_rise(run)-run.sewer.EXIT_ELEVATION if exiting else 0.0
+	var left: float = maxf(g.scenery.view_left, bank_start)
 	var right: float = g.scenery.view_right
-	var height = 192.0
-	var width = ground_texture.get_width() * height / ground_texture.get_height()
-	var descending = run.sewer.active and run.sewer.phase=="entry"
+	var edge: float = g.scenery.road_end(run)
+	var resume: float = g.scenery.road_resume(run)
+	var has_opening = not is_inf(edge)
 	for segment in run.terrain.segments:
-		var start = maxf(left, float(segment.start) - offset)
-		var end = minf(right, float(segment.end) - offset)
-		if run.sewer.encounter.pending: end = minf(end,run.sewer.encounter.dock_world-offset-run.sewer.DOCK_TO_EDGE)
-		if run.sewer.active and run.sewer.phase=="entry": end = minf(end,run.sewer.shore_edge())
-		if start >= end: continue
-		var floor_y = HordeRun.FLOOR - float(segment.height)
-		var body_bottom = maxf(g.scenery.view_bottom+run.sewer.entry_drop(),floor_y+run.sewer.SHAFT_DEPTH+100) if descending else g.scenery.view_bottom
-		g.paint_target.draw_rect(Rect2(start, floor_y, end - start, maxf(0,body_bottom-floor_y)), Color("20172f"))
-		for tile in range(floori((start + offset) / width), ceili((end + offset) / width)):
-			var tile_x = tile * width - offset
-			var x1 = maxf(start, tile_x)
-			var x2 = minf(end, tile_x + width)
-			var source = ground_texture.region
-			source.position.x += (x1 - tile_x) / width * ground_texture.region.size.x
-			source.size.x = (x2 - x1) / width * ground_texture.region.size.x
-			g.paint_target.draw_texture_rect_region(ground_texture.atlas, Rect2(x1, floor_y, x2 - x1, height), source)
-			if descending:
-				var body = source;body.position.y += 70;body.size.y -= 70
-				var step_y = height*body.size.y/ground_texture.region.size.y
-				for row in range(ceili(maxf(0,body_bottom-floor_y-height)/step_y)):
-					var y = floor_y+height+row*step_y;var length_y = minf(step_y,body_bottom-y)
-					var sample = body;sample.size.y *= length_y/step_y
-					g.paint_target.draw_texture_rect_region(ground_texture.atlas,Rect2(x1,y,x2-x1,length_y),sample)
-		if float(segment.height) > 0:
-			var entry = float(segment.start) - offset
-			if run.tutorial_hints() and entry > HordeRun.ANCHOR and entry < right - 30:
-				g.text("PULE!", Vector2(entry - 52, HordeRun.FLOOR - 28), 15, g.GOLD, true, true, 2)
+		var start = maxf(left, float(segment.start)-offset)
+		var end = minf(right, float(segment.end)-offset)
+		var floor_y = HordeRun.FLOOR-float(segment.height)+lift
+		var spans: Array = [Vector2(start, end)]
+		if has_opening:
+			spans = [Vector2(start,minf(end,edge)),Vector2(maxf(start,resume),end)]
+		for span in spans:
+			var x1 = float(span.x)
+			var x2 = float(span.y)
+			if x1 >= x2: continue
+			var near_lip = has_opening and absf(x2-edge)<.1
+			var far_lip = has_opening and absf(x1-resume)<.1
+			var exit_lip = exiting and absf(x1-bank_start)<.1
+			var body_bottom = g.scenery.view_bottom
+			if has_opening:
+				body_bottom = maxf(body_bottom+run.sewer.entry_drop(),floor_y+192.0)
+			if far_lip or (has_opening and x1>=resume):
+				body_bottom = minf(body_bottom,floor_y+run.sewer.encounter.ROAD_THICKNESS)
+			if exiting: body_bottom = maxf(body_bottom,floor_y+192.0)
+			var bank = PackedVector2Array()
+			if near_lip:
+				bank = HordeTerrainArt.sewer_bank_outline(x1,edge,floor_y,body_bottom)
+			elif far_lip or exit_lip:
+				bank = HordeTerrainArt.sewer_bank_outline(x2,resume if far_lip else bank_start,floor_y,body_bottom,true)
+			ground_span(g,offset,x1,x2,floor_y,body_bottom,bank)
+			if near_lip: HordeTerrainArt.sewer_lip(g,edge,floor_y)
+			if far_lip: HordeTerrainArt.pit_edge(g,resume,floor_y,true)
+		if float(segment.height)>0:
 			for i in range(2):
-				var edge = float(segment.start if i == 0 else segment.end) - offset
-				if edge < left or edge > right: continue
-				HordeTerrainArt.elevation(g, edge, floor_y, float(segment.height), i == 1)
+				var elevation_edge = float(segment.start if i==0 else segment.end)-offset
+				if elevation_edge<left or elevation_edge>right: continue
+				if has_opening and elevation_edge>edge and elevation_edge<resume: continue
+				HordeTerrainArt.elevation(g,elevation_edge,floor_y,float(segment.height),i==1)
+
+func ground_span(g, offset: float, start: float, end: float, floor_y: float, bottom: float, bank: PackedVector2Array) -> void:
+	var height = 192.0
+	var width = ground_texture.get_width()*height/ground_texture.get_height()
+	var body_rect = Rect2(start,floor_y,end-start,maxf(0.0,bottom-floor_y))
+	if bank.is_empty(): g.paint_target.draw_rect(body_rect,Color("20172f"))
+	else: HordeTerrainArt.sewer_bank_piece(g.paint_target,body_rect,bank)
+	for tile in range(floori((start+offset)/width),ceili((end+offset)/width)):
+		var tile_x = tile*width-offset
+		var x1 = maxf(start,tile_x)
+		var x2 = minf(end,tile_x+width)
+		var source = ground_texture.region
+		source.position.x += (x1-tile_x)/width*ground_texture.region.size.x
+		source.size.x = (x2-x1)/width*ground_texture.region.size.x
+		var y = floor_y
+		var first = true
+		while y<bottom-.01:
+			var sample = source
+			if not first: sample.position.y += 70.0;sample.size.y -= 70.0
+			var row_height = height*sample.size.y/ground_texture.region.size.y
+			var length = minf(row_height,bottom-y)
+			sample.size.y *= length/row_height
+			var dest = Rect2(x1,y,x2-x1,length)
+			if bank.is_empty(): g.paint_target.draw_texture_rect_region(ground_texture.atlas,dest,sample)
+			else: HordeTerrainArt.sewer_bank_piece(g.paint_target,dest,bank,ground_texture.atlas,sample)
+			y += length
+			first = false
 
 func dialogue(g) -> void :
 	var rect = Rect2(405, g.full_rect().position.y + 107, 711, 74)

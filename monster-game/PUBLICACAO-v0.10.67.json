@@ -1,0 +1,437 @@
+{
+  "version": "0.10.67",
+  "date": "2026-11-12",
+  "source_base_commit": "ef912d7b7883dfb4de9790f140311a1bc3e1524b",
+  "recovered_from_apk": "Horda-Zumbi-v0.10.67-GitHub-TESTE-ARM64.apk",
+  "recovered_apk_sha256": "df1ecd1ecf79d96d6654de301fa5b2fb7ced5a25cdd1b3de69e414783c55d814",
+  "game_scripts_and_processed_audio_match_apk": true,
+  "all_32_audio_sha256_verified": true,
+  "startup_resources_checked": 388,
+  "startup_classes": 55,
+  "source_boot_verified": true,
+  "checks": [
+    {
+      "test": "v161_routes",
+      "passed": true,
+      "exit_code": 0
+    },
+    {
+      "test": "v162_regression",
+      "passed": true,
+      "exit_code": 0
+    },
+    {
+      "test": "v163_landscape",
+      "passed": true,
+      "exit_code": 0
+    },
+    {
+      "test": "v164_cosmic",
+      "passed": true,
+      "exit_code": 0
+    },
+    {
+      "test": "v165_regions",
+      "passed": true,
+      "exit_code": 0
+    },
+    {
+      "test": "v166_pop",
+      "passed": true,
+      "exit_code": 0
+    },
+    {
+      "test": "audio",
+      "passed": true,
+      "exit_code": 0
+    }
+  ],
+  "reports": {
+    "landscape": {
+      "checks": 223,
+      "failures": [],
+      "feet_follow_painted_skyline": true,
+      "leaves_view_above_ridge": true,
+      "physical_device_tested": false,
+      "version": "0.10.63",
+      "world_altitude_independent_of_camera": true
+    },
+    "pop": {
+      "checks": 235,
+      "decorative_only": true,
+      "distinct_animation_poses": true,
+      "failures": [],
+      "fixed_world_roots": true,
+      "physical_device_tested": false,
+      "version": "0.10.66"
+    },
+    "regions": {
+      "checks": 564,
+      "failures": [],
+      "fixed_region_altitudes": true,
+      "physical_device_tested": false,
+      "shared_texture_cache": true,
+      "version": "0.10.65"
+    },
+    "regression": {
+      "checks": 1800,
+      "failures": [],
+      "physical_device_tested": false,
+      "version": "0.10.67"
+    },
+    "cosmic": {
+      "checks": 153,
+      "failures": [],
+      "foreground_masks_bust_edge": true,
+      "persistent_landmark": true,
+      "physical_device_tested": false,
+      "version": "0.10.64",
+      "world_altitude_fixed": true
+    },
+    "routes": {
+      "cases": [
+        {
+          "choice": "sewer",
+          "entered_at": 2.4,
+          "fps": 30,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 26.1663208007812,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 30,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 605.160886112612,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 30,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 218.777777777778,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.4,
+          "fps": 30,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 214.217702040794,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 30,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 615.738945272002,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 30,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 218.777777777778,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.4,
+          "fps": 30,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 62.8941440974821,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 30,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 624.364238834623,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 30,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 218.777777777778,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.4,
+          "fps": 60,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 26.4171752929688,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 60,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 609.703516667416,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 60,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 218.881944444444,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.4,
+          "fps": 60,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 206.46478841918,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 60,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 620.565360938465,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 60,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 218.881944444444,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.4,
+          "fps": 60,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 65.8473750757402,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 60,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 628.91618571013,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 60,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 218.881944444444,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.39999999999999,
+          "fps": 120,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 26.6638793945312,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 120,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 606.227834722974,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 120,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 1,
+          "peak_jump": 218.881944444444,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.39999999999999,
+          "fps": 120,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 202.341773731402,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 120,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 618.118345714188,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 120,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 6,
+          "peak_jump": 218.881944444444,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        },
+        {
+          "choice": "sewer",
+          "entered_at": 2.39166666666666,
+          "fps": 120,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 52.8795302129286,
+          "route": "sewer",
+          "sewer_phase": "ride",
+          "sky_active": false
+        },
+        {
+          "choice": "sky",
+          "entered_at": -1.0,
+          "fps": 120,
+          "landing_on_far_bank": false,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 625.465093808606,
+          "route": "sky",
+          "sewer_phase": "ground",
+          "sky_active": true
+        },
+        {
+          "choice": "street",
+          "entered_at": -1.0,
+          "fps": 120,
+          "landing_on_far_bank": true,
+          "losses": 0,
+          "members": 20,
+          "peak_jump": 218.881944444444,
+          "route": "street",
+          "sewer_phase": "ground",
+          "sky_active": false
+        }
+      ],
+      "failures": [],
+      "physical_device_tested": false,
+      "version": "0.10.61"
+    },
+    "audio": {
+      "checks": 67,
+      "effects": 23,
+      "failures": [],
+      "music": 9
+    }
+  },
+  "publication_adjustments": [
+    "Version/code 170 in editable export preset",
+    "Startup audit includes all v167 compressed audio",
+    "Current README and continuation guide",
+    "Build workflow publishes v0.10.67 after a verified main build"
+  ],
+  "physical_device_tested": false,
+  "original_validation": "VALIDACAO-v0.10.67.json"
+}

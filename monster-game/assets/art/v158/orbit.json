@@ -1,0 +1,495 @@
+{
+  "generator": "OpenAI ImageGen",
+  "prompts": {
+    "horizon": "Use case: stylized-concept. Asset type: one wide side-scrolling background plate for the Atmosfera Sombria level of a polished 2D gothic zombie game. A sinister high atmosphere above a midnight-violet world blends upward into nearly black wine-burgundy outer space. Horizontal panoramic 16:9 or 2:1 canvas. Star-speckled blue-black at the lower edge, dark aubergine and wispy dusty carmine plasma higher up, deep ink-black corners, faint very distant scattered embers and layered broken striations of thin crimson nebula. Dense painterly dark gothic brushwork on the cloud edges, restrained cinematic light, subtly textured. Palette dominated by midnight indigo and deep red plum with small copper-red accents. Visually asymmetric, lively striations across the left and right edges and a spacious, low-contrast center for high-contrast gameplay sprites. Distance and scale, quiet terror. No foreground creatures, large planets, characters, hard horizon line, text, letters, HUD, borders, white space, earth, or floor. The atmosphere should feel like the same blue night sky thinning out gradually into haunted orbit. Wide opaque background art, fills the entire image.",
+    "backdrop": "Use case: stylized-concept. Asset type: a cuttable 3-column by 2-row landscape sprite atlas for six very distant animated background elements of a 2D dark-fairy-tale game in haunted outer space, true TRANSPARENT alpha, no painted background. Draw all six items isolated with generous EMPTY gutters inside every cell. Painterly shadowy burgundy/plum tonal silhouettes, with textured antique game art detail and dim highlights. ROW ONE left to right: a colossal skeletal cosmic leviathan, long spined serpentine body sweeping sideways, in profile swimming LEFT, with long tattered fins and several tiny amber eyes, silhouette recognizable even very far away; a very long derelict 1980s sci-fi prison ship with a sinister mechanical goalie-mask motif made from six small orange portholes in the bow, shadowy worn metal, inspired by slasher movies set in space, three-quarter side view traveling left; a little mysterious disk UFO seen from slightly underneath with three dim rose lights and very dark violet sides. ROW TWO left to right: an enormous isolated pair of unsettling animal-like eyes side by side looking slightly left, burnt copper iris thin glowing outline and dark pupil, mostly in shadow, full eye shapes, no entire head; the exact same eyes aligned at the same scale with lids almost closed as a blink frame, one thin horizontal amber glint; a wide torn wispy crimson nebula dust ribbon, transparent wisps shaped like smoke with soft irregular edges, no hard backdrop rectangle. No text, no grid lines, no baked scenery. Alpha zero in corners and all gutters.",
+    "meteors": "Use case: stylized-concept. Asset type: four isolated foreground sprites in an exact 2x2 grid, transparent RGBA background. Crisp readable 2D dark gothic action game art, painterly textured, strong charcoal outlines and fine red-orange rim light. Upper left: one small falling meteor, roughly triangular chunky rock with flat-ish top plane for an arcade platform, charcoal porous face and molten rusty orange cracks, intense bright narrow lower edges, no tail in the sprite because added by engine. Upper right: one visibly larger/wider meteor, asymmetric layered slab with a wide landable top, glassy purple and charred basalt patches, dark center and vein network of fire, no tail. Lower left: shattered meteor breaking into four angular fragments around an opening where rock split, tiny incandescent lava crumbs, bits in the center of the cell with transparent gaps. Lower right: one circular spiral black hole accretion disk, complete thin slanted halo of burnt amber and deep scarlet, speckled material curling around a sharply defined black event horizon, astronomically inspired but gothic cartoon game readability. Isolated disk with transparent exterior and high contrast between black center and ring. No sky, floor, additional objects, text, panels, matte, colored backdrop or effects behind shapes. Actual 0 alpha through gutters and all corners. Leave wide gutters between four items.",
+    "crew": "Use case: stylized-concept. Asset type: 2D collectible characters animation atlas, six fully separated sprites in 3 equal columns × 2 equal rows, true transparent background. Strong dark contours, fine painterly details, game-readable chibi proportions consistent with a gothic cartoon runner. The SAME retro astronaut has an ivory worn NASA-era inspired EVA suit with ribbed flexible elbows, burnt red straps, brass fasteners, teal glass visor with face faintly visible, and small tank backpack with vents. Upper row same character poses from left to right: FLOATING idle slightly tilted, knees bent, one arm loosely out; FLOATING variation with opposite arm and boot pose, with a small worried expressive face seen through visor; PANIC full face clearly visible through the helmet, arms up and legs bent as the character recoils left. Lower row: the astronaut struggling in a curled captured pose, holding hands near helmet; a small separate alien visitor in a muted blue-green spacesuit, pale violet-gray head with big eyes, friendly worried expression and little aqua suit lamps, floating left; SAME alien now curled in animated scared capture pose. Each item contained entirely inside its cell with generous fully clear margin. No ground, background, shadows outside silhouettes, literal NASA logo, text, typography, props, boxes, or fake checkerboard. Actual alpha zero everywhere between sprites.",
+    "craft": "Use case: stylized-concept. Asset type: four distinct vehicle frames, 2×2 atlas, production game sprites with true alpha. Transparent isolated clean cutouts in matching densely hand-painted cartoon gothic adventure style with dark outlined shapes. Upper row left: compact retro rescue SATELLITE, two folding worn blue-slate solar wings, brass ring joints, amber-lit round capsule porthole with a tiny person in a cream EVA suit looking out, antenna dish, clearly visible pilot compartment, no official logo, no text. Upper row right: same satellite with its capsule hatch opened and one panel canted back, amber interior and short emergency light, same pivot, same camera, no loose astronaut outside. Lower row left: squat alien salvage flying saucer, distressed charcoal lavender skin and oxidized brass, pale cyan glass dome with two little anxious alien silhouettes visible inside, scalloped underbody, amber and turquoise navigation lights, no engine trails. Lower row right: same saucer in matching pose with dome/hatch sliding back for rescue, visible empty cockpit interior and mechanical lip. Side-on slightly three-quarter facing left, all art aligns at the same anchors. Match hand-painted cinematic spooky arcade visual, not hard vector. Leave 10 percent fully transparent gutters and no background, clouds, floor, fake checkerboard, borders or labels."
+  },
+  "sources": {
+    "backdrop": "a88cb2e9635cc02358ae82f9230e8500ad18953c702f6313ecbed7005843ce81",
+    "meteors": "063280ff35a524505f1d037eeb514102b0e6ecc9a6509b4d167a6b21be5f9484",
+    "crew": "6944159c442122e7d006d719b51fba29516b84dcec66745e88289b1a78fad997",
+    "craft": "6cb9d54a5ba7fe6589884ffd1668c3781a73f4ec9cd897b8b26d7392af804fea",
+    "horizon": "f3cc9c4894c7981cb806c56121a2b2bf77fe65b86971591da322e4d485338465"
+  },
+  "atlases": {
+    "backdrop": {
+      "tiles": {
+        "leviathan": {
+          "rect": [
+            6,
+            137,
+            446,
+            184
+          ],
+          "size": [
+            512,
+            210.9468
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            28,
+            31,
+            761,
+            333
+          ]
+        },
+        "derelict": {
+          "rect": [
+            464,
+            134,
+            446,
+            190
+          ],
+          "size": [
+            512,
+            218.0741
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            802,
+            33,
+            1450,
+            309
+          ]
+        },
+        "orbit_saucer_far": {
+          "rect": [
+            977,
+            163,
+            336,
+            132
+          ],
+          "size": [
+            512,
+            201.1429
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            1647,
+            123,
+            1983,
+            255
+          ]
+        },
+        "orbit_eyes": {
+          "rect": [
+            6,
+            622,
+            446,
+            130
+          ],
+          "size": [
+            512,
+            149.1411
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            15,
+            449,
+            681,
+            643
+          ]
+        },
+        "orbit_eyes_shut": {
+          "rect": [
+            464,
+            625,
+            446,
+            124
+          ],
+          "size": [
+            512,
+            142.4361
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            738,
+            455,
+            1403,
+            640
+          ]
+        },
+        "orbit_dust": {
+          "rect": [
+            922,
+            599,
+            446,
+            175
+          ],
+          "size": [
+            512,
+            200.6583
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ],
+          "source_box": [
+            1448,
+            395,
+            2165,
+            676
+          ]
+        }
+      }
+    },
+    "meteors": {
+      "tiles": {
+        "meteor_small": {
+          "rect": [
+            44,
+            65,
+            317,
+            276
+          ],
+          "size": [
+            317,
+            276
+          ],
+          "pivot": [
+            0.5047318611987381,
+            0.34057971014492755
+          ],
+          "source_box": [
+            70,
+            156,
+            387,
+            432
+          ]
+        },
+        "meteor_large": {
+          "rect": [
+            412,
+            97,
+            394,
+            212
+          ],
+          "size": [
+            791,
+            425
+          ],
+          "pivot": [
+            0.5132743362831859,
+            0.6070588235294118
+          ],
+          "source_box": [
+            474,
+            86,
+            1265,
+            511
+          ]
+        },
+        "meteor_shards": {
+          "rect": [
+            6,
+            416,
+            394,
+            386
+          ],
+          "size": [
+            482,
+            472
+          ],
+          "pivot": [
+            0.5062240663900415,
+            0.4894067796610169
+          ],
+          "source_box": [
+            64,
+            604,
+            546,
+            1076
+          ]
+        },
+        "singularity": {
+          "rect": [
+            412,
+            449,
+            394,
+            320
+          ],
+          "size": [
+            653,
+            530
+          ],
+          "pivot": [
+            0.5237366003062787,
+            0.5150943396226415
+          ],
+          "source_box": [
+            612,
+            568,
+            1265,
+            1098
+          ]
+        }
+      }
+    },
+    "crew": {
+      "tiles": {
+        "orbit_astro_a": {
+          "rect": [
+            50,
+            6,
+            306,
+            394
+          ],
+          "size": [
+            399,
+            513
+          ],
+          "pivot": [
+            0.44611528822055135,
+            0.5146198830409356
+          ],
+          "source_box": [
+            58,
+            3,
+            457,
+            516
+          ]
+        },
+        "orbit_astro_b": {
+          "rect": [
+            455,
+            6,
+            308,
+            394
+          ],
+          "size": [
+            402,
+            514
+          ],
+          "pivot": [
+            0.5024875621890548,
+            0.4980544747081712
+          ],
+          "source_box": [
+            535,
+            3,
+            937,
+            517
+          ]
+        },
+        "orbit_astro_panic": {
+          "rect": [
+            844,
+            6,
+            342,
+            394
+          ],
+          "size": [
+            412,
+            474
+          ],
+          "pivot": [
+            0.4830097087378641,
+            0.5042194092827004
+          ],
+          "source_box": [
+            1084,
+            3,
+            1496,
+            477
+          ]
+        },
+        "orbit_astro_caught": {
+          "rect": [
+            63,
+            412,
+            280,
+            394
+          ],
+          "size": [
+            331,
+            466
+          ],
+          "pivot": [
+            0.540785498489426,
+            0.48283261802575106
+          ],
+          "source_box": [
+            81,
+            538,
+            412,
+            1004
+          ]
+        },
+        "orbit_alien_float": {
+          "rect": [
+            417,
+            412,
+            383,
+            394
+          ],
+          "size": [
+            401,
+            412
+          ],
+          "pivot": [
+            0.5411471321695761,
+            0.4320388349514563
+          ],
+          "source_box": [
+            536,
+            552,
+            937,
+            964
+          ]
+        },
+        "orbit_alien_caught": {
+          "rect": [
+            889,
+            416,
+            251,
+            386
+          ],
+          "size": [
+            251,
+            386
+          ],
+          "pivot": [
+            0.5338645418326693,
+            0.4896373056994819
+          ],
+          "source_box": [
+            1141,
+            568,
+            1392,
+            954
+          ]
+        }
+      }
+    },
+    "craft": {
+      "tiles": {
+        "orbit_satellite": {
+          "rect": [
+            6,
+            50,
+            446,
+            357
+          ],
+          "size": [
+            639,
+            511
+          ],
+          "pivot": [
+            0.41001564945226915,
+            0.5968688845401174
+          ],
+          "source_box": [
+            5,
+            17,
+            644,
+            528
+          ]
+        },
+        "orbit_satellite_open": {
+          "rect": [
+            464,
+            54,
+            446,
+            349
+          ],
+          "size": [
+            649,
+            508
+          ],
+          "pivot": [
+            0.39599383667180277,
+            0.59251968503937
+          ],
+          "source_box": [
+            659,
+            21,
+            1308,
+            529
+          ]
+        },
+        "orbit_shuttle": {
+          "rect": [
+            6,
+            523,
+            446,
+            328
+          ],
+          "size": [
+            636,
+            468
+          ],
+          "pivot": [
+            0.49842767295597484,
+            0.48717948717948717
+          ],
+          "source_box": [
+            8,
+            645,
+            644,
+            1113
+          ]
+        },
+        "orbit_shuttle_open": {
+          "rect": [
+            464,
+            518,
+            446,
+            337
+          ],
+          "size": [
+            637,
+            482
+          ],
+          "pivot": [
+            0.49921507064364207,
+            0.5020746887966805
+          ],
+          "source_box": [
+            662,
+            631,
+            1299,
+            1113
+          ]
+        }
+      }
+    },
+    "horizon": {
+      "tiles": {
+        "orbit_sky": {
+          "rect": [
+            0,
+            0,
+            1774,
+            887
+          ],
+          "size": [
+            1774,
+            887
+          ],
+          "pivot": [
+            0.5,
+            0.5
+          ]
+        }
+      }
+    }
+  }
+}

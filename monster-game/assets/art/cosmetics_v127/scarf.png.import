@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/scarf-v127-lossless.ctex"
+path="res://.godot/imported/scarf.png-d2d26c6b7651efb43320ac8fba2ec3e4.ctex"
 metadata={"vram_texture": false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v127/scarf.png"
-dest_files=["res://.godot/imported/scarf-v127-lossless.ctex"]
+dest_files=["res://.godot/imported/scarf.png-d2d26c6b7651efb43320ac8fba2ec3e4.ctex"]
 
 [params]
 

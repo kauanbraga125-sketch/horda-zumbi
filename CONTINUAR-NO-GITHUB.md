@@ -1,6 +1,6 @@
 # Continuar o Horda Zumbi pelo GitHub
 
-A base atual é **0.10.41**, preservada na tag [v0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.41). Os fontes completos, sprites, áudio, licenças e testes estão em [`monster-game/`](monster-game/). Nenhum serviço deste chat é necessário para editar ou compilar.
+Os fontes desta branch estão na versão **0.10.67**, com nove músicas e 23 efeitos integrados às regiões, descritos em [`ATUALIZACAO-v0.10.67.md`](monster-game/ATUALIZACAO-v0.10.67.md). A serra, a abertura persistente e as três rotas físicas continuam preservadas. O projeto completo, sprites, áudio, licenças e testes estão em [`monster-game/`](monster-game/). A release [v0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.41) permanece como base nativa Android da compilação automática.
 
 ## Editar e baixar um novo APK
 
@@ -12,7 +12,7 @@ A base atual é **0.10.41**, preservada na tag [v0.10.41](https://github.com/kau
 
 O APK é **ARM64**, compatível com o Moto G71 5G, Android mínimo 24. A compilação de teste funciona imediatamente, sem cadastrar senhas. Ela instala como **Horda GitHub Teste**, pacote `com.kauan.noitedahorda.github`, com progresso separado. A identidade de teste fica no cache do Actions. Se o GitHub apagar esse cache por inatividade, pode ser necessário desinstalar **somente a edição de teste** para instalar a próxima compilação.
 
-Os artefatos das execuções ficam disponíveis por até 90 dias; execute novamente quando precisar de outro download. O [APK oficial 0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.41/Horda-Zumbi-v0.10.41-TESTE-1M-ESGOTO-ARM64.apk) permanece na release.
+O [APK de teste 0.10.67](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.67) fica disponível na release. Os artefatos das execuções ficam disponíveis por até 90 dias; execute novamente quando precisar de outro download. O [APK oficial 0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.41/Horda-Zumbi-v0.10.41-TESTE-1M-ESGOTO-ARM64.apk) permanece na release.
 
 ## Onde mexer
 

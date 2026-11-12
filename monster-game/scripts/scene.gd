@@ -82,17 +82,18 @@ func helicopter(canvas: Node2D, centre: Vector2, height: float, time: float, ang
 	canvas.draw_set_transform(Vector2.ZERO)
 
 func road_end(run: HordeRun) -> float:
-	if run.sewer.encounter.pending: return run.sewer.encounter.dock_world-run.world_px-run.sewer.DOCK_TO_EDGE
+	if run.sewer.encounter.cutout_pending(): return run.sewer.encounter.dock_world-run.world_px-run.sewer.DOCK_TO_EDGE
 	if run.sewer.active and run.sewer.phase=="entry": return run.sewer.shore_edge()
 	return INF
 
-func street_rect(canvas: Node2D,rect: Rect2,color: Color,edge: float) -> void:
-	if is_inf(edge): canvas.draw_rect(rect,color);return
-	var horizon = HordeRun.FLOOR-72
-	var top = minf(rect.end.y,horizon)
-	if top>rect.position.y: canvas.draw_rect(Rect2(rect.position,Vector2(rect.size.x,top-rect.position.y)),color)
-	var bottom = maxf(rect.position.y,horizon);var right = minf(rect.end.x,edge)
-	if rect.end.y>bottom and right>rect.position.x: canvas.draw_rect(Rect2(rect.position.x,bottom,right-rect.position.x,rect.end.y-bottom),color)
+func road_resume(run: HordeRun) -> float:
+	if run.sewer.encounter.cutout_pending(): return run.sewer.encounter.right(run)
+	if run.sewer.active and run.sewer.phase=="entry": return run.sewer.far_edge(run)
+	return INF
+
+func street_rect(canvas: Node2D,rect: Rect2,color: Color,_edge: float) -> void:
+	# This is distant atmosphere, not the physical walkable road.
+	canvas.draw_rect(rect,color)
 
 func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: float = 0, right: float = 1280) -> void :
 	var edge = road_end(run)
@@ -108,12 +109,8 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 		var offset = fposmod(run.world_px * [0.055, 0.19, 0.48][layer], width)
 		for tile in range(-1, 3):
 			var dest = Rect2(tile * width - offset, bottom - height, width + 1, height)
-			if layer==2:
-				clip_texture(canvas,texture,dest,left,minf(right,edge))
-			elif layer==1 and edge<right:
-				clip_texture(canvas,texture,dest,left,minf(right,edge))
-				clip_texture(canvas,texture,dest,maxf(left,edge),right,HordeRun.FLOOR-72)
-			else: clip_texture(canvas,texture,dest,left,right)
+			# Distant scenery continues behind both banks of the road opening.
+			clip_texture(canvas,texture,dest,left,right)
 	if area == 0:
 		for i in range(2):
 			var point = Vector2(fposmod(i * 770 - run.world_px * 0.52, 1540) - 140, HordeRun.FLOOR - 111)
@@ -124,7 +121,7 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 		for i in range(5):
 			var x = fposmod(i * 313 - run.world_px * 0.48, 1565) - 90
 			if x > left and x < minf(right,edge-26): flame(canvas, Vector2(x, HordeRun.FLOOR - 26), time + i, 26)
-		for p in ([] if run.sewer.active and run.sewer.phase=="entry" or run.sewer.encounter.pending else civilians):
+		for p in ([] if run.sewer.active and run.sewer.phase=="entry" or run.sewer.encounter.cutout_pending() else civilians):
 			if p.x > left and p.x < right:
 				if int(p.variant) == 0:
 					art.civil.paint(canvas, {"state": "normal", "civil_clip": "corrida", "civil_time": time + p.phase, "civil_flip": p.reverse}, Vector2(p.x, p.y), 66, Color(0.78, 0.76, 0.85, 0.86))
@@ -158,6 +155,31 @@ func paint_outside(canvas: Node2D, run: HordeRun, time: float, area: int, left: 
 		var beacon = Vector2(fposmod(1020 - run.world_px * 0.19, 1530), 244)
 		canvas.draw_colored_polygon(PackedVector2Array([beacon, beacon + Vector2(220 * cos(time * 0.75), -75), beacon + Vector2(240 * cos(time * 0.75), 55)]), Color(1, 0.9, 0.65, 0.035))
 
+
+func feather_bank(canvas: Node2D,texture: Texture2D,dest: Rect2,left: float,right: float,edge: float,near: bool) -> void:
+	# Fade the lower scenery into the throat's atmosphere. Only actual road
+	# tiles stop at the edge; no visible rectangle cuts the distant artwork.
+	var x0 = maxf(left,dest.position.x);var x1 = minf(right,dest.end.x)
+	if x1<=x0: return
+	var start = edge-48.0;var end = edge+180.0
+	var xs: Array[float] = [x0]
+	for at in [start,end]:
+		if at>x0 and at<x1: xs.append(at)
+	xs.append(x1)
+	var ys: Array[float] = [dest.position.y,dest.end.y-96.0,dest.end.y]
+	var image = texture;var source = Rect2(Vector2.ZERO,texture.get_size())
+	if texture is AtlasTexture: image = texture.atlas;source = texture.region
+	for column in range(xs.size()-1):
+		for row in range(2):
+			var points = PackedVector2Array([Vector2(xs[column],ys[row]),Vector2(xs[column+1],ys[row]),Vector2(xs[column+1],ys[row+1]),Vector2(xs[column],ys[row+1])])
+			var colors = PackedColorArray();var uvs = PackedVector2Array()
+			for point in points:
+				var h = clampf((point.x-start)/(end-start),0,1)
+				var v = clampf((point.y-(dest.end.y-96.0))/96.0,0,1)
+				var alpha = (1.0-h)*(1.0-h*v) if near else 1.0-h*v
+				colors.append(Color(1,1,1,alpha))
+				uvs.append((source.position+(point-dest.position)/dest.size*source.size)/image.get_size())
+			canvas.draw_polygon(points,colors,uvs,image)
 
 func flame(canvas: Node2D, pos: Vector2, time: float, height: float) -> void :
 	canvas.draw_circle(pos - Vector2(0, height * 0.4), height * 1.2, Color(1, 0.48, 0.12, 0.07))

@@ -89,15 +89,34 @@ func original_head(c,cosmetics,key: String,cut: String,t: Transform2D,tint: Colo
 	if mesh==null or mesh.get_surface_count()==0: return
 	c.draw_set_transform_matrix(t);c.draw_mesh(mesh,cosmetics.texture(cosmetics.frames[key].file),Transform2D.IDENTITY,tint)
 
+func crouch_transforms(root: Transform2D, f: Dictionary, kind: int, amount: float) -> Dictionary:
+	var neck = float(f.landmarks.neck[1]) + (4.0 if kind==0 else 11.0)
+	var seat = float(f.anchor[1]) + 26.0
+	var shift = Vector2(29.0,minf(51.0,(seat-neck)*0.72)) * amount
+	var body = Transform2D(Vector2.RIGHT,Vector2.DOWN-shift/(seat-neck),Vector2.ZERO)
+	body.origin = Vector2(0,seat)-body.basis_xform(Vector2(0,seat))
+	return {"neck":neck,"seat":seat,"head":root.translated_local(shift),"torso":root*body,"feet":root}
+
+func draw_crouch(c, tex: Texture2D, region: Rect2, bend: Dictionary, tint: Color) -> void:
+	var bands = [Rect2(0,0,448,bend.neck),Rect2(0,bend.neck,448,bend.seat-bend.neck),Rect2(0,bend.seat,448,448-bend.seat)]
+	var transforms = [bend.head,bend.torso,bend.feet]
+	for i in range(bands.size()):
+		var slice: Rect2 = region.intersection(bands[i])
+		if not slice.has_area(): continue
+		c.draw_set_transform_matrix(transforms[i])
+		c.draw_texture_rect_region(tex,slice,slice,tint)
+
 func paint(c,cosmetics,kind: int,foot: Vector2,height: float,time: float,angle: float,wear: Array,tint: Color,seat: int,state: String,motion: float) -> void:
 	kind = 1 if kind==1 else 0
 	var id = "zombie_riders" if kind==0 else "skeleton_riders"
 	var index = (0 if seat==0 else 4)+posmod(int(time*8),4)
-	if state=="duck": index = 8 if motion>1.12 else 11 if motion<.28 else 9+posmod(int(time*7),2)
 	var f = pose(cosmetics,kind,index);var source: Dictionary = cosmetics.frames[f.source_key]
 	var root = Transform2D(angle,foot-Vector2(0,36).rotated(angle));root.x *= height/360;root.y *= height/360
 	root.origin -= root.basis_xform(Vector2(f.anchor[0],f.anchor[1]))
-	var head_root: Transform2D = root*f.head_transform
+	var tuck = clampf(motion,0.0,1.0) if state=="duck" else 0.0
+	var bend = crouch_transforms(root,f,kind,tuck)
+	var head_root: Transform2D = bend.head*f.head_transform
+	var body_root: Transform2D = bend.torso
 	var hats: Array = [];var faces: Array = [];var clothes: Array = []
 	for value in wear:
 		var entry = cosmetics.item(str(value))
@@ -106,24 +125,24 @@ func paint(c,cosmetics,kind: int,foot: Vector2,height: float,time: float,angle: 
 		elif entry.slot=="face": faces.append(entry.id)
 		else: clothes.append(entry.id)
 	for item in clothes:
-		if cosmetics.item(item).fit in ["cape","scarf"]: cosmetics.draw_item(c,item,f,root,tint)
-	c.draw_set_transform_matrix(root)
-	# One complete drawn anatomy. No head, shoulder, or arm from a running pose.
-	c.draw_texture_rect(Art.cell_texture(id if hats.is_empty() else id+"_body",index),Rect2(0,0,448,448),false,tint)
+		if cosmetics.item(item).fit in ["cape","scarf"]: cosmetics.draw_item(c,item,f,body_root,tint)
+	var tex = Art.cell_texture(id if hats.is_empty() else id+"_body",index)
+	if tuck>0.001:
+		draw_crouch(c,tex,Rect2(0,0,448,448),bend,tint)
+	else:
+		c.draw_set_transform_matrix(root)
+		c.draw_texture_rect(tex,Rect2(0,0,448,448),false,tint)
 	if not hats.is_empty():
 		var cut = str(cosmetics.graphics[hats[0]].get("source_mesh","hat" if cosmetics.item(hats[0]).fit=="hat" else "bare"))
 		original_head(c,cosmetics,f.source_key,cut,head_root,tint)
 	for item in clothes:
 		if bool(cosmetics.graphics[item].get("native_cape",false)):
-			c.draw_set_transform_matrix(root)
 			var region = Rect2(0,f.landmarks.neck[1],maxf(1,f.landmarks.neck[0]-35),448-f.landmarks.neck[1])
-			c.draw_texture_rect_region(Art.cell_texture(id,index),region,region,tint*Color(.32,.65,.60))
-		else: cosmetics.draw_item(c,item,f,root,tint,cosmetics.item(item).fit=="cape" or bool(cosmetics.graphics[item].get("layered_neck",false)))
+			draw_crouch(c,Art.cell_texture(id,index),region,bend,tint*Color(.32,.65,.60))
+		else: cosmetics.draw_item(c,item,f,body_root,tint,cosmetics.item(item).fit=="cape" or bool(cosmetics.graphics[item].get("layered_neck",false)))
 	for item in hats:
 		var graphic: Dictionary = cosmetics.graphics[item]
 		if not bool(graphic.get("behind_body",false)): cosmetics.draw_item(c,item,source,head_root,tint)
 		if graphic.has("front_mesh") and bool(graphic.get("behind_body",false)): cosmetics.draw_item(c,item,source,head_root,tint,true)
-	if not hats.is_empty() and index>=8:
-		c.draw_set_transform_matrix(root);c.draw_texture_rect(Art.cell_texture(id+"_arms",index),Rect2(0,0,448,448),false,tint)
 	for item in faces: cosmetics.draw_item(c,item,source,head_root,tint,bool(cosmetics.graphics[item].get("layered_eyes",false)))
 	c.draw_set_transform_matrix(Transform2D.IDENTITY)

@@ -2,13 +2,13 @@
 
 importer="texture"
 type="CompressedTexture2D"
-path="res://.godot/imported/s_hourglass-v129-lossless.ctex"
+path="res://.godot/imported/s_hourglass.png-5461f1bb3acc50e0c972242ca602e04d.ctex"
 metadata={"vram_texture":false}
 
 [deps]
 
 source_file="res://assets/art/cosmetics_v129/s_hourglass.png"
-dest_files=["res://.godot/imported/s_hourglass-v129-lossless.ctex"]
+dest_files=["res://.godot/imported/s_hourglass.png-5461f1bb3acc50e0c972242ca602e04d.ctex"]
 
 [params]
 
