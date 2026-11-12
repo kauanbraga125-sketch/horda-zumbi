@@ -10,6 +10,7 @@ const ROAD_THICKNESS = 180.0
 
 var random = RandomNumberGenerator.new()
 var pending = false
+var opening_visible = false
 var sewer_armed = false
 var dock_world = 0.0
 var gap_width = 200.0
@@ -23,6 +24,7 @@ var history: Array = []
 func reset(seed_value: int) -> void:
 	random.seed = seed_value ^ 0x139d0c
 	pending = false
+	opening_visible = false
 	sewer_armed = false
 	dock_world = 0.0
 	gap_width = 200.0
@@ -40,7 +42,7 @@ static func roll_kind(roll: float) -> String:
 	return ""
 
 func offer(r, forced: bool = false, event_kind: String = "sewer") -> bool:
-	if pending or r.sewer.active or r.space.active or r.sky.active or r.sky.pending or r.dead: return false
+	if pending or opening_visible or r.sewer.active or r.space.active or r.sky.active or r.sky.pending or r.dead: return false
 	if event_kind not in ["sewer", "space", "both"]: return false
 	if not forced and (not r.power_eligible() or r.bonus_director.active(r) or r.inside_tunnel() or r.members.any(func(m): return m.falling)): return false
 	var sewer_here = event_kind != "space"
@@ -62,6 +64,7 @@ func offer(r, forced: bool = false, event_kind: String = "sewer") -> bool:
 	history.append({"kind": event_kind, "at": r.elapsed})
 	if sewer_here:
 		pending = true
+		opening_visible = true
 		sewer_armed = true
 		dock_world = dock
 		gap_width = width
@@ -74,7 +77,13 @@ func offer(r, forced: bool = false, event_kind: String = "sewer") -> bool:
 	return true
 
 func cutout_pending() -> bool:
-	return pending
+	return opening_visible
+
+func scroll_opening(r) -> void:
+	# Choosing the sky consumes the encounter, not the piece of road.
+	# Retire the geometry only after both banks have scrolled out of view.
+	if opening_visible and right(r) < r.view_left - 120.0:
+		opening_visible = false
 
 func left(r) -> float:
 	return dock_world - r.sewer.DOCK_TO_EDGE - r.world_px
@@ -83,20 +92,21 @@ func right(r) -> float:
 	return left(r) + gap_width
 
 func contains(r, x: float) -> bool:
-	return pending and x > left(r) and x < right(r)
+	return opening_visible and x > left(r) and x < right(r)
 
 func select_sewer(_r) -> bool:
 	# Legacy replay API: arming an opening never starts the journey.
 	return pending
 
 func enter(r) -> bool:
-	if not pending or r.dead: return false
+	if not opening_visible or r.dead or r.sky.active or r.space.active or r.sewer.active: return false
 	r.sky.pending = false
 	if not r.sewer.begin(r, true): return false
 	route = "sewer"
 	if not history.is_empty(): history[-1].route = route
 	pending = false
 	sewer_armed = false
+	opening_visible = false
 	return true
 
 func selected_sky() -> void:
@@ -106,13 +116,14 @@ func selected_sky() -> void:
 	sewer_armed = false
 
 func tick(r) -> void:
+	scroll_opening(r)
 	if r.dead or r.sewer.active or r.space.active or r.sky.active or not r.developer_kind.is_empty(): return
 	if pending:
 		if route.is_empty() and r.members.all(func(m): return not m.falling and float(m.x) > right(r) + 12.0):
 			route = "street"
 			if not history.is_empty(): history[-1].route = route
 		# Keep the opening visible behind a successful jump until off screen.
-		if right(r) < r.view_left - 100.0:
+		if not opening_visible:
 			pending = false
 			sewer_armed = false
 			skip(r)
@@ -129,6 +140,7 @@ func skip(r) -> void:
 	next_at = r.elapsed + random.randf_range(NEXT_WINDOW.x, NEXT_WINDOW.y)
 
 func complete(r) -> void:
+	scroll_opening(r)
 	pending = false
 	sewer_armed = false
 	offered_kind = ""

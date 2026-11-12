@@ -103,9 +103,10 @@ func begin(r,force: bool = false) -> bool:
 	for i in range(r.members.size()-1,-1,-1):
 		if r.members[i].falling: r.remove_member(i,"fall")
 	if r.dead: return false
-	if not encounter.pending: visual.shaft.reset_cover()
-	entry_edge_world = encounter.dock_world-DOCK_TO_EDGE if encounter.pending else r.world_px+LEAD-DOCK_TO_EDGE
-	entry_gap_width = encounter.gap_width if encounter.pending else 200.0
+	var from_opening = encounter.cutout_pending()
+	if not from_opening: visual.shaft.reset_cover()
+	entry_edge_world = encounter.dock_world-DOCK_TO_EDGE if from_opening else r.world_px+LEAD-DOCK_TO_EDGE
+	entry_gap_width = encounter.gap_width if from_opening else 200.0
 	active = true;phase = "entry";age = 0;phase_age = 0;ride_age = 0;duration = 32.0;left = duration
 	pressure = .23;serial = 0;scroll = 0;next_encounter = .8;jump_buffer = 0;wave_cooldown = 0;clean_exit = true;safe_jumps = 0
 	duck_buffer = 0;clean_streak = 0;rush_left = 0;encounter.pending = false

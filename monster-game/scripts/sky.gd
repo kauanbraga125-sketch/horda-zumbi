@@ -391,6 +391,7 @@ func advance(r, dt: float) -> void:
 		impulse(r)
 	var travel = r.speed * dt
 	r.world_px += travel
+	r.sewer.encounter.scroll_opening(r)
 	r.update_tunnels(true)
 	course.fill(r, self)
 	for i in range(objects.size() - 1, -1, -1):

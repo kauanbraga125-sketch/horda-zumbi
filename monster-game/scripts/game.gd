@@ -869,6 +869,7 @@ func backdrop() -> void :
 	if runner.sewer.active and screen in ["run","pause","results"]:
 		runner.sewer.visual.background(self,runner.sewer);return
 	if runner.sewer.encounter.cutout_pending() and screen in ["run","pause","results"]:
+		if runner.sky.active: runner.sky.visual.paint_background(self,runner)
 		return # The same clipped street layer is used before and after the first fall.
 	if runner.space.active and screen in ["run","pause","results"]:
 		if runner.space.visual.ground_visible(runner.space): scenery.paint(paint_target,runner,ui_time)
@@ -1142,7 +1143,7 @@ func draw_pause() -> void :
 
 func draw_sewer_marker() -> void:
 	var encounter = runner.sewer.encounter
-	if not encounter.pending: return
+	if not encounter.cutout_pending(): return
 	var x = (encounter.left(runner) + encounter.right(runner)) * .5
 	if x < scenery.view_left - 130.0 or x > scenery.view_right + 130.0: return
 	var floor_y = runner.FLOOR

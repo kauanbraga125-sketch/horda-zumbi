@@ -7,6 +7,9 @@ const ORBIT_MIN = 10030.0
 const LENGTH = 6.4
 const VIOLET = Color("a38dd7")
 const CYAN = Color("86e8e2")
+const WALKER_ANCHOR = Vector2(1165.0,650.0)
+const WALKER_DEPTH = .018
+const WALKER_SCALE = 260.0
 
 var random = RandomNumberGenerator.new()
 var clock = 0.0
@@ -29,21 +32,31 @@ func advance(dt: float, height: float) -> void:
 		scene = random.randi_range(0, 1)
 		next_at = clock + random.randf_range(16.0, 24.0)
 
+static func walker_position(view: Rect2, camera: Vector2, time: float) -> Vector2:
+	# A landmark in a distant plane: no viewport-height anchor or camera sine.
+	# Its slow walk is independent of the horde's vertical motion.
+	var anchor = WALKER_ANCHOR-Vector2(fposmod(time*11.0,3200.0),0.0)
+	return view.position+anchor-camera*WALKER_DEPTH
+
 static func walker(canvas: Node2D, motion, view: Rect2, camera: Vector2, time: float, visibility: float) -> void:
 	if visibility <= .01: return
-	var distance = fposmod(time * 24.0 + camera.x * .036 + 180.0, view.size.x + 520.0)
-	var foot = Vector2(view.end.x + 265.0 - distance, view.position.y + view.size.y * .91)
-	foot.y += sin(camera.y * .0011) * 28.0
+	var foot = walker_position(view,camera,time)
 	if foot.x < view.position.x - 205.0 or foot.x > view.end.x + 205.0: return
-	var opacity = visibility * .62 * smoothstep(.7, 2.6, time)
-	var stride = time * 2.75
+	var opacity = visibility * .32 * smoothstep(.7, 2.6, time)
+	var stride = time * 1.25
 	var frame = int(floor(stride)) % WALK.size()
-	motion.sprite(canvas, WALK[frame], foot, 333.0, Color(.69, .65, .85, opacity))
+	# Low contrast and a small soft edge put the silhouette beyond the playfield.
+	for offset in [Vector2(-1.1,0),Vector2(1.1,0),Vector2(0,-.8),Vector2(0,.8)]:
+		motion.sprite(canvas,WALK[frame],foot+offset,WALKER_SCALE,Color(.61,.60,.76,opacity*.065))
+	motion.sprite(canvas,WALK[frame],foot,WALKER_SCALE,Color(.61,.60,.76,opacity))
+	var fog_drift = sin(time*.19)*19.0
+	motion.sprite(canvas,"mist_far",foot+Vector2(-34+fog_drift,-22),285.0,Color(.64,.60,.79,opacity*.65))
+	motion.sprite(canvas,"mist_front",foot+Vector2(52-fog_drift,-9),205.0,Color(.69,.63,.82,opacity*.48))
 	var step = fposmod(stride, 2.0)
 	var dust = smoothstep(0.0, .24, step) * (1.0 - smoothstep(.25, 1.3, step))
 	if dust > .01:
 		motion.sprite(canvas, "orbit_dust", foot + Vector2(-42 + step * 22, -9),
-			133 + step * 35, Color(.73, .63, .88, dust * opacity * .34))
+			107 + step * 25, Color(.67, .60, .80, dust * opacity * .20))
 
 static func passers(canvas: Node2D, motion, view: Rect2, camera: Vector2, time: float, alpha: float) -> void:
 	if alpha <= .012: return

@@ -1,6 +1,10 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.41 — espaço e esgoto como eventos aleatórios**.
+Versão de testes atual nesta branch: **0.10.62 — gigante no horizonte e abertura persistente durante o pula-pula**.
+
+Detalhes e validação: [atualização 0.10.62](monster-game/ATUALIZACAO-v0.10.62.md) · [relatório](monster-game/VALIDACAO-v0.10.62.json). O céu mantém os impulsos, capturas e obstáculos; a prévia reproduz uma jornada contínua de 53 segundos, até 381 m e de volta à rua.
+
+A release Android histórica abaixo continua na **0.10.41**. Para compilar os fontes desta branch, use o workflow indicado no guia.
 
 **Para editar e compilar pelo próprio GitHub:** [guia de continuação](CONTINUAR-NO-GITHUB.md) · [compilar novo APK dos fontes no Actions](https://github.com/kauanbraga125-sketch/horda-zumbi/actions/workflows/horda-compilar-apk.yml). Alterações em `monster-game/` geram uma compilação de teste automaticamente; o botão **Run workflow** permite escolher a branch. Baixe o APK em **Artifacts** da execução concluída.
 
