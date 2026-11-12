@@ -64,8 +64,7 @@ static func walker(canvas: Node2D, motion, view: Rect2, camera: Vector2, time: f
 
 static func passers(canvas: Node2D, motion, view: Rect2, camera: Vector2, time: float, alpha: float) -> void:
 	if alpha <= .012: return
-	var travel = fposmod(time * 62.0 + camera.x * .065 + 605.0, view.size.x + 250.0)
-	var position = view.position + Vector2(travel - 120.0, view.size.y * .24 - 37.0 * sin(time * .78))
+	var position = Deep.project(Vector2(1280-time*12.0,-7600+sin(time*.78)*30.0),view,camera,.022)
 	if not view.grow(85.0).has_point(position): return
 	var frame = int(time * 5.0) % MOTH.size()
 	motion.sprite(canvas, MOTH[frame], position, 81.0, Color(.68, .75, 1, alpha * .51), sin(time * 1.1) * .13)
@@ -107,6 +106,7 @@ static func paint_bite(canvas: Node2D, motion, centre: Vector2, age: float, alph
 	Deep.paint_bite_impact(canvas,motion,mouth,hit,alpha)
 
 static func paint_duel(canvas: Node2D, motion, centre: Vector2, age: float, alpha: float) -> void:
+	Deep.paint_veil(canvas,centre+Vector2(0,145),alpha*.22,1040.0)
 	var closing = smoothstep(.28, 2.35, age) - smoothstep(2.53, 3.22, age)
 	var retort = smoothstep(3.05, 4.25, age) - smoothstep(4.38, 5.42, age)
 	var reach = maxf(closing, retort)
@@ -123,3 +123,4 @@ static func paint_duel(canvas: Node2D, motion, centre: Vector2, age: float, alph
 		var light = Color("f7b385") if age >= 4.25 else CYAN
 		motion.halo(canvas, impact, 31.0 + hit * 49.0, light, alpha * (1.0 - hit * 1.9) * .56)
 		motion.burst_particles(canvas, impact, hit, Color(light, alpha * .82), 8, 110.0, .86)
+		Deep.paint_bite_impact(canvas,motion,impact,hit,alpha*.40)

@@ -1,8 +1,8 @@
 # Horda Zumbi
 
-Versão de testes atual nesta branch: **0.10.64 — colossos em regiões fixas do abismo cósmico**.
+Versão de testes atual nesta branch: **0.10.65 — cenários e efeitos completos do céu**.
 
-Detalhes e validação: [atualização 0.10.64](monster-game/ATUALIZACAO-v0.10.64.md) · [relatório](monster-game/VALIDACAO-v0.10.64.json). O planeta e o devorador permanecem em suas altitudes enquanto a horda sobe e desce. Nebulosas detalhadas, destroços, poeira diante do corpo e efeitos da mordida integram os colossos ao fundo. A serra, a abertura persistente e as três rotas físicas continuam preservadas. A prévia acompanha uma jornada de 53 segundos, até 381 m e de volta à rua.
+Detalhes e validação: [atualização 0.10.65](monster-game/ATUALIZACAO-v0.10.65.md) · [relatório](monster-game/VALIDACAO-v0.10.65.json). Santuário espectral, observatório nas tempestades e cemitério orbital completam as regiões do ancião, dragão, bruxa, leviatã, nave e olhos. Altitudes próprias, névoa, rastros de vento, destroços e luzes integram as criaturas ao cenário. A serra, a abertura persistente e as três rotas físicas continuam preservadas. A prévia acompanha uma jornada de 53 segundos, até 381 m e de volta à rua.
 
 A release Android histórica abaixo continua na **0.10.41**. Para compilar os fontes desta branch, use o workflow indicado no guia.
 

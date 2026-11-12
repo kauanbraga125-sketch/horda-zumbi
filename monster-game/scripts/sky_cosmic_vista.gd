@@ -3,6 +3,7 @@ extends RefCounted
 const SkyPlanes = preload("res://scripts/sky_atmosphere.gd")
 const Hauntings = preload("res://scripts/sky_hauntings.gd")
 const Deep = preload("res://scripts/sky_deep_landscape.gd")
+const Regions = preload("res://scripts/sky_region_scenery.gd")
 const START = 4320.0
 const FULL = 6860.0
 const SPACE_START = 9250.0
@@ -32,6 +33,7 @@ static func paint(g, r, motion) -> void:
 	var space = space_blend(height)
 	if space < 1.0: plate(canvas, motion.frames.orbit_sky.texture, view, camera, height)
 	if space > .0: paint_deep_space(canvas, motion, view, camera, time, space)
+	Regions.paint_orbit(canvas,motion,view,camera,time,opacity*(1.0-space))
 	paint_stars(canvas, view, camera, time, opacity, AMBER.lerp(Color("a6ddff"), space))
 	Hauntings.passers(canvas, motion, view, camera, time, opacity * (1.0 - space * .67))
 	s.hauntings.paint_orbit(canvas, motion, view, camera, space)
@@ -40,8 +42,10 @@ static func paint(g, r, motion) -> void:
 	var dark = Color(.74, .62, .82, air * .60)
 	var serpent = Deep.project(Vector2(1420-time*9.0,-6700+12.0*sin(time*.77)),view,camera,.025)
 	motion.sprite(canvas, "leviathan", serpent, 548.0, dark, sin(time * .82) * .065)
+	Regions.veil_orbit(canvas,motion,serpent,air,"leviathan")
 	var ship = Deep.project(Vector2(1180-time*5.0,-5700+sin(time*.38)*8.0),view,camera,.018)
 	motion.sprite(canvas, "derelict", ship, 440.0, Color(.76, .64, .80, air * .48), -.045)
+	Regions.veil_orbit(canvas,motion,ship,air,"ship")
 	var windows = ship + Vector2(-174.0, -8.0)
 	var flicker = .5 + .25 * sin(time * 7.0) + .17 * sin(time * 23.0)
 	motion.halo(canvas, windows, 17.0, AMBER, air * flicker * .40)
@@ -57,9 +61,11 @@ static func paint(g, r, motion) -> void:
 	var blink = fposmod(time + .4, 5.7)
 	var shut = smoothstep(4.68, 4.81, blink) * (1.0 - smoothstep(4.89, 5.04, blink))
 	var stare = .32 + .28 * sin(time * .68)
-	motion.sprite(canvas, "orbit_eyes", watch, 344.0, Color(1, .79, .67, air * (1.0 - shut) * stare))
+	Regions.paint_watcher_back(canvas,motion,watch,air)
+	motion.sprite(canvas,"orbit_eyes",watch,500.0,Color(1,.79,.67,air*(1.0-shut)*stare))
 	if shut > .01:
-		motion.sprite(canvas, "orbit_eyes_shut", watch, 344.0, Color(1, .77, .63, air * shut * stare))
+		motion.sprite(canvas,"orbit_eyes_shut",watch,500.0,Color(1,.77,.63,air*shut*stare))
+	Regions.paint_watcher_front(canvas,motion,watch,time,air)
 
 	if space < .99:
 		for i in range(3):
