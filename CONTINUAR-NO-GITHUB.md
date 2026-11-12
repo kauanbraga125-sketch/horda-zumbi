@@ -1,6 +1,6 @@
 # Continuar o Horda Zumbi pelo GitHub
 
-Os fontes desta branch estão na versão **0.10.65**, com cenários e efeitos completados nas regiões do céu, descritos em [`ATUALIZACAO-v0.10.65.md`](monster-game/ATUALIZACAO-v0.10.65.md). A serra, a abertura persistente e as três rotas físicas continuam preservadas. O projeto completo, sprites, áudio, licenças e testes estão em [`monster-game/`](monster-game/). A release [v0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.41) permanece como base nativa Android da compilação automática.
+Os fontes desta branch estão na versão **0.10.66**, com criaturas e encontros animados de fundo nas regiões do céu, descritos em [`ATUALIZACAO-v0.10.66.md`](monster-game/ATUALIZACAO-v0.10.66.md). A serra, a abertura persistente e as três rotas físicas continuam preservadas. O projeto completo, sprites, áudio, licenças e testes estão em [`monster-game/`](monster-game/). A release [v0.10.41](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.41) permanece como base nativa Android da compilação automática.
 
 ## Editar e baixar um novo APK
 

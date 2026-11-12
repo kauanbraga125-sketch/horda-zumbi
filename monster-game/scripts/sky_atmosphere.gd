@@ -3,6 +3,7 @@ extends RefCounted
 const Hauntings = preload("res://scripts/sky_hauntings.gd")
 const Landscape = preload("res://scripts/sky_landscape.gd")
 const Regions = preload("res://scripts/sky_region_scenery.gd")
+const Pop = preload("res://scripts/sky_pop_encounters.gd")
 
 # Anchors are in the coordinates of each plane. Only the camera projection
 # changes as the horde rises, so a landmark can be seen again on the way down.
@@ -21,6 +22,7 @@ static func paint(g, r, motion, visibility: float) -> void:
 	Landscape.paint(canvas,motion,view,camera,t,visibility)
 	Hauntings.walker(canvas, motion, view, camera, t, visibility)
 	Regions.paint_air(canvas,motion,view,camera,t,visibility)
+	Pop.paint_air(canvas,motion,view,camera,t,visibility)
 
 	var elder = Regions.position("elder",view,camera,t)
 	if view.grow(360.0).has_point(elder):

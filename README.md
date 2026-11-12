@@ -1,8 +1,8 @@
 # Horda Zumbi
 
-Versão de testes atual nesta branch: **0.10.65 — cenários e efeitos completos do céu**.
+Versão de testes atual nesta branch: **0.10.66 — céus vivos, criaturas e encontros animados**.
 
-Detalhes e validação: [atualização 0.10.65](monster-game/ATUALIZACAO-v0.10.65.md) · [relatório](monster-game/VALIDACAO-v0.10.65.json). Santuário espectral, observatório nas tempestades e cemitério orbital completam as regiões do ancião, dragão, bruxa, leviatã, nave e olhos. Altitudes próprias, névoa, rastros de vento, destroços e luzes integram as criaturas ao cenário. A serra, a abertura persistente e as três rotas físicas continuam preservadas. A prévia acompanha uma jornada de 53 segundos, até 381 m e de volta à rua.
+Detalhes e validação: [atualização 0.10.66](monster-game/ATUALIZACAO-v0.10.66.md) · [relatório](monster-game/VALIDACAO-v0.10.66.json). Verme listrado caçando um viajante, duelo de kaijus nas tempestades, caça extraterrestre entre destroços orbitais e carro do tempo no universo. Cada cena usa poses próprias, efeitos de distância e uma altitude fixa no mundo. Os cenários detalhados, os colossos, a abertura persistente e as três rotas físicas continuam preservados. A prévia acompanha 53 segundos de gameplay, até 381 m e de volta à rua; uma inspeção separada de 32 segundos mostra os ciclos completos das novas animações.
 
 A release Android histórica abaixo continua na **0.10.41**. Para compilar os fontes desta branch, use o workflow indicado no guia.
 

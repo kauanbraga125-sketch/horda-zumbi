@@ -4,6 +4,7 @@ const SkyPlanes = preload("res://scripts/sky_atmosphere.gd")
 const Hauntings = preload("res://scripts/sky_hauntings.gd")
 const Deep = preload("res://scripts/sky_deep_landscape.gd")
 const Regions = preload("res://scripts/sky_region_scenery.gd")
+const Pop = preload("res://scripts/sky_pop_encounters.gd")
 const START = 4320.0
 const FULL = 6860.0
 const SPACE_START = 9250.0
@@ -35,6 +36,7 @@ static func paint(g, r, motion) -> void:
 	if space > .0: paint_deep_space(canvas, motion, view, camera, time, space)
 	Regions.paint_orbit(canvas,motion,view,camera,time,opacity*(1.0-space))
 	paint_stars(canvas, view, camera, time, opacity, AMBER.lerp(Color("a6ddff"), space))
+	Pop.paint_orbit(canvas,motion,view,camera,time,opacity)
 	Hauntings.passers(canvas, motion, view, camera, time, opacity * (1.0 - space * .67))
 	s.hauntings.paint_orbit(canvas, motion, view, camera, space)
 

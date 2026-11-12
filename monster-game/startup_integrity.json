@@ -1,5 +1,5 @@
 {
-  "version": "0.10.65",
+  "version": "0.10.66",
   "class_count": 55,
   "files": [
     {
@@ -414,8 +414,8 @@
     },
     {
       "path": "res://scripts/sky_atmosphere.gd",
-      "bytes": 4437,
-      "sha256": "f8043f1a639b5970c4864245a0d0478b7af91743e18fa3225c2ff51bfb7fa63a"
+      "bytes": 4551,
+      "sha256": "573c6ef4f960f6f7f1dd33da28f33d3b1cef67657c5fa16e6575927c82396e08"
     },
     {
       "path": "res://scripts/sky_captures.gd",
@@ -434,8 +434,8 @@
     },
     {
       "path": "res://scripts/sky_cosmic_vista.gd",
-      "bytes": 6407,
-      "sha256": "107eb7ca00204fbd1f971fb6348efbda088bc86582fb3a4cca878c86709b4615"
+      "bytes": 6523,
+      "sha256": "e8ee14de37a652e4fdc44dc567736c3a1b6e71b08544417791d38bde387ceb3e"
     },
     {
       "path": "res://scripts/sky_course.gd",
@@ -461,6 +461,11 @@
       "path": "res://scripts/sky_motion.gd",
       "bytes": 12427,
       "sha256": "90e0243e3431c0552fd192b41f194603b3abb05cfd2a99461d8ce0505531675c"
+    },
+    {
+      "path": "res://scripts/sky_pop_encounters.gd",
+      "bytes": 9066,
+      "sha256": "d54a99724209a0e7951a30bc79865a2b30e9f61f6dd393d4d54be547fc629b8e"
     },
     {
       "path": "res://scripts/sky_region_scenery.gd",
@@ -715,7 +720,7 @@
     {
       "path": "res://assets/art/cosmetics_v116/plumber.png.import",
       "bytes": 951,
-      "sha256": "656c6b765d4534990670f99c6bd3c87edb2e402deffc34f7fa42e6430daddcd8"
+      "sha256": "e36130a17d6e34b76ff42a15d7ad82b18748dead2a8484d31c336389727b4b2a"
     },
     {
       "path": "res://.godot/imported/plumber.png-b9010ff2e4ea82511430b81b267c615e.ctex",
@@ -725,7 +730,7 @@
     {
       "path": "res://assets/art/cosmetics_v117/straw.png.import",
       "bytes": 945,
-      "sha256": "7cf70da18e2ae140c9db0731ed5ea2fdf327d45acca418d38d18ac189fdd05cd"
+      "sha256": "1334a1e7b17eccfed1b9d223c050a4767fc1dc877820e9decc548e2e501dd038"
     },
     {
       "path": "res://.godot/imported/straw.png-661c244efdb41ac8baadaec92eb31789.ctex",
@@ -734,8 +739,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v119/adventure.png.import",
-      "bytes": 956,
-      "sha256": "d5c54bf55e022d35000d9ea372d90d5dd58effad74b1da346b669ffd49f4305b"
+      "bytes": 957,
+      "sha256": "82899d034553ae2d75662c3ac7212b72ee54628b530ab64a079b2a7f588b9890"
     },
     {
       "path": "res://.godot/imported/adventure.png-3433ce1a806cf97c7fbb38f26e70fdf6.ctex",
@@ -745,7 +750,7 @@
     {
       "path": "res://assets/art/cosmetics_v120/nightmare.png.import",
       "bytes": 957,
-      "sha256": "f814d2d4dab6c3a60f480af1b3442452b7757257917a4494121a076d176e849d"
+      "sha256": "f28b5a05003f4ef81ff82c69e52a1201c399724851b518a9b28194e20c4368de"
     },
     {
       "path": "res://.godot/imported/nightmare.png-9a29870f55b9cd1fb7698add21b59fc9.ctex",
@@ -755,7 +760,7 @@
     {
       "path": "res://assets/art/cosmetics_v120/sorcerer.png.import",
       "bytes": 954,
-      "sha256": "f2a9676d2bcbf894c7029a017dcc32d5e3efe6de08e4e7f0d5de4a779a64b7a1"
+      "sha256": "1524ff22048b6a3e0a7eecf4538d1273842a6329b76a468aea387081aedf1b83"
     },
     {
       "path": "res://.godot/imported/sorcerer.png-a879012f49a70eee2a3ea6f55b9b5d28.ctex",
@@ -764,8 +769,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v121/beanie.png.import",
-      "bytes": 948,
-      "sha256": "65fc11d9a11cfd33950b0bef13cecfa633670f9f0646a5ae8471530fb794f4bf"
+      "bytes": 947,
+      "sha256": "eb113978affa528b14fa4f05256f998a47edbcb28ab6a9349e881d78a30309c1"
     },
     {
       "path": "res://.godot/imported/beanie.png-16749eeb2308dff4e9d92ea76fd5e6b5.ctex",
@@ -775,7 +780,7 @@
     {
       "path": "res://assets/art/cosmetics_v121/sorcerer.png.import",
       "bytes": 954,
-      "sha256": "67725558e1d7f41b007f47d19843724e1074a761053cf931a5c3445964ed5d4a"
+      "sha256": "673035fce4d3539008a9cfad2e79c85cb2474a8d14a0ab5b7dbaf9a8afcb3331"
     },
     {
       "path": "res://.godot/imported/sorcerer.png-350f6693ecab155365e39d4141ee2aec.ctex",
@@ -784,8 +789,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v122/pirate.png.import",
-      "bytes": 947,
-      "sha256": "22623032a7c500f7a2d10905a45e635ee7ac428647be644226e2e55fe9515164"
+      "bytes": 948,
+      "sha256": "3408f762808e3a41cb93f31f04c2ff5c237b291ed030fab725010f9b184bf8e3"
     },
     {
       "path": "res://.godot/imported/pirate.png-8a9459f2f28babb57eb6d3fcafac4160.ctex",
@@ -795,7 +800,7 @@
     {
       "path": "res://assets/art/cosmetics_v124/clown.png.import",
       "bytes": 945,
-      "sha256": "ee0c7c0743de95d93d2ef256d18ac343d15ee79c04d20302e0483bef878f33b8"
+      "sha256": "d1f6757680af0a243f55ed13f1b47b5622992b513b578081a504f965e1646ee2"
     },
     {
       "path": "res://.godot/imported/clown.png-1e3f9bce227d66681a40cd494ec3bc76.ctex",
@@ -804,8 +809,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v124/hockey.png.import",
-      "bytes": 947,
-      "sha256": "b62190c36d580cee0be058d0c67de89760aec917cbe4140a0e44a13485848e26"
+      "bytes": 948,
+      "sha256": "ae660e2e3f4ef5be3c88685a62119f271c3ea710ce4546b77712c1b5d50c72e1"
     },
     {
       "path": "res://.godot/imported/hockey.png-92d2d1957e4cb9805f8511d2f4f1fd3f.ctex",
@@ -814,8 +819,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v126/s_chaos.png.import",
-      "bytes": 951,
-      "sha256": "b385c32af65c0ee921e9d85ec1ec68ea46dfa4e2bde4c24e6f5ae157084a778d"
+      "bytes": 950,
+      "sha256": "df8e094ee56bdeb1ab5d6c85ab47d079bc49f9c8a42d3573c2205d8123f930b8"
     },
     {
       "path": "res://.godot/imported/s_chaos.png-13a722f7c77caee4fd84a7c90a05378a.ctex",
@@ -825,7 +830,7 @@
     {
       "path": "res://assets/art/cosmetics_v126/s_ice.png.import",
       "bytes": 945,
-      "sha256": "f4ecaa5659305fb8e5c54c6842f228c3b003aaf7984bcfa63c3023600c2ee55c"
+      "sha256": "7b6dd8d82ab3ddf7e729b1364f58b0173586f1a7d3b78649651cb12f25a7229f"
     },
     {
       "path": "res://.godot/imported/s_ice.png-18e35ca94c461bc71c01f5ac19915b03.ctex",
@@ -834,8 +839,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v126/s_north.png.import",
-      "bytes": 950,
-      "sha256": "d8e84151a01da3288c780b524c0a48e4cb8c183f27cdd18955ed85f0f9b4b52c"
+      "bytes": 951,
+      "sha256": "04a6719c6c9c753fc8e6f574558f184a705c009a05c014ef4f0e8cb6c271d53b"
     },
     {
       "path": "res://.godot/imported/s_north.png-140da5ef89e433c68a4e89e42943db02.ctex",
@@ -845,7 +850,7 @@
     {
       "path": "res://assets/art/cosmetics_v126/s_striped.png.import",
       "bytes": 957,
-      "sha256": "8f66de7d1d46d2993d5bf74b2f47b8c5d53d3448798eecc8c7f15d0d7661ca7a"
+      "sha256": "c4e10854f75a331f4d70b794e23953c36b1b5a9cc305b9b27cd6dd0b70f7deb0"
     },
     {
       "path": "res://.godot/imported/s_striped.png-c129964882d628b9fda8ba12e441f782.ctex",
@@ -855,7 +860,7 @@
     {
       "path": "res://assets/art/cosmetics_v126/s_wizard.png.import",
       "bytes": 954,
-      "sha256": "3bdc3d3a1c4693617cb278f5053ca16a851896b4e9d802fc64b49acae3e1bbcd"
+      "sha256": "f4f69046f331d812bffe0a91cc8bc7bc0b12ae3491bcd204a198bc6836d2622d"
     },
     {
       "path": "res://.godot/imported/s_wizard.png-44adbf3d1a3e413db4a9ae089424d0b0.ctex",
@@ -865,7 +870,7 @@
     {
       "path": "res://assets/art/cosmetics_v126/scientist.png.import",
       "bytes": 957,
-      "sha256": "2f1a0e29342d462401333f9c29020d9643525b396469bdd44024401dba9246ed"
+      "sha256": "8d5cd756bb89773fa917cd8a32a5d404b74bcab9a25f8f03e8bf776c804feba4"
     },
     {
       "path": "res://.godot/imported/scientist.png-2b9c298f57d170515ee5609a3629cd58.ctex",
@@ -874,8 +879,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v127/cape.png.import",
-      "bytes": 940,
-      "sha256": "085bc135cb1252e5992f68af1c5cb5bd84e1d4a31a6d842d544e0801d6d9f872"
+      "bytes": 942,
+      "sha256": "dd54ca89f68b56805cc37f460f6791945d80b14d3bc8f5869e4c35d65c776923"
     },
     {
       "path": "res://.godot/imported/cape.png-fbc1f67747513541aca2ee14dc5f5e77.ctex",
@@ -885,7 +890,7 @@
     {
       "path": "res://assets/art/cosmetics_v127/chain.png.import",
       "bytes": 945,
-      "sha256": "83ca3ad300ec902c86257aeb3d8ebd3b8bcd227d2aa23c9ae0a179a6bd4e5e34"
+      "sha256": "6eef858de7bf79c9362b6e78c437b77795f2b628ebb1d6383f09341acb435fc1"
     },
     {
       "path": "res://.godot/imported/chain.png-54ab7b4066acf61649624d1d7639cf3f.ctex",
@@ -895,7 +900,7 @@
     {
       "path": "res://assets/art/cosmetics_v127/scarf.png.import",
       "bytes": 945,
-      "sha256": "457fb0b749142a4d06f269c186f59c5162dd6fff5278d86d666366d5a7e419bd"
+      "sha256": "207845e8cce0e59b5b3b22376a30f39387a542ab5d9d7e418ee7eb65b8d2c0f8"
     },
     {
       "path": "res://.godot/imported/scarf.png-d2d26c6b7651efb43320ac8fba2ec3e4.ctex",
@@ -905,7 +910,7 @@
     {
       "path": "res://assets/art/cosmetics_v127/scientist.png.import",
       "bytes": 957,
-      "sha256": "d2f28c8aa03a9dccf79c347a377020d2a8e15909eecb23cf514eee4d9877e2ab"
+      "sha256": "456dc638522d5692318af45f8c7ce19c2f881c708aaf0cbc819f86f6a83ebf8c"
     },
     {
       "path": "res://.godot/imported/scientist.png-0b7be31d67d0baa6cae04ccd27ec391c.ctex",
@@ -914,8 +919,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v127/skull.png.import",
-      "bytes": 945,
-      "sha256": "f19939534681fdab71120d6486d8b8d5d5717f84d484f9e81de900927c1a9319"
+      "bytes": 944,
+      "sha256": "f3dbb29085069f5df330c58f1b3a19bb4b79d2dd24d761bf66cf393c93c51fe2"
     },
     {
       "path": "res://.godot/imported/skull.png-18b8fbce2321cf17315f42e5380b7515.ctex",
@@ -924,8 +929,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v128/s_crown.png.import",
-      "bytes": 951,
-      "sha256": "04aece1fd0df36e4982494acc6023853f887fa94b21db64194ab3b2c072a0869"
+      "bytes": 950,
+      "sha256": "0eb09d01762c0e2371f2451004757b0be9ac20d2d08619a8cfec6bf1b10e9c97"
     },
     {
       "path": "res://.godot/imported/s_crown.png-6d88950f833515f84da1fdd500bdf432.ctex",
@@ -935,7 +940,7 @@
     {
       "path": "res://assets/art/cosmetics_v128/s_ghostpirate.png.import",
       "bytes": 969,
-      "sha256": "d20631babe271b303128f2b5da683de228ce27dd31d650550e3096145bbade11"
+      "sha256": "cae7f79659aee01e6c076dd6021388bb80f5312c60ee80327fdd162e598de85d"
     },
     {
       "path": "res://.godot/imported/s_ghostpirate.png-92c3313d95694197a09c463d4074b0df.ctex",
@@ -945,7 +950,7 @@
     {
       "path": "res://assets/art/cosmetics_v128/s_plague.png.import",
       "bytes": 954,
-      "sha256": "9e74269c732a1757e4f1b2994e386168d40f579c37bfeec5101302d6e097e17d"
+      "sha256": "a159a73d621ca77d67d22e462ae4d9eb25bbd36a417cd9ab2d1fbaf8e3887d04"
     },
     {
       "path": "res://.godot/imported/s_plague.png-a9d74320603d03e14c48570727849a03.ctex",
@@ -954,8 +959,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v128/s_space.png.import",
-      "bytes": 950,
-      "sha256": "16a9e93a422c788c34359691a63ddcc90d8803229819e7cd273337c74ad6569d"
+      "bytes": 951,
+      "sha256": "33554faa4faafc820dc4329d854924217ccbdb1169ebcf2bbb688a4b28b08765"
     },
     {
       "path": "res://.godot/imported/s_space.png-2a27c041be4284a413de42457aa7e890.ctex",
@@ -965,7 +970,7 @@
     {
       "path": "res://assets/art/cosmetics_v129/s_comic.png.import",
       "bytes": 950,
-      "sha256": "43c42e137c04d21257be0087b82c3fe1c3235ce7015a1b71c04679c651da2337"
+      "sha256": "367825c7d9e56ff5e7e8f213d04565e9d5418d2a79a246cbd600e8fcdfb23c71"
     },
     {
       "path": "res://.godot/imported/s_comic.png-c0575d7620d19e7d6ccec78f44318d4f.ctex",
@@ -974,8 +979,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v129/s_goth.png.import",
-      "bytes": 947,
-      "sha256": "1c1b598b2fd2f401040116d77c54375eb9752070b8022bda1561d6e899c20638"
+      "bytes": 948,
+      "sha256": "b3d934b089d40dededde7315ea585527f518ccf7c296833fbc55191f76250482"
     },
     {
       "path": "res://.godot/imported/s_goth.png-e0dbd26c756a144fc5d0ff96e2cb2a65.ctex",
@@ -984,8 +989,8 @@
     },
     {
       "path": "res://assets/art/cosmetics_v129/s_hourglass.png.import",
-      "bytes": 962,
-      "sha256": "0033ce3f275e06a900e059f1218d34dcfd7db1cb7742758c4c880075d3c9e82a"
+      "bytes": 963,
+      "sha256": "2a47f5420d8e7c87927327440994ab5162d976b0da139889e2e825479f07c84b"
     },
     {
       "path": "res://.godot/imported/s_hourglass.png-5461f1bb3acc50e0c972242ca602e04d.ctex",
@@ -995,7 +1000,7 @@
     {
       "path": "res://assets/art/cosmetics_v129/s_vest.png.import",
       "bytes": 948,
-      "sha256": "e216cae5e8786d24eeb3e5f22f61c5cd56c1e9644bbe83b97bb00e205e5d119e"
+      "sha256": "973914f3b194fec98fcb527d68e2d2287c61a3c283a1eaa13211238ab9c2b96c"
     },
     {
       "path": "res://.godot/imported/s_vest.png-c7f691b83a578c7c6e6a0e02e45e6653.ctex",
@@ -1676,6 +1681,26 @@
       "path": "res://assets/art/v165/storm.webp",
       "bytes": 202610,
       "sha256": "f814c79dd163b846fdf60b62afb994bfcfd005cffdf872382afb48eca079b69c"
+    },
+    {
+      "path": "res://assets/art/v166/encounters.json",
+      "bytes": 14034,
+      "sha256": "1f0d61a348908dc7654288e18f5436227ab78ed41f7b08f7d7cb84e77f4ab289"
+    },
+    {
+      "path": "res://assets/art/v166/kaiju.webp",
+      "bytes": 491900,
+      "sha256": "7ec63ea21459bb7c32f238f33f1fa69d00047fc9c9996e7e4499e031a967a027"
+    },
+    {
+      "path": "res://assets/art/v166/orbit.webp",
+      "bytes": 443840,
+      "sha256": "ff73672aafa3baeb6cb62938d5ae159b75db72163c1a5598dc7fc06ad5c3590f"
+    },
+    {
+      "path": "res://assets/art/v166/worm.webp",
+      "bytes": 395362,
+      "sha256": "4084cf64f92f47f491b750450d753868a80d04111e0e1d9bafb7f412cde755a5"
     },
     {
       "path": "res://assets/audio/v137/manifest.json",
