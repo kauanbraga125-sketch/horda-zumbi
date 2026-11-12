@@ -92,8 +92,8 @@ jobs:
           path: dist/android/*.log
           if-no-files-found: ignore
 
-  publicar-v01067:
-    name: Publicar a versão 0.10.67
+  publicar:
+    name: Publicar APK verificado
     needs: android
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
@@ -109,41 +109,46 @@ jobs:
         id: version
         run: |
           python3 - <<'PY'
-          import json, os
+          import json, os, re
           from pathlib import Path
           r = json.loads(Path('dist/android/compilacao.json').read_text())
-          matches = r['version'] == '0.10.67'
-          if matches:
-              assert r['mode'] == 'teste'
-              assert r['source_boot_verified'] and r['packaged_boot_verified']
-              assert r['fresh_source_export'] and r['all_game_resources_replaced']
-              assert r['commit'] == os.environ['GITHUB_SHA']
+          assert re.fullmatch(r'\d+\.\d+\.\d+', r['version'])
+          assert r['mode'] == 'teste'
+          assert r['source_boot_verified'] and r['packaged_boot_verified']
+          assert r['ui_audio_navigation_verified']
+          assert r['fresh_source_export'] and r['all_game_resources_replaced']
+          assert r['commit'] == os.environ['GITHUB_SHA']
+          tag = 'v' + r['version']
+          assert Path(f'monster-game/ATUALIZACAO-{tag}.md').is_file()
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write('publish=' + str(matches).lower() + '\n')
+              f.write('tag=' + tag + '\n')
           PY
       - name: Publicar APK e relatórios verificados
-        if: steps.version.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
         shell: bash
         run: |
           set -euo pipefail
           cd dist/android
           sha256sum -c SHA256SUMS.txt
           cd ../..
-          if gh release view v0.10.67 >/dev/null 2>&1; then
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             mkdir existing
-            gh release download v0.10.67 --pattern SHA256SUMS.txt --dir existing
+            gh release download "$RELEASE_TAG" --pattern SHA256SUMS.txt --dir existing
             cmp existing/SHA256SUMS.txt dist/android/SHA256SUMS.txt
           else
-            gh release create v0.10.67 \
+            reports=()
+            for report in "monster-game/VALIDACAO-${RELEASE_TAG}.json" "monster-game/PUBLICACAO-${RELEASE_TAG}.json"; do
+              if [[ -f "$report" ]]; then reports+=("$report"); fi
+            done
+            gh release create "$RELEASE_TAG" \
               dist/android/*.apk dist/android/compilacao.json \
               dist/android/assinatura.txt dist/android/SHA256SUMS.txt \
-              monster-game/VALIDACAO-v0.10.67.json \
-              monster-game/PUBLICACAO-v0.10.67.json \
+              "${reports[@]}" \
               --target "$GITHUB_SHA" \
-              --title 'Horda Zumbi 0.10.67 — Músicas e efeitos' \
-              --notes-file monster-game/ATUALIZACAO-v0.10.67.md --prerelease
+              --title "Horda Zumbi ${RELEASE_TAG#v}" \
+              --notes-file "monster-game/ATUALIZACAO-${RELEASE_TAG}.md" --prerelease
           fi
-          echo 'APK publicado: https://github.com/kauanbraga125-sketch/horda-zumbi/releases/tag/v0.10.67' >> "$GITHUB_STEP_SUMMARY"
+          echo "APK publicado: https://github.com/${GH_REPO}/releases/tag/${RELEASE_TAG}" >> "$GITHUB_STEP_SUMMARY"

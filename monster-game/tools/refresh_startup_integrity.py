@@ -48,6 +48,8 @@ def refresh(root: Path):
     paths += sorted(p for p in (root / 'assets/audio/v137').glob('*') if p.suffix in ('.pcm', '.json'))
     paths += sorted(p for p in (root / 'assets/audio/v136').glob('*') if p.suffix in ('.pcm', '.json'))
     paths += sorted(p for p in (root / 'assets/audio/v167').glob('*') if p.suffix in ('.bin', '.json'))
+    paths += sorted((root / 'assets/audio/v7').glob('v7_ui_0[12]_*.ogg'))
+    paths += sorted((root / 'assets/audio/v168').glob('*.json'))
     version = re.search(r'config/version="([^"]+)"', (root / 'project.godot').read_text()).group(1)
     manifest = {'version': version,
                 'class_count': len(re.findall(rb'"class":', cache.read_bytes())),
