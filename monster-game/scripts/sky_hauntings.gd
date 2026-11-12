@@ -8,6 +8,7 @@ const LENGTH = 6.4
 const VIOLET = Color("a38dd7")
 const CYAN = Color("86e8e2")
 const Landscape = preload("res://scripts/sky_landscape.gd")
+const Deep = preload("res://scripts/sky_deep_landscape.gd")
 const WALKER_SCALE = 260.0
 
 var random = RandomNumberGenerator.new()
@@ -15,6 +16,8 @@ var clock = 0.0
 var scene_at = -LENGTH
 var next_at = 0.0
 var scene = 0
+var devour_seen = false
+var devour_clock = 0.0
 
 func reset(seed_value: int) -> void:
 	random.seed = seed_value ^ 0x1605c
@@ -22,8 +25,12 @@ func reset(seed_value: int) -> void:
 	scene_at = -LENGTH
 	next_at = random.randf_range(.65, 1.8)
 	scene = 0
+	devour_seen = false
+	devour_clock = 0.0
 
 func advance(dt: float, height: float) -> void:
+	if height>=10900.0: devour_seen = true
+	if devour_seen: devour_clock += dt
 	if height < ORBIT_MIN and clock - scene_at >= LENGTH: return
 	clock += dt
 	if height >= ORBIT_MIN and clock >= next_at:
@@ -66,36 +73,38 @@ static func passers(canvas: Node2D, motion, view: Rect2, camera: Vector2, time: 
 		Color(.65, .70, .93, alpha * .34), -.08)
 
 func paint_orbit(canvas: Node2D, motion, view: Rect2, camera: Vector2, alpha: float) -> void:
+	if alpha<=.01: return
+	var centre = Deep.devourer_position(view,camera)
+	if devour_seen and view.grow(820.0).has_point(centre):
+		var visible = alpha*smoothstep(0.0,.9,devour_clock)
+		var phase = fposmod(devour_clock,12.0)
+		Deep.paint_devourer_back(canvas,motion,centre,devour_clock,visible)
+		paint_bite(canvas,motion,centre,phase,visible)
+		Deep.paint_devourer_front(canvas,motion,centre,devour_clock,visible)
 	var age = clock - scene_at
-	if age >= LENGTH or alpha <= .01: return
+	if age >= LENGTH or scene!=1: return
 	var opacity = alpha * smoothstep(0.0, .92, age) * (1.0 - smoothstep(5.24, LENGTH, age))
-	var centre = view.position + view.size * Vector2(.62, .80 if scene == 0 else .69)
-	centre += Vector2(sin(camera.x * .00062) * 48.0, sin(camera.y * .00051) * 27.0)
-	if scene == 0:
-		paint_bite(canvas, motion, centre, age, opacity)
-	else:
-		paint_duel(canvas, motion, centre, age, opacity)
+	paint_duel(canvas,motion,Deep.duel_position(view,camera),age,opacity)
 
 static func paint_bite(canvas: Node2D, motion, centre: Vector2, age: float, alpha: float) -> void:
 	var lean = smoothstep(.9, 2.48, age) * (1.0 - smoothstep(2.64, 3.4, age))
 	var swallow = smoothstep(3.66, 4.45, age)
-	var head = centre + Vector2(114.0 - 39.0 * lean + 29.0 * swallow, 9.0 + sin(age * 2.6) * 6.0)
+	var head = centre+Vector2(-18.0*lean+13.0*swallow,0.0)
 	var approach = smoothstep(.16, 2.47, age)
 	var rebound = smoothstep(2.5, 3.03, age)
-	var mouth = head + Vector2(-100.0, 13.0)
-	var planet = mouth + Vector2(-130.0 * (1.0 - approach) - 47.0 * rebound + 74.0 * swallow,
-		24.0 * sin(approach * PI) + 9.0 * rebound)
+	var mouth = head+Vector2(-165.0,38.0)
+	var planet = mouth+Vector2(-173.0*(1.0-approach)-52.0*rebound+93.0*swallow,
+		31.0*sin(approach*PI)+12.0*rebound)
 	var biting = (age >= 2.49 and age < 3.55) or age >= 4.25
 	var jaws = "devour_closed" if biting else "devour_open"
 	if swallow < .995:
 		var rock = "devour_planet" if age < 2.49 else "devour_bitten"
-		motion.halo(canvas, planet, 60.0, CYAN, alpha * (1.0 - swallow) * .19)
-		motion.sprite(canvas, rock, planet, lerpf(107.0, 14.0, swallow),
-			Color(.89, .93, 1, alpha * (1.0 - swallow) * .85), age * -.19)
-	motion.sprite(canvas, jaws, head, 288.0, Color(.78, .70, .90, alpha * .72), -.11 * lean + .045 * sin(age * 5.0))
+		var prey_alpha = alpha*(1.0-swallow)*smoothstep(.05,.7,age)
+		motion.halo(canvas,planet,100.0,CYAN,prey_alpha*.18)
+		motion.sprite(canvas,rock,planet,lerpf(185.0,18.0,swallow),Color(.83,.91,1,prey_alpha*.92),age*-.10)
+	motion.sprite(canvas,jaws,head,Deep.DEVOURER_SCALE,Color(.67,.73,.84,alpha*.92),-.045*lean)
 	var hit = age - 2.49
-	if hit > 0.0 and hit < .74:
-		motion.burst_particles(canvas, mouth, hit, Color(VIOLET, alpha * .74), 8, 89.0, .67)
+	Deep.paint_bite_impact(canvas,motion,mouth,hit,alpha)
 
 static func paint_duel(canvas: Node2D, motion, centre: Vector2, age: float, alpha: float) -> void:
 	var closing = smoothstep(.28, 2.35, age) - smoothstep(2.53, 3.22, age)

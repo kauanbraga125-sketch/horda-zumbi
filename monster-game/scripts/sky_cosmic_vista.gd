@@ -2,6 +2,7 @@ extends RefCounted
 
 const SkyPlanes = preload("res://scripts/sky_atmosphere.gd")
 const Hauntings = preload("res://scripts/sky_hauntings.gd")
+const Deep = preload("res://scripts/sky_deep_landscape.gd")
 const START = 4320.0
 const FULL = 6860.0
 const SPACE_START = 9250.0
@@ -30,16 +31,16 @@ static func paint(g, r, motion) -> void:
 	var time: float = s.age
 	var space = space_blend(height)
 	if space < 1.0: plate(canvas, motion.frames.orbit_sky.texture, view, camera, height)
-	if space > .0: paint_deep_space(canvas, motion, view, camera, space)
+	if space > .0: paint_deep_space(canvas, motion, view, camera, time, space)
 	paint_stars(canvas, view, camera, time, opacity, AMBER.lerp(Color("a6ddff"), space))
 	Hauntings.passers(canvas, motion, view, camera, time, opacity * (1.0 - space * .67))
 	s.hauntings.paint_orbit(canvas, motion, view, camera, space)
 
 	var air = opacity * (1.0 - space * .67)
 	var dark = Color(.74, .62, .82, air * .60)
-	var serpent = layer_point(view, camera, Vector2(3020, -792), .17, Vector2(time * 22.0, 12.0 * sin(time * .77)), 360.0)
+	var serpent = Deep.project(Vector2(1420-time*9.0,-6700+12.0*sin(time*.77)),view,camera,.025)
 	motion.sprite(canvas, "leviathan", serpent, 548.0, dark, sin(time * .82) * .065)
-	var ship = layer_point(view, camera, Vector2(2195, -685), .12, Vector2(time * 12.0, sin(time * .38) * 8.0), 420.0)
+	var ship = Deep.project(Vector2(1180-time*5.0,-5700+sin(time*.38)*8.0),view,camera,.018)
 	motion.sprite(canvas, "derelict", ship, 440.0, Color(.76, .64, .80, air * .48), -.045)
 	var windows = ship + Vector2(-174.0, -8.0)
 	var flicker = .5 + .25 * sin(time * 7.0) + .17 * sin(time * 23.0)
@@ -47,12 +48,12 @@ static func paint(g, r, motion) -> void:
 
 	for i in range(3):
 		var offset = Vector2(time * (22.0 + i * 10.0), sin(time * (1.4 + i * .16)) * 12.0)
-		var position = layer_point(view, camera, Vector2(1015 + i * 643, -642 + i * 188), .22 + i * .038, offset, 180.0)
+		var position = Deep.project(Vector2(1015+i*243,-5400-i*920)-offset,view,camera,.025+i*.006)
 		var light = .46 + .34 * pow(absf(sin(time * 2.9 + i)), 4.0)
 		motion.sprite(canvas, "orbit_saucer_far", position, 74.0 - i * 12.0, Color(.81, .72, 1, air * .65), sin(time * 1.8 + i) * .09)
 		motion.halo(canvas, position + Vector2(0, 5), 11.0 - i * 2.0, Color("e9a9ff"), light * air)
 
-	var watch = layer_point(view, camera, Vector2(2040, -414), .09, Vector2(0.0, sin(time * .49) * 3.0), 365.0)
+	var watch = Deep.project(Vector2(1260,-8350),view,camera,.012)
 	var blink = fposmod(time + .4, 5.7)
 	var shut = smoothstep(4.68, 4.81, blink) * (1.0 - smoothstep(4.89, 5.04, blink))
 	var stare = .32 + .28 * sin(time * .68)
@@ -67,17 +68,13 @@ static func paint(g, r, motion) -> void:
 			motion.sprite(canvas, "orbit_dust", fog, 535.0 + i * 38.0,
 				Color(.81, .48, .62, opacity * .32 * (1.0 - space)), -.07 + .05 * i)
 
-static func paint_deep_space(canvas: Node2D, motion, view: Rect2, camera: Vector2, alpha: float) -> void:
+static func paint_deep_space(canvas: Node2D, motion, view: Rect2, camera: Vector2, time: float, alpha: float) -> void:
 	var night = Color(Color("060c19"), alpha)
 	var blue = Color(Color("0a152a"), alpha)
 	var quad = PackedVector2Array([view.position, Vector2(view.end.x, view.position.y),
 		view.end, Vector2(view.position.x, view.end.y)])
 	canvas.draw_polygon(quad, PackedColorArray([night, night, blue, blue]))
-	var position = view.position + view.size * Vector2(.83, .29)
-	position += Vector2(sin(camera.x * .00047) * 64.0, sin(camera.y * .00030) * 37.0)
-	var width = clampf(view.size.x * .50, 455.0, 850.0)
-	motion.sprite(canvas, "space_cathedral", position, width / motion.frames.space_cathedral.size.x,
-		Color(.79, .90, 1, alpha * .80), -.07)
+	Deep.paint_background(canvas,motion,view,camera,time,alpha)
 
 static func plate(canvas: Node2D, texture: Texture2D, view: Rect2, camera: Vector2, height: float) -> void:
 	# Start with a thin strip of high atmosphere, then fade it down over the old sky.

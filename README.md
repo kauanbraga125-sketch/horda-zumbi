@@ -1,8 +1,8 @@
 # Horda Zumbi
 
-Versão de testes atual nesta branch: **0.10.63 — serra distante e gigante caminhando sobre o relevo**.
+Versão de testes atual nesta branch: **0.10.64 — colossos em regiões fixas do abismo cósmico**.
 
-Detalhes e validação: [atualização 0.10.63](monster-game/ATUALIZACAO-v0.10.63.md) · [relatório](monster-game/VALIDACAO-v0.10.63.json). O gigante permanece na altitude da montanha enquanto a horda sobe e desce. Três cadeias de montanhas, névoa e velocidades diferentes dão profundidade ao cenário. A abertura persistente e as três rotas físicas continuam preservadas. A prévia acompanha uma jornada de 53 segundos, até 381 m e de volta à rua.
+Detalhes e validação: [atualização 0.10.64](monster-game/ATUALIZACAO-v0.10.64.md) · [relatório](monster-game/VALIDACAO-v0.10.64.json). O planeta e o devorador permanecem em suas altitudes enquanto a horda sobe e desce. Nebulosas detalhadas, destroços, poeira diante do corpo e efeitos da mordida integram os colossos ao fundo. A serra, a abertura persistente e as três rotas físicas continuam preservadas. A prévia acompanha uma jornada de 53 segundos, até 381 m e de volta à rua.
 
 A release Android histórica abaixo continua na **0.10.41**. Para compilar os fontes desta branch, use o workflow indicado no guia.
 

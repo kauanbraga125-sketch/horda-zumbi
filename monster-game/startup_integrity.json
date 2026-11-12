@@ -1,5 +1,5 @@
 {
-  "version": "0.10.63",
+  "version": "0.10.64",
   "class_count": 55,
   "files": [
     {
@@ -978,6 +978,16 @@
       "sha256": "12e7f6717c805d69861876a854c97aebf926ef31d7957b042511bf3a40f4d653"
     },
     {
+      "path": "res://assets/art/v164/abyss.webp",
+      "bytes": 184346,
+      "sha256": "97b2f67e8c134c24dd0a1688036acaeff13b67fce369e0e682a79b836f3226cf"
+    },
+    {
+      "path": "res://assets/art/v164/dust.webp",
+      "bytes": 475934,
+      "sha256": "015626c8070c97f425a8eb8e55fe9335e4fc16c97fd13ad504d96949d3c4a909"
+    },
+    {
       "path": "res://assets/audio/adventure_v132/creeper_wing.pcm",
       "bytes": 35840,
       "sha256": "046b452cb46f9abef0d436bbb54b9030f4647d93be3b71eaf16c1e724242beb2"
@@ -1574,8 +1584,8 @@
     },
     {
       "path": "res://scripts/sky_cosmic_vista.gd",
-      "bytes": 6388,
-      "sha256": "300c608dc0cb9c228742a74b882429eea5bdd97e0e8cf0e0bbd42770b1ec0bd8"
+      "bytes": 6073,
+      "sha256": "7a0cf221f0ea7f35e43ed4b6170bb091c9e0379b20f21096cf3a0ba9f267c1b1"
     },
     {
       "path": "res://scripts/sky_course.gd",
@@ -1583,9 +1593,14 @@
       "sha256": "7a1330c7ec42b784af46c8c072129aaaf99e09ce6932f9f2898b94b9489a7861"
     },
     {
+      "path": "res://scripts/sky_deep_landscape.gd",
+      "bytes": 5354,
+      "sha256": "780f2e059d6ec293e145d60b1751842524a899ce40519b500e75aa137eb61c07"
+    },
+    {
       "path": "res://scripts/sky_hauntings.gd",
-      "bytes": 5916,
-      "sha256": "709ab7d042a678216034d49c0ab37aac2f26fda04dae5bf47a57adf04d810f00"
+      "bytes": 6201,
+      "sha256": "1e9e63095bd75fc5cf9d10ae1b68eb03cb7c5019253fc9f6e33988239b5a21a4"
     },
     {
       "path": "res://scripts/sky_landscape.gd",
