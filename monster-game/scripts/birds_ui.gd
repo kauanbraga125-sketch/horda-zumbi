@@ -7,6 +7,7 @@ const SHORT = ["Moedas extras nos Perfects","Avisa quando há perigo","Sabota am
 var art = preload("res://scripts/aviary_art.gd").new()
 var selected = 0
 var page = "collection"
+var fusion_inputs = ["",""]
 var from = "market"
 var age = 0.0
 var reveal_sound = false
@@ -16,12 +17,24 @@ var equip_left = [0.0,0.0]
 func open(g) -> void:
 	from = "market" if g.screen=="market" else "home"
 	if g.lab_active:g.leave_lab()
-	page = "collection";age = 0;reveal_sound = false;shake_left = 0
+	page = "collection";fusion_inputs = ["",""];age = 0;reveal_sound = false;shake_left = 0
 	g.change_screen("birds")
 
 func stage(g) -> String:
 	var pending: Dictionary = g.data.get("bird_pending",{})
 	return str(pending.get("stage","reveal" if int(pending.get("taps",0))>=3 else "egg"))
+
+func fusion_choices(g) -> Array:
+	return fusion_inputs if page=="fusion" else Catalog.fusion_pair(g.data,Catalog.IDS[selected])
+
+func open_fusion(g) -> void:
+	page = "fusion";fusion_inputs = Catalog.fusion_pair(g.data,Catalog.IDS[selected])
+
+func choose_fusion(id: String) -> void:
+	var current = fusion_inputs.find(id)
+	if current>=0:fusion_inputs[current] = ""
+	elif str(fusion_inputs[0]).is_empty():fusion_inputs[0] = id
+	else:fusion_inputs[1] = id
 
 func transition(g,value: String) -> bool:
 	var before = g.data.duplicate(true)
@@ -44,8 +57,8 @@ func update(g,dt: float) -> void:
 
 func transaction(g,fusion: bool) -> void:
 	var before = g.data.duplicate(true)
-	var receipt = Catalog.fuse(g.data,Catalog.IDS[selected]) if fusion else Catalog.roll(g.data,g.reward_rng)
-	if receipt.is_empty():g.sound.play("ui_denied");g.show_toast("FUSÃO: DUAS CÓPIAS COM 3 BARRAS" if fusion else "VOCÊ PRECISA DE 30 DIAMANTES.",2);return
+	var receipt = Catalog.fuse(g.data,str(fusion_inputs[0]),str(fusion_inputs[1])) if fusion else Catalog.roll(g.data,g.reward_rng)
+	if receipt.is_empty():g.sound.play("ui_denied");g.show_toast("ESCOLHA DUAS ESPÉCIES DIFERENTES COM 3 BARRAS." if fusion else "VOCÊ PRECISA DE 30 DIAMANTES.",2);return
 	if not g.save_game():g.data = before;g.show_toast("NÃO FOI POSSÍVEL SALVAR. TENTE NOVAMENTE.",3);return
 	age = 0;reveal_sound = false;shake_left = 0
 	g.sound.play("ritual_fill" if fusion else "sewer_gate",-20 if fusion else -25)
@@ -55,7 +68,7 @@ func acknowledge(g) -> bool:
 	var before = g.data.duplicate(true);var pending: Dictionary = g.data.bird_pending.duplicate(true)
 	Catalog.unlock_receipt(g.data);g.data.bird_pending = {}
 	if not g.save_game():g.data = before;return false
-	selected = maxi(0,Catalog.tier(str(pending.get("id",""))));age = 0;return true
+	selected = maxi(0,Catalog.tier(str(pending.get("id",""))));page = "collection";fusion_inputs = ["",""];age = 0;return true
 
 func action(g,value: String) -> bool:
 	if value in ["birds_open","market_tab_4"]:g.sound.play("ui_confirm");open(g);return true
@@ -71,24 +84,30 @@ func action(g,value: String) -> bool:
 		elif value=="bird_done":acknowledge(g)
 		return true
 	if value.begins_with("bird_select_"):
-		selected = clampi(int(value.trim_prefix("bird_select_")),0,4);g.sound.play("ui_confirm");return true
+		selected = clampi(int(value.trim_prefix("bird_select_")),0,4)
+		if page=="fusion" and Catalog.fusion_eligible(g.data,Catalog.IDS[selected]):choose_fusion(Catalog.IDS[selected])
+		g.sound.play("ui_confirm");return true
 	if value.begins_with("bird_equip_"):
 		var slot = int(value.trim_prefix("bird_equip_"));var before = g.data.duplicate(true)
 		if Catalog.equip(g.data,Catalog.IDS[selected],slot):
 			if not g.save_game():g.data = before
 			else:g.sound.play("ui_confirm");equip_left[slot] = .65
-		else:g.sound.play("ui_denied");g.show_toast("REVELE UMA CÓPIA DISPONÍVEL NO OVO.",2)
+		else:
+			g.sound.play("ui_denied")
+			var other = Catalog.equipped_slots(g.data)[1-slot] if slot in [0,1] else ""
+			g.show_toast("ESTA ESPÉCIE JÁ ESTÁ NO OUTRO NINHO." if other==Catalog.IDS[selected] else "REVELE UMA CÓPIA DISPONÍVEL NO OVO.",2)
 		return true
 	match value:
 		"back":g.sound.play("ui_back");g.change_screen(from)
-		"bird_collection":page = "collection";g.sound.play("ui_confirm")
+		"bird_collection":page = "collection";fusion_inputs = ["",""];g.sound.play("ui_confirm")
 		"bird_fusion":
-			page = "collection" if page=="fusion" else "fusion";g.sound.play("ui_confirm")
-			if page=="fusion":
-				for i in range(4):
-					if Catalog.copies(g.data,Catalog.IDS[i])>=6:selected = i;break
+			g.sound.play("ui_confirm")
+			if page=="fusion":page = "collection";fusion_inputs = ["",""]
+			else:open_fusion(g)
 		"bird_draw":transaction(g,false)
-		"bird_fuse":transaction(g,true)
+		"bird_fuse":
+			if page!="fusion":open_fusion(g);g.sound.play("ui_confirm")
+			else:transaction(g,true)
 	return true
 
 func layout(view: Rect2) -> Dictionary:
@@ -125,33 +144,39 @@ func paint(g) -> void:
 	art.draw(c,"header",d.title,Color.WHITE,0,true);label(g,"AVES MALDITAS",d.title.get_center()+Vector2(0,10*s),roundi(30*s),g.GOLD,true,d.title.size.x-28*s)
 	g.hub.wallet(g,d.wallet)
 	art.frame(c,"panel",d.collection)
-	label(g,"COLEÇÃO" if page=="collection" else "CÓPIAS PARA FUSÃO",Vector2(d.collection.get_center().x,d.collection.position.y+35*s),roundi(23*s),g.CREAM,true,d.collection.size.x*.65)
+	label(g,"COLEÇÃO" if page=="collection" else "ESCOLHA DUAS ESPÉCIES",Vector2(d.collection.get_center().x,d.collection.position.y+35*s),roundi(23*s),g.CREAM,true,d.collection.size.x*.65)
 	var y = d.collection.position.y+57*s;var eligible = 0
 	for i in range(5):
 		var id = Catalog.IDS[i];var count = Catalog.copies(g.data,id);var known = Catalog.discovered(g.data,id)
-		if page=="fusion" and (i==4 or count<6):continue
+		if page=="fusion" and not Catalog.fusion_eligible(g.data,id):continue
 		eligible += 1
-		var chosen = selected==i;var h = (103 if chosen else 65)*s
+		var chosen = id in fusion_inputs if page=="fusion" else selected==i
+		var h = (103 if chosen else 65)*s
 		var row = Rect2(d.collection.position.x+14*s,y,d.collection.size.x-28*s,h)
 		art.frame(c,"selected" if chosen else "row",row)
 		var portrait = Rect2(row.position+Vector2(6*s,4*s),Vector2(94*s,h-8*s))
 		if known:art.portrait(c,id,portrait,g.ui_time,chosen)
 		else:art.unknown(c,portrait,g)
-		label(g,Catalog.NAMES[i] if known else "AVE DESCONHECIDA",row.position+Vector2(106*s,(42 if chosen else 29)*s),roundi((24 if known else 20)*s),Catalog.COLORS[i],false,row.size.x-120*s)
+		var name = Catalog.NAMES[i] if known else "AVE DESCONHECIDA"
+		if page=="fusion" and id in fusion_inputs:name = str(fusion_inputs.find(id)+1)+" · "+name
+		label(g,name,row.position+Vector2(106*s,(42 if chosen else 29)*s),roundi((24 if known else 20)*s),Catalog.COLORS[i],false,row.size.x-120*s)
 		var badge = Rect2(row.position+Vector2(105*s,(47 if chosen else 38)*s),Vector2(115*s,(20 if chosen else 22)*s))
 		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),g.CREAM,true,badge.size.x-10*s)
 		if chosen:
 			label(g,SHORT[i] if known else "Abra uma caixa para revelar esta ave.",row.position+Vector2(107*s,82*s),roundi(14*s),g.CREAM,false,maxf(140*s,row.size.x-290*s))
-			var copies_shown = mini(3,maxi(1,ceili(count/3.0)))
+			var copies_shown = 1 if page=="fusion" else mini(3,maxi(1,ceili(count/3.0)))
 			for copy in range(copies_shown):
 				var pos = Vector2(row.end.x-(copies_shown-copy)*61*s-9*s,row.position.y+29*s)
 				if known and count>copy*3:art.portrait(c,id,Rect2(pos,Vector2(51,40)*s),g.ui_time)
 				bars(g,pos+Vector2(4,43)*s,clampi(count-copy*3,0,3),s)
 		else:bars(g,Vector2(row.end.x-69*s,row.position.y+39*s),mini(count,3),s)
 		register(g,row,"bird_select_"+str(i));y += h+6*s
-	if page=="fusion" and eligible==0:
-		label(g,"COMPLETE DUAS CÓPIAS",d.collection.get_center()+Vector2(0,-12*s),roundi(25*s),g.GOLD,true,d.collection.size.x-60*s)
-		label(g,"3/3 + 3/3 da mesma ave liberam a fusão.",d.collection.get_center()+Vector2(0,23*s),roundi(18*s),g.MINT,true,d.collection.size.x-40*s)
+	if page=="fusion":
+		if eligible<2:
+			label(g,"DUAS ESPÉCIES DIFERENTES",d.collection.get_center()+Vector2(0,28*s),roundi(23*s),g.GOLD,true,d.collection.size.x-60*s)
+			label(g,"Cada ave precisa de 3 barras completas.",d.collection.get_center()+Vector2(0,58*s),roundi(18*s),g.MINT,true,d.collection.size.x-40*s)
+			label(g,"Aves lendárias não participam da fusão.",d.collection.get_center()+Vector2(0,87*s),roundi(16*s),g.CREAM,true,d.collection.size.x-40*s)
+		label(g,"Toque nas aves para escolher as entradas 1 e 2.",Vector2(d.collection.get_center().x,d.collection.end.y-15*s),roundi(14*s),g.MINT,true,d.collection.size.x-40*s)
 	paint_eggs(g,d.eggs)
 	for i in range(2):paint_nest(g,d.nests[i],i)
 	paint_fusion(g,d.fusion)
@@ -171,7 +196,7 @@ func paint_eggs(g,rect: Rect2) -> void:
 func paint_nest(g,rect: Rect2,index: int) -> void:
 	var c = g.paint_target;var actual = art.draw(c,"nest",rect)
 	label(g,"NINHO "+str(index+1),actual.position+actual.size*Vector2(.51,.125),roundi(actual.size.y*.071),Color("352033"),true,actual.size.x*.49)
-	var slots: Array = g.data.get("bird_equipped_slots",["",""]);var id = str(slots[index])
+	var slots: Array = Catalog.equipped_slots(g.data);var id = str(slots[index])
 	var occupied = Catalog.available(g.data,id)
 	if occupied:
 		var pop = 1+sin(clampf(float(equip_left[index])/.65,0,1)*PI)*.12
@@ -179,24 +204,28 @@ func paint_nest(g,rect: Rect2,index: int) -> void:
 	for j in range(2):
 		var phase = fposmod(g.ui_time*.30+j*.5,1)
 		c.draw_circle(actual.position+actual.size*Vector2(.087,.52-phase*.17),1.1+phase,Color(.55,1,.88,.5-phase*.35))
-	var choice = Catalog.IDS[selected];var available = Catalog.available(g.data,choice)
+	var choice = Catalog.IDS[selected];var duplicate = slots[1-index]==choice
+	var available = Catalog.available(g.data,choice) and not duplicate
 	var text = "RETIRAR" if occupied and id==choice else "TROCAR" if occupied else "EQUIPAR"
 	var area = Rect2(actual.position+actual.size*Vector2(.265,.805),actual.size*Vector2(.53,.108))
-	button(g,area,text if available else "SELECIONE", "bird_equip_"+str(index),available,roundi(actual.size.y*.066))
+	button(g,area,text if available else "JÁ EQUIPADA" if duplicate else "SELECIONE", "bird_equip_"+str(index),available,roundi(actual.size.y*.066))
 
-func paint_fusion(g,rect: Rect2,input_id: String = "",progress: float = -1) -> void:
+func paint_fusion(g,rect: Rect2,input_ids: Array = [],progress: float = -1) -> void:
 	var c = g.paint_target;var actual = art.draw(c,"fusion",rect,Color.WHITE,0,true)
-	var id = Catalog.IDS[selected] if input_id.is_empty() else input_id
-	var count = Catalog.copies(g.data,id) if input_id.is_empty() else 6
-	var known = Catalog.discovered(g.data,id);var ready = Catalog.tier(id)<4 and count>=6
+	var ids: Array = input_ids if input_ids.size()==2 else fusion_choices(g)
+	var ready = Catalog.can_fuse(g.data,str(ids[0]),str(ids[1]))
 	label(g,"FUSÃO",actual.position+actual.size*Vector2(.50,.105),roundi(actual.size.y*.079),g.CREAM,true,actual.size.x*.29)
 	if progress<0:register(g,Rect2(actual.position,Vector2(actual.size.x,actual.size.y*.18)),"bird_fusion")
 	for i in range(2):
+		var id = str(ids[i]);var count = 3 if progress>=0 and not id.is_empty() else Catalog.copies(g.data,id)
 		var centre = actual.position+actual.size*Vector2(.16 if i==0 else .84,.51)
-		if known and count>i*3:
+		if Catalog.discovered(g.data,id) and count>0:
 			var size = actual.size.y*.40*(1-maxf(0,progress)*.6)
 			art.portrait(c,id,Rect2(centre-Vector2.ONE*size*.5,Vector2.ONE*size),g.ui_time)
-		bars(g,actual.position+actual.size*Vector2(.112 if i==0 else .792,.682),clampi(count-i*3,0,3),actual.size.y/240.0)
+		else:label(g,str(i+1),centre+Vector2(0,actual.size.y*.05),roundi(actual.size.y*.14),g.MINT)
+		bars(g,actual.position+actual.size*Vector2(.112 if i==0 else .792,.682),mini(count,3),actual.size.y/240.0)
+		var name = Catalog.NAMES[Catalog.tier(id)] if id in Catalog.IDS else "ESCOLHA UMA AVE"
+		label(g,name,actual.position+actual.size*Vector2(.16 if i==0 else .84,.785),roundi(actual.size.y*.049),g.MINT,true,actual.size.x*.25)
 	var centre = actual.position+actual.size*Vector2(.5,.49)
 	if progress>=0:
 		for j in range(12):
@@ -207,16 +236,20 @@ func paint_fusion(g,rect: Rect2,input_id: String = "",progress: float = -1) -> v
 				var t = fposmod(g.ui_time*1.3+j*.33,1)
 				var p = centre+Vector2(side*actual.size.x*.29*(1-t),-sin(t*PI)*actual.size.y*.21)
 				c.draw_circle(p,2.5,Color(.5,1,.9,.85))
-	else:label(g,"?",centre+Vector2(0,actual.size.y*.10),roundi(actual.size.y*.34),g.MINT,true,actual.size.x*.24)
+	else:
+		label(g,"?",centre+Vector2(0,actual.size.y*.10),roundi(actual.size.y*.34),g.MINT,true,actual.size.x*.24)
+		if ready:
+			var result = Catalog.tier(Catalog.fusion_result(str(ids[0]),str(ids[1])))
+			label(g,Catalog.RARITIES[result],centre+Vector2(0,actual.size.y*.17),roundi(actual.size.y*.058),Catalog.COLORS[result],true,actual.size.x*.24)
 	var heat = progress if progress>=0 else .10+sin(g.ui_time*.7)*.05
 	var needle = actual.position+actual.size*Vector2(.666,.272)
 	c.draw_line(needle,needle+Vector2.from_angle(-2.8+heat*2.3)*actual.size.y*.07,Color("71333a"),2,true)
-	label(g,"2 CÓPIAS COMPLETAS",actual.position+actual.size*Vector2(.5,.752),roundi(actual.size.y*.059),g.CREAM,true,actual.size.x*.34)
+	label(g,"ESPÉCIES DIFERENTES",actual.position+actual.size*Vector2(.5,.752),roundi(actual.size.y*.059),g.CREAM,true,actual.size.x*.34)
 	var area = Rect2(actual.position+actual.size*Vector2(.325,.783),actual.size*Vector2(.35,.16))
-	label(g,"FUNDINDO..." if progress>=0 else "FUNDIR",area.get_center()+Vector2(0,actual.size.y*.033),roundi(actual.size.y*.102),g.CREAM if ready or progress>=0 else Color("ad9cba"),true,area.size.x-10)
+	label(g,"FUNDINDO..." if progress>=0 else "ESCOLHER AVES" if page!="fusion" else "FUNDIR",area.get_center()+Vector2(0,actual.size.y*.033),roundi(actual.size.y*.102),g.CREAM if ready or progress>=0 or page!="fusion" else Color("ad9cba"),true,area.size.x-10)
 	if progress<0:
-		if ready:register(g,area,"bird_fuse")
-		else:register(g,area,"bird_fusion")
+		if page!="fusion":register(g,area,"bird_fusion")
+		elif ready:register(g,area,"bird_fuse")
 
 func paint_crate(g,rect: Rect2) -> void:
 	var c = g.paint_target;var s = rect.size.y/166.0
@@ -248,7 +281,7 @@ func hatch(g) -> void:
 		label(g,"Uma surpresa está prestes a acordar...",Vector2(centre.x,view.end.y-110*s),roundi(18*s),g.MINT,true,view.size.x-80*s)
 	elif current=="fusion":
 		label(g,"A MALDIÇÃO ESTÁ SE TRANSFORMANDO...",Vector2(centre.x,view.position.y+104*s),roundi(30*s),g.GOLD,true,view.size.x-80*s)
-		paint_fusion(g,Rect2(centre-Vector2(440,155)*s,Vector2(880,380)*s),str(receipt.get("input",Catalog.IDS[maxi(0,index-1)])),clampf(age/FUSION_TIME,0,1))
+		paint_fusion(g,Rect2(centre-Vector2(440,155)*s,Vector2(880,380)*s),receipt.get("inputs",[]),clampf(age/FUSION_TIME,0,1))
 	elif current=="egg":
 		label(g,"OVO • "+Catalog.RARITIES[index],Vector2(centre.x,view.position.y+100*s),roundi(34*s),colour,true,view.size.x-80*s)
 		var pop = .72+.28*(1-exp(-age*8))

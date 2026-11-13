@@ -227,12 +227,25 @@ def build(args):
             env["LIBGL_ALWAYS_SOFTWARE"] = "true"
             aviary_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v170_aviary.gd"], output / "visual-v170.log", env)
             assert "V170_AVIARY " in aviary_visual and '"failures":[]' in aviary_visual and '"rendered":true' in aviary_visual, "Renderização do aviário e livro do APK não confirmada"
+        shutil.copyfile(project / "tests/v171_species.gd", runtime / "tests/v171_species.gd")
+        env["XDG_DATA_HOME"] = str(temporary / "package-v171-user")
+        env["HORDA_VALIDATION_DIR"] = str(output / "preview/v171-headless")
+        species_log = run([engine, "--headless", "--audio-driver", "Dummy", "--path", runtime, "--script", "res://tests/v171_species.gd"], output / "especies-v171.log", env)
+        assert "V171_SPECIES " in species_log and '"failures":[]' in species_log, "Espécies distintas na fusão e equipamento não confirmadas no APK"
+        if shutil.which("xvfb-run"):
+            env["XDG_DATA_HOME"] = str(temporary / "visual-v171-user")
+            env["HORDA_VALIDATION_DIR"] = str(output / "preview/v171")
+            env["LIBGL_ALWAYS_SOFTWARE"] = "true"
+            species_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v171_species.gd"], output / "visual-v171.log", env)
+            assert "V171_SPECIES " in species_visual and '"failures":[]' in species_visual and '"rendered":true' in species_visual, "Seleção visual de duas espécies distintas não confirmada"
         report = {"version": version, "engine": engine_version, "mode": args.mode, "commit": os.environ.get("GITHUB_SHA", "local"), "apk": name, "bytes": apk_path.stat().st_size, "sha256": sha(apk_path), "android": android_info, "layout": layout, "startup_files": len(audit["files"]), "classes": audit["class_count"], "resource_entries": entries, "fresh_source_export": True, "all_game_resources_replaced": True, "source_boot_verified": True, "packaged_boot_verified": True, "physical_device_tested": False, "native_base_sha256": BASE_SHA256}
         report["ui_audio_navigation_verified"] = True
         report["v169_features_verified"] = True
         report["v169_visual_verified"] = shutil.which("xvfb-run") is not None
         report["v170_features_verified"] = True
         report["v170_visual_verified"] = shutil.which("xvfb-run") is not None
+        report["v171_species_verified"] = True
+        report["v171_visual_verified"] = shutil.which("xvfb-run") is not None
         (output / "compilacao.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
         (output / "SHA256SUMS.txt").write_text(f"{report['sha256']}  {name}\n")
         print(json.dumps(report, ensure_ascii=False), flush=True)

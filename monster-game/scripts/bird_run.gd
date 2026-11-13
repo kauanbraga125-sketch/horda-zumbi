@@ -19,14 +19,12 @@ var watched: Dictionary = {}
 var chirp_at = 8.0
 
 func configure(data: Dictionary) -> void:
-	var slots: Array = data.get("bird_equipped_slots",[data.get("bird_equipped",""),""])
-	if str(slots[0]).is_empty() and str(data.get("bird_equipped","")).length()>0: slots = [data.bird_equipped,""]
+	var slots: Array = Catalog.equipped_slots(data)
 	id = str(slots[0]);level = Catalog.level(data,id) if Catalog.available(data,id) else 0
 	companion = null
-	if slots.size()>1 and Catalog.available(data,str(slots[1])) and (slots[0]!=slots[1] or Catalog.copies(data,str(slots[1]))>3):
+	if slots.size()>1 and not str(slots[1]).is_empty() and slots[0]!=slots[1]:
 		companion = load("res://scripts/bird_run.gd").new();companion.slot_index = 1
 		var other = data.duplicate(true);other.bird_equipped_slots = [slots[1],""];other.bird_equipped = slots[1]
-		if slots[0]==slots[1]: other.bird_copies[slots[1]] = maxi(0,Catalog.copies(data,slots[1])-3)
 		companion.configure(other)
 	if level<=0: id = ""
 	watched.clear();chirp_at = 8.0
