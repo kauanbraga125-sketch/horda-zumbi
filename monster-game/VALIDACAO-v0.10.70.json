@@ -30,5 +30,30 @@
     "aviary_sprite_keys_maximum": 24,
     "new_book_image_cache_maximum": 4,
     "new_webp_bytes": 2634450
+  },
+  "regressions": [
+    {
+      "suite": "v169_package",
+      "checks": 51,
+      "failures": 0
+    },
+    {
+      "suite": "v103_codex",
+      "checks": 38,
+      "failures": 0
+    },
+    {
+      "suite": "v103_apk_runtime",
+      "checks": 21,
+      "failures": 0
+    }
+  ],
+  "native_checkpoint": {
+    "pull_request_head": "5e7a1c875254adda87ee53248b74a615c324df3f",
+    "packaged_native_checks": 73,
+    "failures": [],
+    "apk_workflow_run": 43417654605,
+    "complete_source_validation_run": 43417654706,
+    "status": "passed; final publication requires the same checks after visual polish"
   }
 }

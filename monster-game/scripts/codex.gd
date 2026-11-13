@@ -489,7 +489,7 @@ func paint(g) -> void:
 	var v: Rect2 = g.full_rect()
 	font_text(g,"LIVRO DOS MORTOS",v.position+Vector2(44,48),34,g.GOLD,false,v.size.x*0.66,title_font)
 	font_text(g,"Memórias da horda · "+str(total_pages())+" páginas para descobrir",v.position+Vector2(46,77),18,g.MINT,false,v.size.x*0.65)
-	g.hub.wallet(g,Rect2(v.end.x-280,v.position.y+23,236,57))
+	g.hub.wallet(g,Rect2(v.end.x-444,v.position.y+23,400,57))
 	var d := layout(g)
 	var b: Rect2 = d.book
 	g.home_menu.atmosphere.fit(g.paint_target,paper,b,Color(1,1,1,smoothstep(0.15,0.75,amount)))

@@ -34,7 +34,13 @@ func frame(c: Node2D,key: String,rect: Rect2,tint: Color = Color.WHITE) -> void:
 		style.set_texture_margin(SIDE_LEFT,edge);style.set_texture_margin(SIDE_RIGHT,edge)
 		style.set_texture_margin(SIDE_TOP,minf(32,tex.get_height()*.24));style.set_texture_margin(SIDE_BOTTOM,minf(32,tex.get_height()*.24))
 		styles[cache] = style
-	c.draw_style_box(styles[cache],rect)
+	# Scale the nine-patch border with its destination height. Fixed source-pixel
+	# margins otherwise consume short mobile buttons and flatten their centre.
+	var tex: Texture2D = styles[cache].texture
+	var scale = minf(rect.size.x/tex.get_width(),rect.size.y/tex.get_height())
+	c.draw_set_transform(rect.position,0,Vector2.ONE*scale)
+	c.draw_style_box(styles[cache],Rect2(Vector2.ZERO,rect.size/scale))
+	c.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 func portrait(c: Node2D,id: String,rect: Rect2,time: float = 0,active: bool = false,tint: Color = Color.WHITE) -> void:
 	var bob = sin(time*3+float(id.hash()%17))*(2 if active else .55)

@@ -34,8 +34,8 @@
     },
     {
       "path": "res://scripts/aviary_art.gd",
-      "bytes": 4780,
-      "sha256": "744e6dee99113ec36fe96ab9a7e4febbb89a6958dbcc83f1a1f8d553c3ec9df6"
+      "bytes": 5194,
+      "sha256": "40fa8264a51cbfa27b91ec03beb6143ce9c292da22f06bdf915462e1f52723ae"
     },
     {
       "path": "res://scripts/balance.gd",
@@ -59,8 +59,8 @@
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 17132,
-      "sha256": "c7d38f3c82547472ce7e81591bf9eb3e9b51adfcf2c0b2f440f0103772630f86"
+      "bytes": 17070,
+      "sha256": "875c15343300b131fb42e25233e98f3a0953bf13840aaede59551d7c65928266"
     },
     {
       "path": "res://scripts/bonus_director.gd",
@@ -110,7 +110,7 @@
     {
       "path": "res://scripts/codex.gd",
       "bytes": 27991,
-      "sha256": "5b161f3fa92911a53666cdd06b080798d12af7b87c4f1f3e8d2775fc3c264d2e"
+      "sha256": "5985cd2d3db1802537cb2fc675313910a92100d7f7ae0b9999e6b757bbc38ce7"
     },
     {
       "path": "res://scripts/codex_illustration.gdshader",

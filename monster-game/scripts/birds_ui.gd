@@ -10,7 +10,6 @@ var page = "collection"
 var from = "market"
 var age = 0.0
 var reveal_sound = false
-var crack_sound = false
 var shake_left = 0.0
 var equip_left = [0.0,0.0]
 
@@ -48,7 +47,7 @@ func transaction(g,fusion: bool) -> void:
 	var receipt = Catalog.fuse(g.data,Catalog.IDS[selected]) if fusion else Catalog.roll(g.data,g.reward_rng)
 	if receipt.is_empty():g.sound.play("ui_denied");g.show_toast("FUSÃO: DUAS CÓPIAS COM 3 BARRAS" if fusion else "VOCÊ PRECISA DE 30 DIAMANTES.",2);return
 	if not g.save_game():g.data = before;g.show_toast("NÃO FOI POSSÍVEL SALVAR. TENTE NOVAMENTE.",3);return
-	age = 0;reveal_sound = false;crack_sound = false;shake_left = 0
+	age = 0;reveal_sound = false;shake_left = 0
 	g.sound.play("ritual_fill" if fusion else "sewer_gate",-20 if fusion else -25)
 
 func acknowledge(g) -> bool:
@@ -140,7 +139,7 @@ func paint(g) -> void:
 		else:art.unknown(c,portrait,g)
 		label(g,Catalog.NAMES[i] if known else "AVE DESCONHECIDA",row.position+Vector2(106*s,29*s),roundi((24 if known else 20)*s),Catalog.COLORS[i],false,row.size.x-120*s)
 		var badge = Rect2(row.position+Vector2(105*s,38*s),Vector2(115*s,22*s))
-		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),Color("2c1734"),true,badge.size.x-10*s)
+		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),g.CREAM,true,badge.size.x-10*s)
 		if chosen:
 			label(g,SHORT[i] if known else "Abra uma caixa para revelar esta ave.",row.position+Vector2(107*s,86*s),roundi(14*s),g.CREAM,false,maxf(140*s,row.size.x-290*s))
 			var copies_shown = mini(3,maxi(1,ceili(count/3.0)))
@@ -167,7 +166,7 @@ func paint_eggs(g,rect: Rect2) -> void:
 		var cell = Rect2(rect.position+Vector2(15*s+i*width,37*s),Vector2(width,109*s))
 		art.egg(c,i,Rect2(cell.position+Vector2(7*s,0),Vector2(width-14*s,82*s)),g.ui_time)
 		var badge = Rect2(cell.position+Vector2(2*s,86*s),Vector2(width-4*s,23*s))
-		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),Color("2c1734"),true,badge.size.x-8*s)
+		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),g.CREAM,true,badge.size.x-8*s)
 
 func paint_nest(g,rect: Rect2,index: int) -> void:
 	var c = g.paint_target;var actual = art.draw(c,"nest",rect)
@@ -246,12 +245,12 @@ func hatch(g) -> void:
 		for i in range(7):
 			var p = centre+Vector2(sin(i*3.7)*t*210,-sin(t*PI)*110+i*7)*s
 			c.draw_circle(p,2.4*s,Color(.7,.4,.25,(1-t)*.7))
-		label(g,"Uma caixa. Uma surpresa. Sem outra cobrança.",Vector2(centre.x,view.end.y-110*s),roundi(18*s),g.MINT,true,view.size.x-80*s)
+		label(g,"Uma surpresa está prestes a acordar...",Vector2(centre.x,view.end.y-110*s),roundi(18*s),g.MINT,true,view.size.x-80*s)
 	elif current=="fusion":
 		label(g,"A MALDIÇÃO ESTÁ SE TRANSFORMANDO...",Vector2(centre.x,view.position.y+104*s),roundi(30*s),g.GOLD,true,view.size.x-80*s)
 		paint_fusion(g,Rect2(centre-Vector2(440,155)*s,Vector2(880,380)*s),str(receipt.get("input",Catalog.IDS[maxi(0,index-1)])),clampf(age/FUSION_TIME,0,1))
 	elif current=="egg":
-		label(g,"OVO "+Catalog.RARITIES[index],Vector2(centre.x,view.position.y+100*s),roundi(34*s),colour,true,view.size.x-80*s)
+		label(g,"OVO • "+Catalog.RARITIES[index],Vector2(centre.x,view.position.y+100*s),roundi(34*s),colour,true,view.size.x-80*s)
 		var pop = .72+.28*(1-exp(-age*8))
 		var size = Vector2(310,360)*s*pop
 		art.egg(c,index,Rect2(centre-Vector2(size.x*.5,size.y*.5-5*s),size),g.ui_time,shake_left/.24,int(receipt.taps))
