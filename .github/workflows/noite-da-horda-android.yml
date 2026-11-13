@@ -21,6 +21,7 @@ jobs:
           unzip -q /tmp/godot.zip -d /tmp/godot
           chmod +x /tmp/godot/Godot_v4.5.1-stable_linux.x86_64
       - name: Importar fontes sem cache e atualizar auditoria
+        id: import
         run: |
           set -euo pipefail
           /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --path monster-game --editor --import 2>&1 | tee /tmp/import.log
@@ -42,6 +43,7 @@ jobs:
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/${SUITE}.log"; then exit 1; fi
           done
       - name: Conferir saldo e acesso ao espaço na abertura normal
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
         run: |
@@ -51,6 +53,7 @@ jobs:
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/startup-${FIXTURE}.log"; then exit 1; fi
           done
       - name: Conferir recorte real dos ocupantes nas cabines
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
         run: |
@@ -58,6 +61,7 @@ jobs:
           HORDA_VALIDATION_DIR="$RUNNER_TEMP/cabins" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v133_cabins.gd 2>&1 | tee /tmp/cabins.log
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/cabins.log; then exit 1; fi
       - name: Conferir sorteio, fusão, reabertura e controles do esgoto
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
         run: |
@@ -65,6 +69,7 @@ jobs:
           XDG_DATA_HOME="$RUNNER_TEMP/horda-v136-transactions" HORDA_VALIDATION_DIR="$RUNNER_TEMP/transactions-v136" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v169_package.gd 2>&1 | tee /tmp/transactions-v136.log
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/transactions-v136.log; then exit 1; fi
       - name: Conferir todas as poses novas e os 35 acessórios sentados
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
         run: |
@@ -73,6 +78,7 @@ jobs:
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/riders-v138.log; then exit 1; fi
           grep -q 'V140_RIDERS_OK' /tmp/riders-v138.log
       - name: Conferir opacidade dos rostos em todas as poses e acessórios
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
         run: |
@@ -81,6 +87,7 @@ jobs:
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/faces-v140.log; then exit 1; fi
           grep -q '"failures":\[\]' /tmp/faces-v140.log
       - name: Conferir limites reais de cada quadro da enchente
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
         run: |
@@ -89,6 +96,7 @@ jobs:
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/atlas-v140.log; then exit 1; fi
           grep -q 'V140_ATLAS' /tmp/atlas-v140.log
       - name: Conferir fim da rua e queda em três formatos de tela
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
         env:
           LIBGL_ALWAYS_SOFTWARE: "true"
         run: |

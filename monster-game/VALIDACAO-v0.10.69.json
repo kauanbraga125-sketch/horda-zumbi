@@ -64,5 +64,10 @@
     "owner-provided activation and ending cues, trimmed existing scene and civilian cues",
     "short clipped zombie/skeleton emergence with race physics held until ready"
   ],
-  "visual_validation": "Packaged native render check passed 62 checks before final polish; updated screenshots and feature checks remain mandatory before publication."
+  "visual_validation": {
+    "packaged_native_checks": 64,
+    "failures": [],
+    "physical_device_tested": false,
+    "verified_workflow_run": 43338905268
+  }
 }
