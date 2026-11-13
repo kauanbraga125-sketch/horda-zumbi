@@ -1,6 +1,7 @@
 extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
 const Art = preload("res://scripts/bird_art.gd")
+var pipoco = preload("res://scripts/pipoco_power.gd").new()
 var companion
 var slot_index = 0
 var id = ""
@@ -27,6 +28,9 @@ func configure(data: Dictionary) -> void:
 		var other = data.duplicate(true);other.bird_equipped_slots = [slots[1],""];other.bird_equipped = slots[1]
 		companion.configure(other)
 	if level<=0: id = ""
+	pipoco.reset(level)
+	# Warm the action texture during the intro, not on the first spit.
+	if id=="pipoco":Art.spit_texture()
 	watched.clear();chirp_at = 8.0
 	clock = 0;cooldown = 8 if id=="ferrugem" else 2;emotion_left = 0;rescued = false;perfects = 0;attacks = 0;beam_left = 0;warned = Vector2.ZERO
 
@@ -40,6 +44,7 @@ func advance(r,dt: float) -> void:
 		if r.sewer.active: desired.y -= 30
 		point = desired if clock<=dt*1.5 else point.lerp(desired,1-exp(-dt*6))
 	if emotion_left>0 and not watched.is_empty(): warned = Vector2(watched.x,watched.y)
+	if id=="pipoco":pipoco.advance(self,r,dt)
 	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
 	if clock>=chirp_at:
 		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp","bird":id})
@@ -79,9 +84,6 @@ func on_perfect(r) -> void:
 	if companion!=null: companion.on_perfect(r)
 	if id.is_empty(): return
 	perfects += 1;emotion_left = .9
-	if id=="pipoco":
-		r.coins += level
-		r.events.append({"type":"coin","amount":level,"x":point.x,"y":point.y,"bird_bonus":true})
 
 func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
 	if companion!=null and companion.prevent_loss(r,m,_cause): return true
@@ -100,6 +102,7 @@ func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
 func paint(g) -> void:
 	if companion!=null: companion.paint(g)
 	if id.is_empty(): return
+	if id=="pipoco":pipoco.paint(g,self);return
 	var c = g.paint_target
 	if beam_left>0:
 		var color = Catalog.COLORS[Catalog.tier(id)]

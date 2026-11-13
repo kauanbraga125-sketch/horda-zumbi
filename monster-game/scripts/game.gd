@@ -304,6 +304,7 @@ func consume_run_events() -> void :
 		var point = Vector2(float(e.get("x", HordeRun.ANCHOR)), float(e.get("y", HordeRun.FLOOR)))
 		match e.type:
 			"bird_chirp": sound.play("bird_"+str(e.get("bird",runner.bird.id)),-24)
+			"bird_spit": sound.play("bird_pipoco",-20)
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
@@ -323,7 +324,6 @@ func consume_run_events() -> void :
 				perfect_left = 1.8;sound.play("perfect",-13);effects.spark(point,GOLD,18)
 				if runner.space.active: runner.space.visual.notify("PERFECT!",2,1.5)
 				elif runner.sewer.active: runner.sewer.reward_line();runner.sewer.visual.notify("PERFECT! • DISTÂNCIA DA ONDA +")
-				if runner.bird.id=="pipoco": sound.play("bird_pipoco",-22)
 			"field_power": sound.play("perk",-14);show_toast(str(e.title),2.1)
 			"civil_drop": sound.play("creeper_wing",-13)
 			"spectral_guard": sound.play("guard",-13);effects.ring(point,MINT)

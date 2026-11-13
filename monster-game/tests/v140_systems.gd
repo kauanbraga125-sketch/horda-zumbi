@@ -108,7 +108,7 @@ func run() -> void:
 	check(r.active_count()==before-1,"owl does not grant unlimited resurrection")
 	data.bird_copies.pipoco = 2;data.bird_equipped = "pipoco";r.bird.configure(data)
 	var coins = r.coins;r.bird.on_perfect(r)
-	check(r.coins==coins+2,"Pipoco rewards an earnedPerfect according to level")
+	check(r.coins==coins and r.bird.pipoco.until_spit==20,"Pipoco earns coins through timed physical spitting, not Perfect")
 	var rr = HordeRun.new();rr.start_developer("space",4,0,13655);rr.entities.clear();rr.space.begin(rr,true)
 	for i in range(300): rr.advance(DT,false)
 	check(rr.space.phase=="flight","longer connected abduction reaches playable flight")

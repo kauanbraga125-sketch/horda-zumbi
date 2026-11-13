@@ -1,0 +1,77 @@
+{
+  "version": "0.10.72",
+  "base_commit": "a0134b1df72bee8d15b70eff62db1b0b86e1f375",
+  "pipoco_checks": {
+    "checks": 63,
+    "failures": [],
+    "max_coins": 3,
+    "max_sparks": 8,
+    "physical_device_tested": false,
+    "rendered": false
+  },
+  "native_checks": {
+    "checks": 69,
+    "failures": [],
+    "max_coins": 3,
+    "max_sparks": 8,
+    "physical_device_tested": false,
+    "rendered": true
+  },
+  "regressions": [
+    {
+      "suite": "v140_systems",
+      "base_rate_sample": [
+        6081,
+        2472,
+        936,
+        396,
+        115
+      ],
+      "checks": 66,
+      "failures": [],
+      "physical_device_tested": false
+    },
+    {
+      "suite": "v169_package",
+      "checks": 51,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.69"
+    },
+    {
+      "suite": "v170_aviary",
+      "checks": 49,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.70"
+    },
+    {
+      "suite": "v171_species",
+      "checks": 74,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.71"
+    }
+  ],
+  "physical_device_tested": false,
+  "publication_requires": [
+    "full source validation for the same commit",
+    "v172_pipoco against extracted APK resources, headless and native"
+  ],
+  "ability": {
+    "coins_per_cycle": 2,
+    "interval_seconds_by_bars": [
+      24,
+      20,
+      16
+    ],
+    "frames": 8,
+    "max_coins": 12,
+    "max_sparks": 16,
+    "texture_rgba_bytes": 2097152,
+    "credit": "physical contact only; separate from Perfect rows"
+  }
+}

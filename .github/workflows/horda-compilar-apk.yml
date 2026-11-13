@@ -123,6 +123,7 @@ jobs:
           assert r['v169_features_verified'] and r['v169_visual_verified']
           assert r['v170_features_verified'] and r['v170_visual_verified']
           assert r['v171_species_verified'] and r['v171_visual_verified']
+          assert r['v172_pipoco_verified'] and r['v172_visual_verified']
           assert r['fresh_source_export'] and r['all_game_resources_replaced']
           assert r['commit'] == os.environ['GITHUB_SHA']
           tag = 'v' + r['version']
