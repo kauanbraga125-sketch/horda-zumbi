@@ -44,13 +44,13 @@ func run() -> void:
 	check(Catalog.migrate(data).bird_pending.stage=="crate","Opening stage survives migration")
 	data.bird_pending.erase("stage")
 	check(Catalog.migrate(data).bird_pending.stage=="egg","Legacy paid eggs resume directly at the egg")
-	data = fixture();data.bird_copies.pipoco = 6;data.bird_discovered.pipoco = true
-	receipt = Catalog.fuse(data,"pipoco")
-	check(receipt.stage=="fusion" and receipt.input=="pipoco" and Catalog.copies(data,"pipoco")==0,"Fusion consumes six draws and keeps an animation receipt")
+	data = fixture();data.bird_copies = {"pipoco":3,"fiapo":3};data.bird_discovered = {"pipoco":true,"fiapo":true}
+	receipt = Catalog.fuse(data,"pipoco","fiapo")
+	check(receipt.stage=="fusion" and receipt.inputs==["pipoco","fiapo"] and Catalog.copies(data,"pipoco")==0 and Catalog.copies(data,"fiapo")==0,"Fusion consumes two distinct complete species and keeps both inputs")
 	check(Catalog.discovered(data,"pipoco") and not Catalog.available(data,"pipoco"),"Spent source remains known but cannot be equipped")
-	check(Catalog.discovered(data,"fiapo") and Catalog.copies(data,"fiapo")==1,"Fusion grants one real next-rarity copy")
+	check(Catalog.discovered(data,"ferrugem") and Catalog.copies(data,"ferrugem")==1,"Fusion grants one real next-rarity copy")
 	before = data.duplicate(true)
-	check(Catalog.fuse(data,"pipoco").is_empty() and data==before,"Repeated fusion cannot consume copies twice")
+	check(Catalog.fuse(data,"pipoco","fiapo").is_empty() and data==before,"Repeated fusion cannot consume copies twice")
 	data.bird_pending = {};data.bird_copies.barao = 6
 	check(Catalog.fuse(data,"barao").is_empty(),"Legendary birds have no invalid next-tier fusion")
 	var boot = load("res://boot.tscn").instantiate();root.add_child(boot);current_scene = boot
@@ -97,17 +97,17 @@ func run() -> void:
 	check(game.birds_ui.reveal_sound,"Opening voice/sound follows the third crack")
 	game.perform_action("bird_done");check(game.data.bird_pending.is_empty(),"Reveal receipt clears after acknowledgement")
 	check(Catalog.available(game.data,chosen),"Revealed first copy can now be equipped")
-	game.data.bird_copies.pipoco = 6;game.data.bird_discovered.pipoco = true
-	game.birds_ui.selected = 0;game.perform_action("bird_fuse");var after_fusion = game.data.duplicate(true)
+	game.data.bird_copies.pipoco = 3;game.data.bird_copies.fiapo = 3;game.data.bird_discovered.pipoco = true;game.data.bird_discovered.fiapo = true
+	game.birds_ui.selected = 0;game.birds_ui.open_fusion(game);game.perform_action("bird_fuse");var after_fusion = game.data.duplicate(true)
 	game.perform_action("bird_fuse")
 	check(game.data==after_fusion and game.birds_ui.stage(game)=="fusion","Fusion animation blocks a duplicate transaction")
 	await advance(.75);await snap("11_fusion_charge")
 	check(game.save_game("user://v170-fusion.json") and game.read_save("user://v170-fusion.json").bird_pending.stage=="fusion","Fusion animation also resumes from a durable receipt")
 	await advance(1.1);await advance(.8);await snap("12_fusion_revealed")
-	check(game.birds_ui.stage(game)=="reveal" and Catalog.available(game.data,"fiapo"),"Machine completes into the actual next-rarity bird")
-	game.perform_action("bird_done");game.birds_ui.selected = 1;game.perform_action("bird_equip_1")
+	check(game.birds_ui.stage(game)=="reveal" and Catalog.available(game.data,"ferrugem"),"Machine completes into the actual next-rarity bird")
+	game.perform_action("bird_done");game.birds_ui.selected = 2;game.perform_action("bird_equip_1")
 	await snap("13_equipment_nests")
-	check(game.data.bird_equipped_slots[1]=="fiapo" or game.data.bird_equipped_slots[0]=="fiapo","Owned bird can occupy a real equipment machine")
+	check(game.data.bird_equipped_slots[1]=="ferrugem" or game.data.bird_equipped_slots[0]=="ferrugem","Owned bird can occupy a real equipment machine")
 	for i in range(5):
 		game.data.bird_pending = {};Catalog.add_copy(game.data,Catalog.IDS[i],"draw");game.data.bird_pending.stage = "egg";game.birds_ui.age = 1
 		await snap("14_rarity_"+str(i))

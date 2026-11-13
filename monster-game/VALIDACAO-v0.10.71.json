@@ -1,0 +1,45 @@
+{
+  "version": "0.10.71",
+  "base_commit": "d8cb5dba3faa1846a070587f39d567f88e336b04",
+  "species_checks": {
+    "suite": "v171_species",
+    "checks": 74,
+    "failures": [],
+    "rendered": false
+  },
+  "physical_device_tested": false,
+  "publication_requires": [
+    "full source validation for the exact same commit",
+    "v171_species against extracted APK resources, headless and native"
+  ],
+  "rules": [
+    "different species in each equipment slot regardless of surplus copies",
+    "different non-legendary species for fusion, three bars from each",
+    "next rarity above the rarer input",
+    "legacy inventory and already-awarded receipts preserved",
+    "both consumed inputs persisted in the fusion receipt"
+  ],
+  "native_checks": {
+    "suite": "v171_species",
+    "checks": 83,
+    "failures": [],
+    "rendered": true
+  },
+  "regressions": [
+    {
+      "suite": "v140_systems",
+      "checks": 66,
+      "failures": []
+    },
+    {
+      "suite": "v169_package",
+      "checks": 51,
+      "failures": []
+    },
+    {
+      "suite": "v170_aviary",
+      "checks": 49,
+      "failures": []
+    }
+  ]
+}

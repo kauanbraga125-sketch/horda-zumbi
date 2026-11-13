@@ -42,13 +42,14 @@ func run() -> void:
 	for i in range(9): Catalog.add_copy(data,"pipoco","draw");receipt_done(data)
 	check(Catalog.level(data,"pipoco")==3 and data.bird_essence.pipoco==6,"three power levels then six surplus essences")
 	var wallet = int(data.wallet);var pity = int(data.bird_rare_pity)
-	var fusion = Catalog.fuse(data,"pipoco")
-	check(fusion.id=="fiapo" and data.wallet==wallet and Catalog.copies(data,"pipoco")==3,"fusion consumes two complete same-species copies")
+	data.bird_copies.fiapo = 3
+	var fusion = Catalog.fuse(data,"pipoco","fiapo")
+	check(fusion.id=="ferrugem" and data.wallet==wallet and Catalog.copies(data,"pipoco")==6 and Catalog.copies(data,"fiapo")==0,"fusion consumes three bars from each of two distinct species")
 	check(Catalog.level(data,"pipoco")==3 and data.bird_rare_pity==pity,"fusion preserves source power and draw guarantees")
 	once = data.duplicate(true)
-	check(Catalog.fuse(data,"pipoco").is_empty() and data==once,"repeated fusion tap cannot spend twice")
+	check(Catalog.fuse(data,"pipoco","fiapo").is_empty() and data==once,"repeated fusion tap cannot spend twice")
 	receipt_done(data);data.bird_essence.barao = 100
-	check(Catalog.fuse(data,"barao").is_empty(),"legendary has no nonexistent superior rarity")
+	check(Catalog.fuse(data,"barao","pipoco").is_empty(),"legendary has no nonexistent superior rarity")
 	var broken = Catalog.migrate({"bird_copies":[],"bird_essence":false,"bird_equipped":"missing","bird_rare_pity":999,"bird_legend_pity":999,"bird_pending":{"id":"unknown"}})
 	check(broken.bird_copies.is_empty() and broken.bird_equipped.is_empty() and broken.bird_rare_pity==9 and broken.bird_legend_pity==49 and broken.bird_pending.is_empty(),"malformed collection is normalized")
 	var fake = FailedSave.new();fake.data = fresh();fake.reward_rng.seed = 54

@@ -1,5 +1,5 @@
 {
-  "version": "0.10.70",
+  "version": "0.10.71",
   "class_count": 55,
   "files": [
     {
@@ -49,18 +49,18 @@
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 8109,
-      "sha256": "80a296198b16b83c125a73ab823245463c7c274e612ae486f929cdfb5f02cdd1"
+      "bytes": 9974,
+      "sha256": "d0fa9e9b62acc556c3def596f0c616c991e0faf7d76ac7a7bcea5112e9fd7e2d"
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 5395,
-      "sha256": "83f034662daba269d7414d6cd54ce6fcfd163d03c56bcfb4b7199783b6571956"
+      "bytes": 5101,
+      "sha256": "faab7a1e58636c11796210e7c8ade2f4c5e427774925f7673666338f44242619"
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 17130,
-      "sha256": "1338a7f5644e8a8df07c56636e11c96146df7110dad15ba0cda0e60ccdbcc438"
+      "bytes": 19258,
+      "sha256": "e90dadb221bc2db3835a4912f4c281b23d6173e8c292539f3d91213f1b6110fe"
     },
     {
       "path": "res://scripts/bonus_director.gd",

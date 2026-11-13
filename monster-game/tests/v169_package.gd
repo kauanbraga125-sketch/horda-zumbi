@@ -27,12 +27,13 @@ func run() -> void:
 	for i in range(3):Catalog.add_copy(data,"pipoco","draw");data.bird_pending = {}
 	check(Catalog.copies(data,"pipoco")==6,"Six draws represent two complete copies")
 	data.bird_equipped_slots = ["",""];data.bird_equipped = ""
-	check(Catalog.equip(data,"pipoco",0) and Catalog.equip(data,"pipoco",1),"Two separate copies may occupy two equipment slots")
-	var fusion = Catalog.fuse(data,"pipoco")
-	check(fusion.id=="fiapo" and Catalog.copies(data,"pipoco")==0,"Fusion consumes exactly six source draws")
-	check(data.bird_equipped_slots[1]=="" and data.bird_equipped_slots[0]=="fiapo","Fusion removes spent equipment and equips new bird safely")
+	check(Catalog.equip(data,"pipoco",0) and not Catalog.equip(data,"pipoco",1),"Two copies of one species cannot occupy both equipment slots")
+	data.bird_copies.fiapo = 3;Catalog.equip(data,"fiapo",1)
+	var fusion = Catalog.fuse(data,"pipoco","fiapo")
+	check(fusion.id=="ferrugem" and Catalog.copies(data,"pipoco")==3 and Catalog.copies(data,"fiapo")==0,"Fusion consumes exactly three bars from each distinct input")
+	check(data.bird_equipped_slots==["pipoco",""] and Catalog.copies(data,"ferrugem")==1,"Fusion removes spent equipment and preserves the remaining owned bird")
 	before = data.duplicate(true)
-	check(Catalog.fuse(data,"pipoco").is_empty() and data==before,"Repeated fusion action cannot spend twice")
+	check(Catalog.fuse(data,"pipoco","fiapo").is_empty() and data==before,"Repeated fusion action cannot spend twice")
 	data.bird_pending = {};data.bird_copies.barao = 6
 	check(Catalog.fuse(data,"barao").is_empty(),"Highest tier cannot fuse")
 	var migrated = Catalog.migrate(data)
@@ -100,7 +101,7 @@ func run() -> void:
 	game.perform_action("market_tab_4")
 	check(game.screen=="birds","Bird collection is available in market tab")
 	await snap("04_bird_collection")
-	game.birds_ui.page = "fusion";await snap("05_bird_fusion")
+	game.birds_ui.open_fusion(game);await snap("05_bird_fusion")
 	game.data.bird_pending = {};var diamonds = int(game.data.eyes);game.perform_action("bird_draw")
 	check(int(game.data.eyes)==diamonds-30 and game.data.bird_pending.taps==0,"Purchased egg waits for physical taps")
 	await snap("06_egg")

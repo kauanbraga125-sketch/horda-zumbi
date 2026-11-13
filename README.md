@@ -1,12 +1,12 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.70 — Laboratório das Aves Malditas**.
+Versão de testes atual: **0.10.71 — Aves Malditas com espécies distintas**.
 
-- [Baixar o APK Android ARM64 0.10.70](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.70/Horda-Zumbi-v0.10.70-GitHub-TESTE-ARM64.apk)
-- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.70.md)
+- [Baixar o APK Android ARM64 0.10.71](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.71/Horda-Zumbi-v0.10.71-GitHub-TESTE-ARM64.apk)
+- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.71.md)
 - [Código-fonte, sprites e áudios](monster-game/)
 
-O aviário ganhou laboratório ilustrado, duas incubadoras, caixa macabra por 30 diamantes, cinco ovos animados e máquina de fusão. Aves só aparecem depois da revelação. O livro recebeu nove ilustrações e um capítulo de aves, com montagem por fragmentos.
+O aviário ganhou laboratório ilustrado, duas incubadoras, caixa macabra por 30 diamantes, cinco ovos animados e máquina de fusão. Aves só aparecem depois da revelação. Os dois ninhos exigem espécies diferentes; a fusão usa duas espécies distintas com três barras completas em cada uma. O livro recebeu nove ilustrações e um capítulo de aves, com montagem por fragmentos.
 
 Os sons de abrir o mercado e de voltar começam junto da navegação, com o início quase silencioso removido das quatro variações.
 
