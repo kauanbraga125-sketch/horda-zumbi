@@ -145,5 +145,7 @@ func run() -> void:
 	# Let the audio thread release decoder references before engine shutdown.
 	for player in game.sound.get_children():
 		if player is AudioStreamPlayer:player.stop();player.stream = null
-	await create_timer(.15).timeout
+	# Release the scene while the audio/render servers are still alive.
+	game.queue_free();game = null;current_scene = null
+	await process_frame;await process_frame;await create_timer(.25).timeout
 	quit(0 if failures.is_empty() else 1)
