@@ -88,7 +88,7 @@ func items(data: Dictionary) -> Array[Dictionary]:
 			for item in HordeMeta.COSMETICS:
 				if accessory_filter == 2 or int(item.kind) != accessory_filter: continue
 				var owned = item.id in data.cosmetics;var active = item.id in data.get("active_cosmetics", [])
-				result.append({"key":item.id,"name":item.name,"description":"Dê personalidade à sua horda. Colecione, equipe e entre na noite com estilo.","status":"ATIVO NA HORDA" if active else "NA COLEÇÃO" if owned else "EXCLUSIVO · DIAMANTES" if item.currency == "eyes" else "ACESSÓRIO","price":0 if owned else item.price,"currency":item.currency,"active":active,"owned":owned,"full":false,"action":"cosmetic_"+item.id,"illustration":"cosmetic","index":item.icon,"kind":item.kind})
+				result.append({"key":item.id,"name":item.name,"description":"Dê estilo à sua horda. Colecione e equipe!","status":"ATIVO NA HORDA" if active else "NA COLEÇÃO" if owned else "EXCLUSIVO · DIAMANTES" if item.currency == "eyes" else "ACESSÓRIO","price":0 if owned else item.price,"currency":item.currency,"active":active,"owned":owned,"full":false,"action":"cosmetic_"+item.id,"illustration":"cosmetic","index":item.icon,"kind":item.kind})
 		3:
 			var available = HordeMeta.daily_available(data, int(Time.get_unix_time_from_system()))
 			result.append({"key": "daily", "name": "PRESENTE DA MADRUGADA", "description": "5 Diamantes a cada 24 horas. Toque em resgatar quando estiver disponível.", "status": "DISPONÍVEL" if available else "VOLTE EM " + str(ceili((int(data.daily_claim_at) + 86400 - Time.get_unix_time_from_system()) / 3600.0)) + " H", "price": 0, "full": not available, "action": "daily_eyes", "illustration": "eye", "index": 0, "kind": 0})

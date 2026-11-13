@@ -259,8 +259,8 @@
     },
     {
       "path": "res://scripts/market.gd",
-      "bytes": 19613,
-      "sha256": "162ffbdf1e6cbc0e1033ee546a22766986977f9786ec1bc02d9fbcd70cdca218"
+      "bytes": 19579,
+      "sha256": "d879ad409952fecf604ab54d2afe5de112781cdd2c8b1cb67b53bacf7ed31a3c"
     },
     {
       "path": "res://scripts/masked_approved_sprite.gd",
