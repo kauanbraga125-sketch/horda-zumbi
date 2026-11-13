@@ -1,135 +1,269 @@
 extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
-const Art = preload("res://scripts/bird_art.gd")
+const BirdArt = preload("res://scripts/bird_art.gd")
+const CRATE_TIME = 1.15
+const FUSION_TIME = 1.65
+const SHORT = ["Moedas extras nos Perfects","Avisa quando há perigo","Sabota ameaças no caminho","Resgata um membro da horda","Ataca após sequências de Perfects"]
+var art = preload("res://scripts/aviary_art.gd").new()
 var selected = 0
 var page = "collection"
 var from = "market"
 var age = 0.0
 var reveal_sound = false
 var crack_sound = false
+var shake_left = 0.0
+var equip_left = [0.0,0.0]
+
 func open(g) -> void:
 	from = "market" if g.screen=="market" else "home"
-	if g.lab_active: g.leave_lab()
-	page = "collection";age = 0;reveal_sound = false
+	if g.lab_active:g.leave_lab()
+	page = "collection";age = 0;reveal_sound = false;shake_left = 0
 	g.change_screen("birds")
-func update(g,dt: float) -> void:
-	if g.screen!="birds": return
-	age += dt
+
+func stage(g) -> String:
 	var pending: Dictionary = g.data.get("bird_pending",{})
-	if not pending.is_empty() and int(pending.get("taps",0))>=3 and age>=.18 and not reveal_sound:
+	return str(pending.get("stage","reveal" if int(pending.get("taps",0))>=3 else "egg"))
+
+func transition(g,value: String) -> bool:
+	var before = g.data.duplicate(true)
+	g.data.bird_pending.stage = value
+	if value=="reveal":Catalog.unlock_receipt(g.data)
+	if not g.save_game():g.data = before;age = 0;g.show_toast("NÃO FOI POSSÍVEL SALVAR. TENTE NOVAMENTE.",3);return false
+	age = 0;return true
+
+func update(g,dt: float) -> void:
+	if g.screen in ["home","birds","market","developer"]:art.warm_step()
+	if g.screen!="birds":return
+	age += dt;shake_left = maxf(0,shake_left-dt)
+	for i in range(2):equip_left[i] = maxf(0,float(equip_left[i])-dt)
+	var pending: Dictionary = g.data.get("bird_pending",{})
+	if pending.is_empty():return
+	if stage(g)=="crate" and age>=CRATE_TIME:transition(g,"egg")
+	elif stage(g)=="fusion" and age>=FUSION_TIME:transition(g,"reveal")
+	elif stage(g)=="reveal" and age>=.18 and not reveal_sound:
 		reveal_sound = true;g.sound.play("egg_hatch",-14)
+
 func transaction(g,fusion: bool) -> void:
 	var before = g.data.duplicate(true)
 	var receipt = Catalog.fuse(g.data,Catalog.IDS[selected]) if fusion else Catalog.roll(g.data,g.reward_rng)
-	if receipt.is_empty(): g.sound.play("ui_denied");g.show_toast("FUSÃO: DUAS CÓPIAS COM 3 BARRAS" if fusion else "VOCÊ PRECISA DE 30 DIAMANTES.",2);return
-	if not g.save_game(): g.data = before;g.show_toast("NÃO FOI POSSÍVEL SALVAR. TENTE NOVAMENTE.",3);return
-	age = 0;reveal_sound = false;crack_sound = false
-	g.sound.play("ui_confirm",-17)
+	if receipt.is_empty():g.sound.play("ui_denied");g.show_toast("FUSÃO: DUAS CÓPIAS COM 3 BARRAS" if fusion else "VOCÊ PRECISA DE 30 DIAMANTES.",2);return
+	if not g.save_game():g.data = before;g.show_toast("NÃO FOI POSSÍVEL SALVAR. TENTE NOVAMENTE.",3);return
+	age = 0;reveal_sound = false;crack_sound = false;shake_left = 0
+	g.sound.play("ritual_fill" if fusion else "sewer_gate",-20 if fusion else -25)
+
 func acknowledge(g) -> bool:
-	var pending: Dictionary = g.data.bird_pending.duplicate(true)
-	if int(pending.get("taps",0))<3: return false
-	g.data.bird_pending = {}
-	if not g.save_game(): g.data.bird_pending = pending;return false
-	selected = maxi(0,Catalog.tier(str(pending.get("id",""))));age = 0
-	return true
+	if stage(g)!="reveal" or age<.7:return false
+	var before = g.data.duplicate(true);var pending: Dictionary = g.data.bird_pending.duplicate(true)
+	Catalog.unlock_receipt(g.data);g.data.bird_pending = {}
+	if not g.save_game():g.data = before;return false
+	selected = maxi(0,Catalog.tier(str(pending.get("id",""))));age = 0;return true
+
 func action(g,value: String) -> bool:
-	if value in ["birds_open","market_tab_4"]: g.sound.play("ui_confirm");open(g);return true
-	if g.screen!="birds": return false
+	if value in ["birds_open","market_tab_4"]:g.sound.play("ui_confirm");open(g);return true
+	if g.screen!="birds":return false
 	if not g.data.bird_pending.is_empty():
-		if value=="bird_tap" and int(g.data.bird_pending.get("taps",0))<3:
-			var old = int(g.data.bird_pending.get("taps",0));g.data.bird_pending.taps = old+1
-			if not g.save_game(): g.data.bird_pending.taps = old;return true
-			g.sound.play_ui_restart("egg_crack");age = 0
-		elif value=="bird_done" and age>=.7: acknowledge(g)
+		if value=="back":g.sound.play("ui_back");g.change_screen(from);return true
+		if value=="bird_tap" and stage(g)=="egg" and int(g.data.bird_pending.get("taps",0))<3:
+			var before = g.data.duplicate(true)
+			g.data.bird_pending.taps = int(g.data.bird_pending.taps)+1
+			if int(g.data.bird_pending.taps)==3:g.data.bird_pending.stage = "reveal";Catalog.unlock_receipt(g.data)
+			if not g.save_game():g.data = before;return true
+			g.sound.play_ui_restart("egg_crack");age = 0;shake_left = .24
+		elif value=="bird_done":acknowledge(g)
 		return true
 	if value.begins_with("bird_select_"):
 		selected = clampi(int(value.trim_prefix("bird_select_")),0,4);g.sound.play("ui_confirm");return true
 	if value.begins_with("bird_equip_"):
-		var before = g.data.duplicate(true)
-		if Catalog.equip(g.data,Catalog.IDS[selected],int(value.trim_prefix("bird_equip_"))):
-			if not g.save_game(): g.data = before
-			else: g.sound.play("ui_confirm")
-		else: g.sound.play("ui_denied");g.show_toast("ESTA CÓPIA JÁ ESTÁ EQUIPADA.")
+		var slot = int(value.trim_prefix("bird_equip_"));var before = g.data.duplicate(true)
+		if Catalog.equip(g.data,Catalog.IDS[selected],slot):
+			if not g.save_game():g.data = before
+			else:g.sound.play("ui_confirm");equip_left[slot] = .65
+		else:g.sound.play("ui_denied");g.show_toast("REVELE UMA CÓPIA DISPONÍVEL NO OVO.",2)
 		return true
 	match value:
-		"back": g.sound.play("ui_back");g.change_screen(from)
-		"bird_collection": page = "collection";g.sound.play("ui_confirm")
+		"back":g.sound.play("ui_back");g.change_screen(from)
+		"bird_collection":page = "collection";g.sound.play("ui_confirm")
 		"bird_fusion":
-			page = "fusion";g.sound.play("ui_confirm")
-			for i in range(4):
-				if Catalog.copies(g.data,Catalog.IDS[i])>=6: selected = i;break
-		"bird_draw": transaction(g,false)
-		"bird_fuse": transaction(g,true)
+			page = "collection" if page=="fusion" else "fusion";g.sound.play("ui_confirm")
+			if page=="fusion":
+				for i in range(4):
+					if Catalog.copies(g.data,Catalog.IDS[i])>=6:selected = i;break
+		"bird_draw":transaction(g,false)
+		"bird_fuse":transaction(g,true)
 	return true
-func label(g,s: String,p: Vector2,size: int = 22,color: Color = Color("fff1d3"),center: bool = true,width: float = -1) -> void:
-	g.home_menu.label(g,s,p,size,color,center,width)
-func bars(g,p: Vector2,count: int,scale: float = 1.0) -> void:
-	for i in range(3):
-		g.panel(Rect2(p+Vector2(i*16*scale,0),Vector2(12,9)*scale),Color("64e9ee") if i<count else Color("21162f"),Color("927ca8"),3,1,false)
+
+func layout(view: Rect2) -> Dictionary:
+	var s = view.size.y/720.0;var margin = 22*s
+	var left_width = (view.size.x-margin*3)*.54
+	var right = view.position.x+margin+left_width+margin
+	var right_width = view.end.x-margin-right
+	return {"view":view,"scale":s,"collection":Rect2(view.position+Vector2(margin,78*s),Vector2(left_width,454*s)),
+		"eggs":Rect2(view.position+Vector2(margin,550*s),Vector2(left_width,151*s)),
+		"nests":[Rect2(right,view.position.y+66*s,(right_width-10*s)*.5,240*s),Rect2(right+(right_width+10*s)*.5,view.position.y+66*s,(right_width-10*s)*.5,240*s)],
+		"fusion":Rect2(right,view.position.y+310*s,right_width,229*s),"crate":Rect2(right,view.position.y+542*s,right_width,166*s),
+		"back":Rect2(view.position+Vector2(16*s,10*s),Vector2(132*s,48*s)),
+		"title":Rect2(view.position+Vector2(154*s,0),Vector2(left_width-130*s,74*s)),
+		"wallet":Rect2(view.end.x-margin-minf(400*s,right_width),view.position.y+10*s,minf(400*s,right_width),48*s)}
+
+func label(g,value: String,p: Vector2,size: int = 22,colour: Color = Color("fff1d3"),center: bool = true,width: float = -1) -> void:
+	g.home_menu.label(g,value,p,size,colour,center,width)
+
+func register(g,rect: Rect2,value: String) -> void:g.buttons.append({"rect":rect,"action":value})
+
+func button(g,rect: Rect2,value: String,action_name: String,enabled: bool = true,size: int = 21) -> void:
+	art.frame(g.paint_target,"button",rect,Color.WHITE if enabled else Color(.52,.49,.60))
+	label(g,value,rect.get_center()+Vector2(0,size*.34),size,g.CREAM,true,rect.size.x-16)
+	if enabled:register(g,rect,action_name)
+
+func bars(g,p: Vector2,count: int,scale: float = 1) -> void:
+	for i in range(3):g.panel(Rect2(p+Vector2(i*16*scale,0),Vector2(12,9)*scale),Color("64e9ee") if i<count else Color("21162f"),Color("927ca8"),3,1,false)
+
 func paint(g) -> void:
-	if not g.data.get("bird_pending",{}).is_empty(): hatch(g);return
-	var view: Rect2 = g.full_rect();var o = view.position;var right = view.end.x-30
-	g.home_menu.slab(g,Rect2(o+Vector2(28,22),Vector2(view.size.x-56,96)),Color("261b35"),g.GOLD,14,3)
-	label(g,"AVES MALDITAS",o+Vector2(50,66),34,g.GOLD,false,view.size.x-500)
-	label(g,"Complete 3 barras por cópia. Duas cópias completas permitem a fusão.",o+Vector2(50,98),17,g.MINT,false,view.size.x-500)
-	g.hub.wallet(g,Rect2(right-400,o.y+34,390,66))
-	var width = view.size.x-350;var y = o.y+145
-	var eligible = 0
+	if not g.data.get("bird_pending",{}).is_empty():hatch(g);return
+	var d = layout(g.full_rect());var s = float(d.scale);var c = g.paint_target
+	art.draw(c,"background",d.view,Color.WHITE,0,true)
+	button(g,d.back,"‹ VOLTAR","back",true,20*s)
+	art.draw(c,"header",d.title,Color.WHITE,0,true);label(g,"AVES MALDITAS",d.title.get_center()+Vector2(0,10*s),roundi(30*s),g.GOLD,true,d.title.size.x-28*s)
+	g.hub.wallet(g,d.wallet)
+	art.frame(c,"panel",d.collection)
+	label(g,"COLEÇÃO" if page=="collection" else "CÓPIAS PARA FUSÃO",Vector2(d.collection.get_center().x,d.collection.position.y+35*s),roundi(23*s),g.CREAM,true,d.collection.size.x*.65)
+	var y = d.collection.position.y+57*s;var eligible = 0
 	for i in range(5):
-		if page=="fusion" and (i==4 or Catalog.copies(g.data,Catalog.IDS[i])<6):continue
+		var id = Catalog.IDS[i];var count = Catalog.copies(g.data,id);var known = Catalog.discovered(g.data,id)
+		if page=="fusion" and (i==4 or count<6):continue
 		eligible += 1
-		var id = Catalog.IDS[i];var count = Catalog.copies(g.data,id);var chosen = i==selected
-		var h = 150.0 if chosen else 76.0
-		var rect = Rect2(o.x+30,y,width,h)
-		g.home_menu.slab(g,rect,Color("392643") if chosen else Color("251c32"),Catalog.COLORS[i] if chosen else Color("65506e"),11,2)
-		Art.paint(g.paint_target,id,rect.position+Vector2(40,35),65,g.ui_time,"",Color.WHITE if count>0 else Color(.24,.18,.31,1))
-		label(g,Catalog.NAMES[i],rect.position+Vector2(86,28),23,Catalog.COLORS[i],false,width-100)
-		label(g,Catalog.RARITIES[i]+"  •  "+str(count)+" SORTEIOS",rect.position+Vector2(86,53),15,g.MINT,false,width-100)
-		g.home_menu.register(g,rect,"bird_select_"+str(i))
+		var chosen = selected==i;var h = (103 if chosen else 65)*s
+		var row = Rect2(d.collection.position.x+14*s,y,d.collection.size.x-28*s,h)
+		art.frame(c,"selected" if chosen else "row",row)
+		var portrait = Rect2(row.position+Vector2(6*s,4*s),Vector2(94*s,h-8*s))
+		if known:art.portrait(c,id,portrait,g.ui_time,chosen)
+		else:art.unknown(c,portrait,g)
+		label(g,Catalog.NAMES[i] if known else "AVE DESCONHECIDA",row.position+Vector2(106*s,29*s),roundi((24 if known else 20)*s),Catalog.COLORS[i],false,row.size.x-120*s)
+		var badge = Rect2(row.position+Vector2(105*s,38*s),Vector2(115*s,22*s))
+		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),Color("2c1734"),true,badge.size.x-10*s)
 		if chosen:
-			label(g,Catalog.description(i,maxi(1,Catalog.level(g.data,id))),rect.position+Vector2(20,83),16,g.CREAM,false,width-30)
-			for copy in range(mini(5,maxi(1,ceili(count/3.0)))):
-				var pos = rect.position+Vector2(52+copy*85,117)
-				Art.paint(g.paint_target,id,pos,50,g.ui_time,"",Color.WHITE if count>copy*3 else Color(.3,.25,.35,1))
-				bars(g,pos+Vector2(-22,19),clampi(count-copy*3,0,3))
-		y += h+8
+			label(g,SHORT[i] if known else "Abra uma caixa para revelar esta ave.",row.position+Vector2(107*s,86*s),roundi(14*s),g.CREAM,false,maxf(140*s,row.size.x-290*s))
+			var copies_shown = mini(3,maxi(1,ceili(count/3.0)))
+			for copy in range(copies_shown):
+				var pos = Vector2(row.end.x-(copies_shown-copy)*61*s-9*s,row.position.y+29*s)
+				if known and count>copy*3:art.portrait(c,id,Rect2(pos,Vector2(51,45)*s),g.ui_time)
+				bars(g,pos+Vector2(4,48)*s,clampi(count-copy*3,0,3),s)
+		else:bars(g,Vector2(row.end.x-69*s,row.position.y+39*s),mini(count,3),s)
+		register(g,row,"bird_select_"+str(i));y += h+6*s
 	if page=="fusion" and eligible==0:
-		Art.prop(g.paint_target,"fusion",Vector2(o.x+width*.5,o.y+340),180)
-		label(g,"NENHUMA FUSÃO DISPONÍVEL",Vector2(o.x+width*.5,o.y+485),25,g.GOLD,true,width-30)
-		label(g,"Complete duas cópias da mesma ave: 3/3 + 3/3.",Vector2(o.x+width*.5,o.y+522),19,g.MINT,true,width-30)
-	var slots: Array = g.data.get("bird_equipped_slots",[g.data.bird_equipped,""])
+		label(g,"COMPLETE DUAS CÓPIAS",d.collection.get_center()+Vector2(0,-12*s),roundi(25*s),g.GOLD,true,d.collection.size.x-60*s)
+		label(g,"3/3 + 3/3 da mesma ave liberam a fusão.",d.collection.get_center()+Vector2(0,23*s),roundi(18*s),g.MINT,true,d.collection.size.x-40*s)
+	paint_eggs(g,d.eggs)
+	for i in range(2):paint_nest(g,d.nests[i],i)
+	paint_fusion(g,d.fusion)
+	paint_crate(g,d.crate)
+
+func paint_eggs(g,rect: Rect2) -> void:
+	var s = rect.size.y/151.0;var c = g.paint_target
+	art.frame(c,"panel",rect)
+	label(g,"OVOS POR RARIDADE",Vector2(rect.get_center().x,rect.position.y+29*s),roundi(17*s),g.CREAM,true,rect.size.x*.75)
+	var width = (rect.size.x-30*s)/5
+	for i in range(5):
+		var cell = Rect2(rect.position+Vector2(15*s+i*width,37*s),Vector2(width,109*s))
+		art.egg(c,i,Rect2(cell.position+Vector2(7*s,0),Vector2(width-14*s,82*s)),g.ui_time)
+		var badge = Rect2(cell.position+Vector2(2*s,86*s),Vector2(width-4*s,23*s))
+		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),Color("2c1734"),true,badge.size.x-8*s)
+
+func paint_nest(g,rect: Rect2,index: int) -> void:
+	var c = g.paint_target;var actual = art.draw(c,"nest",rect)
+	label(g,"NINHO "+str(index+1),actual.position+actual.size*Vector2(.51,.125),roundi(actual.size.y*.071),Color("352033"),true,actual.size.x*.49)
+	var slots: Array = g.data.get("bird_equipped_slots",["",""]);var id = str(slots[index])
+	var occupied = Catalog.available(g.data,id)
+	if occupied:
+		var pop = 1+sin(clampf(float(equip_left[index])/.65,0,1)*PI)*.12
+		BirdArt.paint(c,id,actual.position+actual.size*Vector2(.53,.53),actual.size.y*.46*pop,g.ui_time)
+	for j in range(2):
+		var phase = fposmod(g.ui_time*.30+j*.5,1)
+		c.draw_circle(actual.position+actual.size*Vector2(.087,.52-phase*.17),1.1+phase,Color(.55,1,.88,.5-phase*.35))
+	var choice = Catalog.IDS[selected];var available = Catalog.available(g.data,choice)
+	var text = "RETIRAR" if occupied and id==choice else "TROCAR" if occupied else "EQUIPAR"
+	var area = Rect2(actual.position+actual.size*Vector2(.265,.805),actual.size*Vector2(.53,.108))
+	button(g,area,text if available else "SELECIONE", "bird_equip_"+str(index),available,roundi(actual.size.y*.066))
+
+func paint_fusion(g,rect: Rect2,input_id: String = "",progress: float = -1) -> void:
+	var c = g.paint_target;var actual = art.draw(c,"fusion",rect,Color.WHITE,0,true)
+	var id = Catalog.IDS[selected] if input_id.is_empty() else input_id
+	var count = Catalog.copies(g.data,id) if input_id.is_empty() else 6
+	var known = Catalog.discovered(g.data,id);var ready = Catalog.tier(id)<4 and count>=6
+	label(g,"FUSÃO",actual.position+actual.size*Vector2(.50,.105),roundi(actual.size.y*.079),g.CREAM,true,actual.size.x*.29)
+	if progress<0:register(g,Rect2(actual.position,Vector2(actual.size.x,actual.size.y*.18)),"bird_fusion")
 	for i in range(2):
-		var box = Rect2(right-258,o.y+149+i*158,258,146)
-		g.home_menu.slab(g,box,Color("30213f"),g.GOLD,12,2)
-		label(g,"COMPANHEIRA "+str(i+1),box.position+Vector2(129,25),17,g.GOLD)
-		if not str(slots[i]).is_empty(): Art.paint(g.paint_target,str(slots[i]),box.position+Vector2(129,75),87,g.ui_time)
-		else: label(g,"VAGA LIVRE",box.position+Vector2(129,77),18,g.MINT)
-		if Catalog.copies(g.data,Catalog.IDS[selected])>0: g.button(Rect2(box.position+Vector2(14,110),Vector2(230,29)),"EQUIPAR / RETIRAR","bird_equip_"+str(i),Color("4c786a"),-2,16)
-	var fusion_ready = selected<4 and Catalog.copies(g.data,Catalog.IDS[selected])>=6
-	g.button(Rect2(right-258,o.y+475,258,55),"FUSÃO" if page!="fusion" else "COLEÇÃO","bird_fusion" if page!="fusion" else "bird_collection",Color("513c67"),-2,23)
-	if page=="fusion":
-		label(g,"DUAS CÓPIAS • 3/3 + 3/3",Vector2(right-129,o.y+557),15,g.MINT,true,260)
-		if fusion_ready: g.button(Rect2(right-258,o.y+575,258,43),"FUNDIR → "+Catalog.NAMES[selected+1],"bird_fuse",Color("4c786a"),-2,18)
-		else: label(g,"NÍVEL MÁXIMO" if selected==4 else "COMPLETE AS DUAS CÓPIAS",Vector2(right-129,o.y+593),15,g.CREAM,true,260)
-	g.button(Rect2(o.x+30,view.end.y-66,190,47),"VOLTAR","back",Color("513c67"),-2,21)
-	g.button(Rect2(right-410,view.end.y-66,410,47),"ABRIR OVO  •  30 DIAMANTES","bird_draw",Color("4c786a"),-2,21)
+		var centre = actual.position+actual.size*Vector2(.16 if i==0 else .84,.51)
+		if known and count>i*3:
+			var size = actual.size.y*.40*(1-maxf(0,progress)*.6)
+			art.portrait(c,id,Rect2(centre-Vector2.ONE*size*.5,Vector2.ONE*size),g.ui_time)
+		bars(g,actual.position+actual.size*Vector2(.112 if i==0 else .792,.682),clampi(count-i*3,0,3),actual.size.y/240.0)
+	var centre = actual.position+actual.size*Vector2(.5,.49)
+	if progress>=0:
+		for j in range(12):
+			var a = g.ui_time*4+j*TAU/12;var radius = actual.size.y*(.04+.19*(1-progress))
+			c.draw_circle(centre+Vector2.from_angle(a)*radius,2+j%3,Color(.55,1,.85,.75))
+		for side in [-1,1]:
+			for j in range(3):
+				var t = fposmod(g.ui_time*1.3+j*.33,1)
+				var p = centre+Vector2(side*actual.size.x*.29*(1-t),-sin(t*PI)*actual.size.y*.21)
+				c.draw_circle(p,2.5,Color(.5,1,.9,.85))
+	else:label(g,"?",centre+Vector2(0,actual.size.y*.10),roundi(actual.size.y*.34),g.MINT,true,actual.size.x*.24)
+	var heat = progress if progress>=0 else .10+sin(g.ui_time*.7)*.05
+	var needle = actual.position+actual.size*Vector2(.666,.272)
+	c.draw_line(needle,needle+Vector2.from_angle(-2.8+heat*2.3)*actual.size.y*.07,Color("71333a"),2,true)
+	label(g,"2 CÓPIAS COMPLETAS",actual.position+actual.size*Vector2(.5,.752),roundi(actual.size.y*.059),g.CREAM,true,actual.size.x*.34)
+	var area = Rect2(actual.position+actual.size*Vector2(.325,.783),actual.size*Vector2(.35,.16))
+	label(g,"FUNDINDO..." if progress>=0 else "FUNDIR",area.get_center()+Vector2(0,actual.size.y*.033),roundi(actual.size.y*.102),g.CREAM if ready or progress>=0 else Color("ad9cba"),true,area.size.x-10)
+	if progress<0:
+		if ready:register(g,area,"bird_fuse")
+		else:register(g,area,"bird_fusion")
+
+func paint_crate(g,rect: Rect2) -> void:
+	var c = g.paint_target;var s = rect.size.y/166.0
+	var box = Rect2(rect.position+Vector2(0,-16*s),Vector2(rect.size.x*.49,rect.size.y+22*s))
+	art.draw(c,"crate_0",box,Color.WHITE,sin(g.ui_time*1.8)*.009)
+	var panel = Rect2(rect.position+Vector2(rect.size.x*.50,13*s),Vector2(rect.size.x*.50,rect.size.y-22*s))
+	art.frame(c,"row",panel)
+	label(g,"CAIXA MALDITA",Vector2(panel.get_center().x,panel.position.y+34*s),roundi(22*s),g.GOLD,true,panel.size.x-15*s)
+	label(g,"Abra e descubra sua ave",Vector2(panel.get_center().x,panel.position.y+59*s),roundi(14*s),g.MINT,true,panel.size.x-14*s)
+	var buy = Rect2(panel.position+Vector2(16*s,76*s),Vector2(panel.size.x-32*s,51*s))
+	art.frame(c,"button",buy,Color.WHITE if int(g.data.eyes)>=30 else Color(.60,.55,.68))
+	g.hub.eye(g,Vector2(buy.get_center().x-26*s,buy.get_center().y),32*s)
+	label(g,"30",buy.get_center()+Vector2(19*s,11*s),roundi(32*s),g.CREAM,true,70*s)
+	register(g,rect,"bird_draw")
+
 func hatch(g) -> void:
-	var receipt: Dictionary = g.data.bird_pending;var taps = int(receipt.get("taps",0));var index = Catalog.tier(str(receipt.id));var color = Catalog.COLORS[index]
-	var view: Rect2 = g.full_rect();var centre = view.get_center();var c = g.paint_target
-	g.buttons.clear();c.draw_rect(view,Color(.055,.028,.10,.98))
-	for i in range(10,0,-1): c.draw_circle(centre,30+i*24,Color(color,.012))
-	if taps<3:
-		label(g,"QUEM ESTÁ AÍ DENTRO?",Vector2(centre.x,view.position.y+100),34,g.GOLD)
-		Art.prop(c,"nest",centre+Vector2(0,160),150)
-		Art.prop(c,"egg" if taps==0 else "egg_crack",centre+Vector2(sin(age*50)*maxf(0,1-age*5)*12,-10),260,sin(age*40)*maxf(0,1-age*5)*.08)
-		label(g,"TOQUE NO OVO  •  %d / 3" % taps,Vector2(centre.x,view.end.y-120),25,g.CREAM)
-		g.home_menu.register(g,Rect2(centre-Vector2(190,200),Vector2(380,390)),"bird_tap")
+	var receipt: Dictionary = g.data.bird_pending;var index = Catalog.tier(str(receipt.id));var colour = Catalog.COLORS[index]
+	var view: Rect2 = g.full_rect();var centre = view.get_center();var c = g.paint_target;var s = view.size.y/720
+	g.buttons.clear();art.draw(c,"background",view,Color(.50,.43,.60),0,true);c.draw_rect(view,Color(.04,.02,.07,.65))
+	var current = stage(g)
+	if current=="crate":
+		label(g,"ABRINDO A CAIXA MALDITA",Vector2(centre.x,view.position.y+100*s),roundi(32*s),g.GOLD,true,view.size.x-80*s)
+		var t = clampf(age/CRATE_TIME,0,1);var frame = mini(3,floori(t*4))
+		art.draw(c,"crate_"+str(frame),Rect2(centre-Vector2(235,160)*s,Vector2(470,390)*s),Color.WHITE,sin(age*45)*.025*(1-t))
+		if t>.68:art.egg(c,index,Rect2(centre-Vector2(70,40+(t-.68)*230)*s,Vector2(140,170)*s),g.ui_time)
+		for i in range(7):
+			var p = centre+Vector2(sin(i*3.7)*t*210,-sin(t*PI)*110+i*7)*s
+			c.draw_circle(p,2.4*s,Color(.7,.4,.25,(1-t)*.7))
+		label(g,"Uma caixa. Uma surpresa. Sem outra cobrança.",Vector2(centre.x,view.end.y-110*s),roundi(18*s),g.MINT,true,view.size.x-80*s)
+	elif current=="fusion":
+		label(g,"A MALDIÇÃO ESTÁ SE TRANSFORMANDO...",Vector2(centre.x,view.position.y+104*s),roundi(30*s),g.GOLD,true,view.size.x-80*s)
+		paint_fusion(g,Rect2(centre-Vector2(440,155)*s,Vector2(880,380)*s),str(receipt.get("input",Catalog.IDS[maxi(0,index-1)])),clampf(age/FUSION_TIME,0,1))
+	elif current=="egg":
+		label(g,"OVO "+Catalog.RARITIES[index],Vector2(centre.x,view.position.y+100*s),roundi(34*s),colour,true,view.size.x-80*s)
+		var pop = .72+.28*(1-exp(-age*8))
+		var size = Vector2(310,360)*s*pop
+		art.egg(c,index,Rect2(centre-Vector2(size.x*.5,size.y*.5-5*s),size),g.ui_time,shake_left/.24,int(receipt.taps))
+		label(g,"TOQUE NO OVO  •  %d / 3" % int(receipt.taps),Vector2(centre.x,view.end.y-115*s),roundi(25*s),g.CREAM,true,view.size.x-80*s)
+		register(g,Rect2(centre-Vector2(205,215)*s,Vector2(410,440)*s),"bird_tap")
 	else:
+		label(g,"FUSÃO CONCLUÍDA!" if receipt.source=="fusion" else "AVE REVELADA!",Vector2(centre.x,view.position.y+95*s),roundi(34*s),colour)
+		label(g,Catalog.NAMES[index],Vector2(centre.x,view.position.y+143*s),roundi(40*s),g.CREAM)
 		var pop = 1+sin(clampf(age/.5,0,1)*PI)*.15
-		Art.prop(c,"egg_open",centre+Vector2(0,130),130)
-		Art.paint(c,str(receipt.id),centre-Vector2(0,20),300*pop,g.ui_time,"ability")
-		label(g,"FUSÃO CONCLUÍDA!" if receipt.source=="fusion" else "AVE REVELADA!",Vector2(centre.x,view.position.y+95),34,color)
-		label(g,Catalog.NAMES[index],Vector2(centre.x,view.position.y+143),40,g.CREAM)
-		bars(g,centre+Vector2(-44,167),posmod(Catalog.copies(g.data,str(receipt.id))-1,3)+1,2)
-		label(g,"CADA SORTEIO PREENCHE UMA BARRA DA CÓPIA",Vector2(centre.x,view.end.y-115),18,g.MINT)
-		if age>=.7:g.button(Rect2(centre.x-150,view.end.y-83,300,52),"CONTINUAR","bird_done",Color("4c786a"),-2,22)
+		if Catalog.discovered(g.data,str(receipt.id)):BirdArt.paint(c,str(receipt.id),centre-Vector2(0,12*s),300*s*pop,g.ui_time,"ability")
+		if receipt.source!="fusion":art.shell(c,index,Rect2(centre-Vector2(135,155)*s,Vector2(270,320)*s),clampf(age/.65,0,1))
+		bars(g,centre+Vector2(-44,172)*s,posmod(Catalog.copies(g.data,str(receipt.id))-1,3)+1,2*s)
+		label(g,"CADA SORTEIO PREENCHE UMA BARRA DA CÓPIA",Vector2(centre.x,view.end.y-115*s),roundi(18*s),g.MINT,true,view.size.x-80*s)
+		if age>=.7:button(g,Rect2(centre.x-150*s,view.end.y-83*s,300*s,52*s),"CONTINUAR","bird_done",true,roundi(22*s))
+	button(g,Rect2(view.position+Vector2(24*s,view.size.y-65*s),Vector2(158,43)*s),"‹ VOLTAR","back",true,roundi(18*s))

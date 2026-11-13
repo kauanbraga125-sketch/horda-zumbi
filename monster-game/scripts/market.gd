@@ -138,7 +138,7 @@ func paint(g) -> void :
 			1: g.scenery.sprite(g, g.home_menu.menu_zombie.face, at, 50)
 			2: g.scenery.sprite(g, sprites.potion, at, 56)
 			3: g.scenery.sprite(g, sprites.church, at, 48)
-			4: preload("res://scripts/bird_art.gd").paint(g.paint_target,"pipoco",at,53,g.ui_time)
+			4: g.birds_ui.art.egg(g.paint_target,0,Rect2(at-Vector2(22,28),Vector2(44,56)),g.ui_time)
 		g.home_menu.label(g, TITLES[i], Vector2(face.position.x + 89, face.get_center().y + 10), 20 if i==4 else 23, g.GOLD if category == i else g.CREAM, false, face.size.x - 105)
 		g.buttons.append({"rect": rect, "action": "market_tab_" + str(i)})
 	var back: Rect2 = d.back

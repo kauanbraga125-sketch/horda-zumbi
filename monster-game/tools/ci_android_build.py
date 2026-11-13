@@ -216,10 +216,23 @@ def build(args):
             env["LIBGL_ALWAYS_SOFTWARE"] = "true"
             visual_log = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v169_package.gd"], output / "visual-v169.log", env)
             assert "V169_PACKAGE " in visual_log and '\"failures\":[]' in visual_log, "Verificação visual 0.10.69 falhou"
+        shutil.copyfile(project / "tests/v170_aviary.gd", runtime / "tests/v170_aviary.gd")
+        env["XDG_DATA_HOME"] = str(temporary / "package-v170-user")
+        env["HORDA_VALIDATION_DIR"] = str(output / "preview/v170-headless")
+        aviary_log = run([engine, "--headless", "--audio-driver", "Dummy", "--path", runtime, "--script", "res://tests/v170_aviary.gd"], output / "aviario-v170.log", env)
+        assert "V170_AVIARY " in aviary_log and '"failures":[]' in aviary_log, "Aviário e livro do APK não confirmados"
+        if shutil.which("xvfb-run"):
+            env["XDG_DATA_HOME"] = str(temporary / "visual-v170-user")
+            env["HORDA_VALIDATION_DIR"] = str(output / "preview/v170")
+            env["LIBGL_ALWAYS_SOFTWARE"] = "true"
+            aviary_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v170_aviary.gd"], output / "visual-v170.log", env)
+            assert "V170_AVIARY " in aviary_visual and '"failures":[]' in aviary_visual and '"rendered":true' in aviary_visual, "Renderização do aviário e livro do APK não confirmada"
         report = {"version": version, "engine": engine_version, "mode": args.mode, "commit": os.environ.get("GITHUB_SHA", "local"), "apk": name, "bytes": apk_path.stat().st_size, "sha256": sha(apk_path), "android": android_info, "layout": layout, "startup_files": len(audit["files"]), "classes": audit["class_count"], "resource_entries": entries, "fresh_source_export": True, "all_game_resources_replaced": True, "source_boot_verified": True, "packaged_boot_verified": True, "physical_device_tested": False, "native_base_sha256": BASE_SHA256}
         report["ui_audio_navigation_verified"] = True
         report["v169_features_verified"] = True
         report["v169_visual_verified"] = shutil.which("xvfb-run") is not None
+        report["v170_features_verified"] = True
+        report["v170_visual_verified"] = shutil.which("xvfb-run") is not None
         (output / "compilacao.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
         (output / "SHA256SUMS.txt").write_text(f"{report['sha256']}  {name}\n")
         print(json.dumps(report, ensure_ascii=False), flush=True)

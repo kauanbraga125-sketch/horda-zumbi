@@ -1,7 +1,7 @@
 class_name HordeCodex
 extends RefCounted
 
-const CHAPTERS = ["MONSTROS", "TRANSFORMAÇÕES", "RELÍQUIAS", "PRESTÍGIO"]
+const CHAPTERS = ["MONSTROS", "TRANSFORMAÇÕES", "RELÍQUIAS", "PRESTÍGIO", "AVES MALDITAS"]
 const INK = Color("392b38")
 const FADED = Color("785d59")
 const LEAF_SIZE = Vector2(400, 440)
@@ -15,6 +15,7 @@ var italic_font: Font = preload("res://assets/fonts/Lora-Italic-Variable.ttf")
 var title_font := FontVariation.new()
 var chapters: Array = []
 var textures: Dictionary = {}
+var book_texture_order: Array[String] = []
 var section := 0
 var spread := 0
 var old_section := 0
@@ -97,6 +98,7 @@ func unlocked(g, entry: Dictionary) -> bool:
 	match str(entry.group):
 		"monster": return int(entry.kind) in g.data.owned
 		"power": return int(entry.kind) in g.data.power_owned
+		"bird": return preload("res://scripts/bird_catalog.gd").discovered(g.data,str(entry.bird_id))
 		_: return int(g.data.player_level) >= level_required(entry)
 
 func open(g, chapter: int = -1) -> void:
@@ -222,6 +224,15 @@ func ornament(g, y: float, color: Color = Color("9f7651")) -> void:
 	g.paint_target.draw_colored_polygon(PackedVector2Array([Vector2(200,y-4),Vector2(204,y),Vector2(200,y+4),Vector2(196,y)]),color)
 
 func art(entry: Dictionary) -> Texture2D:
+	if entry.has("path"):
+		var path = str(entry.path)
+		if not textures.has(path):
+			var image = Image.new()
+			if image.load_webp_from_buffer(FileAccess.get_file_as_bytes(path))!=OK:push_error("Missing book illustration: "+path);return cover
+			textures[path] = ImageTexture.create_from_image(image)
+			book_texture_order.append(path)
+			while book_texture_order.size()>4:textures.erase(book_texture_order.pop_front())
+		return textures[path]
 	var key := str(entry.get("art", "cover"))
 	if key == "cover": return cover
 	if not textures.has(key): textures[key] = load("res://assets/art/codex_v103/"+key+".png")
@@ -256,6 +267,7 @@ func configure_portrait(g, leaf) -> void:
 	var pair: Array = {"zombie":[Vector2(0.62,0.36),Vector2(0.72,0.40)],"skeleton":[Vector2(0.71,0.33),Vector2(0.78,0.34)],"masked":[Vector2(0.55,0.27),Vector2(0.65,0.28)],"fly":[Vector2(0.67,0.49),Vector2(0.81,0.55)]}.get(str(leaf.entry.id),[Vector2(-1,-1),Vector2(-1,-1)])
 	material.set_shader_parameter("eye_a",pair[0])
 	material.set_shader_parameter("eye_b",pair[1])
+	material.set_shader_parameter("eye_c",Vector2(.69,.362) if str(leaf.entry.id)=="bird_agourinho" else Vector2(-1,-1))
 	material.set_shader_parameter("seed",float(leaf.number)*0.91)
 	material.set_shader_parameter("motion",0.003 if str(leaf.entry.id)=="fly" else 0.0013)
 	material.set_shader_parameter("blink_strength",0.75 if str(leaf.entry.id) in ["zombie","skeleton"] else 0.0)
@@ -288,6 +300,11 @@ func fragment_uv(index: int) -> PackedVector2Array:
 	return points
 
 func fragments(g, entry: Dictionary, progress: float, owned: bool) -> void:
+	if str(entry.group)=="bird" and not owned:
+		g.paint_target.draw_circle(Vector2(200,180),81,Color("302433"))
+		g.paint_target.draw_arc(Vector2(200,180),83,0,TAU,40,Color("af8c6a"),2,true)
+		font_text(g,"?",Vector2(200,211),92,Color("9b7d76"),true,180,title_font)
+		return
 	var image := art(entry)
 	var rect := artwork_rect(entry)
 	var hole := PackedVector2Array()
@@ -348,8 +365,9 @@ func paint_leaf(g, leaf) -> void:
 		font_text(g,"Este capítulo continua...",Vector2(200,230),24,FADED,true,370,italic_font)
 		font_text(g,str(leaf.number),Vector2(200,438),16,FADED)
 		return
-	font_text(g,str(entry.name).to_upper(),Vector2(200,30),27,INK,true,378,title_font)
-	font_text(g,str(entry.tag),Vector2(200,55),17,FADED,true,370,italic_font)
+	var hidden_bird: bool = str(entry.group)=="bird" and not leaf.owned
+	font_text(g,"AVE DESCONHECIDA" if hidden_bird else str(entry.name).to_upper(),Vector2(200,30),27,INK,true,378,title_font)
+	font_text(g,"A casca ainda guarda um segredo." if hidden_bird else str(entry.tag),Vector2(200,55),17,FADED,true,370,italic_font)
 	ornament(g,69)
 	if str(entry.group)=="pact":
 		paint_signature(g,leaf)
@@ -370,6 +388,7 @@ func paint_leaf(g, leaf) -> void:
 	font_text(g,str(leaf.number),Vector2(380,438),16,FADED)
 
 func requirement(entry: Dictionary) -> String:
+	if str(entry.get("group",""))=="bird":return "Obtenha esta ave numa Caixa Maldita."
 	var level := level_required(entry)
 	return "Complete missões até o nível "+str(level)+"." if level>0 else "Desbloqueie no Mercado para restaurar."
 
@@ -496,7 +515,7 @@ func paint(g) -> void:
 	if section>0 or spread>0: page_button(g,Rect2(b.position.x-9,b.end.y-58,43,43),-1)
 	if section<chapters.size()-1 or spread<spreads(section)-1: page_button(g,Rect2(b.end.x-34,b.end.y-58,43,43),1)
 	if section==3 and spread==0:
-		var r := Rect2(tabs.position+Vector2(0,306),Vector2(tabs.size.x,45))
+		var r := Rect2(tabs.position+Vector2(0,chapters.size()*72+5),Vector2(tabs.size.x,45))
 		g.home_menu.slab(g,r,Color("46303e"),Color("b88a52"),7,2)
 		font_text(g,"SEU PACTO",r.get_center()+Vector2(0,6),17,g.GOLD,true,r.size.x-10,title_font)
 		g.buttons.append({"rect":r,"action":"codex_pact"})

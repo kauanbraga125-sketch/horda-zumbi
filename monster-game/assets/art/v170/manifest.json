@@ -1,0 +1,520 @@
+{
+  "version": "0.10.70",
+  "generation_mode": "builtin imagegen",
+  "reference_library_id": "libfile_6107bfb9639c8191a5bdd5ff02dfb125",
+  "direction": "Approved purple/gold/cyan laboratory; separate empty machines, four crate frames, five rarity eggs, nine book illustrations.",
+  "runtime_format": "WebP with alpha; lazy portraits and bounded one-sprite-per-frame prewarm",
+  "assets": [
+    {
+      "file": "background.webp",
+      "size": [
+        1600,
+        720
+      ],
+      "bytes": 64062,
+      "sha256": "7185ba288f628a759df4947a52f61ac97aa280299a85ffdcb99c7a72d0f0d8f3",
+      "source_library_id": "libfile_e06b6c3b0a748191bd2d2089b38a9fb3",
+      "source_sha256": "175737ff08de584f320bb1565a382467b00035d965fed3c429b5e8fcdfd3d853",
+      "source_crop": null
+    },
+    {
+      "file": "nest.webp",
+      "size": [
+        720,
+        672
+      ],
+      "bytes": 139332,
+      "sha256": "d4d340de72d43d005b77b69b33f5cefbe7af1aacf458b394430b2f664a4689d0",
+      "source_library_id": "libfile_4c5e3bc07a8481918ef32103751ba9d3",
+      "source_sha256": "266d06d729b4fef632cead81f50da0550a4c7b6fcaac8f647e3a7c1a965382a0",
+      "source_crop": [
+        41,
+        75,
+        1234,
+        1189
+      ]
+    },
+    {
+      "file": "fusion.webp",
+      "size": [
+        1000,
+        487
+      ],
+      "bytes": 152714,
+      "sha256": "080664d1af135d67d40f4c92e2e30000d8d18ef0ae5ce7c9334f51adf19692c8",
+      "source_library_id": "libfile_6702e414bcb881918c7a0f04f27488ac",
+      "source_sha256": "86c2364304bf5c7fe6455d4871684637cec892d8f5efcb7b69e7f94ab94f7394",
+      "source_crop": [
+        10,
+        10,
+        1764,
+        864
+      ]
+    },
+    {
+      "file": "crate_0.webp",
+      "size": [
+        578,
+        533
+      ],
+      "bytes": 77368,
+      "sha256": "5aff31160b5101d45659a85190a713f121ed38fe8238b752947f24a1d44be082",
+      "source_library_id": "libfile_e8490479ad608191b5b1d1b9bff5435a",
+      "source_sha256": "ae917ef98c460a7d95b89f228897a822ea740ce664b526b97d5231e5ddc7f0ad",
+      "source_crop": [
+        16,
+        15,
+        594,
+        548
+      ]
+    },
+    {
+      "file": "crate_1.webp",
+      "size": [
+        578,
+        533
+      ],
+      "bytes": 79560,
+      "sha256": "4862b5d1f3f2d3c31564b423cfa7180e83f40aa0fab5a1d219b2e6673f8d2c61",
+      "source_library_id": "libfile_e8490479ad608191b5b1d1b9bff5435a",
+      "source_sha256": "ae917ef98c460a7d95b89f228897a822ea740ce664b526b97d5231e5ddc7f0ad",
+      "source_crop": [
+        16,
+        15,
+        594,
+        548
+      ]
+    },
+    {
+      "file": "crate_2.webp",
+      "size": [
+        578,
+        533
+      ],
+      "bytes": 92728,
+      "sha256": "540ca4dbd78e49d6160777a0345cb2ef92ff3d2d6dfdc10d530697f3025242b1",
+      "source_library_id": "libfile_e8490479ad608191b5b1d1b9bff5435a",
+      "source_sha256": "ae917ef98c460a7d95b89f228897a822ea740ce664b526b97d5231e5ddc7f0ad",
+      "source_crop": [
+        16,
+        15,
+        594,
+        548
+      ]
+    },
+    {
+      "file": "crate_3.webp",
+      "size": [
+        578,
+        533
+      ],
+      "bytes": 91424,
+      "sha256": "4ce01c95421a3e834a9b9faf7586a5af74007d692e08ac476fd5b65ca61dc39e",
+      "source_library_id": "libfile_e8490479ad608191b5b1d1b9bff5435a",
+      "source_sha256": "ae917ef98c460a7d95b89f228897a822ea740ce664b526b97d5231e5ddc7f0ad",
+      "source_crop": [
+        16,
+        15,
+        594,
+        548
+      ]
+    },
+    {
+      "file": "egg_0.webp",
+      "size": [
+        330,
+        400
+      ],
+      "bytes": 35884,
+      "sha256": "bb9c885c89955ef16092b98b48d1fe7669d4a96b4acd5d6943e3875794c04d87",
+      "source_library_id": "libfile_3403c1967eac8191bba912542ad89c48",
+      "source_sha256": "1d232dec0c42cc66014cc06b06fd5e7a25295535d2b095be6ced0f1e8d062cc2",
+      "source_crop": [
+        77,
+        39,
+        442,
+        482
+      ]
+    },
+    {
+      "file": "egg_1.webp",
+      "size": [
+        360,
+        400
+      ],
+      "bytes": 44550,
+      "sha256": "d0f181766b535fe0999620b5cda59ccb5999f06432fbfe4f4f8a368357f51113",
+      "source_library_id": "libfile_3403c1967eac8191bba912542ad89c48",
+      "source_sha256": "1d232dec0c42cc66014cc06b06fd5e7a25295535d2b095be6ced0f1e8d062cc2",
+      "source_crop": [
+        53,
+        37,
+        459,
+        488
+      ]
+    },
+    {
+      "file": "egg_2.webp",
+      "size": [
+        335,
+        400
+      ],
+      "bytes": 45908,
+      "sha256": "76a27fec88d55a766a4868f9757ff73cd3f0c16d520d6425984573247a9f099c",
+      "source_library_id": "libfile_3403c1967eac8191bba912542ad89c48",
+      "source_sha256": "1d232dec0c42cc66014cc06b06fd5e7a25295535d2b095be6ced0f1e8d062cc2",
+      "source_crop": [
+        61,
+        23,
+        449,
+        486
+      ]
+    },
+    {
+      "file": "egg_3.webp",
+      "size": [
+        382,
+        400
+      ],
+      "bytes": 61446,
+      "sha256": "8bac7c72a279f635775383051610068e74ed7128f28878bc27d1f3d56206e108",
+      "source_library_id": "libfile_3403c1967eac8191bba912542ad89c48",
+      "source_sha256": "1d232dec0c42cc66014cc06b06fd5e7a25295535d2b095be6ced0f1e8d062cc2",
+      "source_crop": [
+        31,
+        14,
+        483,
+        487
+      ]
+    },
+    {
+      "file": "egg_4.webp",
+      "size": [
+        366,
+        400
+      ],
+      "bytes": 60672,
+      "sha256": "d3cf349a7676d60221b5eaa7107d9add9f75fa62540010ddc64889d67f82db86",
+      "source_library_id": "libfile_3403c1967eac8191bba912542ad89c48",
+      "source_sha256": "1d232dec0c42cc66014cc06b06fd5e7a25295535d2b095be6ced0f1e8d062cc2",
+      "source_crop": [
+        35,
+        10,
+        470,
+        486
+      ]
+    },
+    {
+      "file": "gear.webp",
+      "size": [
+        220,
+        220
+      ],
+      "bytes": 20360,
+      "sha256": "60daae06012e7ee5927920020bfb02185380ffb872438e3f3c4e374728aaf4f8",
+      "source_library_id": "libfile_3403c1967eac8191bba912542ad89c48",
+      "source_sha256": "1d232dec0c42cc66014cc06b06fd5e7a25295535d2b095be6ced0f1e8d062cc2",
+      "source_crop": [
+        46,
+        43,
+        464,
+        461
+      ]
+    },
+    {
+      "file": "panel.webp",
+      "size": [
+        582,
+        426
+      ],
+      "bytes": 43472,
+      "sha256": "ac80240877691cd648a3686faa22a4fe7890fb31018f86a30bf776ee5f9b295f",
+      "source_library_id": "libfile_d4efc5b0504881919a8bcdee6da78cfc",
+      "source_sha256": "d5e79982a61a33870ecc244695ecd3b9d12c626dea6316045d813bbed314aaf2",
+      "source_crop": [
+        23,
+        32,
+        605,
+        458
+      ]
+    },
+    {
+      "file": "selected.webp",
+      "size": [
+        604,
+        189
+      ],
+      "bytes": 21216,
+      "sha256": "ca95f0578b907b20cc379556e6fbb6735a848b1893f667323d6007033dc3d326",
+      "source_library_id": "libfile_d4efc5b0504881919a8bcdee6da78cfc",
+      "source_sha256": "d5e79982a61a33870ecc244695ecd3b9d12c626dea6316045d813bbed314aaf2",
+      "source_crop": [
+        7,
+        160,
+        611,
+        349
+      ]
+    },
+    {
+      "file": "row.webp",
+      "size": [
+        585,
+        165
+      ],
+      "bytes": 15522,
+      "sha256": "dc7e8df5c3564ebf595d3127f3597fbfe6d0dea4829e673c13bcf61b8d59dc04",
+      "source_library_id": "libfile_d4efc5b0504881919a8bcdee6da78cfc",
+      "source_sha256": "d5e79982a61a33870ecc244695ecd3b9d12c626dea6316045d813bbed314aaf2",
+      "source_crop": [
+        17,
+        90,
+        602,
+        255
+      ]
+    },
+    {
+      "file": "header.webp",
+      "size": [
+        614,
+        226
+      ],
+      "bytes": 32892,
+      "sha256": "ffccd92c2b5cc784180bbdbdb81714756e263cefc19c7e7c36fda568e90b7fe0",
+      "source_library_id": "libfile_d4efc5b0504881919a8bcdee6da78cfc",
+      "source_sha256": "d5e79982a61a33870ecc244695ecd3b9d12c626dea6316045d813bbed314aaf2",
+      "source_crop": [
+        0,
+        37,
+        614,
+        263
+      ]
+    },
+    {
+      "file": "button.webp",
+      "size": [
+        578,
+        213
+      ],
+      "bytes": 33244,
+      "sha256": "875406a9b68c17ae2b5f6175327445bcc1a018641cc0bb034a26a18935395889",
+      "source_library_id": "libfile_d4efc5b0504881919a8bcdee6da78cfc",
+      "source_sha256": "d5e79982a61a33870ecc244695ecd3b9d12c626dea6316045d813bbed314aaf2",
+      "source_crop": [
+        23,
+        94,
+        601,
+        307
+      ]
+    },
+    {
+      "file": "badge.webp",
+      "size": [
+        503,
+        149
+      ],
+      "bytes": 22668,
+      "sha256": "2a5a792ed0e292dd2da16497b1447ae2f291849047b0e132e6e61f1dba624a62",
+      "source_library_id": "libfile_d4efc5b0504881919a8bcdee6da78cfc",
+      "source_sha256": "d5e79982a61a33870ecc244695ecd3b9d12c626dea6316045d813bbed314aaf2",
+      "source_crop": [
+        50,
+        123,
+        553,
+        272
+      ]
+    },
+    {
+      "file": "book/harvester.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 168574,
+      "sha256": "f2d8bea6ce046ed0c95c2d6901b2b221305fe63143f3a21d61f5270aa32691d8",
+      "source_library_id": "libfile_fed546f66e908191a3624e346f742942",
+      "source_sha256": "b5c7992fc580c442f5b23a88d20a90e4136ac3f2d87cf654a48e2c654d98bca7",
+      "source_crop": null
+    },
+    {
+      "file": "book/spectral.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 156452,
+      "sha256": "4de59d06aeb81ab6ca3806ad6dd51a64477a74ac10901ad972cc8b756d1b847c",
+      "source_library_id": "libfile_0e5998bca7c881918dd72f9bc38d3124",
+      "source_sha256": "b39040fbf2421f0fbad732245946a400338a47fd5544f1e60448c64037cc3238",
+      "source_crop": null
+    },
+    {
+      "file": "book/symbiote.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 105820,
+      "sha256": "6ffa37f80a6f8ead46cc2c550ddfefaaef88537577a31fa1e75f3d9a9a736e9d",
+      "source_library_id": "libfile_2f026a324d1881918ef2bd548497af33",
+      "source_sha256": "87aa637a4e4ab9573659c49779d1dd86729113e8ea1ecea0d16ef01e82c4ca88",
+      "source_crop": null
+    },
+    {
+      "file": "book/orbital.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 147158,
+      "sha256": "8804265f5d1a20a55b38bdbc17d375025070e9e27b8ce025dc3ed7389b7e8dc3",
+      "source_library_id": "libfile_b56de91177c0819186f02075e427aeb5",
+      "source_sha256": "1b4f0e70f711e377f846ea0773a4435e3760fe58f42aa2a196025f06e325575e",
+      "source_crop": null
+    },
+    {
+      "file": "book/pipoco.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 106420,
+      "sha256": "055396fda26a8267d449af0b0a5230b418c9aa31faca3fdd1a50c4ff27fc8773",
+      "source_library_id": "libfile_fd104da4dfa081919a0adfa822eba1a3",
+      "source_sha256": "78b71c0811047b6dc25e0f6f39b1f264b88321ef97f5e4272551dea402ffb4a3",
+      "source_crop": null
+    },
+    {
+      "file": "portrait/pipoco.webp",
+      "size": [
+        290,
+        300
+      ],
+      "bytes": 28692,
+      "sha256": "262cce27bf12f7f6a7ce3bf4e8eee7ae70d2f0c0ebab3af65e56a5d43c2b39d9",
+      "source_library_id": "libfile_fd104da4dfa081919a0adfa822eba1a3",
+      "source_sha256": "78b71c0811047b6dc25e0f6f39b1f264b88321ef97f5e4272551dea402ffb4a3",
+      "source_crop": [
+        210,
+        120,
+        1110,
+        1050
+      ]
+    },
+    {
+      "file": "book/fiapo.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 121260,
+      "sha256": "5633ad79f3f9b76521bdb7f39dcc3e38b17aa78e038f90695b042bcaf535c919",
+      "source_library_id": "libfile_fe027209e1688191bcd202927626dde1",
+      "source_sha256": "b2fe45a7f62f8fc85aa5d0adf2040afed62301dde9d9dc1dac0fba5ce047c98d",
+      "source_crop": null
+    },
+    {
+      "file": "portrait/fiapo.webp",
+      "size": [
+        296,
+        300
+      ],
+      "bytes": 29320,
+      "sha256": "9b2056b7632634e9bfc65ea5bf94dda91688be7b302acc6d4f88a62e3cc4f8f1",
+      "source_library_id": "libfile_fe027209e1688191bcd202927626dde1",
+      "source_sha256": "b2fe45a7f62f8fc85aa5d0adf2040afed62301dde9d9dc1dac0fba5ce047c98d",
+      "source_crop": [
+        400,
+        110,
+        1070,
+        790
+      ]
+    },
+    {
+      "file": "book/ferrugem.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 185640,
+      "sha256": "b6538203296cf1499254d42e163d95d31f57ec85a40d2bc07b4342532524b880",
+      "source_library_id": "libfile_8bc604d670c08191843d0fed7f38f33d",
+      "source_sha256": "16045b7b594c35fc91235a22f792ce65c92c674d765a9522836ad73277c331c6",
+      "source_crop": null
+    },
+    {
+      "file": "portrait/ferrugem.webp",
+      "size": [
+        300,
+        292
+      ],
+      "bytes": 45802,
+      "sha256": "9ec6ec1a0fc33ff693d5b60034bdbf203eaf83604683ce0ea97858b84df1199a",
+      "source_library_id": "libfile_8bc604d670c08191843d0fed7f38f33d",
+      "source_sha256": "16045b7b594c35fc91235a22f792ce65c92c674d765a9522836ad73277c331c6",
+      "source_crop": [
+        360,
+        240,
+        1110,
+        970
+      ]
+    },
+    {
+      "file": "book/agourinho.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 184540,
+      "sha256": "3603c2b6f83951f7ba9ca0857ac7b831cb6816fe1e7dcf9cc7821a0c8206ddd8",
+      "source_library_id": "libfile_48381d22724c8191a02ed852941f1ace",
+      "source_sha256": "70d290bbf87709d2b62fd9a6072146626a94e722360500feac0b7a75cecc1e21",
+      "source_crop": null
+    },
+    {
+      "file": "portrait/agourinho.webp",
+      "size": [
+        296,
+        300
+      ],
+      "bytes": 40684,
+      "sha256": "f3c8b3678123e0e635063433739e5117743ee42bf40aab6359fe7a7313de3fcd",
+      "source_library_id": "libfile_48381d22724c8191a02ed852941f1ace",
+      "source_sha256": "70d290bbf87709d2b62fd9a6072146626a94e722360500feac0b7a75cecc1e21",
+      "source_crop": [
+        350,
+        300,
+        1080,
+        1040
+      ]
+    },
+    {
+      "file": "book/barao.webp",
+      "size": [
+        720,
+        900
+      ],
+      "bytes": 144114,
+      "sha256": "8f61c55c75a5d0398a3004280fc849a3e9f138f1949f1955aa6f9b491b38dd7c",
+      "source_library_id": "libfile_436151099fcc8191b05bb00d9c2b1d06",
+      "source_sha256": "239201cc68c5b701ec5430e420880ea5c709afe5cf037c1f123f896dc3452d6b",
+      "source_crop": null
+    },
+    {
+      "file": "portrait/barao.webp",
+      "size": [
+        296,
+        300
+      ],
+      "bytes": 34952,
+      "sha256": "a316d3f5f25b5046f2cc59e68cf278df07d149e109f8c5fa830a8277ceb38c63",
+      "source_library_id": "libfile_436151099fcc8191b05bb00d9c2b1d06",
+      "source_sha256": "239201cc68c5b701ec5430e420880ea5c709afe5cf037c1f123f896dc3452d6b",
+      "source_crop": [
+        350,
+        70,
+        1080,
+        810
+      ]
+    }
+  ]
+}

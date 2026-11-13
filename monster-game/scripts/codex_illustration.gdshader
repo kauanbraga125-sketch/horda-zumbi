@@ -5,6 +5,7 @@ uniform float seed = 0.0;
 uniform float motion = 0.002;
 uniform vec2 eye_a = vec2(-1.0);
 uniform vec2 eye_b = vec2(-1.0);
+uniform vec2 eye_c = vec2(-1.0);
 uniform vec2 eye_radius = vec2(0.025, 0.018);
 uniform vec4 spirit : source_color = vec4(0.54, 0.97, 0.81, 1.0);
 uniform float eye_light = 0.0;
@@ -18,7 +19,8 @@ void fragment() {
 	vec4 pixel = texture(TEXTURE, uv);
 	float a = exp(-dot((uv-eye_a)/eye_radius,(uv-eye_a)/eye_radius) * 1.8);
 	float b = exp(-dot((uv-eye_b)/eye_radius,(uv-eye_b)/eye_radius) * 1.8);
-	float eyes = clamp(a+b, 0.0, 1.0);
+	float c = exp(-dot((uv-eye_c)/eye_radius,(uv-eye_c)/eye_radius) * 1.8);
+	float eyes = clamp(a+b+c, 0.0, 1.0);
 	float phase = mod(clock, 6.7);
 	float blink = smoothstep(6.20,6.29,phase) * (1.0-smoothstep(6.33,6.46,phase));
 	pixel.rgb *= 1.0-eyes*blink*blink_strength;

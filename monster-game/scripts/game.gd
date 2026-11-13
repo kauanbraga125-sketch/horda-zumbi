@@ -926,7 +926,7 @@ func ground(offset: float = 0) -> void :
 
 func _draw() -> void :
 	paint_target = self;buttons.clear()
-	if screen not in ["run", "pause", "results", "revive", "prepare"]:
+	if screen not in ["run", "pause", "results", "revive", "prepare", "birds"]:
 		backdrop();paint_target.draw_rect(full_rect(), Color(0.035, 0.012, 0.065, 0.045 if screen == "home" else (0.1 if screen == "market" else 0.18)))
 	match screen:
 		"birds": birds_ui.paint(self)

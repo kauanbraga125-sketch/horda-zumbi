@@ -46,6 +46,54 @@
         "lore": "Entrou sozinho na cabine. Era o que dizia o relatório. Saiu com asas e alergia a inseticida.",
         "hint": "O papel vibra com um zumbido vindo do outro lado.",
         "ability": "Solte para subir. Segure para descer."
+      },
+      {
+        "id": "harvester",
+        "name": "Caçador Noturno",
+        "art": "harvester",
+        "path": "res://assets/art/v170/book/harvester.webp",
+        "kind": 5,
+        "group": "power",
+        "tag": "Uma entrega. Nenhuma devolução.",
+        "lore": "O céu também tem seus cobradores. Este prefere trazer passageiros vivos e deixar a horda resolver o restante.",
+        "hint": "As bordas do papel tremem como asas.",
+        "ability": "Traz civis para a horda capturar."
+      },
+      {
+        "id": "spectral",
+        "name": "Manto Espectral",
+        "art": "spectral",
+        "path": "res://assets/art/v170/book/spectral.webp",
+        "kind": 6,
+        "group": "power",
+        "tag": "Ele se recusa a dizer adeus.",
+        "lore": "Um espectro encontrou uma nova ocupação: impedir despedidas precipitadas. Até a paciência do além tem limites.",
+        "hint": "Uma névoa fria escapa pelas emendas.",
+        "ability": "Absorve dois impactos; evite os buracos."
+      },
+      {
+        "id": "symbiote",
+        "name": "Simbionte Cósmico",
+        "art": "symbiote",
+        "path": "res://assets/art/v170/book/symbiote.webp",
+        "kind": 7,
+        "group": "power",
+        "tag": "O passageiro não estava na lista.",
+        "lore": "Chegou agarrado a uma nave. Agora reclama do cardápio terrestre e testa suas garras em tudo que passa.",
+        "hint": "Uma gota verde corrói o pergaminho.",
+        "ability": "Ácido e garras contra ameaças no espaço."
+      },
+      {
+        "id": "orbital",
+        "name": "Escudo Orbital",
+        "art": "orbital",
+        "path": "res://assets/art/v170/book/orbital.webp",
+        "kind": 8,
+        "group": "power",
+        "tag": "A melhor defesa vem com parafusos.",
+        "lore": "Alguém ligou um gerador antigo a uma caveira. Funcionou tão bem que ninguém teve coragem de perguntar como.",
+        "hint": "Três luzes azuis acendem sob a página.",
+        "ability": "Três proteções contra disparos no espaço."
       }
     ],
     [
@@ -144,6 +192,68 @@
         "lore": "As relíquias despertaram o livro. Deixe seu nome e sua marca: esta história também é sua.",
         "hint": "Faltam relíquias para que esta página desperte.",
         "ability": "Reúna as quatro relíquias e alcance o nível 75."
+      }
+    ],
+    [
+      {
+        "id": "bird_pipoco",
+        "bird_id": "pipoco",
+        "name": "Pipoco",
+        "art": "bird_pipoco",
+        "path": "res://assets/art/v170/book/pipoco.webp",
+        "group": "bird",
+        "tag": "Uma barriga enorme. Uma fome maior.",
+        "lore": "Nunca perde uma fileira de moedas de vista. Diz que está treinando a pontaria, mas todos conhecem sua fome.",
+        "hint": "O pergaminho aguarda a ave que ainda dorme dentro de uma Caixa Maldita.",
+        "ability": "Moedas extras ao completar fileiras."
+      },
+      {
+        "id": "bird_fiapo",
+        "bird_id": "fiapo",
+        "name": "Fiapo",
+        "art": "bird_fiapo",
+        "path": "res://assets/art/v170/book/fiapo.webp",
+        "group": "bird",
+        "tag": "O perigo chegou. Ele já sabia.",
+        "lore": "Seu pescoço estica antes mesmo do susto. O problema é convencer o resto da horda a prestar atenção.",
+        "hint": "O pergaminho aguarda a ave que ainda dorme dentro de uma Caixa Maldita.",
+        "ability": "Avisa quando uma ameaça se aproxima."
+      },
+      {
+        "id": "bird_ferrugem",
+        "bird_id": "ferrugem",
+        "name": "Ferrugem",
+        "art": "bird_ferrugem",
+        "path": "res://assets/art/v170/book/ferrugem.webp",
+        "group": "bird",
+        "tag": "Metade corvo. Metade sucata.",
+        "lore": "Troca penas por peças e abraços por parafusos. Desmontar ameaças é seu passatempo e seu mau humor favorito.",
+        "hint": "O pergaminho aguarda a ave que ainda dorme dentro de uma Caixa Maldita.",
+        "ability": "Sabota veículos e ameaças."
+      },
+      {
+        "id": "bird_agourinho",
+        "bird_id": "agourinho",
+        "name": "Agourinho",
+        "art": "bird_agourinho",
+        "path": "res://assets/art/v170/book/agourinho.webp",
+        "group": "bird",
+        "tag": "Três olhos. Um segredo.",
+        "lore": "Enxerga coisas que ainda não aconteceram. Quando um companheiro cai, costuma buscar uma segunda versão da história.",
+        "hint": "O pergaminho aguarda a ave que ainda dorme dentro de uma Caixa Maldita.",
+        "ability": "Resgata um membro perdido da horda."
+      },
+      {
+        "id": "bird_barao",
+        "bird_id": "barao",
+        "name": "Barão Goela",
+        "art": "bird_barao",
+        "path": "res://assets/art/v170/book/barao.webp",
+        "group": "bird",
+        "tag": "Sua excelência exige espaço.",
+        "lore": "A cartola é pequena; a ambição, imensa. Só participa da confusão quando a sequência de Perfects merece aplausos.",
+        "hint": "O pergaminho aguarda a ave que ainda dorme dentro de uma Caixa Maldita.",
+        "ability": "Avança após sequências de Perfects."
       }
     ]
   ]
