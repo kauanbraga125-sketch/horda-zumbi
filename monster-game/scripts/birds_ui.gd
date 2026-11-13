@@ -137,16 +137,16 @@ func paint(g) -> void:
 		var portrait = Rect2(row.position+Vector2(6*s,4*s),Vector2(94*s,h-8*s))
 		if known:art.portrait(c,id,portrait,g.ui_time,chosen)
 		else:art.unknown(c,portrait,g)
-		label(g,Catalog.NAMES[i] if known else "AVE DESCONHECIDA",row.position+Vector2(106*s,29*s),roundi((24 if known else 20)*s),Catalog.COLORS[i],false,row.size.x-120*s)
-		var badge = Rect2(row.position+Vector2(105*s,38*s),Vector2(115*s,22*s))
+		label(g,Catalog.NAMES[i] if known else "AVE DESCONHECIDA",row.position+Vector2(106*s,(42 if chosen else 29)*s),roundi((24 if known else 20)*s),Catalog.COLORS[i],false,row.size.x-120*s)
+		var badge = Rect2(row.position+Vector2(105*s,(47 if chosen else 38)*s),Vector2(115*s,(20 if chosen else 22)*s))
 		art.draw(c,"badge",badge,Catalog.COLORS[i],0,true);label(g,Catalog.RARITIES[i],badge.get_center()+Vector2(0,5*s),roundi(13*s),g.CREAM,true,badge.size.x-10*s)
 		if chosen:
-			label(g,SHORT[i] if known else "Abra uma caixa para revelar esta ave.",row.position+Vector2(107*s,86*s),roundi(14*s),g.CREAM,false,maxf(140*s,row.size.x-290*s))
+			label(g,SHORT[i] if known else "Abra uma caixa para revelar esta ave.",row.position+Vector2(107*s,82*s),roundi(14*s),g.CREAM,false,maxf(140*s,row.size.x-290*s))
 			var copies_shown = mini(3,maxi(1,ceili(count/3.0)))
 			for copy in range(copies_shown):
 				var pos = Vector2(row.end.x-(copies_shown-copy)*61*s-9*s,row.position.y+29*s)
-				if known and count>copy*3:art.portrait(c,id,Rect2(pos,Vector2(51,45)*s),g.ui_time)
-				bars(g,pos+Vector2(4,48)*s,clampi(count-copy*3,0,3),s)
+				if known and count>copy*3:art.portrait(c,id,Rect2(pos,Vector2(51,40)*s),g.ui_time)
+				bars(g,pos+Vector2(4,43)*s,clampi(count-copy*3,0,3),s)
 		else:bars(g,Vector2(row.end.x-69*s,row.position.y+39*s),mini(count,3),s)
 		register(g,row,"bird_select_"+str(i));y += h+6*s
 	if page=="fusion" and eligible==0:

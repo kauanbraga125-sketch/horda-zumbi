@@ -49,11 +49,11 @@
     }
   ],
   "native_checkpoint": {
-    "pull_request_head": "5e7a1c875254adda87ee53248b74a615c324df3f",
+    "pull_request_head": "e34ac9c74a14471b7972a5f45a5ca35cb498c187",
     "packaged_native_checks": 73,
     "failures": [],
-    "apk_workflow_run": 43417654605,
-    "complete_source_validation_run": 43417654706,
-    "status": "passed; final publication requires the same checks after visual polish"
+    "apk_workflow_run": 43418939789,
+    "complete_source_validation_run": 43418940045,
+    "status": "passed; final publication requires the same checks including final text padding"
   }
 }

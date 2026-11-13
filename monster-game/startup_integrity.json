@@ -59,8 +59,8 @@
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 17070,
-      "sha256": "875c15343300b131fb42e25233e98f3a0953bf13840aaede59551d7c65928266"
+      "bytes": 17130,
+      "sha256": "1338a7f5644e8a8df07c56636e11c96146df7110dad15ba0cda0e60ccdbcc438"
     },
     {
       "path": "res://scripts/bonus_director.gd",
