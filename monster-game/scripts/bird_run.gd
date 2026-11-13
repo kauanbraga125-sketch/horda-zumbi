@@ -2,6 +2,7 @@ extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
 const Art = preload("res://scripts/bird_art.gd")
 var pipoco = preload("res://scripts/pipoco_power.gd").new()
+var fiapo = preload("res://scripts/fiapo_power.gd").new()
 var companion
 var slot_index = 0
 var id = ""
@@ -29,6 +30,7 @@ func configure(data: Dictionary) -> void:
 		companion.configure(other)
 	if level<=0: id = ""
 	pipoco.reset(level)
+	fiapo.reset(level)
 	# Warm the action texture during the intro, not on the first spit.
 	if id=="pipoco":Art.spit_texture()
 	watched.clear();chirp_at = 8.0
@@ -45,15 +47,11 @@ func advance(r,dt: float) -> void:
 		point = desired if clock<=dt*1.5 else point.lerp(desired,1-exp(-dt*6))
 	if emotion_left>0 and not watched.is_empty(): warned = Vector2(watched.x,watched.y)
 	if id=="pipoco":pipoco.advance(self,r,dt)
+	if id=="fiapo":fiapo.advance(self,r,dt)
 	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
 	if clock>=chirp_at:
 		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp","bird":id})
-	if id=="fiapo" and cooldown<=0:
-		var e = find_target(r)
-		if not e.is_empty():
-			watched = e;warned = Vector2(e.x,e.y);emotion_left = 1.4;cooldown = 22-(level-1)*4
-			r.events.append({"type":"bird_warn","x":e.x,"y":e.y})
-	elif id=="ferrugem" and cooldown<=0:
+	if id=="ferrugem" and cooldown<=0:
 		if attack(r): cooldown = 30-(level-1)*4
 	elif id=="barao" and perfects>=6-level and attacks<3 and cooldown<=0:
 		if attack(r): perfects = 0;attacks += 1;cooldown = 12
@@ -103,6 +101,7 @@ func paint(g) -> void:
 	if companion!=null: companion.paint(g)
 	if id.is_empty(): return
 	if id=="pipoco":pipoco.paint(g,self);return
+	if id=="fiapo":fiapo.paint(g,self);return
 	var c = g.paint_target
 	if beam_left>0:
 		var color = Catalog.COLORS[Catalog.tier(id)]

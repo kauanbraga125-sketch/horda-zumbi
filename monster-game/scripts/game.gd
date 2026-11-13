@@ -305,6 +305,8 @@ func consume_run_events() -> void :
 		match e.type:
 			"bird_chirp": sound.play("bird_"+str(e.get("bird",runner.bird.id)),-24)
 			"bird_spit": sound.play("bird_pipoco",-20)
+			"bird_fetch": sound.play("bird_fiapo",-22)
+			"bird_fetch_grab": sound.play("creeper_wing",-27)
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
@@ -1694,7 +1696,7 @@ func draw_fuse(point: Vector2, time: float) -> void :
 func draw_civilian(entity: Dictionary) -> void :
 	if entity.kind == "soldier": runner.soldier.paint(paint_target, entity);return
 	var visual_foot = Vector2(entity.x, entity.y)
-	var angle = 0.0
+	var angle = float(entity.get("bird_angle",0.0))
 	var capture_tint = Color.WHITE
 	if entity.kind in ["civilian", "police"] and entity.state == "capture":
 		var civil_height = HordePoliceSprite.HEIGHT if entity.kind == "police" else float(MonsterCatalog.CIVILIANS[clampi(int(entity.variant), 0, 2)].height)

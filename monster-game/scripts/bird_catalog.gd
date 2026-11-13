@@ -6,7 +6,7 @@ const COLORS = [Color("9ce4aa"),Color("71ded5"),Color("79b8ff"),Color("c994ff"),
 const WEIGHTS = [60.0,25.0,10.0,4.0,1.0]
 const NAMES = ["PIPOCO","FIAPO","FERRUGEM","AGOURINHO","BARÃO GOELA"]
 const PERSONALITIES = ["Uma barriga enorme. Uma fome maior ainda.","Magrelo, medroso e sempre vendo perigo.","Metade corvo. Metade sucata. Inteiro mau humor.","Três olhos. Um segredo. Nenhum pio normal.","Sua excelência exige espaço para a barriga."]
-const HINTS = ["Enche as bochechas antes de cuspir um pequeno tesouro.","O pescoço estica quando o perigo se aproxima.","Está sempre procurando algo para desmontar.","Não gosta de despedidas definitivas.","Só faz uma entrada triunfal depois de bons saltos."]
+const HINTS = ["Enche as bochechas antes de cuspir um pequeno tesouro.","Perninhas finas, garras firmes. Volta sempre com companhia.","Está sempre procurando algo para desmontar.","Não gosta de despedidas definitivas.","Só faz uma entrada triunfal depois de bons saltos."]
 const PRICE = 30
 const FUSION_PRICE = 0
 const ESSENCE_NEEDED = 6
@@ -179,7 +179,7 @@ static func description(index: int,lv: int) -> String:
 	var n = clampi(lv,1,3)
 	match index:
 		0: return "Cospe 2 moedas a cada %d s. Pegue-as durante a corrida!" % [24-(n-1)*4]
-		1: return "Anuncia uma ameaça a cada %d s. Você ainda precisa desviar." % [22-(n-1)*4]
+		1: return "Busca um civil a cada %d s, carrega e solta sobre a horda para capturá-lo." % [28-(n-1)*4]
 		2: return "Sabota uma ameaça a cada %d s. Naves e veículos ficam mais fracos." % [30-(n-1)*4]
 		3: return "Resgata um membro por partida e o protege por %.1f s. Funciona nos três cenários." % [1.0+(n-1)*.5]
 		4: return "A cada %d Perfects, avança contra uma ameaça. Até três ataques por partida." % [6-n]
