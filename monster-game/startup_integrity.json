@@ -54,8 +54,8 @@
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 8460,
-      "sha256": "09915dbffb15f61861caa2a4956b7f219db3e543a01fa1c55e888dfc48446529"
+      "bytes": 8475,
+      "sha256": "de483b2980fdde342e8eb9850dd1d7de243c7fe3f3ec1c7a0e713f197d2f3877"
     },
     {
       "path": "res://scripts/bonus_director.gd",
@@ -214,8 +214,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 132711,
-      "sha256": "d80e911c8e0189470922844a952dfbbb7490e53025a5167b5a567cbd62765a21"
+      "bytes": 132729,
+      "sha256": "10017045c3beef265c9131c42d792a4c0967727c04e7eda676751f0c60f1b0af"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -259,8 +259,8 @@
     },
     {
       "path": "res://scripts/market.gd",
-      "bytes": 19434,
-      "sha256": "9f935a8e5030704052d31d152e2de73fb5fe81992de34473d0be0f9b9b152a1b"
+      "bytes": 19613,
+      "sha256": "162ffbdf1e6cbc0e1033ee546a22766986977f9786ec1bc02d9fbcd70cdca218"
     },
     {
       "path": "res://scripts/masked_approved_sprite.gd",

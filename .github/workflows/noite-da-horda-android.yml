@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
     paths: ['monster-game/**', '.github/workflows/noite-da-horda-android.yml']
+  pull_request:
+    paths: ['monster-game/**', '.github/workflows/noite-da-horda-android.yml']
   workflow_dispatch:
 permissions:
   contents: read

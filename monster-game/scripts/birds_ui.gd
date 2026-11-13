@@ -130,6 +130,6 @@ func hatch(g) -> void:
 		Art.paint(c,str(receipt.id),centre-Vector2(0,20),300*pop,g.ui_time,"ability")
 		label(g,"FUSÃO CONCLUÍDA!" if receipt.source=="fusion" else "AVE REVELADA!",Vector2(centre.x,view.position.y+95),34,color)
 		label(g,Catalog.NAMES[index],Vector2(centre.x,view.position.y+143),40,g.CREAM)
-		bars(g,centre+Vector2(-44,167),Catalog.level(g.data,str(receipt.id)),2)
+		bars(g,centre+Vector2(-44,167),posmod(Catalog.copies(g.data,str(receipt.id))-1,3)+1,2)
 		label(g,"CADA SORTEIO PREENCHE UMA BARRA DA CÓPIA",Vector2(centre.x,view.end.y-115),18,g.MINT)
 		if age>=.7:g.button(Rect2(centre.x-150,view.end.y-83,300,52),"CONTINUAR","bird_done",Color("4c786a"),-2,22)

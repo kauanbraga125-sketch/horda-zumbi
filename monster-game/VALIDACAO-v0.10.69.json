@@ -2,7 +2,7 @@
   "version": "0.10.69",
   "base_commit": "c7a167cd8670a76b41c5e79478e80856f0a4a54f",
   "feature_checks": {
-    "checks": 49,
+    "checks": 51,
     "failures": [],
     "physical_device_tested": false,
     "rendered": false,
@@ -64,5 +64,5 @@
     "owner-provided activation and ending cues, trimmed existing scene and civilian cues",
     "short clipped zombie/skeleton emergence with race physics held until ready"
   ],
-  "visual_validation": "Rendered package screenshots and checks are mandatory in the APK workflow before publication."
+  "visual_validation": "Packaged native render check passed 62 checks before final polish; updated screenshots and feature checks remain mandatory before publication."
 }

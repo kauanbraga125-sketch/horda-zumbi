@@ -291,6 +291,7 @@ func start_run() -> void :
 	end_delay = -1
 	toast_left = 0
 	last_save = 0
+	perfect_left = 0
 	intro_left = 1.5
 	sound.play("heavy_land",-23)
 	change_screen("run")

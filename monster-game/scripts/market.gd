@@ -273,7 +273,9 @@ func paint_rows(g) -> void :
 		var text_width = rect.end.x - text_x - 18
 		var title_size = int(clampf(rect.size.x * 0.056, 21, 29))
 		g.home_menu.label(g, item.name, Vector2(text_x, rect.position.y + 42), title_size, g.CREAM, false, text_width, false, 3)
-		wrapped(g, item.description, Vector2(text_x + 1, rect.position.y + 78), text_width - 2, int(clampf(rect.size.x * 0.036, 17, 20)), 3)
+		var description_size = int(clampf(rect.size.x * 0.036, 17, 20))
+		var description_lines = clampi(floori((purchase_rect(rect).position.y-rect.position.y-60)/(description_size+7.0)),1,3)
+		wrapped(g, item.description, Vector2(text_x + 1, rect.position.y + 78), text_width - 2, description_size, description_lines)
 		var art_height = clampf(rect.size.x * 0.28, 112, 154)
 		if item.illustration == "cosmetic":
 			preview(g,item,rect.position+Vector2(rect.size.x*.205,rect.size.y*.43),art_height)

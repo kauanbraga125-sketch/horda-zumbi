@@ -55,6 +55,7 @@ func run() -> void:
 		if is_instance_valid(current_scene) and current_scene.has_method("start_run"):game = current_scene;break
 	check(is_instance_valid(game),"Game boots through 0.10.69 integrity audit")
 	if not is_instance_valid(game):quit(1);return
+	game.data = MonsterCatalog.defaults();game.data.wallet = 1000000;game.data.eyes = 10000
 	game.set_physics_process(false);game.sound.set_enabled(true)
 	check(game.sound.distant_players.size()==6 and game.sound.players.size()==10,"Bounded audio pools with six background channels")
 	var last_pitch = 0.0
@@ -91,8 +92,10 @@ func run() -> void:
 	game.perform_action("shop_cancel")
 	check(game.data.stock.get("coin_magnet",0)==stock and int(game.data.wallet)==wallet,"Cancel has no purchase side effects")
 	game.perform_action("object_buy_coin_magnet");game.perform_action("shop_confirm");game.perform_action("shop_confirm")
-	check(int(game.data.stock.coin_magnet)==stock+1 and int(game.data.wallet)==wallet-220,"Confirm purchases once, even repeated immediately")
+	check(int(game.data.stock.get("coin_magnet",0))==stock+1 and int(game.data.wallet)==wallet-220,"Confirm purchases once, even repeated immediately")
 	await snap("03_purchase_success")
+	game.shop_dialog.update(1.1)
+	check(game.shop_dialog.success_left<=0,"Purchase celebration ends before further navigation")
 	game.data.merge(Catalog.defaults(),true);game.data.bird_copies = {"pipoco":7,"fiapo":3,"ferrugem":1};game.data.bird_equipped_slots = ["pipoco","fiapo"];game.data.bird_equipped = "pipoco"
 	game.perform_action("market_tab_4")
 	check(game.screen=="birds","Bird collection is available in market tab")
@@ -113,9 +116,10 @@ func run() -> void:
 	game.runner.bird.configure(game.data)
 	check(game.runner.bird.companion!=null,"Two equipped birds both enter actual run simulation")
 	game.change_screen("home");game.start_run();game.runner.members[0].kind = 1
+	check(game.perfect_left==0,"New race clears previous PERFECT announcement")
 	var elapsed = game.runner.elapsed;game._physics_process(.1)
 	check(game.intro_left>0 and game.runner.elapsed==elapsed,"Opening freezes race physics and hazards")
-	game.intro_left = 1.2;await snap("09_skeleton_emerging")
+	game.intro_left = .85;await snap("09_skeleton_emerging")
 	game.runner.members[0].kind = 0;game.intro_left = .65;await snap("10_zombie_emerging")
 	game.intro_left = 0;await snap("11_ready_to_run")
 	game.sound.set_enabled(false)
