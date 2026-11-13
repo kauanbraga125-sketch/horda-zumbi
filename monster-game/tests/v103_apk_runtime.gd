@@ -23,7 +23,7 @@ func run() -> void:
 	g.data = MonsterCatalog.defaults(); g.data.wallet=987; g.data.eyes=5
 	g.hub.update(g,0.01)
 	g.perform_action("collection"); g.codex.update(g,0.7)
-	expect(g.screen=="collection" and g.codex.total_pages()==12,"book opens twelve actual numbered pages")
+	expect(g.screen=="collection" and g.codex.total_pages()==22,"book opens twenty-two actual numbered pages")
 	g.codex.update(g,1.9)
 	expect(bool(g.data.codex_seen.get("zombie",false)) and not bool(g.data.codex_seen.get("skeleton",false)),"restoration respects ownership")
 	g.perform_action("codex_next"); g.codex.update(g,0.7)

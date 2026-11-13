@@ -31,7 +31,7 @@ static func defaults() -> Dictionary:
 static func migrate(result: Dictionary, raw: Dictionary) -> void:
 	for key in defaults(): result[key] = raw.get(key, defaults()[key])
 	for key in ["eyes", "altar_souls", "daily_claim_at", "dose_reset_at", "grave_serial"]: result[key] = clampi(int(result[key]), 0, 2147483647)
-	result.codex_section = clampi(int(result.codex_section),0,3)
+	result.codex_section = clampi(int(result.codex_section),0,4)
 	result.codex_spread = clampi(int(result.codex_spread),0,100)
 	var seen: Dictionary = {}
 	if result.codex_seen is Dictionary:

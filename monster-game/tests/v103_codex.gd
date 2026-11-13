@@ -44,7 +44,7 @@ func run() -> void:
 	game.hub.shown_level = 7
 	game.hub.shown_xp = 33
 	var book = game.codex
-	expect(book.total_pages()==12,"twelve real pages")
+	expect(book.total_pages()==22,"twenty-two real pages")
 	book.open(game,0)
 	await advance(0.75)
 	expect(book.amount>=0.99,"opening finishes")
@@ -89,7 +89,7 @@ func run() -> void:
 	book.action(game,"codex_next")
 	await advance(2.6)
 	expect(book.section==2 and book.spread==1,"relics have another spread")
-	expect(book.page_number(2,1,0)==7,"later relic pages numbered seven and eight")
+	expect(book.page_number(2,1,0)==11,"later relic pages numbered eleven and twelve")
 	await snapshot("08-Reliquias-Pacto")
 	book.action(game,"codex_next")
 	await advance(0.8)
@@ -141,7 +141,7 @@ func run() -> void:
 	book.input(game,release)
 	expect(book.section==1,"touch swipe advances spread")
 	book.chapters[0].append(book.chapters[0][0].duplicate())
-	expect(book.spreads(0)==2 and book.total_pages()==14,"pagination adapts when another monster is added")
+	expect(book.spreads(0)==2 and book.total_pages()==24,"pagination adapts when another monster is added")
 	book.chapters[0].pop_back()
 	book.action(game,"back")
 	await advance(0.7)

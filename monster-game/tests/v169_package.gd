@@ -104,6 +104,7 @@ func run() -> void:
 	game.data.bird_pending = {};var diamonds = int(game.data.eyes);game.perform_action("bird_draw")
 	check(int(game.data.eyes)==diamonds-30 and game.data.bird_pending.taps==0,"Purchased egg waits for physical taps")
 	await snap("06_egg")
+	await create_timer(1.3).timeout
 	for i in range(3):
 		game.perform_action("bird_tap")
 		check(game.data.bird_pending.taps==i+1 and game.sound.ui_player.playing,"Egg tap and restart "+str(i+1))

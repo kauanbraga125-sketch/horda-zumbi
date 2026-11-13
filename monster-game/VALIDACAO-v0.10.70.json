@@ -1,0 +1,59 @@
+{
+  "version": "0.10.70",
+  "base_commit": "90215576fc7fc70e9493fa89413fae50eb7aefb9",
+  "feature_checks": {
+    "suite": "v170_aviary",
+    "checks": 49,
+    "failures": [],
+    "rendered": false
+  },
+  "systems_checks": {
+    "suite": "v140_systems",
+    "checks": 66,
+    "failures": []
+  },
+  "physical_device_tested": false,
+  "native_validation": {
+    "required_for_publication": true,
+    "test": "v170_aviary",
+    "resources": "extracted from the freshly compiled APK",
+    "report": "compilacao.json and preview/v170/v170.json in the Actions artifact"
+  },
+  "art_provenance": "assets/art/v170/manifest.json",
+  "save_compatibility": [
+    "owned birds migrate as discovered",
+    "first paid unrevealed bird remains hidden",
+    "stage/taps/result persist without reroll",
+    "spent fusion sources remain discovered but cannot be equipped"
+  ],
+  "bounded_resources": {
+    "aviary_sprite_keys_maximum": 24,
+    "new_book_image_cache_maximum": 4,
+    "new_webp_bytes": 2634450
+  },
+  "regressions": [
+    {
+      "suite": "v169_package",
+      "checks": 51,
+      "failures": 0
+    },
+    {
+      "suite": "v103_codex",
+      "checks": 38,
+      "failures": 0
+    },
+    {
+      "suite": "v103_apk_runtime",
+      "checks": 21,
+      "failures": 0
+    }
+  ],
+  "native_checkpoint": {
+    "pull_request_head": "e34ac9c74a14471b7972a5f45a5ca35cb498c187",
+    "packaged_native_checks": 73,
+    "failures": [],
+    "apk_workflow_run": 43418939789,
+    "complete_source_validation_run": 43418940045,
+    "status": "passed; final publication requires the same checks including final text padding"
+  }
+}
