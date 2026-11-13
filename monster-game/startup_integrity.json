@@ -1,5 +1,5 @@
 {
-  "version": "0.10.72",
+  "version": "0.10.73",
   "class_count": 55,
   "files": [
     {
@@ -44,18 +44,18 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 3552,
-      "sha256": "55c5ff7310ce8a5086de668a30129a96a915c5e458200204b4b608f7c1558baf"
+      "bytes": 4063,
+      "sha256": "62b3ca2ee767a814c2b1d6161073b631980cafc6861bb59d6fc70e2ff90fc15d"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 9958,
-      "sha256": "fb4c5cdeea17cb4f1f331c02a993eeed33d12f44a7f4ca1f1da4dd9b026d71f5"
+      "bytes": 9985,
+      "sha256": "13ee9fa1b1c75c98a4cbe3694e28350cc865270b16a7a50083246a77245144bd"
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 5245,
-      "sha256": "6945f3f2dba8b4230ee75c6e4c93cb72aa801e3e81161fc0b399f71a5963a768"
+      "bytes": 5181,
+      "sha256": "7971fcc3425eeba50374b85681ac856eacd133d62db5154c103b558066b13465"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -203,6 +203,11 @@
       "sha256": "1a81338b53e4e19701c8aa85bb533a78ad004401f2e76e32529948b58f3cd512"
     },
     {
+      "path": "res://scripts/fiapo_power.gd",
+      "bytes": 7727,
+      "sha256": "c22bfeff95acc1eb33c640c388f5f1ba57c1f3183a88a6884e0ba24aec7a5f93"
+    },
+    {
       "path": "res://scripts/field_powers.gd",
       "bytes": 3908,
       "sha256": "9561cd8dfeaf552ffa625a24204d36336417c867ac92058ba550143ac4993673"
@@ -219,8 +224,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 132721,
-      "sha256": "229dfcd8244a4efdc86e41aab0ea619cf7098de874bb299385d9917b75749bb3"
+      "bytes": 132852,
+      "sha256": "653e76c2aaad09d6d21f9f67a7885cfc763a511058da32c0de3e7f92d7a22cb1"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",

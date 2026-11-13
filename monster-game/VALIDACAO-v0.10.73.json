@@ -1,0 +1,95 @@
+{
+  "version": "0.10.73",
+  "base_commit": "0b5d25cfa213e55f1ce09ed12614e5a32ce36ac8",
+  "fiapo_checks": {
+    "checks": 98,
+    "failures": [],
+    "max_passengers": 1,
+    "max_trail_points": 9,
+    "new_civilian_assets": 0,
+    "physical_device_tested": false,
+    "rendered": false
+  },
+  "native_checks": {
+    "checks": 105,
+    "failures": [],
+    "max_passengers": 1,
+    "max_trail_points": 9,
+    "new_civilian_assets": 0,
+    "physical_device_tested": false,
+    "rendered": true
+  },
+  "regressions": [
+    {
+      "suite": "v140_systems",
+      "base_rate_sample": [
+        6081,
+        2472,
+        936,
+        396,
+        115
+      ],
+      "checks": 66,
+      "failures": [],
+      "physical_device_tested": false
+    },
+    {
+      "suite": "v169_package",
+      "checks": 51,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.69"
+    },
+    {
+      "suite": "v170_aviary",
+      "checks": 49,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.70"
+    },
+    {
+      "suite": "v171_species",
+      "checks": 74,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.71"
+    },
+    {
+      "suite": "v172_pipoco",
+      "checks": 63,
+      "failures": [],
+      "max_coins": 3,
+      "max_sparks": 8,
+      "physical_device_tested": false,
+      "rendered": false
+    }
+  ],
+  "physical_device_tested": false,
+  "publication_requires": [
+    "full source validation of the same commit",
+    "v173_fiapo on extracted APK resources, headless and native"
+  ],
+  "ability": {
+    "interval_seconds_by_bars": [
+      28,
+      24,
+      20
+    ],
+    "max_passengers": 1,
+    "max_trail_points": 9,
+    "new_civilian_assets": 0,
+    "capture": "normal capture animation on contact; recruit only after completion",
+    "modes": [
+      "street",
+      "sewer",
+      "space"
+    ],
+    "slots": [
+      0,
+      1
+    ]
+  }
+}

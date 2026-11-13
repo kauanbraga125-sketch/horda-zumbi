@@ -2,6 +2,13 @@ extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
 static var textures: Dictionary = {}
 
+static func paint_carrier(c,point: Vector2,height: float,time: float,face: float,lean: float,grab: bool = false,loaded: bool = false) -> void:
+	var index = 4 if grab else [0,1,2,1][posmod(int(time*(12 if loaded else 9)),4)]
+	var scale_x = maxf(.12,absf(face))*(-1 if face<0 else 1)
+	c.draw_set_transform(point,lean,Vector2(scale_x,1))
+	c.draw_texture_rect_region(texture("fiapo"),Rect2(Vector2.ONE*-height*.5,Vector2.ONE*height),Rect2(index%3*384,int(index/3)*384,384,384))
+	c.draw_set_transform(Vector2.ZERO)
+
 static func spit_texture() -> Texture2D:
 	if not textures.has("pipoco_spit"):
 		var im = Image.new()

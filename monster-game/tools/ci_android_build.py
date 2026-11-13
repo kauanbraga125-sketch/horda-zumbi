@@ -249,6 +249,17 @@ def build(args):
             env["LIBGL_ALWAYS_SOFTWARE"] = "true"
             pipoco_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v172_pipoco.gd"], output / "visual-v172.log", env)
             assert "V172_PIPOCO " in pipoco_visual and '"failures":[]' in pipoco_visual and '"rendered":true' in pipoco_visual, "Animação e coleta do Pipoco não confirmadas no APK"
+        shutil.copyfile(project / "tests/v173_fiapo.gd", runtime / "tests/v173_fiapo.gd")
+        env["XDG_DATA_HOME"] = str(temporary / "package-v173-user")
+        env["HORDA_VALIDATION_DIR"] = str(output / "preview/v173-headless")
+        fiapo_log = run([engine, "--headless", "--audio-driver", "Dummy", "--path", runtime, "--script", "res://tests/v173_fiapo.gd"], output / "fiapo-v173.log", env)
+        assert "V173_FIAPO " in fiapo_log and '"failures":[]' in fiapo_log, "Busca e captura do Fiapo não confirmadas no APK"
+        if shutil.which("xvfb-run"):
+            env["XDG_DATA_HOME"] = str(temporary / "visual-v173-user")
+            env["HORDA_VALIDATION_DIR"] = str(output / "preview/v173")
+            env["LIBGL_ALWAYS_SOFTWARE"] = "true"
+            fiapo_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v173_fiapo.gd"], output / "visual-v173.log", env)
+            assert "V173_FIAPO " in fiapo_visual and '"failures":[]' in fiapo_visual and '"rendered":true' in fiapo_visual, "Transporte, queda e animação de captura do APK não confirmados"
         report = {"version": version, "engine": engine_version, "mode": args.mode, "commit": os.environ.get("GITHUB_SHA", "local"), "apk": name, "bytes": apk_path.stat().st_size, "sha256": sha(apk_path), "android": android_info, "layout": layout, "startup_files": len(audit["files"]), "classes": audit["class_count"], "resource_entries": entries, "fresh_source_export": True, "all_game_resources_replaced": True, "source_boot_verified": True, "packaged_boot_verified": True, "physical_device_tested": False, "native_base_sha256": BASE_SHA256}
         report["ui_audio_navigation_verified"] = True
         report["v169_features_verified"] = True
@@ -259,6 +270,8 @@ def build(args):
         report["v171_visual_verified"] = shutil.which("xvfb-run") is not None
         report["v172_pipoco_verified"] = True
         report["v172_visual_verified"] = shutil.which("xvfb-run") is not None
+        report["v173_fiapo_verified"] = True
+        report["v173_visual_verified"] = shutil.which("xvfb-run") is not None
         (output / "compilacao.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
         (output / "SHA256SUMS.txt").write_text(f"{report['sha256']}  {name}\n")
         print(json.dumps(report, ensure_ascii=False), flush=True)
