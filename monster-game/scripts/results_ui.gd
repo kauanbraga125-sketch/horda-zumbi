@@ -256,7 +256,7 @@ func chamber(g, d: Dictionary) -> void:
 	HordeExperimentArt.draw(g.paint_target,"mission_coins",Rect2(reward.position+Vector2(6,1),Vector2(58,reward.size.y-2)))
 	if reward_level>0:
 		g.home_menu.label(g,"SUBIU DE NÍVEL!",reward.position+Vector2(71,20),18,g.GOLD,false,reward.size.x-80,true,2)
-		g.home_menu.label(g,"+"+str(reward_coins)+" MOEDAS"+(" · +"+str(reward_eyes)+" OLHOS" if reward_eyes>0 else ""),reward.position+Vector2(71,40),20,g.GOLD,false,reward.size.x-80)
+		g.home_menu.label(g,"+"+str(reward_coins)+" MOEDAS"+(" · +"+str(reward_eyes)+" DIAMANTES" if reward_eyes>0 else ""),reward.position+Vector2(71,40),20,g.GOLD,false,reward.size.x-80)
 	else:
 		g.home_menu.label(g,"ENCHA O FRASCO PARA SUBIR DE NÍVEL",reward.position+Vector2(69,19),13,g.MINT,false,reward.size.x-78)
 		var next_coins=100+mini(50,level+1)*10

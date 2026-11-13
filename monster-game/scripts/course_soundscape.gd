@@ -5,17 +5,21 @@ const Regions = preload("res://scripts/sky_region_scenery.gd")
 const Landscape = preload("res://scripts/sky_landscape.gd")
 const Deep = preload("res://scripts/sky_deep_landscape.gd")
 var seen: Dictionary = {}
+var cue_times: Dictionary = {}
 var journey = -1.0
 var last_age = -1.0
 var sea_age = -1.0
 
 func reset() -> void:
-	seen.clear();journey = -1.0;last_age = -1.0;sea_age = -1.0
+	seen.clear();cue_times.clear();journey = -1.0;last_age = -1.0;sea_age = -1.0
 
-func gate(key: String, time: float, period: float, at: float, window: float = .24) -> bool:
+func gate(key: String, time: float, period: float, at: float, window: float = .30) -> bool:
 	var cycle = floori(time/period)
-	var phase = fposmod(time,period)
-	if phase<at or phase>at+window or int(seen.get(key,-100000))==cycle:return false
+	var target = cycle*period+at
+	var previous = float(cue_times.get(key,time-.05));cue_times[key] = time
+	var crossed = previous<target and time>=target
+	var in_window = time>=target and time<=target+window
+	if not (crossed or in_window) or int(seen.get(key,-100000))==cycle:return false
 	seen[key] = cycle
 	return true
 
@@ -44,7 +48,7 @@ func advance(sound, run, view: Rect2, camera: Vector2) -> void:
 	if not run.sky.active:return
 	var s = run.sky
 	if journey!=s.start_world or s.age<last_age:
-		seen.clear();journey = s.start_world
+		seen.clear();cue_times.clear();journey = s.start_world
 	last_age = s.age
 	var age: float = s.age
 	var p = Landscape.walker_position(view,camera,age)

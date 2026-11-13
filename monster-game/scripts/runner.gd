@@ -284,7 +284,7 @@ func add_entity(kind: String, x: float, y: float = FLOOR, variant: int = 0, widt
 		"pose": "run", "contacts": {}, "push_age": 0.0, "tilt": 0.0, "passengers": [], "group": -1, "rescued": false, "speech_left": 0.0, "spoke": false, "rushing": false, "warned": false, "voice_wait": rng.randf_range(0.2, 1.5), "speech": "", "damage_stage": 0}
 	next_entity_id += 1
 	if kind in ["civilian", "soldier", "police"]:
-		npc_serial += 1;entity.speaker = npc_serial % 3 == 0
+		npc_serial += 1;entity.speaker = npc_serial % 2 == 0
 		var phrases = MonsterCatalog.CIVIL_PHRASES if kind == "civilian" else (MonsterCatalog.POLICE_PHRASES if kind == "police" else MonsterCatalog.ARMY_PHRASES)
 		entity.speech = phrases[rng.randi_range(0, phrases.size() - 1)]
 	if kind == "soldier": entity.timer = rng.randf_range(0.45, 0.65)
@@ -611,7 +611,7 @@ func update_enemies(dt: float) -> void :
 			speech_cooldown = speech_left + rng.randf_range(HordeBalance.SPEECH_GAP.x, HordeBalance.SPEECH_GAP.y)
 			speech_npc = 5 if e.kind == "soldier" else (8 if e.kind == "police" else MonsterCatalog.CIVILIANS[e.variant].rig)
 			if voice_cooldown <= 0:
-				voice_cooldown = 2.2;events.append({"type": "npc_voice", "npc": e.kind, "variant": e.variant})
+				voice_cooldown = 1.4;events.append({"type": "npc_voice", "npc": e.kind, "variant": e.variant})
 		if e.get("motion_waiting", false) and world_px >= float(e.motion_start_world):
 			e.vx = e.motion_speed;e.motion_waiting = false
 		if e.kind == "car" and e.rushing and e.get("rush_waiting", false) and e.x - ANCHOR <= (speed - float(e.rush_speed)) * 2.7 + 180:
@@ -904,7 +904,8 @@ func leader_touches(entity: Dictionary, radius: float) -> bool:
 
 func collect_coin_row(e: Dictionary) -> void:
 	var id = int(e.get("coin_row",-1))
-	if not coin_rows.has(id): return
+	if e.get("row_counted",false) or not coin_rows.has(id): return
+	e.row_counted = true
 	var row: Dictionary = coin_rows[id]
 	row.collected += 1
 	if row.collected == row.total:
@@ -915,6 +916,7 @@ func collect_coin_row(e: Dictionary) -> void:
 		coin_rows.erase(id)
 
 func miss_coin_row(e: Dictionary) -> void:
+	if e.get("taken",false) and e.get("row_counted",false): return
 	var id = int(e.get("coin_row",-1))
 	if coin_rows.has(id): coin_rows.erase(id)
 

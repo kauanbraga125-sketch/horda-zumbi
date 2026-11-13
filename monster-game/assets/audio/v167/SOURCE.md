@@ -25,3 +25,5 @@ As nove músicas foram fornecidas em MP3, na ordem dos prompts confirmada pelo u
 As músicas receberam normalização em duas passagens para -20 LUFS e teto de -2 dBTP. Os efeitos receberam ajuste de ganho baseado na energia ativa, proteção de pico e pequenos fades. Os arquivos são Ogg Vorbis em contêineres `.bin`, lidos por `AudioStreamOggVorbis.load_from_buffer` no Godot 4.5.1. Isso evita cópias de importação e buffers PCM integrais das músicas. Os dados permanecem comprimidos, com cache limitado.
 
 Os arquivos prontos para reprodução e seus hashes estão incluídos neste diretório. Os MP3 originais, o arquivo RAR e a ferramenta de preparação usada na sessão original permanecem fora desta cópia pública. O manifesto preserva os parâmetros de tratamento e a correspondência com as fontes; nenhuma gravação original foi sobrescrita.
+
+Na 0.10.69, efeitos pontuais com início quase silencioso foram alinhados ao ataque; `trim_start_v169` e os hashes anteriores ficam no manifesto. As ambiências contínuas e as nove músicas permanecem preservadas.

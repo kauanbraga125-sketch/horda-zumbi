@@ -8,17 +8,17 @@ const RELIC_NAMES = ["DENTE INFECTADO", "MÁSCARA RACHADA", "CRÂNIO MALDITO", "
 const EXPERIMENTS = ["SORO DO ACAMPAMENTO 13", "PLASMA DA FITA PERDIDA", "EXTRATO DO PORÃO", "ESSÊNCIA DO HOSPEDEIRO"]
 const COSMETICS = HordeCosmeticCatalog.ITEMS
 const OBJECTS = [
-	{"id":"coin_magnet","name":"ÍMÃ DE EXPEDIÇÃO","price":220,"icon":10,"description":"Atrai moedas só nesta partida. Compre e escolha antes de jogar."},
-	{"id":"power_harvester","name":"CHAMADO DA COLHEITA","price":400,"icon":11,"description":"Inicie uma partida com o caçador alado trazendo civis."},
-	{"id":"power_spectral","name":"MANTO DE EMERGÊNCIA","price":350,"icon":12,"description":"Comece com duas proteções do espectro. Buracos continuam perigosos."},
+	{"id":"coin_magnet","name":"ÍMÃ DE EXPEDIÇÃO","price":220,"icon":10,"description":"Não deixe ouro para trás! Atraia as moedas próximas durante esta partida."},
+	{"id":"power_harvester","name":"CHAMADO DA COLHEITA","price":400,"icon":11,"description":"Comece com reforços dos céus! O caçador alado traz civis para sua horda."},
+	{"id":"power_spectral","name":"MANTO DE EMERGÊNCIA","price":350,"icon":12,"description":"Ganhe uma segunda chance: duas proteções contra impactos. Cuidado com os buracos!"},
 	{"id": "coin_bombs", "name": "BOMBAS DE OURO", "price": 180, "icon": 0, "description": "25% das bombas terrestres viram 12 moedas nesta partida."},
 	{"id": "coin_cars", "name": "SUCATA VALIOSA", "price": 220, "icon": 1, "description": "25% dos veículos virados dão 25 moedas extras. Mantém passageiros e almas."},
 	{"id": "bonus_time", "name": "MAIS 15 SEGUNDOS", "price": 260, "icon": 2, "description": "+15 s em cada transformação desta partida."},
 	{"id": "double_horde", "name": "HORDA EM DOBRO", "price": 200, "icon": 3, "description": "Dobra apenas a horda inicial. Não duplica capturas."},
 	{"id": "civil_pack", "name": "ENCONTRO MARCADO", "price": 150, "icon": 4, "description": "Grupo de 3 civis no começo, em terreno seguro."},
-	{"id": "double_coins", "name": "NOITE DOURADA", "price": 300, "icon": 5, "description": "Dobra moedas coletadas na partida. Com Frenesi, vale x4."},
-	{"id": "power_fly", "name": "MOSCA DE EMERGÊNCIA", "price": 400, "icon": 6, "description": "Transformação da Mosca no início. Escolha uma transformação inicial."},
-	{"id": "power_mask", "name": "MÁSCARA DE EMERGÊNCIA", "price": 450, "icon": 7, "description": "Transformação do Mascarado no início. Escolha uma transformação inicial."},
+	{"id": "double_coins", "name": "NOITE DOURADA", "price": 300, "icon": 5, "description": "Faça cada moeda valer mais: coleta em dobro nesta partida e até x4 com Frenesi."},
+	{"id": "power_fly", "name": "MOSCA DE EMERGÊNCIA", "price": 400, "icon": 6, "description": "Abra suas asas e domine a largada! Comece esta partida como Super Fly."},
+	{"id": "power_mask", "name": "MÁSCARA DE EMERGÊNCIA", "price": 450, "icon": 7, "description": "Chegue causando! Comece esta partida com a força do Mascarado."},
 	{"id": "power_shield", "name": "PROTEÇÃO DO ALÉM", "price": 180, "icon": 8, "description": "Comece com um escudo. Absorve um impacto."},
 	{"id": "power_boost", "name": "ARRANCADA MALDITA", "price": 240, "icon": 9, "description": "Comece com um impulso. Usa suas melhorias de Frenesi."}
 ]
@@ -183,7 +183,7 @@ static func reward(rng: RandomNumberGenerator) -> Dictionary:
 		return {"type": "object", "id": item.id, "amount": 1, "label": item.name + " x1"}
 	if roll < 0.945:
 		var amount = rng.randi_range(1, 3)
-		return {"type": "eyes", "amount": amount, "label": str(amount) + " OLHOS MALDITOS"}
+		return {"type": "eyes", "amount": amount, "label": str(amount) + " DIAMANTES"}
 	if roll < 0.99:
 		var available = COSMETICS.filter(func(entry): return entry.currency == "coins")
 		var item = available[rng.randi_range(0,available.size()-1)]

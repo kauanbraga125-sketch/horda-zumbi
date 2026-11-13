@@ -64,6 +64,7 @@ jobs:
             dist/android/compilacao.json
             dist/android/assinatura.txt
             dist/android/SHA256SUMS.txt
+            dist/android/preview/**
           if-no-files-found: error
           compression-level: 0
           retention-days: 90
@@ -89,7 +90,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Horda-Zumbi-diagnostico-${{ github.run_number }}
-          path: dist/android/*.log
+          path: |
+            dist/android/*.log
+            dist/android/preview/**
           if-no-files-found: ignore
 
   publicar:
@@ -116,6 +119,7 @@ jobs:
           assert r['mode'] == 'teste'
           assert r['source_boot_verified'] and r['packaged_boot_verified']
           assert r['ui_audio_navigation_verified']
+          assert r['v169_features_verified'] and r['v169_visual_verified']
           assert r['fresh_source_export'] and r['all_game_resources_replaced']
           assert r['commit'] == os.environ['GITHUB_SHA']
           tag = 'v' + r['version']

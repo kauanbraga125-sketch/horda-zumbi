@@ -13,6 +13,14 @@ var distant_fixed: Array[bool] = []
 var distant_points: Array[Vector2] = []
 var distant_base: Array[float] = []
 
+var coin_players: Array[AudioStreamPlayer] = []
+var voice_players: Array[AudioStreamPlayer] = []
+var ui_player: AudioStreamPlayer
+var coin_index = 0
+var coin_step = 0
+var coin_at = -10000
+var perfect_index = -1
+var voice_index = 0
 var enabled = true
 var music: AudioStreamPlayer
 var music_players: Array[AudioStreamPlayer] = []
@@ -55,7 +63,7 @@ func _ready() -> void :
 	for bus in ["HordeMusic", "HordeEffects", "HordeVoices"]:
 		if AudioServer.get_bus_index(bus) < 0:
 			AudioServer.add_bus();AudioServer.set_bus_name(AudioServer.bus_count - 1, bus)
-	for i in range(3):
+	for i in range(6):
 		var bus = "HordeDistant"+str(i)
 		if AudioServer.get_bus_index(bus)<0:
 			AudioServer.add_bus();AudioServer.set_bus_name(AudioServer.bus_count-1,bus)
@@ -69,7 +77,7 @@ func _ready() -> void :
 		var player = AudioStreamPlayer.new();player.bus = "HordeMusic";add_child(player);music_players.append(player)
 	music = music_players[0]
 	ambience = loop_player();rotor = loop_player();engine = loop_player();fire = loop_player();wings = loop_player();cauldron = loop_player()
-	for i in range(18):
+	for i in range(10):
 		var player = AudioStreamPlayer.new();add_child(player);players.append(player)
 	for name in ["coin", "jump", "land", "recruit", "hit", "smash", "perk", "guard", "buy", "challenge", "finish", "voice_zombie", "voice_zombie_alt", "voice_skeleton", "voice_masked", "voice_fly", "death_zombie", "death_skeleton", "death_masked", "death_fly", "city_scream", "gunshot", "explosion", "tunnel", "soul_capture", "level_up", "ritual_fill", "metal_push", "glass_break", "civil_male", "civil_worker", "civil_female", "police_stop", "army_command", "transform_fly", "transform_mask", "revive", "car_crash", "car_horn", "car_approach_1", "car_approach_2"]:
 		clips[name] = load("res://assets/audio/" + name + ".ogg")
@@ -105,6 +113,17 @@ func _ready() -> void :
 	for name in ["perfect","space_dash","space_boost","space_smash","creeper_wing"]:
 		var stream = AudioStreamWAV.new();stream.format = AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate = 32000;stream.stereo = false
 		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/adventure_v132/"+name+".pcm");clips[name] = stream
+	for i in range(4):
+		var p = AudioStreamPlayer.new();p.bus = "HordeEffects";add_child(p);coin_players.append(p)
+	for i in range(2):
+		var p = AudioStreamPlayer.new();p.bus = "HordeVoices";add_child(p);voice_players.append(p)
+	ui_player = AudioStreamPlayer.new();ui_player.bus = "HordeEffects";add_child(ui_player)
+	var hazard_warning = clips.power_warning
+	for key in ["perfect_1","perfect_2","perfect_3","perfect_4","transform_fly","transform_mask","power_warning","egg_crack","egg_hatch"]:
+		clips[key] = AudioStreamOggVorbis.load_from_buffer(FileAccess.get_file_as_bytes("res://assets/audio/v169/"+key+".bin"))
+	clips.ending_warning = clips.power_warning;clips.power_warning = hazard_warning
+	var piano = AudioStreamWAV.new();piano.format = AudioStreamWAV.FORMAT_16_BITS;piano.mix_rate = 32000;piano.stereo = false
+	piano.data = FileAccess.get_file_as_bytes("res://assets/audio/v169/coin.pcm");clips.coin_piano = piano
 	set_mix(mix_levels)
 	for name in ["bird_pipoco","bird_fiapo","bird_ferrugem","bird_agourinho","bird_barao","sewer_water","sewer_splash","egg_crack","egg_hatch"]:
 		var stream = AudioStreamWAV.new();stream.format = AudioStreamWAV.FORMAT_16_BITS;stream.mix_rate = 32000;stream.stereo = false
@@ -116,6 +135,9 @@ func _ready() -> void :
 		stream.data = FileAccess.get_file_as_bytes("res://assets/audio/v137/"+name+".pcm")
 		if name=="sewer_rush": stream.loop_mode = AudioStreamWAV.LOOP_FORWARD;stream.loop_end = stream.data.size()/2
 		clips[name] = stream
+
+	for key in ["egg_crack","egg_hatch"]:
+		clips[key] = AudioStreamOggVorbis.load_from_buffer(FileAccess.get_file_as_bytes("res://assets/audio/v169/"+key+".bin"))
 
 func loop_player() -> AudioStreamPlayer:
 	var player = AudioStreamPlayer.new();player.bus = "HordeEffects";add_child(player);return player
@@ -135,9 +157,9 @@ func _process(dt: float) -> void :
 		atmosphere[i].volume_db = -13 + linear_to_db(maxf(0.0001, atmosphere_weights[i]))
 		if atmosphere_weights[i] <= 0.001 and atmosphere_targets[i] == 0 and atmosphere[i].playing: atmosphere[i].stop()
 	var voice_active = false
-	for p in players:
+	for p in players+voice_players:
 		if p.playing and p.bus == "HordeVoices" and mix_levels.voices > 0.001: voice_active = true;break
-	duck_db = move_toward(duck_db, -8.0 if voice_active or duck_left > 0 else 0.0, dt * (65 if voice_active or duck_left > 0 else 11))
+	duck_db = move_toward(duck_db, -2.5 if voice_active or duck_left > 0 else 0.0, dt * (65 if voice_active or duck_left > 0 else 11))
 	if music.playing and music.stream.get_length() - music.get_playback_position() < 1.1 and music_targets[music_index] == 1:
 		var same = track;track = "";set_music(same)
 	for i in range(2):
@@ -149,7 +171,7 @@ func set_enabled(value: bool) -> void :
 	enabled = value
 	for player in music_players + atmosphere + distant_players + [ambience, rotor, engine, fire, wings, cauldron, footsteps, heavy_steps, jar_loop, result_liquid]: player.stream_paused = not value
 	if not value:
-		for player in players + distant_players: player.stop()
+		for player in players + distant_players + coin_players + voice_players + [ui_player]: player.stop()
 
 func set_music(name: String) -> void :
 	if track == name: return
@@ -180,6 +202,10 @@ func voice_clip(name: String) -> bool:
 
 func play(name: String, volume: float = -12) -> void :
 	if not enabled: return
+	if name=="coin": play_coin();return
+	if name=="perfect": play_perfect();return
+	if name=="egg_crack": play_ui_restart(name);return
+	if name in ["transform_fly","transform_mask","egg_hatch","ending_warning"]: play_priority(name,volume);return
 	var groups = {"jump": "MOV_02", "land": "MOV_03", "heavy_land": "MOV_05", "ui_confirm": "UI_01", "ui_back": "UI_02", "buy": "UI_03", "ui_denied": "UI_04", "coin": "REC_01", "jar_full": "RIT_02", "finish": "DER_01", "recruit": "MON_01", "member_lost": "MON_02", "pit_fall": "MON_03", "hit": "COL_01", "perk": "POW_01", "soul_capture": "REC_02", "power_end": "POW_02"}
 	if groups.has(name):
 		play_group(groups[name], volume);return
@@ -190,6 +216,11 @@ func play(name: String, volume: float = -12) -> void :
 	last_played[name] = now
 	var voice = voice_clip(name)
 	if mix_levels.effects > 0.001 and name in ["car_crash", "explosion", "transform_fly", "transform_mask", "smash_car"]: duck_left = maxf(duck_left, 0.65)
+	if voice:
+		var active: Array = players.filter(func(p): return p.playing and p.bus=="HordeVoices")
+		var capacity = 2-voice_players.filter(func(p):return p.playing and p.bus=="HordeVoices").size()
+		if capacity<=0:return
+		if active.size()>=capacity: active[0].stop()
 	var chosen: AudioStreamPlayer
 	for player in players:
 		if not player.playing: chosen = player;break
@@ -199,7 +230,7 @@ func play(name: String, volume: float = -12) -> void :
 	if chosen == null: return
 	chosen.bus = "HordeVoices" if voice else "HordeEffects"
 	chosen.stream = clips[name]
-	chosen.volume_db = clampf((-3 if voice else -7) + (volume + 17 if voice else volume + 12), -29, 0)
+	chosen.volume_db = clampf((-6 if voice else -10) + (volume + 17 if voice else volume + 12), -29, 0)
 	chosen.pitch_scale = 1.0 if name in ["perk", "finish", "challenge", "tunnel", "transform_fly", "transform_mask", "car_crash"] else randf_range(0.985, 1.025)
 	chosen.play()
 
@@ -212,7 +243,10 @@ func update_course(run: HordeRun, running: bool, burning: bool = false) -> void 
 			if p.playing:p.stop()
 		set_atmosphere("")
 		return
+	var previous_mode = score.mode
 	set_music(course_music(run))
+	if score.mode!=previous_mode:
+		for p in distant_players:p.stop()
 	if run.sewer.active:
 		for p in [rotor,fire,wings,footsteps,heavy_steps]:
 			if p.playing:p.stop()
@@ -266,10 +300,11 @@ func play_group(group: String, volume: float = -12, voice: bool = false) -> void
 	if now - int(group_last.get(group, -10000)) < interval: return
 	group_last[group] = now
 	var key = choose_variant(group)
+	if group.begins_with("UI_") and players.all(func(p):return p.playing):players[-1].stop()
 	for p in players:
 		if p.playing: continue
 		p.stream = clips[key];p.bus = "HordeVoices" if voice else "HordeEffects"
-		p.volume_db = clampf(volume + 6, -26, -2)
+		p.volume_db = clampf(volume + (4 if group=="UI_03" else 1), -29, -7)
 		p.pitch_scale = randf_range(0.98, 1.025) if group in ["REC_01", "MOV_02", "MOV_03"] else 1.0
 		p.play();return
 
@@ -330,7 +365,7 @@ func play_extra(key: String, volume: float = -10.0, cooldown: float = .10) -> vo
 	for player in players:
 		if player.playing:continue
 		player.bus = "HordeEffects";player.stream = score.effect(key)
-		player.pitch_scale = 1.0;player.volume_db = volume;player.play()
+		player.pitch_scale = 1.0;player.volume_db = minf(volume,-12.0);player.play()
 		extra_cooldowns[key] = cooldown;scene_cue.emit(key,volume,0.0);return
 
 func play_distant(key: String, volume: float, pan: float, pitch: float = 1.0) -> void:
@@ -354,10 +389,18 @@ func play_energy_fallback(volume: float, pan: float) -> void:
 
 func play_distant_at(key: String, volume: float, point: Vector2, view: Rect2, pitch: float = 1.0, offset: float = 0.0) -> void:
 	if not enabled:return
+	var chosen = -1
 	for i in range(distant_players.size()):
+		if not distant_players[i].playing: chosen = i;break
+	if chosen<0:
+		var quietest = 0
+		for i in range(1,distant_players.size()):
+			if distant_players[i].volume_db<distant_players[quietest].volume_db: quietest = i
+		if volume<=distant_players[quietest].volume_db+2.0: return
+		chosen = quietest
+	for i in [chosen]:
 		var player = distant_players[i]
-		if player.playing:continue
-		player.stream = score.effect(key);player.pitch_scale = pitch
+		player.stop();player.stream = score.effect(key);player.pitch_scale = pitch
 		distant_fixed[i] = true;distant_points[i] = point;distant_base[i] = volume
 		update_distant(i,view)
 		player.play(offset);scene_cue.emit(key,player.volume_db,distant_panners[i].pan);return
@@ -366,6 +409,37 @@ func update_distant(index: int, view: Rect2) -> void:
 	var point = distant_points[index]
 	var mix = soundscape.spatial(point,view)
 	var edge = Vector2(clampf(point.x,view.position.x,view.end.x),clampf(point.y,view.position.y,view.end.y))
-	var retreat = minf(52.0,point.distance_to(edge)*.045)
-	distant_players[index].volume_db = distant_base[index]-mix.y-retreat
+	var retreat = minf(24.0,point.distance_to(edge)*.018)
+	distant_players[index].volume_db = distant_base[index]-mix.y*.55-retreat
 	distant_panners[index].pan = mix.x
+
+func play_coin() -> void:
+	if not enabled:return
+	var now = Time.get_ticks_msec()
+	if now-coin_at>900: coin_step = 0
+	coin_at = now
+	var notes = [0,2,4,5,7,9,11,12]
+	var p = coin_players[coin_index];coin_index = (coin_index+1)%coin_players.size()
+	p.stop();p.stream = clips.coin_piano;p.pitch_scale = pow(2.0,float(notes[mini(coin_step,7)])/12.0);p.volume_db = -13;p.play()
+	coin_step = mini(7,coin_step+1)
+
+func play_perfect() -> void:
+	if not enabled:return
+	perfect_index = (perfect_index+1)%4
+	play_priority("perfect_"+str(perfect_index+1),-11)
+
+func play_priority(key: String,volume: float = -14) -> void:
+	if not enabled:return
+	if key=="ending_warning":
+		for p in voice_players:
+			if p.playing and p.stream==clips[key]:return
+	if key not in ["ending_warning","egg_hatch"]:
+		for normal in players:
+			if normal.bus=="HordeVoices":normal.stop()
+	var p = voice_players[voice_index];voice_index = (voice_index+1)%2
+	p.stop();p.bus = "HordeEffects" if key in ["ending_warning","egg_hatch"] else "HordeVoices"
+	p.stream = clips[key];p.volume_db = clampf(volume,-22,-10);p.pitch_scale = 1;p.play()
+
+func play_ui_restart(key: String) -> void:
+	if not enabled:return
+	ui_player.stop();ui_player.stream = clips[key];ui_player.volume_db = -10;ui_player.pitch_scale = 1;ui_player.play()

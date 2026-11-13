@@ -1,6 +1,8 @@
 extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
 const Art = preload("res://scripts/bird_art.gd")
+var companion
+var slot_index = 0
 var id = ""
 var level = 0
 var clock = 0.0
@@ -17,23 +19,32 @@ var watched: Dictionary = {}
 var chirp_at = 8.0
 
 func configure(data: Dictionary) -> void:
-	id = str(data.get("bird_equipped",""));level = Catalog.level(data,id)
+	var slots: Array = data.get("bird_equipped_slots",[data.get("bird_equipped",""),""])
+	if str(slots[0]).is_empty() and str(data.get("bird_equipped","")).length()>0: slots = [data.bird_equipped,""]
+	id = str(slots[0]);level = Catalog.level(data,id)
+	companion = null
+	if slots.size()>1 and not str(slots[1]).is_empty():
+		companion = load("res://scripts/bird_run.gd").new();companion.slot_index = 1
+		var other = data.duplicate(true);other.bird_equipped_slots = [slots[1],""];other.bird_equipped = slots[1]
+		if slots[0]==slots[1]: other.bird_copies[slots[1]] = maxi(0,Catalog.copies(data,slots[1])-3)
+		companion.configure(other)
 	if level<=0: id = ""
 	watched.clear();chirp_at = 8.0
 	clock = 0;cooldown = 8 if id=="ferrugem" else 2;emotion_left = 0;rescued = false;perfects = 0;attacks = 0;beam_left = 0;warned = Vector2.ZERO
 
 func advance(r,dt: float) -> void:
+	if companion!=null: companion.advance(r,dt)
 	if id.is_empty(): return
 	clock += dt;cooldown = maxf(0,cooldown-dt);emotion_left = maxf(0,emotion_left-dt);beam_left = maxf(0,beam_left-dt)
 	var lead = r.leader_index()
 	if lead>=0:
-		var m = r.members[lead];var desired = Vector2(m.x-55,m.y-155)
+		var m = r.members[lead];var desired = Vector2(m.x-55-slot_index*80,m.y-155-slot_index*34)
 		if r.sewer.active: desired.y -= 30
 		point = desired if clock<=dt*1.5 else point.lerp(desired,1-exp(-dt*6))
 	if emotion_left>0 and not watched.is_empty(): warned = Vector2(watched.x,watched.y)
 	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
 	if clock>=chirp_at:
-		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp"})
+		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp","bird":id})
 	if id=="fiapo" and cooldown<=0:
 		var e = find_target(r)
 		if not e.is_empty():
@@ -67,6 +78,7 @@ func attack(r) -> bool:
 	return true
 
 func on_perfect(r) -> void:
+	if companion!=null: companion.on_perfect(r)
 	if id.is_empty(): return
 	perfects += 1;emotion_left = .9
 	if id=="pipoco":
@@ -74,6 +86,7 @@ func on_perfect(r) -> void:
 		r.events.append({"type":"coin","amount":level,"x":point.x,"y":point.y,"bird_bonus":true})
 
 func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
+	if companion!=null and companion.prevent_loss(r,m,_cause): return true
 	if id!="agourinho" or rescued: return false
 	rescued = true;emotion_left = 1.6;target = Vector2(m.x,m.y);beam_left = .7
 	m.falling = false;m.vy = 0;m.hurt_left = 0;m.glide_left = 1.0
@@ -87,6 +100,7 @@ func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
 	return true
 
 func paint(g) -> void:
+	if companion!=null: companion.paint(g)
 	if id.is_empty(): return
 	var c = g.paint_target
 	if beam_left>0:

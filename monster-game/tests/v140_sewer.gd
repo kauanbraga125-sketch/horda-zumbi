@@ -19,7 +19,7 @@ func run() -> void:
 	var schedules: Array = []
 	for seed_value in range(8):
 		var e = preload("res://scripts/sewer_event.gd").new();e.reset(seed_value)
-		check(e.next_at>=45 and e.next_at<=75,"first event has a normal-run cooldown")
+		check(e.next_at>=55 and e.next_at<=90,"first event has a normal-run cooldown")
 		schedules.append(e.next_at)
 	check(schedules.any(func(at):return absf(float(at)-float(schedules[0]))>2),"run seeds vary the event timing")
 	var ordinary = HordeRun.new();ordinary.start_developer("bomb",6,0,1387);ordinary.developer_kind = "";ordinary.tutorial_enabled = false;ordinary.power_owned.clear();ordinary.entities.clear()
@@ -47,7 +47,7 @@ func run() -> void:
 	for count in [1,2,4,6,10,20,64]:
 		var r = fresh(count);var s = r.sewer;ids = r.members.map(func(m):return int(m.id));var seats: Array = []
 		for b in s.boats: seats.append_array(b.ids)
-		check(s.boats.size()==ceili(count/2.0) and s.boats.all(func(b):return b.ids.size()<=2),"exactly two seats per ski "+str(count))
+		check(s.boats.size()==count and s.boats.all(func(b):return b.ids.size()==1),"one real rider per ski "+str(count))
 		check(seats.size()==count and seats.all(func(id):return seats.count(id)==1 and id in ids),"one stable seat for each actual member "+str(count))
 		var world = r.world_px;var souls = r.souls;s.left = .001;r.advance(DT,false)
 		for i in range(ceili(s.EXIT_SECONDS/DT)+5): r.advance(DT,false)

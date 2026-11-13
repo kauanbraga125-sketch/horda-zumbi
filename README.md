@@ -1,9 +1,9 @@
 # Horda Zumbi
 
-Versão de testes atual: **0.10.68 — cliques sincronizados**.
+Versão de testes atual: **0.10.69 — Aves Malditas, diamantes e áudio vivo**.
 
-- [Baixar o APK Android ARM64 0.10.68](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.68/Horda-Zumbi-v0.10.68-GitHub-TESTE-ARM64.apk)
-- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.68.md)
+- [Baixar o APK Android ARM64 0.10.69](https://github.com/kauanbraga125-sketch/horda-zumbi/releases/download/v0.10.69/Horda-Zumbi-v0.10.69-GitHub-TESTE-ARM64.apk)
+- [Novidades, instruções e validação](monster-game/ATUALIZACAO-v0.10.69.md)
 - [Código-fonte, sprites e áudios](monster-game/)
 
 Os sons de abrir o mercado e de voltar começam junto da navegação, com o início quase silencioso removido das quatro variações.
