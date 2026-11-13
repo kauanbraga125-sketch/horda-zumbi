@@ -67,7 +67,7 @@ func run() -> void:
 	var run_model = HordeRun.new();run_model.start_developer("gap",1,0,171);run_model.bird.configure(data)
 	check(run_model.bird.id=="pipoco" and run_model.bird.companion==null,"Runtime rejects duplicate companions even before migration")
 	var coins = run_model.coins;run_model.bird.on_perfect(run_model)
-	check(run_model.coins==coins+3,"Duplicate saved slots cannot double the Perfect bonus")
+	check(run_model.coins==coins and run_model.bird.pipoco.until_spit==16,"Duplicate saved slots cannot duplicate Pipoco's timed power")
 	data.bird_equipped_slots = ["","pipoco"];data.bird_equipped = ""
 	Catalog.add_copy(data,"pipoco","draw");data.bird_pending.taps = 3;Catalog.unlock_receipt(data)
 	check(data.bird_equipped_slots==["","pipoco"],"Revealing another copy never auto-equips the same species twice")

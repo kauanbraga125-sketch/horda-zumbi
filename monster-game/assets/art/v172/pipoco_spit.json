@@ -1,0 +1,74 @@
+{
+  "columns": 4,
+  "rows": 2,
+  "cell": 256,
+  "frames": [
+    {
+      "name": "hover",
+      "source_cell": 0,
+      "mouth_px": [
+        200.14,
+        113.41
+      ]
+    },
+    {
+      "name": "inhale",
+      "source_cell": 1,
+      "mouth_px": [
+        203.23,
+        112.54
+      ]
+    },
+    {
+      "name": "inflate",
+      "source_cell": 2,
+      "mouth_px": [
+        195.55,
+        109.78
+      ]
+    },
+    {
+      "name": "prepare",
+      "source_cell": 3,
+      "mouth_px": [
+        176.1,
+        134.93
+      ]
+    },
+    {
+      "name": "spit",
+      "source_cell": 4,
+      "mouth_px": [
+        201.08,
+        135.2
+      ]
+    },
+    {
+      "name": "follow_through",
+      "source_cell": 5,
+      "mouth_px": [
+        201.25,
+        137.88
+      ]
+    },
+    {
+      "name": "blink",
+      "source_cell": 6,
+      "mouth_px": [
+        196.69,
+        150.71
+      ]
+    },
+    {
+      "name": "recover",
+      "source_cell": 7,
+      "mouth_px": [
+        199.56,
+        132.46
+      ]
+    }
+  ],
+  "source_sha256": "02d0214ea6927eb715982031fb20c9a9c678efb1fad1d19183a478200bf2dc0c",
+  "purpose": "Eight identity-preserving action poses with alpha; physical coins emitted separately.",
+  "generation": "Generated image edit, aligned and packed to 1024x512 for low-memory runtime."
+}

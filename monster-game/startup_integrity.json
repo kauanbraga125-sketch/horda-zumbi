@@ -1,5 +1,5 @@
 {
-  "version": "0.10.71",
+  "version": "0.10.72",
   "class_count": 55,
   "files": [
     {
@@ -44,18 +44,18 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 1732,
-      "sha256": "15fd744d03d334d1acb44538d150faedde392ab567a0437c5879278f77de019a"
+      "bytes": 3552,
+      "sha256": "55c5ff7310ce8a5086de668a30129a96a915c5e458200204b4b608f7c1558baf"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 9974,
-      "sha256": "d0fa9e9b62acc556c3def596f0c616c991e0faf7d76ac7a7bcea5112e9fd7e2d"
+      "bytes": 9958,
+      "sha256": "fb4c5cdeea17cb4f1f331c02a993eeed33d12f44a7f4ca1f1da4dd9b026d71f5"
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 5101,
-      "sha256": "faab7a1e58636c11796210e7c8ade2f4c5e427774925f7673666338f44242619"
+      "bytes": 5245,
+      "sha256": "6945f3f2dba8b4230ee75c6e4c93cb72aa801e3e81161fc0b399f71a5963a768"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -219,8 +219,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 132738,
-      "sha256": "383bf7598a875d5dc6fb651af79e66e69a7b775739884fffed400afe12255fec"
+      "bytes": 132721,
+      "sha256": "229dfcd8244a4efdc86e41aab0ea619cf7098de874bb299385d9917b75749bb3"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -306,6 +306,11 @@
       "path": "res://scripts/pages.gd",
       "bytes": 15114,
       "sha256": "a0785142d2e2393dc39a929285aade6923a58926981c3424eb2fea3516c53b75"
+    },
+    {
+      "path": "res://scripts/pipoco_power.gd",
+      "bytes": 5932,
+      "sha256": "0b417e2b539a0ff63feb627c07ef790b1d2e725a79ad0afa0868a0c9f8ab8f43"
     },
     {
       "path": "res://scripts/police_sprite.gd",
@@ -2396,6 +2401,16 @@
       "path": "res://assets/art/v170/selected.webp",
       "bytes": 21216,
       "sha256": "ca95f0578b907b20cc379556e6fbb6735a848b1893f667323d6007033dc3d326"
+    },
+    {
+      "path": "res://assets/art/v172/pipoco_spit.json",
+      "bytes": 1315,
+      "sha256": "6875f311c1f62bc10066e025178297363749c42e73d92a7c27c4916778af24f2"
+    },
+    {
+      "path": "res://assets/art/v172/pipoco_spit.webp",
+      "bytes": 175328,
+      "sha256": "d6e50dca8acd2acd5699460e0ab49b79523800ed66d4cbf1811bd63d56f63524"
     }
   ]
 }
