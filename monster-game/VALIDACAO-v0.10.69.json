@@ -1,0 +1,73 @@
+{
+  "version": "0.10.69",
+  "base_commit": "c7a167cd8670a76b41c5e79478e80856f0a4a54f",
+  "feature_checks": {
+    "checks": 51,
+    "failures": [],
+    "physical_device_tested": false,
+    "rendered": false,
+    "version": "0.10.69"
+  },
+  "regressions": [
+    {
+      "suite": "v140_sewer",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "suite": "v161_routes",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "suite": "v162_regression",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "suite": "v163_landscape",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "suite": "v164_cosmic",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "suite": "v165_regions",
+      "passed": true,
+      "returncode": 0
+    },
+    {
+      "suite": "v166_pop",
+      "passed": true,
+      "returncode": 0
+    }
+  ],
+  "systems_checks": {
+    "checks": 66,
+    "failures": []
+  },
+  "physical_device_tested": false,
+  "audio_sources": "assets/audio/v169/manifest.json",
+  "art_provenance": "assets/art/v169/manifest.json",
+  "implementation": [
+    "30 diamonds per egg, three saved taps, distinct restartable tap cue and hatch cue",
+    "six same-species draws consumed for fusion, no maximum-tier fusion",
+    "two independent active companions and save-compatible slots",
+    "confirmation dialog with price/image/cancel and single purchase dispatch",
+    "static accessory thumbnails avoid runtime fitting data in market",
+    "original short ascending coin piano and four PERFECT voices",
+    "collected coin retirement does not invalidate remaining formation",
+    "six capped scene channels, quieter effect replacement, lighter music ducking",
+    "owner-provided activation and ending cues, trimmed existing scene and civilian cues",
+    "short clipped zombie/skeleton emergence with race physics held until ready"
+  ],
+  "visual_validation": {
+    "packaged_native_checks": 64,
+    "failures": [],
+    "physical_device_tested": false,
+    "verified_workflow_run": 43338905268
+  }
+}

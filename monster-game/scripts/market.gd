@@ -1,7 +1,7 @@
 class_name HordeMarket
 extends RefCounted
 
-const TITLES = ["OBJETOS", "MELHORIAS", "ACESSÓRIOS", "MOEDAS"]
+const TITLES = ["OBJETOS", "MELHORIAS", "ACESSÓRIOS", "RECOMPENSAS", "AVES MALDITAS"]
 const SHEET = preload("res://assets/art/market-art-v82.png")
 var category = 0
 var page = 0
@@ -11,6 +11,9 @@ var selected = ""
 var expanded: Dictionary = {}
 var sprites: Dictionary = {}
 var accessory_filter = 0
+var thumbnails: Dictionary = {}
+var cached_entries: Array[Dictionary] = []
+var cache_key = -1
 
 func _init() -> void :
 	var regions = {"logo": Rect2(8, 82, 1520, 490), "shoe": Rect2(0, 620, 384, 350), "magnet": Rect2(390, 606, 378, 364), "potion": Rect2(768, 598, 384, 378), "church": Rect2(1152, 590, 384, 390)}
@@ -48,13 +51,16 @@ func layout(view: Rect2) -> Dictionary:
 	var title_width = minf(view.size.x * 0.3, 450)
 	var title = Rect2(left - 12, view.position.y + 10, title_width, title_width * 490 / 1520)
 	var tabs: Array[Rect2] = []
-	for i in range(4):
-		tabs.append(Rect2(left, top + i * 96, sidebar_width, 84))
+	for i in range(5):
+		tabs.append(Rect2(left, top + i * 77, sidebar_width, 68))
 	return {"view": view, "title": title, "tabs": tabs, "grid": grid, "card_size": card_size, "gap": gap, 
 		"wallet": Rect2(right - 218, view.position.y + 28, 218, 72), 
 		"back": Rect2(left, grid.end.y - 70, sidebar_width, 70)}
 
 func items(data: Dictionary) -> Array[Dictionary]:
+	var signature = hash([category,accessory_filter,data.stock,data.cosmetics,data.get("active_cosmetics",[]),data.levels,data.owned,data.power_owned,data.power_levels,data.areas,data.daily_claim_at,data.graves.size(),floori(Time.get_unix_time_from_system()/60)])
+	if signature==cache_key: return cached_entries
+	cache_key = signature
 	var result: Array[Dictionary] = []
 	match category:
 		0:
@@ -82,11 +88,12 @@ func items(data: Dictionary) -> Array[Dictionary]:
 			for item in HordeMeta.COSMETICS:
 				if accessory_filter == 2 or int(item.kind) != accessory_filter: continue
 				var owned = item.id in data.cosmetics;var active = item.id in data.get("active_cosmetics", [])
-				result.append({"key":item.id,"name":item.name,"description":"Participa dos visuais sorteados na horda. Ative vários para variar.","status":"ATIVO NA HORDA" if active else "NA COLEÇÃO" if owned else "EXCLUSIVO · OLHOS" if item.currency == "eyes" else "ACESSÓRIO","price":0 if owned else item.price,"currency":item.currency,"active":active,"owned":owned,"full":false,"action":"cosmetic_"+item.id,"illustration":"cosmetic","index":item.icon,"kind":item.kind})
+				result.append({"key":item.id,"name":item.name,"description":"Dê estilo à sua horda. Colecione e equipe!","status":"ATIVO NA HORDA" if active else "NA COLEÇÃO" if owned else "EXCLUSIVO · DIAMANTES" if item.currency == "eyes" else "ACESSÓRIO","price":0 if owned else item.price,"currency":item.currency,"active":active,"owned":owned,"full":false,"action":"cosmetic_"+item.id,"illustration":"cosmetic","index":item.icon,"kind":item.kind})
 		3:
 			var available = HordeMeta.daily_available(data, int(Time.get_unix_time_from_system()))
-			result.append({"key": "daily", "name": "PRESENTE DA MADRUGADA", "description": "5 Olhos Malditos a cada 24 horas. Toque em resgatar quando estiver disponível.", "status": "DISPONÍVEL" if available else "VOLTE EM " + str(ceili((int(data.daily_claim_at) + 86400 - Time.get_unix_time_from_system()) / 3600.0)) + " H", "price": 0, "full": not available, "action": "daily_eyes", "illustration": "eye", "index": 0, "kind": 0})
+			result.append({"key": "daily", "name": "PRESENTE DA MADRUGADA", "description": "5 Diamantes a cada 24 horas. Toque em resgatar quando estiver disponível.", "status": "DISPONÍVEL" if available else "VOLTE EM " + str(ceili((int(data.daily_claim_at) + 86400 - Time.get_unix_time_from_system()) / 3600.0)) + " H", "price": 0, "full": not available, "action": "daily_eyes", "illustration": "eye", "index": 0, "kind": 0})
 			result.append({"key": "graves", "name": "PRÊMIOS DO CEMITÉRIO", "description": "100 almas abrem duas lápides. Limpe as duas ou entregue o par fechado por 180 moedas.", "status": str(data.graves.size()) + " PARES À ESPERA", "price": 0, "full": false, "action": "graves_open", "illustration": "grave", "index": 0, "kind": 0})
+	cached_entries = result
 	return result
 
 func sync_scroll(entries: Array[Dictionary], d: Dictionary) -> void :
@@ -118,7 +125,7 @@ func paint(g) -> void :
 	var subtitle = ["Compre, guarde e escolha quando usar.", "Toque na arte para ver todos os benefícios.", "Visuais e regiões para sua coleção.", "Recompensas de jogo e presente diário."][category]
 	g.home_menu.label(g, subtitle, Vector2(d.title.get_center().x, d.title.end.y + 17), 19, g.MINT, true, d.title.size.x + 20)
 	g.hub.wallet(g, Rect2(d.wallet.end.x - 405, d.wallet.position.y, 405, 72))
-	for i in range(4):
+	for i in range(5):
 		var rect: Rect2 = d.tabs[i]
 		var face = rect
 		if g.pressed_button == "market_tab_" + str(i): face.position.y += 2
@@ -130,8 +137,9 @@ func paint(g) -> void :
 			0: g.home_menu.gear(g, at, 23, g.ui_time * 0.08)
 			1: g.scenery.sprite(g, g.home_menu.menu_zombie.face, at, 50)
 			2: g.scenery.sprite(g, sprites.potion, at, 56)
-			3: g.scenery.sprite(g, sprites.church, at, 60)
-		g.home_menu.label(g, TITLES[i], Vector2(face.position.x + 89, face.get_center().y + 10), 26, g.GOLD if category == i else g.CREAM, false, face.size.x - 105)
+			3: g.scenery.sprite(g, sprites.church, at, 48)
+			4: preload("res://scripts/bird_art.gd").paint(g.paint_target,"pipoco",at,53,g.ui_time)
+		g.home_menu.label(g, TITLES[i], Vector2(face.position.x + 89, face.get_center().y + 10), 20 if i==4 else 23, g.GOLD if category == i else g.CREAM, false, face.size.x - 105)
 		g.buttons.append({"rect": rect, "action": "market_tab_" + str(i)})
 	var back: Rect2 = d.back
 	var back_face = back
@@ -164,6 +172,8 @@ func paint(g) -> void :
 		if bool(item.full) or bool(item.get("locked", false)): continue
 		var visible = purchase_rect(card_rect(i, d)).intersection(d.grid)
 		if visible.size.x > 40 and visible.size.y >= 46:
+			var entire: Rect2 = card_rect(i,d).intersection(d.grid)
+			if int(item.price)>0:g.buttons.append({"rect":entire,"action":item.action})
 			g.buttons.append({"rect": visible, "action": item.action})
 
 func wrapped(g, value: String, point: Vector2, width: float, size: int, lines: int = 3) -> void :
@@ -239,7 +249,7 @@ func purchase(g, item: Dictionary, rect: Rect2) -> void :
 		var owned = bool(item.owned)
 		var label = ("DESATIVAR" if item.active else "ATIVAR") if owned else "COMPRAR"
 		g.home_menu.label(g, label, face.get_center() + Vector2(0, -7), 19, Color("3f211f"), true, face.size.x - 16)
-		g.home_menu.label(g, "NA COLEÇÃO" if owned else str(item.price) + (" OLHOS" if item.currency == "eyes" else " MOEDAS"), face.get_center() + Vector2(0, 23), 18, g.CREAM, true, face.size.x - 16)
+		g.home_menu.label(g, "NA COLEÇÃO" if owned else str(item.price) + (" DIAMANTES" if item.currency == "eyes" else " MOEDAS"), face.get_center() + Vector2(0, 23), 18, g.CREAM, true, face.size.x - 16)
 		return
 	if full or locked:
 		var state = "BLOQUEADO" if locked else ("NO MÁXIMO" if item.has("level_value") else ("RESGATADO" if item.key == "daily" else "LIBERADO"))
@@ -263,14 +273,12 @@ func paint_rows(g) -> void :
 		var text_width = rect.end.x - text_x - 18
 		var title_size = int(clampf(rect.size.x * 0.056, 21, 29))
 		g.home_menu.label(g, item.name, Vector2(text_x, rect.position.y + 42), title_size, g.CREAM, false, text_width, false, 3)
-		wrapped(g, item.description, Vector2(text_x + 1, rect.position.y + 78), text_width - 2, int(clampf(rect.size.x * 0.036, 17, 20)), 3)
+		var description_size = int(clampf(rect.size.x * 0.036, 17, 20))
+		var description_lines = clampi(floori((purchase_rect(rect).position.y-rect.position.y-60)/(description_size+7.0)),1,3)
+		wrapped(g, item.description, Vector2(text_x + 1, rect.position.y + 78), text_width - 2, description_size, description_lines)
 		var art_height = clampf(rect.size.x * 0.28, 112, 154)
 		if item.illustration == "cosmetic":
-			var preview = Rect2(rect.position+Vector2(17,15),Vector2(text_x-rect.position.x-30,rect.size.y-64))
-			var bounds: Rect2 = g.actor.cosmetics.preview_bounds(str(item.key))
-			var height = minf(preview.size.x/bounds.size.x,preview.size.y/bounds.size.y)*.98
-			var foot = preview.get_center()-bounds.get_center()*height
-			g.actor.paint(g.paint_target,int(item.kind),foot,height,g.ui_time*.7,"run",g.ui_time,0,Color.WHITE,false,1,true,-1,0,[str(item.key)])
+			preview(g,item,rect.position+Vector2(rect.size.x*.205,rect.size.y*.43),art_height)
 		else:
 			illustration(g,item,rect.position+Vector2(rect.size.x*.205,rect.size.y*.43),art_height)
 		var baseline = rect.end.y - 28
@@ -281,3 +289,13 @@ func paint_rows(g) -> void :
 		else:
 			g.home_menu.label(g, item.status, Vector2(rect.position.x + 23, baseline), 15, g.MINT, false, rect.size.x * 0.45 - 25)
 		purchase(g, item, purchase_rect(rect))
+
+func preview(g,item: Dictionary,point: Vector2,height: float) -> void:
+	var id = str(item.key)
+	if not thumbnails.has(id):
+		var image = Image.new()
+		if image.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v169/"+id+".webp"))!=OK: return
+		thumbnails[id] = ImageTexture.create_from_image(image)
+	var tex: Texture2D = thumbnails[id]
+	var size = tex.get_size()*minf(height/tex.get_height(),height*1.3/tex.get_width())
+	g.paint_target.draw_texture_rect(tex,Rect2(point-size*.5,size),false)

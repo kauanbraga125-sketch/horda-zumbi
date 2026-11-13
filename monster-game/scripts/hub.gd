@@ -1,6 +1,6 @@
 class_name HordeHub
 extends RefCounted
-const EYE = preload("res://assets/art/meta_v100/eye.png")
+const EYE = preload("res://assets/art/v169/diamond.webp")
 const BOOK = preload("res://assets/art/meta_v100/book.png")
 var grave_texture: Texture2D = preload("res://assets/art/meta_v100/grave.png")
 var fluid: ColorRect
@@ -119,7 +119,12 @@ func footer(g, right: String = "JOGAR", action: String = "play") -> void:
 	button(g, Rect2(r.end.x - 300, g.full_rect().end.y - 82, 300, 66), right, action, true)
 
 func eye(g, point: Vector2, size: float) -> void:
-	g.scenery.sprite(g.paint_target, EYE, point, size, Color.WHITE, sin(g.ui_time * 1.4) * 0.025)
+	g.scenery.sprite(g.paint_target, EYE, point, size*(1.0+sin(g.ui_time*2.3)*.025), Color.WHITE, sin(g.ui_time * 1.4) * 0.025)
+	var shine = maxf(0,sin(g.ui_time*2.2))
+	if size>45 and shine>.5:
+		var at = point+Vector2(size*.27,-size*.24)
+		g.paint_target.draw_line(at-Vector2(4,0),at+Vector2(4,0),Color(1,1,1,shine),1.5,true)
+		g.paint_target.draw_line(at-Vector2(0,4),at+Vector2(0,4),Color(1,1,1,shine),1.5,true)
 
 func wallet(g, rect: Rect2) -> void:
 	g.home_menu.slab(g, rect, Color("21152e"), Color("ba925c"), 10, 3)
@@ -157,7 +162,7 @@ func home(g) -> void:
 	if presentation.busy(): draw_run_notice(g)
 	button(g,d.profile,"MEU PERFIL","profile_open")
 	if HordeMeta.daily_available(g.data,int(Time.get_unix_time_from_system())):
-		button(g,Rect2(d.profile.position+Vector2(0,63),Vector2(d.profile.size.x,44)),"+5 OLHOS GRÁTIS","daily_eyes")
+		button(g,Rect2(d.profile.position+Vector2(0,63),Vector2(d.profile.size.x,44)),"+5 DIAMANTES GRÁTIS","daily_eyes")
 
 func prepare(g) -> void:
 	g.prepare_ui.paint(g)
@@ -172,7 +177,7 @@ func revive(g) -> void:
 		for j in range(count): g.actor.paint(g.paint_target, 0, Vector2(box.get_center().x - (count - 1) * 20 + j * 40, box.position.y + 170), 115, g.ui_time * 0.6 + j * 0.17, "idle", g.ui_time, 0, Color.WHITE, false, 1, false)
 		label(g, str(count) + (" MONSTROS" if count == 5 else " MONSTRO"), Vector2(box.get_center().x, box.position.y + 214), 30, g.CREAM, true)
 		if i == 0: eye(g, Vector2(box.get_center().x - 95, box.end.y - 46), 43)
-		button(g, Rect2(box.position.x + 36, box.end.y - 81, box.size.x - 72, 68), "25 OLHOS" if i == 0 else "GRÁTIS", "revive_paid" if i == 0 else "revive_free", true)
+		button(g, Rect2(box.position.x + 36, box.end.y - 81, box.size.x - 72, 68), "25 DIAMANTES" if i == 0 else "GRÁTIS", "revive_paid" if i == 0 else "revive_free", true)
 	button(g, Rect2(r.get_center().x - 160, g.full_rect().end.y - 78, 320, 58), "ENCERRAR PARTIDA", "revive_decline")
 
 func results(g) -> void:
@@ -339,11 +344,13 @@ func settle_stats(g) -> void:
 	for cause in g.runner.loss_causes: g.data.death_causes[cause] = int(g.data.death_causes.get(cause, 0)) + int(g.runner.loss_causes[cause])
 
 func action(g, a: String) -> bool:
+	if a in ["profile_open","share_score","causes_open"] or (a=="back" and g.screen=="profile"):
+		g.sound.play("ui_back" if a=="back" else "ui_confirm")
 	if a.begins_with("cosmetic_"):
 		if HordeMeta.equip_cosmetic(g.data,a.trim_prefix("cosmetic_")): g.save_game();g.sound.play("buy")
 		else:
 			var item = HordeCosmetics.item(a.trim_prefix("cosmetic_"))
-			g.show_toast("FALTAM OLHOS MALDITOS." if item.get("currency", "coins") == "eyes" else "FALTAM MOEDAS.");g.sound.play("ui_denied")
+			g.show_toast("FALTAM DIAMANTES." if item.get("currency", "coins") == "eyes" else "FALTAM MOEDAS.");g.sound.play("ui_denied")
 		return true
 	if a.begins_with("evolution_"):
 		detail_kind = clampi(int(a.trim_prefix("evolution_")), 0, 3);g.change_screen("evolution");return true
@@ -366,12 +373,12 @@ func action(g, a: String) -> bool:
 		"profile_open": profile_from = g.screen;g.change_screen("profile")
 		"graves_open": graves_from = g.screen;g.change_screen("graves")
 		"daily_eyes":
-			if HordeMeta.claim_daily(g.data, int(Time.get_unix_time_from_system())): g.save_game();g.sound.play("challenge");g.show_toast("+5 OLHOS MALDITOS! VOLTE EM 24 HORAS.")
+			if HordeMeta.claim_daily(g.data, int(Time.get_unix_time_from_system())): g.save_game();g.sound.play("challenge");g.show_toast("+5 DIAMANTES! VOLTE EM 24 HORAS.")
 			else: g.show_toast("O PRESENTE AINDA ESTÁ DESCANSANDO.")
 		"revive_paid", "revive_free":
 			if g.screen != "revive" or g.revive_used: return true
 			var paid = a == "revive_paid"
-			if paid and int(g.data.eyes) < 25: g.show_toast("FALTAM " + str(25 - int(g.data.eyes)) + " OLHOS MALDITOS.");return true
+			if paid and int(g.data.eyes) < 25: g.show_toast("FALTAM " + str(25 - int(g.data.eyes)) + " DIAMANTES.");return true
 			if paid: g.data.eyes -= 25
 			g.revive_used = true;g.runner.revive_horde(5 if paid else 1);g.end_delay = -1;g.save_game();g.change_screen("run");g.sound.play("revive");g.show_toast("DE VOLTA À NOITE! PROTEÇÃO POR 3 SEGUNDOS.")
 		"revive_decline": g.finish_run()

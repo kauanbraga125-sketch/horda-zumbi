@@ -212,12 +212,14 @@
         "file": "witch_1.bin",
         "source": "Crie_uma_risada_curt_#3-1794500761392.mp3",
         "source_sha256": "09bfafcf4f1915d1fb28bae2522e5a7a2e6a73c6c4c96e67656175f7946f7901",
-        "duration": 3.2,
+        "duration": 2.598,
         "gain_db": 4.42218,
-        "bytes": 28316,
-        "sha256": "58b36b12cae6ac9903adbfe2930feabbe2749f6bc2c3be6fb8a97a2ee3b6e502",
+        "bytes": 25926,
+        "sha256": "60c81bc479e0cc2d778815ebb5048caaa3dd83928ced37ac99354bd5775fadda",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "58b36b12cae6ac9903adbfe2930feabbe2749f6bc2c3be6fb8a97a2ee3b6e502",
+        "trim_start_v169": 0.602
       }
     ],
     "worm_lunge": [
@@ -254,12 +256,14 @@
         "file": "ape_1.bin",
         "source": "Crie_um_rugido_origi_#4-1794500965842.mp3",
         "source_sha256": "2b9fa64b7f508df9bb111cef33200e99c9e1acc925ac1be94d4a01b28e8a5a2a",
-        "duration": 3.28,
+        "duration": 2.698,
         "gain_db": 9.49543,
-        "bytes": 28796,
-        "sha256": "b7e85b60bf3ed8a45ae1723d12918be54e628cd52e61572bedd2ab50815a736e",
+        "bytes": 26477,
+        "sha256": "d26f108a0b0130660e377e6f7fe60553f03e7a85d7615f9940dc7f09b3d4bbb6",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "b7e85b60bf3ed8a45ae1723d12918be54e628cd52e61572bedd2ab50815a736e",
+        "trim_start_v169": 0.582
       }
     ],
     "reptile": [
@@ -282,12 +286,14 @@
         "file": "impact_1.bin",
         "source": "Crie_um_único_impact_#2-1794501058577.mp3",
         "source_sha256": "5467732f2f5a311c6e406bfbf3e72cdd192fe091456d8baf1d9324f65e73e791",
-        "duration": 2.0,
+        "duration": 1.852,
         "gain_db": -0.33755,
-        "bytes": 18285,
-        "sha256": "e97442ce89a81b3c81df261ee1c11ce2eef4c6e910e46e4f8cd1277d9c418bac",
+        "bytes": 18347,
+        "sha256": "700086b202bcbe46d026e3b2a322e2dd6931a1466e4d6dad6f03053f526d628b",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "e97442ce89a81b3c81df261ee1c11ce2eef4c6e910e46e4f8cd1277d9c418bac",
+        "trim_start_v169": 0.148
       }
     ],
     "breath": [
@@ -324,12 +330,14 @@
         "file": "cloak_1.bin",
         "source": "Crie_o_efeito_de_ati_#4-1794501155171.mp3",
         "source_sha256": "12b6c637072be72236329a307ac8be73d581ce321bd35b20a6ca5ab197a13e15",
-        "duration": 2.0,
+        "duration": 1.468,
         "gain_db": 2.27158,
-        "bytes": 18870,
-        "sha256": "2affafc07ae7333b28c96eeeda73ad4a61eea0d247aa463bed905968b5b275f5",
+        "bytes": 15224,
+        "sha256": "ee5079f08f34782329a8ff6639e5d139600de7593297116ee321f1a25c9b4c91",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "2affafc07ae7333b28c96eeeda73ad4a61eea0d247aa463bed905968b5b275f5",
+        "trim_start_v169": 0.532
       }
     ],
     "planet": [
@@ -338,12 +346,14 @@
         "file": "planet_1.bin",
         "source": "Crie_o_som_de_uma_cr_#4-1794501206854.mp3",
         "source_sha256": "1498f05a057f1eebfb4bebdae5fd15b0aa7d554c6b3b09c16f5f6f58ea457192",
-        "duration": 3.2,
+        "duration": 2.806,
         "gain_db": 10.88853,
-        "bytes": 26623,
-        "sha256": "e18820aa8a8856dfe7232f95d82ca153f73846eae3fb04e18ac030c5f5a07568",
+        "bytes": 25648,
+        "sha256": "48b4b6a8787c74c57256086e573f22b5d6d580891b5ed1961fe63078b72abe88",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "e18820aa8a8856dfe7232f95d82ca153f73846eae3fb04e18ac030c5f5a07568",
+        "trim_start_v169": 0.394
       }
     ],
     "time_car": [
@@ -352,12 +362,14 @@
         "file": "time_car_1.bin",
         "source": "Crie_a_passagem_de_u_#4-1794501245445.mp3",
         "source_sha256": "0b4b86723e75691bdcb1015e4077c3dd6f723bf70f28fccde3133302815aeff1",
-        "duration": 5.28,
+        "duration": 5.08,
         "gain_db": -3.37269,
-        "bytes": 41853,
-        "sha256": "c2cffdccd9d56811ff95bab293a80c3921bb76136b0205a6a5d1e1c32631f6e0",
+        "bytes": 42536,
+        "sha256": "37b86f91e521a5cfafffa52facfa6f1032853ddd0e5fc662c54f8ac61c7414b9",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "c2cffdccd9d56811ff95bab293a80c3921bb76136b0205a6a5d1e1c32631f6e0",
+        "trim_start_v169": 0.2
       }
     ],
     "flood": [
@@ -366,12 +378,14 @@
         "file": "flood_1.bin",
         "source": "Crie_uma_vocalização_#4-1794501285372.mp3",
         "source_sha256": "7c96cbf776c55129c72485eea402c087be2326e890a81f110cf84b45cb8349d6",
-        "duration": 5.28,
+        "duration": 5.114,
         "gain_db": 23.05006,
-        "bytes": 47550,
-        "sha256": "19b88146c609774466782772d3e8a67629976c931621717a7512b8eceb803c3b",
+        "bytes": 49381,
+        "sha256": "15061392080919547dc174cb210bd5850848ff8ba3ce3337ddc79cb0df7d7f7d",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "19b88146c609774466782772d3e8a67629976c931621717a7512b8eceb803c3b",
+        "trim_start_v169": 0.166
       }
     ],
     "vortex": [
@@ -380,12 +394,14 @@
         "file": "vortex_1.bin",
         "source": "Crie_o_efeito_de_um_sucção_#3-1794501393672.mp3",
         "source_sha256": "691ac5c3f1b9cb4574a024eb8dac9adf1ce68f774b0200d19ce3372c07af9220",
-        "duration": 3.88,
+        "duration": 3.784,
         "gain_db": 13.29574,
-        "bytes": 32708,
-        "sha256": "62c9576be7238f8c92317b9dcc431b9bda75312ef87b6efe79b5b317e4d23637",
+        "bytes": 31491,
+        "sha256": "e77926acedde06f38bd97f6e20a3abb3f6b5a36c3eb25f26121d4d30d46092bf",
         "loop": false,
-        "estimated": false
+        "estimated": false,
+        "pre_v169_sha256": "62c9576be7238f8c92317b9dcc431b9bda75312ef87b6efe79b5b317e4d23637",
+        "trim_start_v169": 0.096
       }
     ],
     "trampoline": [
@@ -430,5 +446,6 @@
     "variants": [
       "Both distinct S24 uploads are retained and alternated."
     ]
-  }
+  },
+  "timing_revision": "0.10.69: trim near-silent attack from non-loop scene cues; retain continuous environments."
 }

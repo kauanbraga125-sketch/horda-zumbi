@@ -22,10 +22,14 @@ func run() -> void:
 	for pose_index in range(12):
 		sheet.pose_index = pose_index;sheet.queue_redraw();await process_frame;await process_frame;await RenderingServer.frame_post_draw
 		var im = view.get_texture().get_image()
+		var ctl = sheet.controls()
+		var actual_index = (0 if int(ctl.seat)==0 else 4)+posmod(int(float(ctl.time)*8),4)
 		for i in range(HordeCosmeticCatalog.ITEMS.size()):
-			var entry = HordeCosmeticCatalog.ITEMS[i];var f = game.actor.sewer_riders.pose(game.actor.cosmetics,int(entry.kind),pose_index)
+			var entry = HordeCosmeticCatalog.ITEMS[i];var f = game.actor.sewer_riders.pose(game.actor.cosmetics,int(entry.kind),actual_index)
 			var old: Dictionary = game.actor.cosmetics.frames[f.source_key]
-			var foot = Vector2(93+i%7*182,165+int(i/7)*152);var transform = Transform2D(0,foot-Vector2(0,36));transform.x *= .25;transform.y *= .25;transform.origin -= transform.basis_xform(Vector2(f.anchor[0],f.anchor[1]));transform = transform*f.head_transform
+			var foot = Vector2(93+i%7*182,165+int(i/7)*152);var transform = Transform2D(0,foot-Vector2(0,36));transform.x *= .25;transform.y *= .25;transform.origin -= transform.basis_xform(Vector2(f.anchor[0],f.anchor[1]))
+			var bend = game.actor.sewer_riders.crouch_transforms(transform,f,int(entry.kind),clampf(float(ctl.motion),0,1) if ctl.state=="duck" else 0.0)
+			transform = bend.head*f.head_transform
 			var eye = Vector2(old.landmarks.near[0],old.landmarks.near[1]);var chin = Vector2(old.landmarks.chin[0],old.landmarks.chin[1])
 			for source in [eye,eye.lerp(chin,.45),eye.lerp(chin,.72)]:
 				var p = transform*source;var alpha = 0.0

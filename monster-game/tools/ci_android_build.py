@@ -206,8 +206,20 @@ def build(args):
         shutil.copyfile(project / "tests/v168_ui_audio.gd", runtime / "tests/v168_ui_audio.gd")
         navigation_log = run([engine, "--headless", "--audio-driver", "Dummy", "--path", runtime, "--script", "res://tests/v168_ui_audio.gd"], output / "cliques-ui-apk.log", env)
         assert "V168_UI_AUDIO " in navigation_log and '"failures":[]' in navigation_log, "Sons de navegação do APK não confirmados"
+        shutil.copyfile(project / "tests/v169_package.gd", runtime / "tests/v169_package.gd")
+        env["XDG_DATA_HOME"] = str(temporary / "package-v169-user")
+        feature_log = run([engine, "--headless", "--audio-driver", "Dummy", "--path", runtime, "--script", "res://tests/v169_package.gd"], output / "pacote-v169.log", env)
+        assert "V169_PACKAGE " in feature_log and '\"failures\":[]' in feature_log, "Verificações do pacote 0.10.69 falharam"
+        if shutil.which("xvfb-run"):
+            env["XDG_DATA_HOME"] = str(temporary / "visual-v169-user")
+            env["HORDA_VALIDATION_DIR"] = str(output / "preview")
+            env["LIBGL_ALWAYS_SOFTWARE"] = "true"
+            visual_log = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v169_package.gd"], output / "visual-v169.log", env)
+            assert "V169_PACKAGE " in visual_log and '\"failures\":[]' in visual_log, "Verificação visual 0.10.69 falhou"
         report = {"version": version, "engine": engine_version, "mode": args.mode, "commit": os.environ.get("GITHUB_SHA", "local"), "apk": name, "bytes": apk_path.stat().st_size, "sha256": sha(apk_path), "android": android_info, "layout": layout, "startup_files": len(audit["files"]), "classes": audit["class_count"], "resource_entries": entries, "fresh_source_export": True, "all_game_resources_replaced": True, "source_boot_verified": True, "packaged_boot_verified": True, "physical_device_tested": False, "native_base_sha256": BASE_SHA256}
         report["ui_audio_navigation_verified"] = True
+        report["v169_features_verified"] = True
+        report["v169_visual_verified"] = shutil.which("xvfb-run") is not None
         (output / "compilacao.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
         (output / "SHA256SUMS.txt").write_text(f"{report['sha256']}  {name}\n")
         print(json.dumps(report, ensure_ascii=False), flush=True)

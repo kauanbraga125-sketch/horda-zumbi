@@ -8,11 +8,11 @@ const NAMES = ["PIPOCO","FIAPO","FERRUGEM","AGOURINHO","BARÃO GOELA"]
 const PERSONALITIES = ["Uma barriga enorme. Uma fome maior ainda.","Magrelo, medroso e sempre vendo perigo.","Metade corvo. Metade sucata. Inteiro mau humor.","Três olhos. Um segredo. Nenhum pio normal.","Sua excelência exige espaço para a barriga."]
 const HINTS = ["Adora ver uma fileira inteira de moedas sumir.","O pescoço estica quando o perigo se aproxima.","Está sempre procurando algo para desmontar.","Não gosta de despedidas definitivas.","Só faz uma entrada triunfal depois de bons saltos."]
 const PRICE = 30
-const FUSION_PRICE = 500
+const FUSION_PRICE = 0
 const ESSENCE_NEEDED = 6
 
 static func defaults() -> Dictionary:
-	return {"bird_copies":{},"bird_essence":{},"bird_equipped":"","bird_draws":0,"bird_rare_pity":0,"bird_legend_pity":0,"bird_pending":{},"bird_serial":0}
+	return {"bird_copies":{},"bird_essence":{},"bird_equipped":"","bird_equipped_slots":["",""],"bird_draws":0,"bird_rare_pity":0,"bird_legend_pity":0,"bird_pending":{},"bird_serial":0}
 
 static func tier(id: String) -> int: return IDS.find(id)
 
@@ -32,15 +32,20 @@ static func migrate(raw: Dictionary) -> Dictionary:
 		var value = raw.get(key,0)
 		if value is int or value is float: safe[key] = clampi(int(value),0,1000000)
 	safe.bird_rare_pity = mini(9,safe.bird_rare_pity);safe.bird_legend_pity = mini(49,safe.bird_legend_pity)
-	var equipped = raw.get("bird_equipped","")
-	if equipped is String and equipped in IDS and copies(safe,equipped)>0: safe.bird_equipped = equipped
+	var slots = raw.get("bird_equipped_slots",[raw.get("bird_equipped",""),""])
+	if slots is Array and slots.all(func(id):return str(id).is_empty()) and str(raw.get("bird_equipped","")).length()>0: slots = [raw.bird_equipped,""]
+	if slots is Array:
+		for i in range(mini(2,slots.size())):
+			var id = str(slots[i])
+			if id in IDS and copies(safe,id)>0 and (i==0 or id!=safe.bird_equipped_slots[0] or copies(safe,id)>3): safe.bird_equipped_slots[i] = id
+	safe.bird_equipped = safe.bird_equipped_slots[0]
 	var receipt = raw.get("bird_pending",{})
 	if receipt is Dictionary and receipt.get("id","") in IDS:
 		var id = str(receipt.id)
 		if copies(safe,id)>0:
 			var essence = receipt.get("essence",0)
 			if not (essence is int or essence is float): essence = 0
-			safe.bird_pending = {"id":id,"serial":maxi(1,int(safe.bird_serial)),"level":level(safe,id),"new":bool(receipt.get("new",false)),"essence":clampi(int(essence),0,1),"source":"fusion" if receipt.get("source","")=="fusion" else "draw"}
+			safe.bird_pending = {"id":id,"serial":maxi(1,int(safe.bird_serial)),"level":level(safe,id),"new":bool(receipt.get("new",false)),"essence":clampi(int(essence),0,1),"taps":clampi(int(receipt.get("taps",0)),0,3),"source":"fusion" if receipt.get("source","")=="fusion" else "draw"}
 	return safe
 
 static func add_copy(data: Dictionary,id: String,source: String) -> Dictionary:
@@ -48,16 +53,16 @@ static func add_copy(data: Dictionary,id: String,source: String) -> Dictionary:
 	data.bird_copies[id] = mini(100000,old+1)
 	var essence = 1 if old>=3 else 0
 	if essence: data.bird_essence[id] = mini(100000,int(data.bird_essence.get(id,0))+1)
-	if str(data.bird_equipped).is_empty(): data.bird_equipped = id
+	if str(data.bird_equipped).is_empty(): data.bird_equipped = id;data.bird_equipped_slots[0] = id
 	data.bird_serial = int(data.bird_serial)+1
-	var receipt = {"id":id,"serial":data.bird_serial,"level":level(data,id),"new":old==0,"essence":essence,"source":source}
+	var receipt = {"id":id,"serial":data.bird_serial,"level":level(data,id),"new":old==0,"essence":essence,"taps":3 if source=="fusion" else 0,"source":source}
 	data.bird_pending = receipt.duplicate()
 	return receipt
 
 static func roll(data: Dictionary,random: RandomNumberGenerator) -> Dictionary:
 	# Pending means the item was already paid, awarded and saved: never reroll it.
 	if not data.get("bird_pending",{}).is_empty(): return {}
-	var price = 0 if int(data.bird_draws)==0 else PRICE
+	var price = PRICE
 	if int(data.eyes)<price: return {}
 	var result = 0
 	if int(data.bird_legend_pity)>=49: result = 4
@@ -77,12 +82,24 @@ static func roll(data: Dictionary,random: RandomNumberGenerator) -> Dictionary:
 static func fuse(data: Dictionary,id: String) -> Dictionary:
 	var rarity = tier(id)
 	if rarity<0 or rarity>=4 or not data.get("bird_pending",{}).is_empty(): return {}
-	if int(data.wallet)<FUSION_PRICE or int(data.bird_essence.get(id,0))<ESSENCE_NEEDED: return {}
-	data.wallet = int(data.wallet)-FUSION_PRICE
-	data.bird_essence[id] = int(data.bird_essence[id])-ESSENCE_NEEDED
-	# The initial catalogue has ONE species per tier. Six surplus copies represent
-	# two groups of three. Future catalogues may select two different species.
+	if copies(data,id)<6: return {}
+	data.bird_copies[id] = copies(data,id)-6
+	data.bird_essence[id] = maxi(0,copies(data,id)-3)
+	var slots = data.get("bird_equipped_slots",[data.bird_equipped,""])
+	for i in range(2):
+		if slots[i]==id and copies(data,id)<(1 if i==0 or slots[0]!=id else 4): slots[i] = ""
+	data.bird_equipped_slots = slots;data.bird_equipped = slots[0]
 	return add_copy(data,IDS[rarity+1],"fusion")
+
+static func equip(data: Dictionary,id: String,slot: int) -> bool:
+	if slot not in [0,1] or id not in IDS or copies(data,id)<=0: return false
+	var slots: Array = data.get("bird_equipped_slots",[data.bird_equipped,""]).duplicate()
+	if slots[slot]==id: slots[slot] = ""
+	else:
+		if slots[1-slot]==id and copies(data,id)<4: return false
+		slots[slot] = id
+	data.bird_equipped_slots = slots;data.bird_equipped = slots[0]
+	return true
 
 static func description(index: int,lv: int) -> String:
 	var n = clampi(lv,1,3)

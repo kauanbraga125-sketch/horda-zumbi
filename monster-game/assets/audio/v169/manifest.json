@@ -1,0 +1,79 @@
+{
+  "version": "0.10.69",
+  "rate": 32000,
+  "cues": {
+    "perfect_1": {
+      "source": "A_super_energetic,_f_#1-1794525578989.mp3",
+      "source_sha256": "c9b860b155fa45b804f6561ff31f563e39db98867a6153ace0dc696db2b7445e",
+      "file": "perfect_1.bin",
+      "sha256": "9673d595080a7027eae64e473f41e17316c829e3b4ef696e72d113525700b2cc",
+      "seconds": 0.4865,
+      "trim_start_seconds": 0.0
+    },
+    "perfect_2": {
+      "source": "A_super_energetic,_f_#2-1794525598189.mp3",
+      "source_sha256": "8608617bcd34ed787e3a49ad23d42b3bcea9bddc348ad4b2d3bb8950c8377863",
+      "file": "perfect_2.bin",
+      "sha256": "52ed3f4ab2545a659fdf5b5a68c5f1145f3b20304d58c645e6466cf2325c724f",
+      "seconds": 0.4635,
+      "trim_start_seconds": 0.023
+    },
+    "perfect_3": {
+      "source": "A_super_energetic,_f_#3-1794525610142.mp3",
+      "source_sha256": "1b71c6def71dc8306ee86921dcf81e0eef6d544ddad7ae6e17eee936812ed00c",
+      "file": "perfect_3.bin",
+      "sha256": "68b272178d20cce6ac131c8dabc7786a17239b7a1339522d8694fd82804ca736",
+      "seconds": 0.461,
+      "trim_start_seconds": 0.0
+    },
+    "perfect_4": {
+      "source": "A_super_energetic,_f_#4-1794525620521.mp3",
+      "source_sha256": "7bc070c2851476867b8912926328a2f43186601ec0d2ebafd5c3563a65f50df9",
+      "file": "perfect_4.bin",
+      "sha256": "de26ed33e13efcdd477ce7cd56f2a199fcfa9da52387f20b5d63250cb205b388",
+      "seconds": 0.4675,
+      "trim_start_seconds": 0.019
+    },
+    "transform_fly": {
+      "source": "A_charismatic,_energ_#4-1794526115467.mp3",
+      "source_sha256": "9075dff2776ac8516909a507a20d42934ee392c1c07dfbdfbb01a6f6d5a0e275",
+      "file": "transform_fly.bin",
+      "sha256": "99d3aae4cffe6a5e584f78859be42d9c966a507d5103562b32ceb5114c406def",
+      "seconds": 1.956,
+      "trim_start_seconds": 0.165
+    },
+    "transform_mask": {
+      "source": "A_charismatic,_power_#2-1794526541031.mp3",
+      "source_sha256": "deb53e3c831964d3eb15ccd26e8c20bd9b7f26c47f9004ab35496e2cf86b2450",
+      "file": "transform_mask.bin",
+      "sha256": "2219a28b379197559615e01ab446209ffebcfc329aa0eec390fb4d381e9aa31f",
+      "seconds": 1.612,
+      "trim_start_seconds": 0.485
+    },
+    "power_warning": {
+      "source": "Create_a_distinctive_#4-1794526401168.mp3",
+      "source_sha256": "cd1a2ace32a7b006493ea6396a927a3fdab7d97624091a5942c58ee91712c7d6",
+      "file": "power_warning.bin",
+      "sha256": "0edf41a212bbaaac3e7f77af594af6085d0b17aec47fcf6a5601cc561735985a",
+      "seconds": 2.507,
+      "trim_start_seconds": 0.0
+    },
+    "egg_hatch": {
+      "source": "Create_an_exciting,__#2-1794527060093.mp3",
+      "source_sha256": "fb27e3bf142b2bb69e25a5dad7c3dfa29ae48f52657a341e09712f874ab5cc66",
+      "file": "egg_hatch.bin",
+      "sha256": "e43048da16fe9cd9686f302a4bf59121f301c66157de238d83443feec4c1ee5a",
+      "seconds": 2.61,
+      "trim_start_seconds": 0.097
+    },
+    "egg_crack": {
+      "source": "Create_a_highly_sati_#2-1794526870356.mp3",
+      "source_sha256": "0a7363b577cd3054edd3a1d18e04353418db9ba33895904146163728bbe8d07d",
+      "file": "egg_crack.bin",
+      "sha256": "af20660031a08acaac086aa2c69705ff1a198b34a632b1384484461875e7401c",
+      "seconds": 0.185,
+      "trim_start_seconds": 0.0
+    }
+  },
+  "coin": "Original synthesized piano-like C5; short onset, ascending diatonic playback pitch."
+}

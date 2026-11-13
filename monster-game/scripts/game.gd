@@ -43,6 +43,11 @@ var ritual_particle_tick = 0.0
 var ritual_reward_played = false
 var coin_pulse = 0.0
 var perfect_left = 0.0
+var intro_left = 0.0
+var intro_canvas: Node2D
+var shop_canvas: Node2D
+var shop_dialog = preload("res://scripts/shop_dialog.gd").new()
+var run_intro = preload("res://scripts/run_intro.gd").new()
 var adventure_art = preload("res://scripts/adventure_art.gd").new()
 var sound: HordeSound
 var runner = HordeRun.new()
@@ -153,6 +158,12 @@ func _ready() -> void :
 	sound.set_mix(data.audio_levels)
 	sound.set_enabled(bool(data.audio))
 	sound.set_music("moon_menu");sound.set_menu(true)
+	intro_canvas = Node2D.new();world_canvas.add_child(intro_canvas);intro_canvas.z_index = 2
+	var mat = ShaderMaterial.new();mat.shader = preload("res://scripts/intro_clip.gdshader");intro_canvas.material = mat
+	intro_canvas.draw.connect(func():run_intro.paint(self,intro_canvas))
+	shop_canvas = Node2D.new();shop_canvas.z_index = 90;add_child(shop_canvas)
+	shop_canvas.draw.connect(func():
+		var old = paint_target;paint_target = shop_canvas;shop_dialog.paint(self);paint_target = old)
 	if not test_mode and not capture_mode and int(data.active_souls) > 0:
 		HordeProgress.settle(data, int(data.active_souls), reward_rng);save_game()
 	if not test_mode and not capture_mode: begin_ritual()
@@ -170,6 +181,12 @@ func resume_bird_receipt() -> void:
 	if screen=="home": birds_ui.open(self)
 
 func _process(dt: float) -> void :
+	shop_dialog.update(dt)
+	if is_instance_valid(shop_canvas):shop_canvas.queue_redraw()
+	if is_instance_valid(intro_canvas):
+		intro_canvas.visible = intro_left>0 and screen=="run"
+		intro_canvas.material.set_shader_parameter("floor_line",world_canvas.to_global(Vector2(0,HordeRun.FLOOR)).y)
+		intro_canvas.queue_redraw()
 	if not capture_freeze: birds_ui.update(self,dt)
 	if screen == "sprite_lab" and not sprite_paused: sprite_clock += dt
 	if screen == "item_lab": item_lab.update(dt)
@@ -195,7 +212,7 @@ func _process(dt: float) -> void :
 	coin_pulse = maxf(0, coin_pulse - dt * 4)
 	if screen == "run": perfect_left = maxf(0,perfect_left-dt)
 	position = layout_origin + (Vector2(sin(ui_time * 83), cos(ui_time * 71)) * shake * 0.45 if screen == "run" else Vector2.ZERO)
-	if screen == "run" and not capture_freeze: update_run_visuals(dt)
+	if screen == "run" and not capture_freeze and intro_left<=0: update_run_visuals(dt)
 	if screen == "home": update_rewards(dt)
 	if end_delay >= 0:
 		end_delay -= dt
@@ -204,6 +221,8 @@ func _process(dt: float) -> void :
 
 func _physics_process(dt: float) -> void :
 	if screen != "run" or capture_freeze: return
+	if intro_left>0:
+		intro_left = maxf(0,intro_left-dt);return
 	runner.advance(dt, jump_held)
 	update_camera(dt)
 	if not lab_active: analytics.sample(runner)
@@ -272,6 +291,9 @@ func start_run() -> void :
 	end_delay = -1
 	toast_left = 0
 	last_save = 0
+	perfect_left = 0
+	intro_left = 1.5
+	sound.play("heavy_land",-23)
 	change_screen("run")
 
 func consume_run_events() -> void :
@@ -281,7 +303,7 @@ func consume_run_events() -> void :
 		if not lab_active and not test_mode and not capture_mode: analytics.record_event(runner, e)
 		var point = Vector2(float(e.get("x", HordeRun.ANCHOR)), float(e.get("y", HordeRun.FLOOR)))
 		match e.type:
-			"bird_chirp": sound.play("bird_"+runner.bird.id,-27)
+			"bird_chirp": sound.play("bird_"+str(e.get("bird",runner.bird.id)),-24)
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
@@ -390,7 +412,7 @@ func consume_run_events() -> void :
 			"glass": sound.play("glass_break", -17);effects.spark(point, MINT, 9)
 			"surge_warning":
 				if runner.tutorial_hints(): show_toast("A HORDA ACELERA!", 1.0)
-			"power_warning": sound.play("power_warning", -8)
+			"power_warning": sound.play("ending_warning", -13)
 			"car_warning":
 				sound.play("car_approach_" + str(randi_range(1, 2)), -15);sound.play("car_horn", -12)
 			"air_warning":
@@ -525,6 +547,7 @@ func open_market(tab: int = 0) -> void :
 	market.open(tab);change_screen("market")
 
 func perform_action(action: String) -> void :
+	if shop_dialog.action(self,action): return
 	if birds_ui.action(self,action): return
 	if action == "journey_sewer" and screen == "run":
 		runner.sewer.encounter.select_sewer(runner)
@@ -565,7 +588,7 @@ func perform_action(action: String) -> void :
 		return
 	if action == "developer_test_funds" and screen in ["developer","home"]:
 		if apply_test_funds(): save_game()
-		show_toast("SALDO DE TESTE: 1.000.000 MOEDAS E 10.000 OLHOS",3.0)
+		show_toast("SALDO DE TESTE: 1.000.000 MOEDAS E 10.000 DIAMANTES",3.0)
 		return
 	if action.begins_with("lab_kind_"):
 		var kind = action.trim_prefix("lab_kind_")
@@ -750,6 +773,11 @@ func end_market_touch(point: Vector2, id: int) -> void :
 	release_touch(id)
 
 func _input(event: InputEvent) -> void :
+	if shop_dialog.is_open():
+		if event is InputEventScreenTouch and event.pressed:press_at(to_local(event.position),event.index)
+		elif event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT:press_at(to_local(event.position),-1)
+		elif event is InputEventKey and event.pressed and event.keycode in [KEY_ESCAPE,KEY_BACK]:perform_action("shop_cancel")
+		return
 	if screen == "run" and runner.space.active:
 		if event is InputEventScreenDrag and jump_touches.has(event.index):
 			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative))/camera_zoom);return
@@ -1083,6 +1111,7 @@ func draw_run() -> void :
 		return runner.member_x(a) < runner.member_x(b) if is_equal_approx(ay, by) else ay < by)
 	for i in draw_order:
 		var member = runner.members[i]
+		if intro_left>0: continue
 		for captive in captured_by_id.get(int(member.id), []): draw_civilian(captive)
 		var kind = int(member.get("death_kind", member.kind)) if member.falling else (runner.perk_kind if runner.perk_left > 0 else int(member.kind))
 		if not member.falling and member.attack_left > 0.0: kind = int(member.get("attack_kind", kind))
@@ -1125,6 +1154,7 @@ func draw_run() -> void :
 				paint_fly_smooth(member, foot, height, phase, state, blink, i)
 			else:
 				actor.paint(paint_target, kind, foot, height, phase, state, runner.elapsed + i * 0.071, float(member.land_left), blink, false, float(member.air_pose), true, float(member.air_time), float(member.vy), runner.cosmetics_for(member, kind))
+	run_intro.dirt(self,paint_target)
 	passenger_captures.paint(paint_target, art, runner, true)
 	runner.blessings.paint(self)
 	effects.paint(paint_target, art, actor)
@@ -2192,7 +2222,7 @@ func draw_developer() -> void :
 	button(Rect2(70, 642, 245, 57), "VOLTAR", "back", Color("513c67"), -2, 23)
 	button(Rect2(330, 642, 300, 57), "BANCADA DE ITENS", "item_lab_open", Color("4c786a"), -2, 21)
 	if bool(ProjectSettings.get_setting("testing/catalog_funds_enabled",false)):
-		button(Rect2(650,642,560,57),"REPOR MOEDAS E OLHOS DE TESTE","developer_test_funds",Color("4c786a"),-2,21)
+		button(Rect2(650,642,560,57),"REPOR MOEDAS E DIAMANTES DE TESTE","developer_test_funds",Color("4c786a"),-2,21)
 	text("Testes da bancada preservam sua coleção e seu progresso.", Vector2(70,627), 18, MINT)
 
 func draw_collision_guides() -> void :

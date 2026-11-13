@@ -22,7 +22,7 @@ func _draw() -> void:
 		var point=source.get_center()+Vector2(-176,-source.size.y*0.25) if compact else source.get_center()+Vector2(0,-source.size.y*0.38)
 		game.home_menu.label(game,"NÍVEL "+str(p.current.new_level)+"!",point,25 if compact else 37,game.GOLD,true,300,true,3)
 		game.home_menu.label(game,"+"+str(value)+" MOEDAS",point+Vector2(0,33),18 if compact else 25,game.GOLD,true,300,true,2)
-		if int(p.current.eyes)>0: game.home_menu.label(game,"+"+str(p.current.eyes)+" OLHOS",point+Vector2(0,58),18,Color("dda7ff"),true,260,true,2)
+		if int(p.current.eyes)>0: game.home_menu.label(game,"+"+str(p.current.eyes)+" DIAMANTES",point+Vector2(0,58),18,Color("dda7ff"),true,260,true,2)
 		var from=source.get_center()+Vector2(0,source.size.y*0.15)
 		var lift=36.0 if compact else 70.0
 		for i in range(16):

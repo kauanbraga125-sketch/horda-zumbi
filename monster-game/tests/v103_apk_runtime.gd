@@ -41,6 +41,8 @@ func run() -> void:
 	g.perform_action("select_object_power_mask"); g.perform_action("commit_play")
 	expect(g.screen=="run" and g.data.stock.power_mask==1,"start consumes chosen item exactly once")
 	var x: float = g.runner.world_px
+	for i in range(93): g._physics_process(1.0/60)
+	expect(g.intro_left<=0 and not g.runner.dead,"opening completes before the race")
 	for i in range(12): g._physics_process(1.0/60)
 	expect(g.runner.world_px>x and not g.runner.dead,"actual gameplay advances")
 	g.perform_action("pause"); x=g.runner.world_px

@@ -1,0 +1,49 @@
+{
+  "diamond": "Generated for Horda Zumbi, 2026-11-12; transparent currency icon.",
+  "thumbnails": [
+    "coveiro",
+    "bruxa",
+    "sobrevivente",
+    "z_plumber",
+    "z_straw",
+    "z_adventure",
+    "z_nightmare",
+    "z_sorcerer",
+    "z_electric",
+    "z_beanie",
+    "z_pirate",
+    "z_cyber",
+    "z_goggles",
+    "z_hockey",
+    "z_clown",
+    "z_scientist",
+    "z_vampire",
+    "z_scarf",
+    "z_chain",
+    "s_chaos",
+    "s_north",
+    "s_wizard",
+    "s_striped",
+    "s_ice",
+    "s_ghostpirate",
+    "s_space",
+    "s_crown",
+    "s_goth",
+    "s_plague",
+    "s_comic",
+    "s_silver",
+    "s_punk",
+    "s_vest",
+    "s_bat",
+    "s_hourglass"
+  ],
+  "generation": {
+    "method": "Built-in image generation",
+    "prompt": "One polished cyan aquamarine diamond, deep violet facets, dark plum outline, ivory highlights, gold glints; gothic cartoon premium game currency, transparent background, no text.",
+    "source": "generated_images/exec-e06256f6-0155-47c8-8a68-c6c9b0f360eb.png",
+    "runtime_size": [
+      256,
+      256
+    ]
+  }
+}
