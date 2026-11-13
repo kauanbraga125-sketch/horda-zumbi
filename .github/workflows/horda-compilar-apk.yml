@@ -102,6 +102,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -126,6 +127,32 @@ jobs:
           assert Path(f'monster-game/ATUALIZACAO-{tag}.md').is_file()
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write('tag=' + tag + '\n')
+          PY
+      - name: Aguardar validação completa dos mesmos fontes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, time
+          repo = os.environ['GH_REPO']
+          commit = os.environ['GITHUB_SHA']
+          endpoint = f'repos/{repo}/actions/workflows/noite-da-horda-android.yml/runs?branch=main&event=push&per_page=20'
+          for attempt in range(120):
+              runs = json.loads(subprocess.check_output(['gh', 'api', endpoint]))['workflow_runs']
+              matches = [r for r in runs if r['head_sha'] == commit]
+              if matches:
+                  run = max(matches, key=lambda r: r['id'])
+                  if run['status'] == 'completed':
+                      if run['conclusion'] != 'success':
+                          raise SystemExit(f"Validação completa não aprovada: {run['html_url']} ({run['conclusion']})")
+                      print(f"Fontes completos aprovados: {run['html_url']}")
+                      break
+              if attempt % 6 == 0:
+                  print('Aguardando testes de progressão, abertura e renderização do mesmo commit.', flush=True)
+              time.sleep(10)
+          else:
+              raise SystemExit('A validação completa não terminou dentro de 20 minutos; publicação bloqueada.')
           PY
       - name: Publicar APK e relatórios verificados
         env:
