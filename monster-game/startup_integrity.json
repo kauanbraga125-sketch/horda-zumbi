@@ -1,5 +1,5 @@
 {
-  "version": "0.10.76",
+  "version": "0.10.77",
   "class_count": 55,
   "files": [
     {
@@ -28,6 +28,11 @@
       "sha256": "b0606167d0deb3e6e80601950c168b9469f28cc03779fdd852760a024192221b"
     },
     {
+      "path": "res://scripts/agourinho_power.gd",
+      "bytes": 3911,
+      "sha256": "43e6032a09c25caf27625ed62bc9c3f2094cd07d5f27f6b35596cd9f87937364"
+    },
+    {
       "path": "res://scripts/art.gd",
       "bytes": 5477,
       "sha256": "2d5a91a407499f47d0dcba7c949b7c9e6bdf3e7b7a8509e22f5c696422811a27"
@@ -44,23 +49,23 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 6251,
-      "sha256": "99d32ac63c181236455ae8ce3de1abffffed02d60d50a498b7b179f1002f41be"
+      "bytes": 6334,
+      "sha256": "f9834b055f6be5b34cbe44f462044685879d71cc37e3e0acad3b7c421cebde43"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 10024,
-      "sha256": "6c810f991b475a29900b67c755cd9189c42d18de652fd0df95dcd6128c17e021"
+      "bytes": 10006,
+      "sha256": "4b62f0209adcc71ef006e2a74de87d3631487dce924346cee7e17efdfae24b24"
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 5298,
-      "sha256": "c7b5541a0c858839e2880b4963d1aec69380ff8c680a109808ef70d03c32256c"
+      "bytes": 5901,
+      "sha256": "b4588d53935d235a5dd2ebc01de393feda639e76989a27d3bfc1d34ab7398907"
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 19258,
-      "sha256": "e90dadb221bc2db3835a4912f4c281b23d6173e8c292539f3d91213f1b6110fe"
+      "bytes": 19259,
+      "sha256": "4c290e6fb493471a9e796892c0c33b1b3449927c0f99d483f71fde0fdbd4b44e"
     },
     {
       "path": "res://scripts/bonus_director.gd",
@@ -229,8 +234,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 133156,
-      "sha256": "f495d0c167405994a5161a35ac2d3ae56b61bdbf0b4ab39fdd4c86a660c7a712"
+      "bytes": 133219,
+      "sha256": "9db5c67d86bd882e30a5ec2819f524483e8f37f3530d2ad28d3dbdc25a2325ca"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -2441,6 +2446,16 @@
       "path": "res://assets/art/v176/ferrugem_idle.webp",
       "bytes": 255034,
       "sha256": "5a2cb9951a9560e382ee6f631dcee5670deaf7468e8ce2dd376f4f670234ec08"
+    },
+    {
+      "path": "res://assets/art/v177/agourinho.json",
+      "bytes": 1440,
+      "sha256": "b141d367a7c57c9fb705e45927d779732d91890b5c7f223691a35a1876274346"
+    },
+    {
+      "path": "res://assets/art/v177/agourinho.webp",
+      "bytes": 378998,
+      "sha256": "18c584f1482c8f21d9763d8bdefafd787424cae1c520700c636e7bfb40e42460"
     }
   ]
 }

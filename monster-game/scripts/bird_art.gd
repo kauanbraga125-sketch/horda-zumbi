@@ -80,6 +80,7 @@ static func texture(id: String) -> Texture2D:
 	if not textures.has(id):
 		var im = Image.new()
 		var path = "res://assets/art/v176/ferrugem_idle.webp" if id=="ferrugem" else "res://assets/art/v136/"+id+".webp"
+		if id=="agourinho":path = "res://assets/art/v177/agourinho.webp"
 		assert(im.load_webp_from_buffer(FileAccess.get_file_as_bytes(path))==OK)
 		textures[id] = ImageTexture.create_from_image(im)
 	return textures[id]
@@ -99,7 +100,7 @@ static func frame(index: int,time: float,emotion: String = "") -> int:
 static func paint(c,id: String,point: Vector2,height: float,time: float,emotion: String = "",tint: Color = Color.WHITE) -> void:
 	var index = Catalog.tier(id)
 	if index<0: return
-	if id=="ferrugem":
+	if id in ["ferrugem","agourinho"]:
 		# Match the old body/eye placement while leaving room for complete wings.
 		point += Vector2(.04,.055)*height;height *= 1.14
 	var f = frame(index,time,emotion)

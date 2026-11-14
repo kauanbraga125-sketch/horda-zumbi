@@ -1,0 +1,76 @@
+{
+  "columns": 3,
+  "rows": 2,
+  "cell": 384,
+  "frames": [
+    {
+      "index": 0,
+      "opaque_bounds": [
+        50,
+        40,
+        333,
+        346
+      ],
+      "margin": 38
+    },
+    {
+      "index": 1,
+      "opaque_bounds": [
+        25,
+        129,
+        360,
+        335
+      ],
+      "margin": 24
+    },
+    {
+      "index": 2,
+      "opaque_bounds": [
+        44,
+        124,
+        335,
+        348
+      ],
+      "margin": 36
+    },
+    {
+      "index": 3,
+      "opaque_bounds": [
+        47,
+        67,
+        292,
+        322
+      ],
+      "margin": 47
+    },
+    {
+      "index": 4,
+      "opaque_bounds": [
+        25,
+        61,
+        345,
+        315
+      ],
+      "margin": 25
+    },
+    {
+      "index": 5,
+      "opaque_bounds": [
+        29,
+        52,
+        345,
+        319
+      ],
+      "margin": 29
+    }
+  ],
+  "render_height_multiplier": 1.14,
+  "render_offset_ratio": [
+    0.04,
+    0.055
+  ],
+  "source_sha256": "0c304c146c4ca4e1b8302fcc923c5d8588cf001947cb0ae45a79b0660815987e",
+  "reference": "res://assets/art/v136/agourinho.webp",
+  "generation_mode": "built-in identity-preserving edit",
+  "prompt": "Six complete poses of the original lavender three-eyed spectral owl: raised wings, spread wings, lowered wings, blink, casting anticipation and protective feather-ribbon spell. Preserve identity, shade and proportions on clean transparent alpha with padding on all sides."
+}

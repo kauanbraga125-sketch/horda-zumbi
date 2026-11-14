@@ -127,6 +127,7 @@ jobs:
           assert r['v173_fiapo_verified'] and r['v173_visual_verified']
           assert r['v174_fetch_verified'] and r['v174_visual_verified']
           assert r['v175_ferrugem_verified'] and r['v175_visual_verified']
+          assert r['v177_agourinho_verified'] and r['v177_visual_verified']
           assert r['fresh_source_export'] and r['all_game_resources_replaced']
           assert r['commit'] == os.environ['GITHUB_SHA']
           tag = 'v' + r['version']

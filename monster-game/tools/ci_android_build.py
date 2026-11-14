@@ -282,6 +282,17 @@ def build(args):
             env["LIBGL_ALWAYS_SOFTWARE"] = "true"
             ferrugem_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v175_ferrugem.gd"], output / "visual-v175.log", env)
             assert "V175_FERRUGEM " in ferrugem_visual and '"failures":[]' in ferrugem_visual and '"rendered":true' in ferrugem_visual, "Carga, disparo e recuo do Ferrugem não confirmados no APK"
+        shutil.copyfile(project / "tests/v177_agourinho.gd", runtime / "tests/v177_agourinho.gd")
+        env["XDG_DATA_HOME"] = str(temporary / "package-v177-user")
+        env["HORDA_VALIDATION_DIR"] = str(output / "preview/v177-headless")
+        owl_log = run([engine, "--headless", "--audio-driver", "Dummy", "--path", runtime, "--script", "res://tests/v177_agourinho.gd"], output / "agourinho-v177.log", env)
+        assert "V177_AGOURINHO " in owl_log and '"failures":[]' in owl_log, "Última chance exclusiva para a perda total da horda não confirmada no APK"
+        if shutil.which("xvfb-run"):
+            env["XDG_DATA_HOME"] = str(temporary / "visual-v177-user")
+            env["HORDA_VALIDATION_DIR"] = str(output / "preview/v177")
+            env["LIBGL_ALWAYS_SOFTWARE"] = "true"
+            owl_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v177_agourinho.gd"], output / "visual-v177.log", env)
+            assert "V177_AGOURINHO " in owl_visual and '"failures":[]' in owl_visual and '"rendered":true' in owl_visual, "Portal e proteção da última criatura não confirmados no APK"
         report = {"version": version, "engine": engine_version, "mode": args.mode, "commit": os.environ.get("GITHUB_SHA", "local"), "apk": name, "bytes": apk_path.stat().st_size, "sha256": sha(apk_path), "android": android_info, "layout": layout, "startup_files": len(audit["files"]), "classes": audit["class_count"], "resource_entries": entries, "fresh_source_export": True, "all_game_resources_replaced": True, "source_boot_verified": True, "packaged_boot_verified": True, "physical_device_tested": False, "native_base_sha256": BASE_SHA256}
         report["ui_audio_navigation_verified"] = True
         report["v169_features_verified"] = True
@@ -294,6 +305,8 @@ def build(args):
         report["v172_visual_verified"] = shutil.which("xvfb-run") is not None
         report["v173_fiapo_verified"] = True
         report["v173_visual_verified"] = shutil.which("xvfb-run") is not None
+        report["v177_agourinho_verified"] = True
+        report["v177_visual_verified"] = shutil.which("xvfb-run") is not None
         report["v175_ferrugem_verified"] = True
         report["v175_visual_verified"] = shutil.which("xvfb-run") is not None
         report["v174_fetch_verified"] = True

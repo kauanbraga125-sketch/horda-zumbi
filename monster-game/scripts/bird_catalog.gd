@@ -181,6 +181,6 @@ static func description(index: int,lv: int) -> String:
 		0: return "Cospe 2 moedas a cada %d s. Pegue-as durante a corrida!" % [24-(n-1)*4]
 		1: return "Sai da tela e traz um civil novo a cada %d s. Solta sobre a horda para capturá-lo." % [28-(n-1)*4]
 		2: return "Carrega um laser que destrói 1 veículo ou obstáculo. Recarga: %d s, inclusive no primeiro tiro." % [60-(n-1)*10]
-		3: return "Resgata um membro por partida e o protege por %.1f s. Funciona nos três cenários." % [1.0+(n-1)*.5]
+		3: return "Salva a última criatura uma vez por partida. Proteção: %.1f s." % [1.0+(n-1)*.5]
 		4: return "A cada %d Perfects, avança contra uma ameaça. Até três ataques por partida." % [6-n]
 	return ""
