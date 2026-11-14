@@ -1,0 +1,121 @@
+{
+  "version": "0.10.75",
+  "base_commit": "81f0fa5144bef16a2c0b1ddde48b83a2af126f0e",
+  "logic": [
+    {
+      "suite": "v175_ferrugem",
+      "atlas_rgba_bytes": 2097152,
+      "checks": 67,
+      "cooldown_seconds": [
+        60,
+        50,
+        40
+      ],
+      "failures": [],
+      "max_targets_per_shot": 1,
+      "new_pose_count": 8,
+      "physical_device_tested": false,
+      "rendered": false
+    },
+    {
+      "suite": "v174_fetch",
+      "checks": 45,
+      "failures": [],
+      "max_generated_passengers": 1,
+      "origin": "outside_camera",
+      "physical_device_tested": false,
+      "rendered": false,
+      "scene_npcs_consumed": 0
+    },
+    {
+      "suite": "v173_fiapo",
+      "checks": 86,
+      "failures": [],
+      "max_passengers": 1,
+      "max_trail_points": 9,
+      "new_civilian_assets": 0,
+      "physical_device_tested": false,
+      "rendered": false
+    },
+    {
+      "suite": "v172_pipoco",
+      "checks": 63,
+      "failures": [],
+      "max_coins": 3,
+      "max_sparks": 8,
+      "physical_device_tested": false,
+      "rendered": false
+    },
+    {
+      "suite": "v171_species",
+      "checks": 74,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.71"
+    },
+    {
+      "suite": "v170_aviary",
+      "checks": 49,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.70"
+    },
+    {
+      "suite": "v169_package",
+      "checks": 51,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.69"
+    },
+    {
+      "suite": "v140_systems",
+      "base_rate_sample": [
+        6081,
+        2472,
+        936,
+        396,
+        115
+      ],
+      "checks": 66,
+      "failures": [],
+      "physical_device_tested": false
+    }
+  ],
+  "native": [
+    {
+      "suite": "v175_ferrugem",
+      "atlas_rgba_bytes": 2097152,
+      "checks": 72,
+      "cooldown_seconds": [
+        60,
+        50,
+        40
+      ],
+      "failures": [],
+      "max_targets_per_shot": 1,
+      "new_pose_count": 8,
+      "physical_device_tested": false,
+      "rendered": true
+    }
+  ],
+  "physical_device_tested": false,
+  "cooldown_seconds": [
+    60,
+    50,
+    40
+  ],
+  "max_targets_per_shot": 1,
+  "first_shot_uses_full_cooldown": true,
+  "ready_charge_waits_for_target": true,
+  "new_pose_count": 8,
+  "texture_bytes": 205364,
+  "atlas_rgba_bytes": 2097152,
+  "vehicle_shards_per_hit": 6,
+  "publication_requires": [
+    "full source validation of the same commit",
+    "v175_ferrugem against extracted APK resources, headless and native"
+  ]
+}

@@ -1,6 +1,37 @@
 extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
 static var textures: Dictionary = {}
+static var laser_eyes: Array = []
+
+static func laser_texture() -> Texture2D:
+	if not textures.has("ferrugem_laser"):
+		var im = Image.new()
+		assert(im.load_webp_from_buffer(FileAccess.get_file_as_bytes("res://assets/art/v175/ferrugem_laser.webp"))==OK)
+		textures.ferrugem_laser = ImageTexture.create_from_image(im)
+		var meta = JSON.parse_string(FileAccess.get_file_as_string("res://assets/art/v175/ferrugem_laser.json"))
+		for f in meta.frames:laser_eyes.append(Vector2(f.eye_px[0],f.eye_px[1]))
+	return textures.ferrugem_laser
+
+static func laser_frame(phase: String,age: float,progress: float) -> int:
+	if phase=="charge":return 0 if progress<.12 else 1 if progress<.32 else 2 if progress<.7 else 3
+	if phase=="fire":return 4 if age<.09 else 5
+	return 6 if age<.18 else 7
+
+static func laser_pose(point: Vector2,phase: String,age: float,progress: float,aim: float) -> Dictionary:
+	var t = smoothstep(0,1,progress) if phase=="charge" else 1-smoothstep(0,.46,age) if phase=="recover" else 1.0
+	var kick = sin(clampf(age/.22,0,1)*PI) if phase=="fire" else 0.0
+	return {"point":point+Vector2(-4*t-9*kick,-5*t),"size":lerpf(68,88,t),"angle":aim*.28-.08*kick,"stretch":Vector2(1-.05*kick,1+.04*kick)}
+
+static func laser_eye(point: Vector2,phase: String,age: float,progress: float,aim: float) -> Vector2:
+	laser_texture()
+	var pose = laser_pose(point,phase,age,progress,aim)
+	return pose.point+((laser_eyes[laser_frame(phase,age,progress)]/256-Vector2.ONE*.5)*float(pose.size)*Vector2(pose.stretch)).rotated(pose.angle)
+
+static func paint_laser(c,point: Vector2,phase: String,age: float,progress: float,aim: float) -> void:
+	var pose = laser_pose(point,phase,age,progress,aim);var index = laser_frame(phase,age,progress)
+	c.draw_set_transform(pose.point,pose.angle,pose.stretch)
+	c.draw_texture_rect_region(laser_texture(),Rect2(Vector2.ONE*-pose.size*.5,Vector2.ONE*pose.size),Rect2((index%4)*256,int(index/4)*256,256,256))
+	c.draw_set_transform(Vector2.ZERO)
 
 static func paint_carrier(c,point: Vector2,height: float,time: float,face: float,lean: float,grab: bool = false,loaded: bool = false) -> void:
 	var index = 4 if grab else [0,1,2,1][posmod(int(time*(12 if loaded else 9)),4)]
