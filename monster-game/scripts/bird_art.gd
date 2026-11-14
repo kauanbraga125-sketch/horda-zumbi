@@ -3,6 +3,18 @@ const Catalog = preload("res://scripts/bird_catalog.gd")
 static var textures: Dictionary = {}
 static var laser_eyes: Array = []
 
+static func ritual_texture() -> Texture2D:
+	return special_texture("agourinho_ritual","res://assets/art/v178/agourinho_ritual.webp")
+
+static func portal_texture() -> Texture2D:
+	return special_texture("agourinho_portal","res://assets/art/v178/portal.webp")
+
+static func special_texture(key: String,path: String) -> Texture2D:
+	if not textures.has(key):
+		var im = Image.new();assert(im.load_webp_from_buffer(FileAccess.get_file_as_bytes(path))==OK)
+		textures[key] = ImageTexture.create_from_image(im)
+	return textures[key]
+
 static func laser_texture() -> Texture2D:
 	if not textures.has("ferrugem_laser"):
 		var im = Image.new()
@@ -111,5 +123,10 @@ static func paint(c,id: String,point: Vector2,height: float,time: float,emotion:
 	if index==4: stretch = Vector2(1+sin(time*5)*.014,1-sin(time*5)*.014)
 	if emotion=="ability": stretch *= 1+sin(clampf(time,0,1)*PI)*.06
 	c.draw_set_transform(point+Vector2(0,bob),angle,stretch)
-	c.draw_texture_rect_region(texture(id),Rect2(Vector2.ONE*-height*.5,Vector2.ONE*height),source,tint)
+	if id=="agourinho" and emotion.is_empty() and f!=3:
+		var flap = time*6.6;var order = [0,1,2,1];var a = order[posmod(floori(flap),4)];var b = order[posmod(floori(flap)+1,4)]
+		var blend = smoothstep(.55,1,fposmod(flap,1))
+		c.draw_texture_rect_region(texture(id),Rect2(Vector2.ONE*-height*.5,Vector2.ONE*height),Rect2(a%3*384,int(a/3)*384,384,384),tint*Color(1,1,1,1-blend))
+		if blend>.001:c.draw_texture_rect_region(texture(id),Rect2(Vector2.ONE*-height*.5,Vector2.ONE*height),Rect2(b%3*384,int(b/3)*384,384,384),tint*Color(1,1,1,blend))
+	else:c.draw_texture_rect_region(texture(id),Rect2(Vector2.ONE*-height*.5,Vector2.ONE*height),source,tint)
 	c.draw_set_transform(Vector2.ZERO)

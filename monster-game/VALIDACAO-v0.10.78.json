@@ -1,0 +1,126 @@
+{
+  "version": "0.10.78",
+  "base_commit": "8399d5a10137abf03f59aa0cc1b65b63c48bf455",
+  "trigger": "full_horde_death",
+  "return_seconds": 3.35,
+  "ritual_seconds": 3.9,
+  "empty_horde_until_return": true,
+  "max_resurrections_per_run": 1,
+  "max_returned_creatures": 1,
+  "action_frames": 8,
+  "new_decoded_rgba_bytes": 3145728,
+  "logic": {
+    "action_frames": 8,
+    "checks": 133,
+    "failures": [],
+    "max_motes": 14,
+    "max_resurrections_per_run": 1,
+    "max_returned_creatures": 1,
+    "physical_device_tested": false,
+    "portal_pixels": [
+      512,
+      512
+    ],
+    "rendered": false,
+    "return_seconds": 3.35,
+    "ritual_seconds": 3.9,
+    "trigger": "full_horde_death"
+  },
+  "native": {
+    "action_frames": 8,
+    "checks": 138,
+    "failures": [],
+    "max_motes": 14,
+    "max_resurrections_per_run": 1,
+    "max_returned_creatures": 1,
+    "physical_device_tested": false,
+    "portal_pixels": [
+      512,
+      512
+    ],
+    "rendered": true,
+    "return_seconds": 3.35,
+    "ritual_seconds": 3.9,
+    "trigger": "full_horde_death"
+  },
+  "regressions": [
+    {
+      "suite": "v175_ferrugem",
+      "atlas_rgba_bytes": 2097152,
+      "checks": 73,
+      "cooldown_seconds": [
+        60,
+        50,
+        40
+      ],
+      "failures": [],
+      "max_targets_per_shot": 1,
+      "new_pose_count": 8,
+      "physical_device_tested": false,
+      "rendered": false
+    },
+    {
+      "suite": "v174_fetch",
+      "checks": 45,
+      "failures": [],
+      "max_generated_passengers": 1,
+      "origin": "outside_camera",
+      "physical_device_tested": false,
+      "rendered": false,
+      "scene_npcs_consumed": 0
+    },
+    {
+      "suite": "v173_fiapo",
+      "checks": 86,
+      "failures": [],
+      "max_passengers": 1,
+      "max_trail_points": 9,
+      "new_civilian_assets": 0,
+      "physical_device_tested": false,
+      "rendered": false
+    },
+    {
+      "suite": "v172_pipoco",
+      "checks": 63,
+      "failures": [],
+      "max_coins": 3,
+      "max_sparks": 8,
+      "physical_device_tested": false,
+      "rendered": false
+    },
+    {
+      "suite": "v171_species",
+      "checks": 74,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.71"
+    },
+    {
+      "suite": "v170_aviary",
+      "checks": 49,
+      "failures": [],
+      "physical_device_tested": false,
+      "rendered": false,
+      "version": "0.10.70"
+    },
+    {
+      "suite": "v140_systems",
+      "base_rate_sample": [
+        6081,
+        2472,
+        936,
+        396,
+        115
+      ],
+      "checks": 68,
+      "failures": [],
+      "physical_device_tested": false
+    }
+  ],
+  "physical_device_tested": false,
+  "publication_requires": [
+    "complete source validation of the same commit",
+    "v178_ritual against resources extracted from the APK, headless and native"
+  ]
+}

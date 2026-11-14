@@ -231,7 +231,9 @@ func advance(r, dt: float, held: bool) -> void:
 	_update_members(r,dt)
 	next_group -= dt
 	if next_group<1e5 and next_group<=0: routes.advance(self,r,dt)
+	if r.bird.rescue_pending():return
 	battle.advance(self,r,dt)
+	if r.bird.rescue_pending():return
 	life.advance(self,r,dt)
 	if r.dead:
 		phase = "defeated";return
@@ -320,6 +322,7 @@ func _update_objects(r,dt: float) -> void:
 	battle.advance(self,r,dt)
 
 func finish(r) -> void:
+	if r.bird.rescue_pending():return
 	prepare_landing(r)
 	active = false;phase = "ground";left = 0;completed_flights += 1
 	r.sewer.encounter.complete(r)
@@ -448,6 +451,7 @@ func paint(g) -> void:
 	for i in order:
 		if battle.pilot_left>0: continue
 		var m = r.members[i];var foot = Vector2(m.x,m.y)
+		if m.get("agourinho_hidden",false):continue
 		var tint = Color(1,.72,.65,1) if m.hurt_left>0 and int(age*12)%2==0 else Color.WHITE
 		var pose = "return" if phase=="return" else "abduct" if phase=="ascent" else "charge" if phase=="boost" and phase_age<.27 else "launch" if phase=="boost" else "bump" if float(m.get("space_contact",0))>0 else "board" if m.attack_left>0 else "hurt" if m.hurt_left>0 else "dash" if dash_left>0 else "float"
 		var height = member_height(r)

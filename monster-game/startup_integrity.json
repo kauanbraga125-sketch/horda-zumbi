@@ -1,5 +1,5 @@
 {
-  "version": "0.10.77",
+  "version": "0.10.78",
   "class_count": 55,
   "files": [
     {
@@ -29,8 +29,8 @@
     },
     {
       "path": "res://scripts/agourinho_power.gd",
-      "bytes": 3911,
-      "sha256": "43e6032a09c25caf27625ed62bc9c3f2094cd07d5f27f6b35596cd9f87937364"
+      "bytes": 7816,
+      "sha256": "55b88053c26ebf574b50be970c124d9203a31a9d4f93129f7711e3e75ed6b040"
     },
     {
       "path": "res://scripts/art.gd",
@@ -49,18 +49,18 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 6334,
-      "sha256": "f9834b055f6be5b34cbe44f462044685879d71cc37e3e0acad3b7c421cebde43"
+      "bytes": 7405,
+      "sha256": "d48193031170084ae982f69b23c9c5aca621b36b25b377eefd42cf7860f5a90b"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 10006,
-      "sha256": "4b62f0209adcc71ef006e2a74de87d3631487dce924346cee7e17efdfae24b24"
+      "bytes": 10033,
+      "sha256": "0e750e47ad66a579e0c90388c5608a011234cfb175319cfd7970384e31c1e938"
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 5901,
-      "sha256": "b4588d53935d235a5dd2ebc01de393feda639e76989a27d3bfc1d34ab7398907"
+      "bytes": 5791,
+      "sha256": "a5456f4a2c61e9703205a12ed926a431e36d5b8918974808ea21166beb0cadd3"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -234,8 +234,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 133219,
-      "sha256": "9db5c67d86bd882e30a5ec2819f524483e8f37f3530d2ad28d3dbdc25a2325ca"
+      "bytes": 134389,
+      "sha256": "8daccf5833c9eb2da65546ef7bdc1227f2e80bd1d3def8fec597c714af39e06f"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -379,8 +379,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 72213,
-      "sha256": "8bf4e5057e125efd5df73b3259dca3bc69210f01f35644ba80f8d39b221dd7d8"
+      "bytes": 72430,
+      "sha256": "30f370d3ab85c4b827a38b26a916e06d0b1f0bc50bda02ed53e0b193a8445434"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -394,8 +394,8 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 32580,
-      "sha256": "8929bceb577631723b348f73478d34c3ec35a1327730215ee6a1e0b0777bdff6"
+      "bytes": 32686,
+      "sha256": "a8442ed8b02a99f37cb44c30345c79b1591268228846b1eb01feb77bcad5a24c"
     },
     {
       "path": "res://scripts/sewer_art.gd",
@@ -419,8 +419,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 12272,
-      "sha256": "1e0784df403dafe67c60467dedcf301138d3e9f47dd8dfac94273b0a958d194a"
+      "bytes": 12319,
+      "sha256": "748bfbe520b45b255127aab0823fa1c0509a39268b50007f55ae4d7fad4fc130"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
@@ -454,8 +454,8 @@
     },
     {
       "path": "res://scripts/sky.gd",
-      "bytes": 17506,
-      "sha256": "ea96038a7caabb93daca81cef2fc4020259abc40b6e8151375eab7e88bcc2bb2"
+      "bytes": 17541,
+      "sha256": "9f416e731c38d2f68b1aa1ac2c2c6022c77c0edada5efea70d10e758421a72d2"
     },
     {
       "path": "res://scripts/sky_aircraft.gd",
@@ -529,8 +529,8 @@
     },
     {
       "path": "res://scripts/sky_visual.gd",
-      "bytes": 10841,
-      "sha256": "5468bcf164ff38f29b65082026353eb54e8bee39f85c427a45c912679f9ac4fe"
+      "bytes": 10887,
+      "sha256": "5b7c5fb053b55b3137df8c0c1137db696c8843a2158e8c4fd019337566e82994"
     },
     {
       "path": "res://scripts/soldier.gd",
@@ -549,8 +549,8 @@
     },
     {
       "path": "res://scripts/space.gd",
-      "bytes": 23658,
-      "sha256": "8bc89c64113dd58087c8a54efc20561b7552a8102544d75ced86f0ee971fad54"
+      "bytes": 23809,
+      "sha256": "ba951866a3a90fabc21df9b05fd7db624d76bafa4c051f021c1a1d58ae8b6440"
     },
     {
       "path": "res://scripts/space_atmosphere.gd",
@@ -2456,6 +2456,26 @@
       "path": "res://assets/art/v177/agourinho.webp",
       "bytes": 378998,
       "sha256": "18c584f1482c8f21d9763d8bdefafd787424cae1c520700c636e7bfb40e42460"
+    },
+    {
+      "path": "res://assets/art/v178/agourinho_ritual.json",
+      "bytes": 1749,
+      "sha256": "8bb2b6c4fee31ae51a3c0268508db8fb66771e0dd1b2de609fb8696b312d7791"
+    },
+    {
+      "path": "res://assets/art/v178/agourinho_ritual.webp",
+      "bytes": 159650,
+      "sha256": "60a780847f8a83f97edb7c4546b841d02294aecc1067476ded0a329d605e05e2"
+    },
+    {
+      "path": "res://assets/art/v178/portal.json",
+      "bytes": 370,
+      "sha256": "13045cf974c1901c98af7de3125487a6ca9fa843e0188642035cef6c253565a1"
+    },
+    {
+      "path": "res://assets/art/v178/portal.webp",
+      "bytes": 89724,
+      "sha256": "f0133e98688a1616d707d9595bf5baaee8b128ebd3010bdff7108fe0de885ed5"
     }
   ]
 }

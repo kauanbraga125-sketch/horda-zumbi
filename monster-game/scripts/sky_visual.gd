@@ -139,6 +139,7 @@ func paint(g, r) -> void:
 		if (a.attack_left > 0.0) != (b.attack_left > 0.0): return a.attack_left <= 0.0
 		return float(a.y) < float(b.y) if not is_equal_approx(a.y, b.y) else float(a.x) < float(b.x))
 	for m in order:
+		if m.get("agourinho_hidden",false):continue
 		var foot = Vector2(m.x, m.y)
 		if foot.x < g.scenery.view_left - 70.0 or foot.x > g.scenery.view_right + 70.0: continue
 		if s.altitude < 215.0:
