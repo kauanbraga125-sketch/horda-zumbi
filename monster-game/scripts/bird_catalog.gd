@@ -179,7 +179,7 @@ static func description(index: int,lv: int) -> String:
 	var n = clampi(lv,1,3)
 	match index:
 		0: return "Cospe 2 moedas a cada %d s. Pegue-as durante a corrida!" % [24-(n-1)*4]
-		1: return "Busca um civil a cada %d s, carrega e solta sobre a horda para capturá-lo." % [28-(n-1)*4]
+		1: return "Sai da tela e traz um civil novo a cada %d s. Solta sobre a horda para capturá-lo." % [28-(n-1)*4]
 		2: return "Sabota uma ameaça a cada %d s. Naves e veículos ficam mais fracos." % [30-(n-1)*4]
 		3: return "Resgata um membro por partida e o protege por %.1f s. Funciona nos três cenários." % [1.0+(n-1)*.5]
 		4: return "A cada %d Perfects, avança contra uma ameaça. Até três ataques por partida." % [6-n]
