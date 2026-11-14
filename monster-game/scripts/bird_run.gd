@@ -4,6 +4,7 @@ const Art = preload("res://scripts/bird_art.gd")
 var pipoco = preload("res://scripts/pipoco_power.gd").new()
 var fiapo = preload("res://scripts/fiapo_power.gd").new()
 var ferrugem = preload("res://scripts/ferrugem_power.gd").new()
+var agourinho = preload("res://scripts/agourinho_power.gd").new()
 var companion
 var slot_index = 0
 var id = ""
@@ -33,9 +34,11 @@ func configure(data: Dictionary) -> void:
 	pipoco.reset(level)
 	fiapo.reset(level)
 	ferrugem.reset(level)
+	agourinho.reset()
 	# Warm the action texture during the intro, not on the first spit.
 	if id=="pipoco":Art.spit_texture()
 	if id=="ferrugem":Art.laser_texture()
+	if id=="agourinho":Art.texture("agourinho")
 	watched.clear();chirp_at = 8.0
 	clock = 0;cooldown = 2;emotion_left = 0;rescued = false;perfects = 0;attacks = 0;beam_left = 0;warned = Vector2.ZERO
 
@@ -52,6 +55,7 @@ func advance(r,dt: float) -> void:
 	if id=="pipoco":pipoco.advance(self,r,dt)
 	if id=="fiapo":fiapo.advance(self,r,dt)
 	if id=="ferrugem":ferrugem.advance(self,r,dt)
+	if id=="agourinho":agourinho.advance(r,dt)
 	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
 	if clock>=chirp_at:
 		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp","bird":id})
@@ -87,16 +91,20 @@ func on_perfect(r) -> void:
 
 func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
 	if companion!=null and companion.prevent_loss(r,m,_cause): return true
-	if id!="agourinho" or rescued: return false
-	rescued = true;emotion_left = 1.6;target = Vector2(m.x,m.y);beam_left = .7
+	if id!="agourinho" or rescued or not agourinho.last_member(r,m): return false
+	var origin = Vector2(m.x,m.y)
+	rescued = true;emotion_left = 1.6;target = origin;beam_left = 0
 	m.falling = false;m.vy = 0;m.hurt_left = 0;m.glide_left = 1.0
+	m.jump_queue.clear();m.jump_delay = -1;m.jump_at = -1;m.coyote = 0;m.air_jumps = 0;m.hold_open = false
 	if not r.space.active and not r.sewer.active and not r.sky.active:
 		var safe_x = r.ANCHOR
 		for offset in range(0,700,35):
-			if r.has_floor(r.ANCHOR+offset): safe_x = r.ANCHOR+offset;break
+			if r.has_floor(r.ANCHOR+offset-28) and r.has_floor(r.ANCHOR+offset+28): safe_x = r.ANCHOR+offset;break
 		m.x = safe_x;m.y = r.ground_y(safe_x)
+		m.roof_id = -1;m.reform_hold_until = maxf(float(m.reform_hold_until),r.elapsed+1.05)
 	r.hit_grace = maxf(r.hit_grace,1.0+(level-1)*.5);r.cached_active = -1
-	r.events.append({"type":"bird_rescue","x":m.x,"y":m.y-50})
+	agourinho.begin(m,origin,r.hit_grace)
+	r.events.append({"type":"bird_rescue","bird":"agourinho","member_id":m.id,"last_chance":true,"x":m.x,"y":m.y-50})
 	return true
 
 func paint(g) -> void:
@@ -105,6 +113,7 @@ func paint(g) -> void:
 	if id=="pipoco":pipoco.paint(g,self);return
 	if id=="fiapo":fiapo.paint(g,self);return
 	if id=="ferrugem":ferrugem.paint(g,self);return
+	if id=="agourinho":agourinho.paint(g,self);return
 	var c = g.paint_target
 	if beam_left>0:
 		var color = Catalog.COLORS[Catalog.tier(id)]

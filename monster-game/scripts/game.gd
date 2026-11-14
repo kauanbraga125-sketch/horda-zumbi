@@ -313,7 +313,8 @@ func consume_run_events() -> void :
 			"ferrugem_fire":
 				sound.play("space_dash",-18);effects.ring(point,MINT);effects.spark(point,MINT,8)
 				effects.explosion(point);shake = maxf(shake,3)
-			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
+			"bird_rescue":
+				sound.play("bird_agourinho",-17);effects.ring(point,Color("c994ff"));show_toast("AGOURINHO • ÚLTIMA CHANCE!",1.8)
 			"sewer_dock": show_toast("ENTRADA DO ESGOTO", 1.7)
 			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16)
 			"sewer_encounter":
