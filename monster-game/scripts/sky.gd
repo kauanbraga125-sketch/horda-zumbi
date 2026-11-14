@@ -443,6 +443,7 @@ func advance(r, dt: float) -> void:
 	aircraft.advance_shots(r, self, dt, travel, previous_feet)
 
 func finish(r) -> void:
+	if r.bird.rescue_pending():return
 	tardis.settle(r, self)
 	captures.settle(r, self)
 	active = false

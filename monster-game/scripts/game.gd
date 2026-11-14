@@ -313,8 +313,10 @@ func consume_run_events() -> void :
 			"ferrugem_fire":
 				sound.play("space_dash",-18);effects.ring(point,MINT);effects.spark(point,MINT,8)
 				effects.explosion(point);shake = maxf(shake,3)
-			"bird_rescue":
-				sound.play("bird_agourinho",-17);effects.ring(point,Color("c994ff"));show_toast("AGOURINHO • ÚLTIMA CHANCE!",1.8)
+			"agourinho_begin": sound.play("bird_agourinho",-20);sound.duck_left = maxf(sound.duck_left,3.9);show_toast("AGOURINHO • ÚLTIMA CHANCE...",2.8)
+			"agourinho_gather": sound.play("ritual_fill",-20);sound.play("creeper_wing",-30)
+			"agourinho_portal": sound.play("space_energy",-18);sound.play("space_return",-25)
+			"bird_rescue": sound.play("revive",-11);show_toast("DE VOLTA À VIDA!",1.8)
 			"sewer_dock": show_toast("ENTRADA DO ESGOTO", 1.7)
 			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16)
 			"sewer_encounter":
@@ -576,6 +578,7 @@ func perform_action(action: String) -> void :
 	if hub.action(self, action): return
 	if item_lab.action(self, action): return
 	if action == "space_dash" and screen == "run":
+		if runner.bird.rescue_pending():return
 		if runner.space.dash(): sound.play("space_dash",-15)
 		return
 	if action in ["lab_space_restart", "lab_space_time", "lab_space_zone", "lab_space_power", "lab_space_land"] and lab_active and lab_kind == "space":
@@ -785,7 +788,7 @@ func _input(event: InputEvent) -> void :
 		elif event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT:press_at(to_local(event.position),-1)
 		elif event is InputEventKey and event.pressed and event.keycode in [KEY_ESCAPE,KEY_BACK]:perform_action("shop_cancel")
 		return
-	if screen == "run" and runner.space.active:
+	if screen == "run" and runner.space.active and not runner.bird.rescue_pending():
 		if event is InputEventScreenDrag and jump_touches.has(event.index):
 			runner.space.drag_by((to_local(event.position)-to_local(event.position-event.relative))/camera_zoom);return
 		if event is InputEventMouseMotion and jump_touches.has(-1):
@@ -1118,6 +1121,7 @@ func draw_run() -> void :
 		return runner.member_x(a) < runner.member_x(b) if is_equal_approx(ay, by) else ay < by)
 	for i in draw_order:
 		var member = runner.members[i]
+		if member.get("agourinho_hidden",false):continue
 		if intro_left>0: continue
 		for captive in captured_by_id.get(int(member.id), []): draw_civilian(captive)
 		var kind = int(member.get("death_kind", member.kind)) if member.falling else (runner.perk_kind if runner.perk_left > 0 else int(member.kind))
@@ -1139,7 +1143,7 @@ func draw_run() -> void :
 			paint_target.draw_circle(Vector2.ZERO, 1, Color(0.02, 0.01, 0.05, 0.28 * shadow_size))
 			paint_target.draw_set_transform(Vector2.ZERO)
 			if runner.shields > 0: paint_target.draw_arc(foot - Vector2(0, 56), 62, 0, TAU, 32, Color(0.5, 0.9, 1, 0.4), 3, true)
-		var blink = Color(1, 1, 1, 0.45) if runner.hit_grace > 0 and int(ui_time * 14) % 2 == 0 else Color.WHITE
+		var blink = Color(1, 1, 1, 0.45) if runner.hit_grace > 0 and not member.get("agourinho_protection",false) and int(ui_time * 14) % 2 == 0 else Color.WHITE
 		if runner.transform_left > 0:
 			var progress = 1 - runner.transform_left / runner.transform_duration
 			var blend = smoothstep(0.16 + i * 0.007, 0.84 + i * 0.006, progress)
@@ -1516,6 +1520,18 @@ func animation_state(member: Dictionary) -> String:
 	return "run"
 
 func update_run_visuals(dt: float) -> void :
+	if runner.bird.rescue_pending():
+		effects.update(dt,0);ui_effects.update(dt,0)
+		if runner.space.active:runner.space.visual.advance(dt)
+		if runner.sky.active:
+			for burst in runner.sky.bursts:burst.at -= dt
+		if runner.sewer.active:
+			for list in [runner.sewer.splashes,runner.sewer.casualties]:
+				for i in range(list.size()-1,-1,-1):
+					list[i].age += dt
+					if list[i].age>1:list.remove_at(i)
+		sound.update_course(runner,false);sound.update_scene(runner,scenery,false)
+		return
 	var cabin = get_node_or_null("SpaceCabin") as SubViewport
 	if is_instance_valid(cabin): cabin.render_target_update_mode = SubViewport.UPDATE_ALWAYS if runner.space.active and runner.space.battle.pilot_left>0 else SubViewport.UPDATE_DISABLED
 	if runner.space.active or runner.sewer.active or runner.sky.active:
@@ -1826,6 +1842,7 @@ func pan_sewer_camera(left: float,right: float,dt: float) -> void:
 	camera_sewer_pan = clampf(camera_sewer_pan,minimum-66.0,maximum+66.0)
 
 func update_camera(dt: float) -> void :
+	if runner.bird.rescue_pending():return
 	if runner.sewer.active and not runner.sewer.boats.is_empty():
 		var fleet = runner.sewer.fleet_size()
 		var safe_top = -layout_origin.y+155.0;var safe_bottom = 720.0+layout_origin.y-30.0
@@ -2010,6 +2027,8 @@ func paint_foreground() -> void :
 	if screen == "prepare": prepare_ui.paint_foreground(self)
 	else:
 		draw_run()
+		if runner.bird.rescue_pending():
+			paint_target.draw_rect(Rect2(scenery.view_left,scenery.view_top,scenery.view_right-scenery.view_left,scenery.view_bottom-scenery.view_top),Color(.035,.015,.09,.13))
 		if screen in ["run","pause","results","revive"]: runner.bird.paint(self)
 	paint_target = self;ui_time = interface_time
 

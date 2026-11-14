@@ -478,12 +478,14 @@ func advance(r,dt: float,held: bool) -> void:
 		descent_camera = SHAFT_DEPTH;phase = "ride";phase_age = 0;r.hit_grace = .8
 	if phase=="ride":
 		_update_objects(r,dt)
+		if r.bird.rescue_pending():return
 		if pressure>=.94 and wave_cooldown<=0 and not boats.is_empty():
 			var b = boats[-1];damage_boat(r,b,"sewer_wave");wave_cooldown = 2.2;pressure = .69
 		if left<=0 and not r.dead: begin_exit(r)
 	_update_members(r,dt)
 
 func begin_exit(r) -> void:
+	if r.bird.rescue_pending():return
 	for e in objects:
 		if not e.taken and e.state=="capture": complete_rescue(r,e)
 		elif e.kind=="coin" and not e.taken: r.miss_coin_row(e)
@@ -683,6 +685,7 @@ func reserve_ground(r,end: float) -> void:
 	r.next_pattern_world = r.world_px+maxf(r.view_right,r.planning_right)+r.speed*1.5+300
 
 func finish(r) -> void:
+	if r.bird.rescue_pending():return
 	prepare_landing(r);active = false;phase = "ground";completed += 1
 	r.update_tunnels()
 	r.recovery_left = 2.5;r.recovery_speed = HordeDirector.stage_speed(r.tunnel_number());r.hit_grace = 2.2;r.cached_active = -1

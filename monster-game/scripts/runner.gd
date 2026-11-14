@@ -262,6 +262,7 @@ func separate_members(dt: float, blockers = null) -> void:
 			b.x = reform_x(b, float(b.x) + correction, dt, blockers)
 
 func add_member(kind: int, count_recruit: bool = true, spawn: Vector2 = Vector2(INF, INF)) -> void :
+	if bird.rescue_pending():return
 	if dead or ( not members.is_empty() and active_count() == 0): return
 	if members.size() >= MAX_HORDE:
 		coins += 2;events.append({"type": "coin", "amount": 2, "x": ANCHOR, "y": FLOOR - 70})
@@ -496,6 +497,7 @@ func grounded_strength() -> int:
 	return count
 
 func jump() -> void :
+	if bird.rescue_pending():return
 	if sky.active: sky.impulse(self);return
 	if sewer.active: sewer.request_jump(self);return
 	if space.active: space.impulse();return
@@ -560,7 +562,7 @@ func register_loss() -> void :
 
 func remove_member(index: int, cause: String) -> void :
 	if index < 0 or index >= members.size(): return
-	if bird.prevent_loss(self,members[index],cause): return
+	bird.prepare_last_chance(self,members[index])
 	loss_causes[cause] = int(loss_causes.get(cause, 0)) + 1
 	var old = members[index]
 	var shown = int(old.get("death_kind", old.kind)) if old.falling else (perk_kind if perk_left > 0 else int(old.kind))
@@ -574,9 +576,10 @@ func remove_member(index: int, cause: String) -> void :
 	events.append(hit)
 	members.remove_at(index);cached_active = -1
 	clean_air = false;register_loss()
-	if members.is_empty(): finish()
+	if members.is_empty() and not bird.rescue_pending(): finish()
 
 func damage(index: int, cause: String = "impact") -> bool:
+	if bird.rescue_pending():return false
 	if dead or index < 0 or index >= members.size() or members[index].falling: return false
 	if hit_grace > 0 or transform_left > 0 or boost_protected(): return false
 	hit_grace = 0.06;clean_air = false
@@ -590,6 +593,7 @@ func damage(index: int, cause: String = "impact") -> bool:
 
 func finish() -> void :
 	if dead: return
+	bird.cancel_ritual(self)
 	dead = true;save_generation_trace();events.append({"type": "finish"})
 
 func update_enemies(dt: float) -> void :
@@ -624,6 +628,7 @@ func update_enemies(dt: float) -> void :
 
 func advance(dt: float, jump_held: bool = false) -> void :
 	if dead: return
+	if bird.advance_ritual(self,dt):return
 	update_meta_run()
 	cached_active = -1
 	if not jump_held: release_jump()
@@ -1430,6 +1435,7 @@ func update_projectile_impacts() -> void:
 		if impact: soldier.explode(self, e)
 
 func revive_horde(count: int) -> void:
+	bird.cancel_ritual(self)
 	dead = false;members.clear();cached_active = -1
 	perk_left = 0;perk_kind = -1;transform_left = 0;boost_left = 0
 	for e in entities:

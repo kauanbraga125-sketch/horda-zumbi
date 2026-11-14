@@ -181,6 +181,7 @@ func paint(g,s) -> void:
 			var member_index = s.member_index(r, int(b.ids[seat]))
 			if member_index<0: continue
 			var m = r.members[member_index];var wear = r.cosmetics_for(m,int(m.kind));var pose = str(m.get("sewer_pose","ride"))
+			if m.get("agourinho_hidden",false):continue
 			if s.phase=="entry" and pose in ["run","board"]: continue
 			if pose in ["run","land"]:
 				g.actor.paint(c,int(m.kind),Vector2(m.x,m.y),108,fposmod(r.elapsed*1.9+member_index*.1,1),"run",r.elapsed,.16 if pose=="land" else 0,Color.WHITE,false,1,false,-1,0,wear)

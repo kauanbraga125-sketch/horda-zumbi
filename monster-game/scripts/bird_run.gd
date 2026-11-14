@@ -38,7 +38,7 @@ func configure(data: Dictionary) -> void:
 	# Warm the action texture during the intro, not on the first spit.
 	if id=="pipoco":Art.spit_texture()
 	if id=="ferrugem":Art.laser_texture()
-	if id=="agourinho":Art.texture("agourinho")
+	if id=="agourinho":Art.texture("agourinho");Art.ritual_texture();Art.portal_texture()
 	watched.clear();chirp_at = 8.0
 	clock = 0;cooldown = 2;emotion_left = 0;rescued = false;perfects = 0;attacks = 0;beam_left = 0;warned = Vector2.ZERO
 
@@ -89,23 +89,28 @@ func on_perfect(r) -> void:
 	if id.is_empty(): return
 	perfects += 1;emotion_left = .9
 
-func prevent_loss(r,m: Dictionary,_cause: String) -> bool:
-	if companion!=null and companion.prevent_loss(r,m,_cause): return true
+func prepare_last_chance(r,m: Dictionary) -> bool:
+	if companion!=null and companion.prepare_last_chance(r,m): return true
 	if id!="agourinho" or rescued or not agourinho.last_member(r,m): return false
-	var origin = Vector2(m.x,m.y)
-	rescued = true;emotion_left = 1.6;target = origin;beam_left = 0
-	m.falling = false;m.vy = 0;m.hurt_left = 0;m.glide_left = 1.0
-	m.jump_queue.clear();m.jump_delay = -1;m.jump_at = -1;m.coyote = 0;m.air_jumps = 0;m.hold_open = false
-	if not r.space.active and not r.sewer.active and not r.sky.active:
-		var safe_x = r.ANCHOR
-		for offset in range(0,700,35):
-			if r.has_floor(r.ANCHOR+offset-28) and r.has_floor(r.ANCHOR+offset+28): safe_x = r.ANCHOR+offset;break
-		m.x = safe_x;m.y = r.ground_y(safe_x)
-		m.roof_id = -1;m.reform_hold_until = maxf(float(m.reform_hold_until),r.elapsed+1.05)
-	r.hit_grace = maxf(r.hit_grace,1.0+(level-1)*.5);r.cached_active = -1
-	agourinho.begin(m,origin,r.hit_grace)
-	r.events.append({"type":"bird_rescue","bird":"agourinho","member_id":m.id,"last_chance":true,"x":m.x,"y":m.y-50})
+	rescued = true;emotion_left = 0;beam_left = 0;agourinho.begin(self,r,m)
 	return true
+
+func rescue_pending() -> bool:
+	return (id=="agourinho" and agourinho.phase=="ritual") or (companion!=null and companion.rescue_pending())
+
+func advance_ritual(r,dt: float) -> bool:
+	if not rescue_pending():return false
+	clock += dt
+	if companion!=null and companion.rescue_pending():companion.advance_ritual(r,dt)
+	elif id=="agourinho":agourinho.advance(r,dt)
+	return true
+
+func cancel_ritual(r) -> void:
+	if companion!=null:companion.cancel_ritual(r)
+	if agourinho.phase=="ritual":
+		agourinho.phase = "spent";agourinho.saved = {}
+		var m = r.member_by_id(agourinho.member_id)
+		if not m.is_empty():m.agourinho_hidden = false
 
 func paint(g) -> void:
 	if companion!=null: companion.paint(g)
