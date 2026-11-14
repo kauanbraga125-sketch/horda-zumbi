@@ -1,5 +1,5 @@
 {
-  "version": "0.10.74",
+  "version": "0.10.75",
   "class_count": 55,
   "files": [
     {
@@ -44,18 +44,18 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 4063,
-      "sha256": "62b3ca2ee767a814c2b1d6161073b631980cafc6861bb59d6fc70e2ff90fc15d"
+      "bytes": 6020,
+      "sha256": "d3956ab62c646a779b54fcff8320e05dd53a7cbf1d24731cdf352d7a67327255"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 9993,
-      "sha256": "0bf8c8671ba9a8fe5a6cf3e7ba56c27965a3487f450250e7d739e1cb50d1ec44"
+      "bytes": 10024,
+      "sha256": "6c810f991b475a29900b67c755cd9189c42d18de652fd0df95dcd6128c17e021"
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 5181,
-      "sha256": "7971fcc3425eeba50374b85681ac856eacd133d62db5154c103b558066b13465"
+      "bytes": 5298,
+      "sha256": "c7b5541a0c858839e2880b4963d1aec69380ff8c680a109808ef70d03c32256c"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -159,8 +159,8 @@
     },
     {
       "path": "res://scripts/effects.gd",
-      "bytes": 13217,
-      "sha256": "32b1d1a86f08f4cb5b113a761212e6d8d29ffa430f161a42f5df0da5ab784655"
+      "bytes": 14334,
+      "sha256": "67d2d4fad3139b1acaf055d169e1eb29c8a509c1a49e59ac52e66f605788d96e"
     },
     {
       "path": "res://scripts/experiment.gdshader",
@@ -203,6 +203,11 @@
       "sha256": "1a81338b53e4e19701c8aa85bb533a78ad004401f2e76e32529948b58f3cd512"
     },
     {
+      "path": "res://scripts/ferrugem_power.gd",
+      "bytes": 5888,
+      "sha256": "012a1c4f96566d39d6b809e6cfc6193f956c9d90524ef5ed0e66232f4536cdc6"
+    },
+    {
       "path": "res://scripts/fiapo_power.gd",
       "bytes": 6960,
       "sha256": "2e92f45fcb232a0b632bd47afaadd081095d74d342a7fbf8567a738f77599cdc"
@@ -224,8 +229,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 132852,
-      "sha256": "653e76c2aaad09d6d21f9f67a7885cfc763a511058da32c0de3e7f92d7a22cb1"
+      "bytes": 133156,
+      "sha256": "f495d0c167405994a5161a35ac2d3ae56b61bdbf0b4ab39fdd4c86a660c7a712"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -369,8 +374,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 72148,
-      "sha256": "b261265c58907d045cec94c7182ba6e17d6abd9d2647cce5a7cb4fbcf6369ff6"
+      "bytes": 72213,
+      "sha256": "8bf4e5057e125efd5df73b3259dca3bc69210f01f35644ba80f8d39b221dd7d8"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -2416,6 +2421,16 @@
       "path": "res://assets/art/v172/pipoco_spit.webp",
       "bytes": 175328,
       "sha256": "d6e50dca8acd2acd5699460e0ab49b79523800ed66d4cbf1811bd63d56f63524"
+    },
+    {
+      "path": "res://assets/art/v175/ferrugem_laser.json",
+      "bytes": 1363,
+      "sha256": "652efa77e8bd9589df16a444bdaf9393134f3a51207ceac13867c27a70033ab9"
+    },
+    {
+      "path": "res://assets/art/v175/ferrugem_laser.webp",
+      "bytes": 205364,
+      "sha256": "19a56667d357efed35399bba2fbad3dc1a623070a5daa86701ef2cac659cc0c0"
     }
   ]
 }

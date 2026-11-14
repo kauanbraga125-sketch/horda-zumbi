@@ -309,6 +309,10 @@ func consume_run_events() -> void :
 			"bird_fetch_grab": sound.play("creeper_wing",-27)
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
+			"ferrugem_charge": sound.play("space_energy",-23);sound.play("bird_ferrugem",-24)
+			"ferrugem_fire":
+				sound.play("space_dash",-18);effects.ring(point,MINT);effects.spark(point,MINT,8)
+				effects.explosion(point);shake = maxf(shake,3)
 			"bird_rescue": sound.play("bird_agourinho",-15);effects.ring(point,MINT)
 			"sewer_dock": show_toast("ENTRADA DO ESGOTO", 1.7)
 			"sewer_begin": passenger_captures.clear();effects.clear();sound.play("sewer_splash",-16)
@@ -467,7 +471,7 @@ func consume_run_events() -> void :
 				effects.smash(point, object_kind, float(e.get("tilt", 0)), e)
 				if MonsterCatalog.VEHICLES.has(object_kind):
 					var rescued_count = int(e.get("rescued_count", MonsterCatalog.VEHICLES[object_kind].rescues))
-					show_toast("VEÍCULO VIRADO!" + (" +" + str(rescued_count) + " ALMAS CONVERTIDAS" if rescued_count > 0 else ""), 1.7)
+					show_toast(("FERRUGEM DESTRUIU!" if e.get("laser_destroyed",false) else "VEÍCULO VIRADO!") + (" +" + str(rescued_count) + " ALMAS CONVERTIDAS" if rescued_count > 0 else ""), 1.7)
 			"hit":
 				if int(e.kind) == 3 and str(e.get("cause", "")) not in ["fall", "camera"]:
 					fly_panic_until = runner.elapsed + HordeFlyApprovedSprite.DAMAGE_SECONDS

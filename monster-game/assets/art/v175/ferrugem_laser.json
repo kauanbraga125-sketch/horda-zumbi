@@ -1,0 +1,67 @@
+{
+  "columns": 4,
+  "rows": 2,
+  "cell": 256,
+  "frames": [
+    {
+      "name": "aim",
+      "eye_px": [
+        224.908,
+        127.739
+      ]
+    },
+    {
+      "name": "brace",
+      "eye_px": [
+        214.213,
+        133.076
+      ]
+    },
+    {
+      "name": "charge",
+      "eye_px": [
+        213.386,
+        133.404
+      ]
+    },
+    {
+      "name": "full_charge",
+      "eye_px": [
+        213.992,
+        133.287
+      ]
+    },
+    {
+      "name": "fire",
+      "eye_px": [
+        212.184,
+        140.11
+      ]
+    },
+    {
+      "name": "recoil",
+      "eye_px": [
+        198.603,
+        99.155
+      ]
+    },
+    {
+      "name": "follow_through",
+      "eye_px": [
+        217.4,
+        129.772
+      ]
+    },
+    {
+      "name": "recover",
+      "eye_px": [
+        216.104,
+        131.156
+      ]
+    }
+  ],
+  "source_sha256": "bdde72f98e358cb3024fb4f2ed23503cdae7c0ce76d288b2e354fdd80ac181ed",
+  "reference": "res://assets/art/v136/ferrugem.webp",
+  "generation_mode": "built-in image generation, identity-preserving edit",
+  "prompt": "Eight full-body poses of the original brass clockwork raven, green mechanical-eye charge, discharge, recoil and recovery. Four columns by two rows, transparent alpha, no baked beams or targets. Preserve teal feathers, purple wings, orange eye/beak, brass helmet, chest gears and golden talons."
+}

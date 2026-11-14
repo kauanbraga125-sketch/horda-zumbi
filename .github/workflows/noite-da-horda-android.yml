@@ -38,7 +38,7 @@ jobs:
       - name: Validar abertura, saldo de testes e poder espacial
         run: |
           set -euo pipefail
-          for SUITE in verify_packaged_boot v129_currency v135_adventure v135_readability v135_flight v135_contacts v140_systems v140_sewer v161_routes v162_regression v163_landscape v164_cosmic v165_regions v166_pop v169_package v170_aviary v171_species v172_pipoco v173_fiapo v174_fetch; do
+          for SUITE in verify_packaged_boot v129_currency v135_adventure v135_readability v135_flight v135_contacts v140_systems v140_sewer v161_routes v162_regression v163_landscape v164_cosmic v165_regions v166_pop v169_package v170_aviary v171_species v172_pipoco v173_fiapo v174_fetch v175_ferrugem; do
             /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --headless --audio-driver Dummy --path monster-game --script "res://tests/${SUITE}.gd" -- --space-test 2>&1 | tee "/tmp/${SUITE}.log"
             if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' "/tmp/${SUITE}.log"; then exit 1; fi
           done
@@ -154,11 +154,21 @@ jobs:
           if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/fetch-v174.log; then exit 1; fi
           grep -q '"failures":\[\]' /tmp/fetch-v174.log
           grep -q '"rendered":true' /tmp/fetch-v174.log
+      - name: Conferir carga, laser e destruição completa do Ferrugem
+        if: ${{ !cancelled() && steps.import.outcome == 'success' }}
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "true"
+        run: |
+          set -euo pipefail
+          XDG_DATA_HOME="$RUNNER_TEMP/horda-v175-user" HORDA_VALIDATION_DIR="$RUNNER_TEMP/aviary-v170/v175" xvfb-run -a /tmp/godot/Godot_v4.5.1-stable_linux.x86_64 --path monster-game --audio-driver Dummy --rendering-method gl_compatibility --script res://tests/v175_ferrugem.gd 2>&1 | tee /tmp/ferrugem-v175.log
+          if grep -E '^ERROR:|SCRIPT ERROR|Parse Error' /tmp/ferrugem-v175.log; then exit 1; fi
+          grep -q '"failures":\[\]' /tmp/ferrugem-v175.log
+          grep -q '"rendered":true' /tmp/ferrugem-v175.log
       - name: Guardar capturas do laboratório e do livro
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: Aves-Malditas-v174-fontes
+          name: Aves-Malditas-v175-fontes
           path: ${{ runner.temp }}/aviary-v170/**
           if-no-files-found: ignore
           retention-days: 30

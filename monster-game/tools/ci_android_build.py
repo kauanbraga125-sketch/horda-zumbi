@@ -271,6 +271,17 @@ def build(args):
             env["LIBGL_ALWAYS_SOFTWARE"] = "true"
             fetch_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v174_fetch.gd"], output / "visual-v174.log", env)
             assert "V174_FETCH " in fetch_visual and '"failures":[]' in fetch_visual and '"rendered":true' in fetch_visual, "Saída e retorno do Fiapo com NPC novo não confirmados no APK"
+        shutil.copyfile(project / "tests/v175_ferrugem.gd", runtime / "tests/v175_ferrugem.gd")
+        env["XDG_DATA_HOME"] = str(temporary / "package-v175-user")
+        env["HORDA_VALIDATION_DIR"] = str(output / "preview/v175-headless")
+        ferrugem_log = run([engine, "--headless", "--audio-driver", "Dummy", "--path", runtime, "--script", "res://tests/v175_ferrugem.gd"], output / "ferrugem-v175.log", env)
+        assert "V175_FERRUGEM " in ferrugem_log and '"failures":[]' in ferrugem_log, "Laser, recarga e destruição completa não confirmados no APK"
+        if shutil.which("xvfb-run"):
+            env["XDG_DATA_HOME"] = str(temporary / "visual-v175-user")
+            env["HORDA_VALIDATION_DIR"] = str(output / "preview/v175")
+            env["LIBGL_ALWAYS_SOFTWARE"] = "true"
+            ferrugem_visual = run(["xvfb-run", "-a", engine, "--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--path", runtime, "--script", "res://tests/v175_ferrugem.gd"], output / "visual-v175.log", env)
+            assert "V175_FERRUGEM " in ferrugem_visual and '"failures":[]' in ferrugem_visual and '"rendered":true' in ferrugem_visual, "Carga, disparo e recuo do Ferrugem não confirmados no APK"
         report = {"version": version, "engine": engine_version, "mode": args.mode, "commit": os.environ.get("GITHUB_SHA", "local"), "apk": name, "bytes": apk_path.stat().st_size, "sha256": sha(apk_path), "android": android_info, "layout": layout, "startup_files": len(audit["files"]), "classes": audit["class_count"], "resource_entries": entries, "fresh_source_export": True, "all_game_resources_replaced": True, "source_boot_verified": True, "packaged_boot_verified": True, "physical_device_tested": False, "native_base_sha256": BASE_SHA256}
         report["ui_audio_navigation_verified"] = True
         report["v169_features_verified"] = True
@@ -283,6 +294,8 @@ def build(args):
         report["v172_visual_verified"] = shutil.which("xvfb-run") is not None
         report["v173_fiapo_verified"] = True
         report["v173_visual_verified"] = shutil.which("xvfb-run") is not None
+        report["v175_ferrugem_verified"] = True
+        report["v175_visual_verified"] = shutil.which("xvfb-run") is not None
         report["v174_fetch_verified"] = True
         report["v174_visual_verified"] = shutil.which("xvfb-run") is not None
         (output / "compilacao.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

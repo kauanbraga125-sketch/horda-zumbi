@@ -1217,7 +1217,7 @@ func flip_vehicle(entity: Dictionary) -> void :
 	if run_items.has("coin_cars") and reward_rng.randf() < 0.25:
 		coins += 25;events.append({"type": "coin", "amount": 25, "x": entity.x, "y": entity.y - 100})
 	coins += int(spec.reward)
-	var presentation = {"type": "smash", "object": entity.kind, "x": entity.x, "y": entity.y - float(entity.height) * 0.5, "tilt": entity.tilt, "flip_delay": flip_delay, "width": entity.width, "height": entity.height, "floor_y": entity.y, "rescued_count": entity.passengers.size(), "passenger_variants": entity.passengers.duplicate(), "join_ids": []}
+	var presentation = {"type": "smash", "laser_destroyed": bool(entity.get("ferrugem_destroyed",false)), "object": entity.kind, "x": entity.x, "y": entity.y - float(entity.height) * 0.5, "tilt": entity.tilt, "flip_delay": flip_delay, "width": entity.width, "height": entity.height, "floor_y": entity.y, "rescued_count": entity.passengers.size(), "passenger_variants": entity.passengers.duplicate(), "join_ids": []}
 	events.append(presentation)
 	events.append({"type": "coin", "amount": spec.reward, "x": entity.x, "y": entity.y - 120})
 	for i in range(entity.passengers.size()):

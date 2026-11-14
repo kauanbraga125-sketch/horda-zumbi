@@ -3,6 +3,7 @@ const Catalog = preload("res://scripts/bird_catalog.gd")
 const Art = preload("res://scripts/bird_art.gd")
 var pipoco = preload("res://scripts/pipoco_power.gd").new()
 var fiapo = preload("res://scripts/fiapo_power.gd").new()
+var ferrugem = preload("res://scripts/ferrugem_power.gd").new()
 var companion
 var slot_index = 0
 var id = ""
@@ -31,10 +32,12 @@ func configure(data: Dictionary) -> void:
 	if level<=0: id = ""
 	pipoco.reset(level)
 	fiapo.reset(level)
+	ferrugem.reset(level)
 	# Warm the action texture during the intro, not on the first spit.
 	if id=="pipoco":Art.spit_texture()
+	if id=="ferrugem":Art.laser_texture()
 	watched.clear();chirp_at = 8.0
-	clock = 0;cooldown = 8 if id=="ferrugem" else 2;emotion_left = 0;rescued = false;perfects = 0;attacks = 0;beam_left = 0;warned = Vector2.ZERO
+	clock = 0;cooldown = 2;emotion_left = 0;rescued = false;perfects = 0;attacks = 0;beam_left = 0;warned = Vector2.ZERO
 
 func advance(r,dt: float) -> void:
 	if companion!=null: companion.advance(r,dt)
@@ -48,12 +51,11 @@ func advance(r,dt: float) -> void:
 	if emotion_left>0 and not watched.is_empty(): warned = Vector2(watched.x,watched.y)
 	if id=="pipoco":pipoco.advance(self,r,dt)
 	if id=="fiapo":fiapo.advance(self,r,dt)
+	if id=="ferrugem":ferrugem.advance(self,r,dt)
 	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
 	if clock>=chirp_at:
 		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp","bird":id})
-	if id=="ferrugem" and cooldown<=0:
-		if attack(r): cooldown = 30-(level-1)*4
-	elif id=="barao" and perfects>=6-level and attacks<3 and cooldown<=0:
+	if id=="barao" and perfects>=6-level and attacks<3 and cooldown<=0:
 		if attack(r): perfects = 0;attacks += 1;cooldown = 12
 
 func find_target(r) -> Dictionary:
@@ -102,6 +104,7 @@ func paint(g) -> void:
 	if id.is_empty(): return
 	if id=="pipoco":pipoco.paint(g,self);return
 	if id=="fiapo":fiapo.paint(g,self);return
+	if id=="ferrugem":ferrugem.paint(g,self);return
 	var c = g.paint_target
 	if beam_left>0:
 		var color = Catalog.COLORS[Catalog.tier(id)]

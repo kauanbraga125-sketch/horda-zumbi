@@ -39,7 +39,18 @@ func smash(pos: Vector2, object_kind: String, start_angle: float = 0, geometry: 
 	for i in range(8): add("chip", pos, Vector2(randf_range(-190, 170), randf_range(-260, -100)), Color("99705f"), randf_range(3, 8), 0.9, 750)
 	if MonsterCatalog.VEHICLES.has(object_kind):
 		if wrecks.size() >= 12: wrecks.pop_front()
-		wrecks.append({"object": object_kind, "pos": pos, "origin_y": pos.y, "age": 0.0, "flip_delay": float(geometry.get("flip_delay", 0.0)), "start_angle": start_angle, "width": float(geometry.get("width", MonsterCatalog.VEHICLES[object_kind].width)), "height": float(geometry.get("height", MonsterCatalog.VEHICLES[object_kind].height)), "floor_y": float(geometry.get("floor_y", HordeRun.FLOOR))})
+		var width = float(geometry.get("width",MonsterCatalog.VEHICLES[object_kind].width))
+		var height = float(geometry.get("height",MonsterCatalog.VEHICLES[object_kind].height))
+		var laser = bool(geometry.get("laser_destroyed",false))
+		wrecks.append({"object": object_kind, "pos": pos, "origin_y": pos.y, "age": 0.0, "laser":laser, "flip_delay": float(geometry.get("flip_delay", 0.0)), "start_angle": start_angle, "width":width, "height":height, "floor_y": float(geometry.get("floor_y", HordeRun.FLOOR))})
+		if laser:
+			# Six pieces reuse the damaged art; no texture copies or particle nodes.
+			for row in range(2):
+				for col in range(3):
+					var offset = Vector2((col-1)*width/3.0,(row-.5)*height/2.0)
+					var p = add("vehicle_shard",pos+offset,Vector2((col-1)*145,-210-row*65),Color.WHITE,1,.72,700)
+					p.object = object_kind;p.region = Rect2(col/3.0,row/2.0,1.0/3,.5);p.part_size = Vector2(width/3,height/2)
+					p.rotation = start_angle;p.spin = (col-1)*3.5+(1 if row==0 else -1)
 	elif object_kind in ["bomb", "helicopter", "air_bomb"]: explosion(pos)
 
 func capture(pos: Vector2, kind: int) -> void :
@@ -81,7 +92,7 @@ func update(dt: float, speed: float) -> void :
 	for w in wrecks:
 		w.age += dt;w.pos.x -= speed * dt
 		var height = float(w.height)
-		w.pos.y = float(w.floor_y) - height * 0.44 - sin(clampf((float(w.age) - float(w.get("flip_delay", 0.0))) / 0.7, 0.0, 1.0) * PI) * 46
+		w.pos.y = float(w.floor_y) - height * 0.44 - sin(clampf((float(w.age) - float(w.get("flip_delay", 0.0))) / 0.7, 0.0, 1.0) * PI) * (8 if w.get("laser",false) else 46)
 	for i in range(wrecks.size() - 1, -1, -1):
 		if wrecks[i].pos.x + float(wrecks[i].width) * 0.5 < -650: wrecks.remove_at(i)
 	for i in range(particles.size() - 1, -1, -1):
@@ -163,6 +174,11 @@ func paint(canvas: Node2D, art: HordeArt, actor: HordeActor = null) -> void :
 				var texture = art.vehicle(p.object)
 				var size = Vector2(MonsterCatalog.VEHICLES[p.object].width, p.size)
 				canvas.draw_texture_rect(texture, Rect2( - size * 0.5, size), false, color)
+			"vehicle_shard":
+				var texture = art.damaged_vehicles[int(MonsterCatalog.VEHICLES[p.object].icon)]
+				var region: Rect2 = p.region
+				canvas.draw_set_transform(p.pos,p.rotation,Vector2(-1 if MonsterCatalog.VEHICLES[p.object].reverse else 1,1))
+				canvas.draw_texture_rect_region(texture,Rect2(-p.part_size*.5,p.part_size),Rect2(region.position*texture.get_size(),region.size*texture.get_size()),color)
 			"capture":
 				var texture = art.vfx[3 + mini(2, int(progress * 3))]
 				var size = texture.get_size() * (p.size / texture.get_height())
@@ -204,8 +220,10 @@ func paint_wrecks(canvas: Node2D, art: HordeArt, time: float, left: float) -> vo
 		var turn = clampf((float(w.age) - float(w.get("flip_delay", 0.0))) / 0.7, 0, 1)
 		var angle = lerpf(float(w.start_angle), PI, smoothstep(0, 1, turn))
 		var mix = smoothstep(0.65, 1.0, turn)
-		canvas.draw_set_transform(w.pos, angle, Vector2(-1 if spec.reverse else 1, 1))
-		canvas.draw_texture_rect(art.damaged_vehicles[int(spec.icon)], Rect2( - size * 0.5, size), false, Color(1, 1, 1, 1 - mix))
+		if not w.get("laser",false):
+			canvas.draw_set_transform(w.pos, angle, Vector2(-1 if spec.reverse else 1, 1))
+			canvas.draw_texture_rect(art.damaged_vehicles[int(spec.icon)], Rect2( - size * 0.5, size), false, Color(1, 1, 1, 1 - mix))
+		else:mix = smoothstep(0,.16,float(w.age))
 		canvas.draw_set_transform(w.pos, 0, Vector2(1 if spec.reverse else -1, 1))
 		canvas.draw_texture_rect(art.wreck_vehicles[int(spec.icon)], Rect2( - size * Vector2(0.5, 0.44), size * Vector2(1, 0.88)), false, Color(1, 1, 1, mix))
 		canvas.draw_set_transform(Vector2.ZERO)
