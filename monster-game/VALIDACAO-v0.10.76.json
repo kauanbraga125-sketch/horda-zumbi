@@ -1,0 +1,46 @@
+{
+  "version": "0.10.76",
+  "base_commit": "6a1a07f62b9ff8d95cce29e2d5d723ec5925916f",
+  "change": "Repair clipped Ferrugem idle/hover wings",
+  "corrected_idle_poses": 6,
+  "minimum_opaque_margin_px": 19,
+  "logic": {
+    "atlas_rgba_bytes": 2097152,
+    "checks": 73,
+    "cooldown_seconds": [
+      60,
+      50,
+      40
+    ],
+    "failures": [],
+    "max_targets_per_shot": 1,
+    "new_pose_count": 8,
+    "physical_device_tested": false,
+    "rendered": false
+  },
+  "native": {
+    "atlas_rgba_bytes": 2097152,
+    "checks": 78,
+    "cooldown_seconds": [
+      60,
+      50,
+      40
+    ],
+    "failures": [],
+    "max_targets_per_shot": 1,
+    "new_pose_count": 8,
+    "physical_device_tested": false,
+    "rendered": true
+  },
+  "laser_pose_count_unchanged": 8,
+  "cooldown_seconds_unchanged": [
+    60,
+    50,
+    40
+  ],
+  "physical_device_tested": false,
+  "publication_requires": [
+    "complete source validation of the same commit",
+    "updated v175_ferrugem tests against extracted APK resources, headless and native"
+  ]
+}

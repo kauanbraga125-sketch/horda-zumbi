@@ -55,6 +55,7 @@ def refresh(root: Path):
     paths += sorted(p for p in (root / 'assets/art/v170').rglob('*') if p.suffix in ('.webp', '.json'))
     paths += sorted(p for p in (root / 'assets/art/v172').glob('*') if p.suffix in ('.webp', '.json'))
     paths += sorted(p for p in (root / 'assets/art/v175').glob('*') if p.suffix in ('.webp', '.json'))
+    paths += sorted(p for p in (root / 'assets/art/v176').glob('*') if p.suffix in ('.webp', '.json'))
     version = re.search(r'config/version="([^"]+)"', (root / 'project.godot').read_text()).group(1)
     manifest = {'version': version,
                 'class_count': len(re.findall(rb'"class":', cache.read_bytes())),

@@ -1,5 +1,5 @@
 {
-  "version": "0.10.75",
+  "version": "0.10.76",
   "class_count": 55,
   "files": [
     {
@@ -44,8 +44,8 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 6020,
-      "sha256": "d3956ab62c646a779b54fcff8320e05dd53a7cbf1d24731cdf352d7a67327255"
+      "bytes": 6251,
+      "sha256": "99d32ac63c181236455ae8ce3de1abffffed02d60d50a498b7b179f1002f41be"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
@@ -2431,6 +2431,16 @@
       "path": "res://assets/art/v175/ferrugem_laser.webp",
       "bytes": 205364,
       "sha256": "19a56667d357efed35399bba2fbad3dc1a623070a5daa86701ef2cac659cc0c0"
+    },
+    {
+      "path": "res://assets/art/v176/ferrugem_idle.json",
+      "bytes": 1398,
+      "sha256": "f6392afb76ea45e5c7025be15551ab64ac083d4d0e6404acbb7bf72f55293a3b"
+    },
+    {
+      "path": "res://assets/art/v176/ferrugem_idle.webp",
+      "bytes": 255034,
+      "sha256": "5a2cb9951a9560e382ee6f631dcee5670deaf7468e8ce2dd376f4f670234ec08"
     }
   ]
 }
