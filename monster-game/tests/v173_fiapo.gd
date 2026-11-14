@@ -53,12 +53,12 @@ func run() -> void:
 		var r = model(level);var p = r.bird.fiapo
 		step(r,Power.interval(level)-.1)
 		check(p.phase=="idle" and p.civil.is_empty() and r.active_count()==4,"Level %d waits its real interval" % level)
-		step(r,.2);check(p.phase=="prepare" and not p.civil.is_empty(),"Visible preparation before pickup at level %d" % level)
+		step(r,.2);check(p.phase=="prepare" and p.civil.is_empty(),"Visible preparation precedes the offscreen NPC at level %d" % level)
 		var rows = r.coin_rows.duplicate(true)
-		for phase in ["outbound","grab","lift","carry","drop","capture"]:
+		for phase in ["outbound","search","carry","drop","capture"]:
 			check(until_phase(r,p,phase),"Animated phase %s at level %d" % [phase,level])
 			check(r.active_count()==4 and r.souls==0 and r.recruits==0,"No early recruit in %s at level %d" % [phase,level])
-			if phase in ["grab","lift","carry"]:
+			if phase=="carry":
 				var collar = Vector2(p.civil.x,p.civil.y)+Power.COLLAR.rotated(p.civil.bird_angle)
 				check(collar.distance_to(p.grip())<.01,"Collar stays attached to claws in "+phase)
 		var passenger: Dictionary = p.civil;until_phase(r,p,"recover")
@@ -115,8 +115,8 @@ func run() -> void:
 	check(r.bird.fiapo.deliveries==0,"An unequipped Fiapo cannot deliver")
 	r = model();p = r.bird.fiapo;p.until_fetch = .1;r.transform_left = 2;step(r,5)
 	check(p.phase=="idle" and is_equal_approx(p.until_fetch,.1),"Transformation freezes the rescue clock")
-	r = model();r.physics_gaps.assign([{"kind":"gap","x":-1000.0,"width":10000.0}]);r.bird.fiapo.until_fetch = .1;step(r,1)
-	check(r.bird.fiapo.civil.is_empty() and r.souls==0,"A pickup waits when the visible road has no safe ground")
+	r = model();r.physics_gaps.assign([{"kind":"gap","x":-1000.0,"width":10000.0}]);r.bird.fiapo.until_fetch = .1;step(r,7)
+	check(r.bird.fiapo.deliveries==1 and r.souls==1,"Offscreen generation does not require an empty platform in the visible course")
 	r = model(3,true);r.bird.pipoco.until_spit = .1;r.bird.companion.fiapo.until_fetch = .1;step(r,7)
 	check(r.coins==2 and r.souls==1 and r.active_count()==5,"Pipoco and Fiapo can finish their separate powers together")
 	check(r.bird.companion.fiapo.trail.size()<=9,"Bounded flight trail and only one passenger")
@@ -133,9 +133,9 @@ func run() -> void:
 	game.runner.start_developer("bomb",4,0,173);game.runner.bird.configure(game.data);game.runner.next_pattern_world = 1e12
 	game.runner.bird.fiapo.until_fetch = .1
 	await game_phase("outbound");await game_step(.3);await snap("01_approaching_civilian")
-	await game_phase("grab");await game_step(.08);await snap("02_gripping_collar")
-	await game_phase("lift");await game_step(.26);await snap("03_lifting")
-	await game_phase("carry");await game_step(.65);await snap("04_carrying_over_horde")
+	await game_phase("search");await game_step(.15);await snap("02_searching_outside_camera")
+	await game_phase("carry");await game_step(.4);await snap("03_returning_with_new_civilian")
+	await game_step(.45);await snap("04_carrying_over_horde")
 	var held = game.runner.bird.fiapo.civil.duplicate(true);var held_point = game.runner.bird.fiapo.flight
 	game.change_screen("pause")
 	for i in range(90):game._physics_process(1.0/30)

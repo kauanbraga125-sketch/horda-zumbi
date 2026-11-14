@@ -1,5 +1,5 @@
 {
-  "version": "0.10.73",
+  "version": "0.10.74",
   "class_count": 55,
   "files": [
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 9985,
-      "sha256": "13ee9fa1b1c75c98a4cbe3694e28350cc865270b16a7a50083246a77245144bd"
+      "bytes": 9993,
+      "sha256": "0bf8c8671ba9a8fe5a6cf3e7ba56c27965a3487f450250e7d739e1cb50d1ec44"
     },
     {
       "path": "res://scripts/bird_run.gd",
@@ -204,8 +204,8 @@
     },
     {
       "path": "res://scripts/fiapo_power.gd",
-      "bytes": 7727,
-      "sha256": "c22bfeff95acc1eb33c640c388f5f1ba57c1f3183a88a6884e0ba24aec7a5f93"
+      "bytes": 6960,
+      "sha256": "2e92f45fcb232a0b632bd47afaadd081095d74d342a7fbf8567a738f77599cdc"
     },
     {
       "path": "res://scripts/field_powers.gd",
