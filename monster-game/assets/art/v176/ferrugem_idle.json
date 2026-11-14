@@ -1,0 +1,76 @@
+{
+  "columns": 3,
+  "rows": 2,
+  "cell": 384,
+  "frames": [
+    {
+      "index": 0,
+      "opaque_bounds": [
+        55,
+        37,
+        330,
+        320
+      ],
+      "margin": 37
+    },
+    {
+      "index": 1,
+      "opaque_bounds": [
+        19,
+        124,
+        362,
+        320
+      ],
+      "margin": 19
+    },
+    {
+      "index": 2,
+      "opaque_bounds": [
+        72,
+        125,
+        315,
+        350
+      ],
+      "margin": 34
+    },
+    {
+      "index": 3,
+      "opaque_bounds": [
+        57,
+        84,
+        312,
+        312
+      ],
+      "margin": 57
+    },
+    {
+      "index": 4,
+      "opaque_bounds": [
+        29,
+        28,
+        338,
+        314
+      ],
+      "margin": 28
+    },
+    {
+      "index": 5,
+      "opaque_bounds": [
+        21,
+        94,
+        317,
+        316
+      ],
+      "margin": 21
+    }
+  ],
+  "render_height_multiplier": 1.14,
+  "render_offset_ratio": [
+    0.04,
+    0.055
+  ],
+  "source_sha256": "ad7ececfeab3e8e5a10ea0309c769725db7f7be382fcabbe35ea0da40bc584ed",
+  "reference": "res://assets/art/v136/ferrugem.webp",
+  "generation_mode": "built-in identity-preserving edit",
+  "prompt": "Repair the six original clockwork-raven poses, completing the wing tips and keeping every silhouette inside its cell on transparent alpha. Preserve pose order, identity, materials and expressions. Use a common scale and placement."
+}

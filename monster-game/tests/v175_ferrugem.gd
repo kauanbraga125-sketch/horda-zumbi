@@ -115,6 +115,10 @@ func run() -> void:
 	d = fixture();d.bird_equipped_slots = ["ferrugem","ferrugem"];r.bird.configure(d)
 	check(r.bird.companion==null,"Duplicate species cannot create a second laser")
 	check(Art.laser_texture().get_size()==Vector2(1024,512) and Art.laser_eyes.size()==8,"Eight compact poses loaded once")
+	var idle_image = Art.texture("ferrugem").get_image()
+	for i in range(6):
+		var used = idle_image.get_region(Rect2i(i%3*384,int(i/3)*384,384,384)).get_used_rect()
+		check(used.has_area() and used.position.x>=12 and used.position.y>=12 and used.end.x<=372 and used.end.y<=372,"Complete silhouette has transparent clearance on all four edges, idle pose "+str(i))
 	for eye in Art.laser_eyes:check(eye.x>0 and eye.x<256 and eye.y>0 and eye.y<256,"Lens anchor lies inside its cell")
 	r = null;e = {};second = {};neighbor = {};d = {}
 	var boot = load("res://boot.tscn").instantiate();root.add_child(boot);current_scene = boot
