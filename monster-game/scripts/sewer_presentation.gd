@@ -87,7 +87,7 @@ func object(g,s,e: Dictionary) -> void:
 	var c = g.paint_target
 	var surface: Vector2 = s.object_surface(e)
 	match e.kind:
-		"coin": g.scenery.sprite(c,g.art.items[1],s.coin_position(e),HordeBalance.COIN_DIAMETER,Color.WHITE,0)
+		"coin": g.scenery.sprite(c,g.art.items[1],s.coin_position(e),g.run_coin_height(HordeBalance.COIN_DIAMETER),Color.WHITE,0)
 		"rescue":
 			var t = clampf(e.age/.55,0,1) if e.state=="capture" else 0.0
 			var target = rescue_target(s,e,surface,30.0)

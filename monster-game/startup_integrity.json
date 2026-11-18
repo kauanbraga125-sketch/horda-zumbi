@@ -1,5 +1,5 @@
 {
-  "version": "0.10.78",
+  "version": "0.10.80",
   "class_count": 55,
   "files": [
     {
@@ -48,24 +48,34 @@
       "sha256": "e3c032961f3ff72591ed1269f9c7c5eee5d6d789e48ca4c212900eab7603d4c4"
     },
     {
+      "path": "res://scripts/barao_power.gd",
+      "bytes": 6687,
+      "sha256": "c13472b4dec9abf3eb34486429702a6a4fd0a241dd10111ed01d67a37f805f0b"
+    },
+    {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 7405,
-      "sha256": "d48193031170084ae982f69b23c9c5aca621b36b25b377eefd42cf7860f5a90b"
+      "bytes": 7884,
+      "sha256": "ee9c2053154ac3f743c6be93b1fa25e8fc200d479e4ddae4a4391e7cd979ead4"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 10033,
-      "sha256": "0e750e47ad66a579e0c90388c5608a011234cfb175319cfd7970384e31c1e938"
+      "bytes": 10054,
+      "sha256": "53a04d3bdb81292e68cb9e1188e633d3630ac1b0e6e3e5f4182474a65ee06c40"
+    },
+    {
+      "path": "res://scripts/bird_coin_flight.gd",
+      "bytes": 4133,
+      "sha256": "e3ce928236d9208f73eda0360aaa7f8304772636b569d03affec4de1e09d6721"
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 5791,
-      "sha256": "a5456f4a2c61e9703205a12ed926a431e36d5b8918974808ea21166beb0cadd3"
+      "bytes": 3998,
+      "sha256": "89c2be8d125196f9b8d6d88934428125a059ea02d15952cbb1ae3bebbd459362"
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 19259,
-      "sha256": "4c290e6fb493471a9e796892c0c33b1b3449927c0f99d483f71fde0fdbd4b44e"
+      "bytes": 19247,
+      "sha256": "cabd75729cf5bfd0d9a9cce633e2dacdd247eeb70b9de451837452f8b937d3dc"
     },
     {
       "path": "res://scripts/bonus_director.gd",
@@ -234,8 +244,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 134389,
-      "sha256": "8daccf5833c9eb2da65546ef7bdc1227f2e80bd1d3def8fec597c714af39e06f"
+      "bytes": 134877,
+      "sha256": "81f510f0e72cfdb3b4ae236d7aab66b1932709e8995c0ebe4d80e6e3ff04dc26"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -324,8 +334,8 @@
     },
     {
       "path": "res://scripts/pipoco_power.gd",
-      "bytes": 5932,
-      "sha256": "0b417e2b539a0ff63feb627c07ef790b1d2e725a79ad0afa0868a0c9f8ab8f43"
+      "bytes": 2375,
+      "sha256": "288018a6de858fdae7906dd2f37a57e64ce7c0129992b5379ec7906a168aa6ab"
     },
     {
       "path": "res://scripts/police_sprite.gd",
@@ -379,8 +389,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 72430,
-      "sha256": "30f370d3ab85c4b827a38b26a916e06d0b1f0bc50bda02ed53e0b193a8445434"
+      "bytes": 72455,
+      "sha256": "011f4582d8f59314f356655658b62681b977f310141bd31298563e28b4360206"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -394,8 +404,8 @@
     },
     {
       "path": "res://scripts/sewer.gd",
-      "bytes": 32686,
-      "sha256": "a8442ed8b02a99f37cb44c30345c79b1591268228846b1eb01feb77bcad5a24c"
+      "bytes": 32744,
+      "sha256": "b033dae08987302bc09c4e29600684bafd5a2d4a8632a10d68aa5298b05214ad"
     },
     {
       "path": "res://scripts/sewer_art.gd",
@@ -419,8 +429,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 12319,
-      "sha256": "748bfbe520b45b255127aab0823fa1c0509a39268b50007f55ae4d7fad4fc130"
+      "bytes": 12338,
+      "sha256": "e3cb5c101edeb7bc9df7e6ece6c6460e849b8fe9bb046d6d54e1f50ef74492e3"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
@@ -549,8 +559,8 @@
     },
     {
       "path": "res://scripts/space.gd",
-      "bytes": 23809,
-      "sha256": "ba951866a3a90fabc21df9b05fd7db624d76bafa4c051f021c1a1d58ae8b6440"
+      "bytes": 23828,
+      "sha256": "0a0cf083110d54ccd1fdcb6a70dd647906601995e45bd3cacfe79f37a4e15720"
     },
     {
       "path": "res://scripts/space_atmosphere.gd",
@@ -559,8 +569,8 @@
     },
     {
       "path": "res://scripts/space_combat.gd",
-      "bytes": 22923,
-      "sha256": "68e3dc48e55b6fb94d15845ed4c9567f88fda51e3a777a71f10b41a3af39fbcc"
+      "bytes": 22987,
+      "sha256": "77fb84495556ce029550b8670d0f225dc2563277f3df7ea61b32497dbd234749"
     },
     {
       "path": "res://scripts/space_contacts.gd",
@@ -2476,6 +2486,11 @@
       "path": "res://assets/art/v178/portal.webp",
       "bytes": 89724,
       "sha256": "f0133e98688a1616d707d9595bf5baaee8b128ebd3010bdff7108fe0de885ed5"
+    },
+    {
+      "path": "res://assets/art/v180/barao_goela.webp",
+      "bytes": 157898,
+      "sha256": "a53e5dc11d9e269c0d3ba507ec73dde558917b8fd2e3df7c828052466f55b05f"
     }
   ]
 }

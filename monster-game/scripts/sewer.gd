@@ -604,10 +604,11 @@ func _update_objects(r,dt: float) -> void:
 			if e.kind=="coin":
 				if coin_contact(e,b):
 					e.taken = true
-					r.coins += 1
+					var amount: int = r.bird.coin_multiplier()
+					r.coins += amount
 					r.collect_coin_row(e)
 					var coin = coin_position(e)
-					r.events.append({"type":"coin","amount":1,"x":coin.x,"y":coin.y,"physical_pickup":true,"sewer_airborne":boat_waterline(b)-HULL_WATERLINE-b.y>24.0})
+					r.events.append({"type":"coin","amount":amount,"x":coin.x,"y":coin.y,"physical_pickup":true,"sewer_airborne":boat_waterline(b)-HULL_WATERLINE-b.y>24.0})
 				continue
 			var hazard = e.kind in ["rubble","barrel","pipe","gate","rotor","collapse"]
 			var cross = minf(e.previous_x,e.x)-e.width<=b.x+(HULL_HALF_WIDTH-12 if hazard else 0) and maxf(e.previous_x,e.x)+e.width>=b.x-(HULL_HALF_WIDTH-12 if hazard else 0)

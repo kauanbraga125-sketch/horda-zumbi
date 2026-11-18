@@ -296,13 +296,14 @@ func advance(s,r,dt: float) -> void:
 		if index<0: continue
 		match e.kind:
 			"coin":
-				e.taken = true;r.coins += 2;s.collected += 2;s.charge = minf(100,s.charge+1.5)
+				var amount: int = 2*r.bird.coin_multiplier()
+				e.taken = true;r.coins += amount;s.collected += amount;s.charge = minf(100,s.charge+1.5)
 				var id = int(e.get("coin_row",-1));var row = r.coin_rows.get(id,{})
 				var completed = not row.is_empty() and int(row.total)>=3 and int(row.collected)+1>=int(row.total)
 				r.collect_coin_row(e)
 				if completed and not s.perfect_rows.has(id): s.perfect_rows[id] = true;s.charge = minf(100,s.charge+10)
 
-				r.events.append({"type":"coin","amount":2,"x":e.x,"y":e.y,"physical_pickup":true})
+				r.events.append({"type":"coin","amount":amount,"x":e.x,"y":e.y,"physical_pickup":true})
 			"astronaut","pod":
 				if e.age<float(e.get("grace",0)): continue
 				e.state = "capture";e.age = 0;r.members[index].attack_left = .72;r.members[index].attack_duration = .72

@@ -3,6 +3,17 @@ const Catalog = preload("res://scripts/bird_catalog.gd")
 static var textures: Dictionary = {}
 static var laser_eyes: Array = []
 
+static func barao_texture() -> Texture2D:
+	return special_texture("barao_goela","res://assets/art/v180/barao_goela.webp")
+
+static func paint_barao(c,point: Vector2,frame_index: int,angle: float) -> void:
+	const CELL = Vector2(192,160)
+	var size = CELL*.57
+	var source = Vector2(frame_index%5,floori(frame_index/5.0))*CELL
+	c.draw_set_transform(point,angle)
+	c.draw_texture_rect_region(barao_texture(),Rect2(-size*.5,size),Rect2(source,CELL))
+	c.draw_set_transform(Vector2.ZERO)
+
 static func ritual_texture() -> Texture2D:
 	return special_texture("agourinho_ritual","res://assets/art/v178/agourinho_ritual.webp")
 
