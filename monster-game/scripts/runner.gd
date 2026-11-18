@@ -829,7 +829,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		if e.kind == "coin":
 			var radius = 175.0 if run_items.has("coin_magnet") else 54.0 + (30 if boost_left > 0 else 0)
 			if coin_in_reach(Vector2(e.x,e.y),radius):
-				var amount = 2 if boost_left > 0 else 1
+				var amount = (2 if boost_left > 0 else 1)*bird.coin_multiplier()
 				e.taken = true;coins += amount;collect_coin_row(e)
 				mission_stats.clean_coin_current=int(mission_stats.get("clean_coin_current",0))+amount
 				mission_stats.clean_coins=maxi(int(mission_stats.get("clean_coins",0)),int(mission_stats.clean_coin_current))

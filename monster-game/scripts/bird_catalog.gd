@@ -6,7 +6,7 @@ const COLORS = [Color("9ce4aa"),Color("71ded5"),Color("79b8ff"),Color("c994ff"),
 const WEIGHTS = [60.0,25.0,10.0,4.0,1.0]
 const NAMES = ["PIPOCO","FIAPO","FERRUGEM","AGOURINHO","BARÃO GOELA"]
 const PERSONALITIES = ["Uma barriga enorme. Uma fome maior ainda.","Magrelo, medroso e sempre vendo perigo.","Metade corvo. Metade sucata. Inteiro mau humor.","Três olhos. Um segredo. Nenhum pio normal.","Sua excelência exige espaço para a barriga."]
-const HINTS = ["Enche as bochechas antes de cuspir um pequeno tesouro.","Perninhas finas, garras firmes. Volta sempre com companhia.","Está sempre procurando algo para desmontar.","Não gosta de despedidas definitivas.","Só faz uma entrada triunfal depois de bons saltos."]
+const HINTS = ["Enche as bochechas antes de cuspir um pequeno tesouro.","Perninhas finas, garras firmes. Volta sempre com companhia.","Está sempre procurando algo para desmontar.","Não gosta de despedidas definitivas.","Sua excelência enxerga moedas até nas bombas."]
 const PRICE = 30
 const FUSION_PRICE = 0
 const ESSENCE_NEEDED = 6
@@ -182,5 +182,5 @@ static func description(index: int,lv: int) -> String:
 		1: return "Sai da tela e traz um civil novo a cada %d s. Solta sobre a horda para capturá-lo." % [28-(n-1)*4]
 		2: return "Carrega um laser que destrói 1 veículo ou obstáculo. Recarga: %d s, inclusive no primeiro tiro." % [60-(n-1)*10]
 		3: return "Após a horda morrer, invoca uma criatura de volta. Uma vez por partida. Proteção: %.1f s." % [1.0+(n-1)*.5]
-		4: return "A cada %d Perfects, avança contra uma ameaça. Até três ataques por partida." % [6-n]
+		4: return "A cada 25 s alterna: moedas grandes que valem o dobro por 8 s, uma trilha de 6 moedas e bombas que viram moedas."
 	return ""

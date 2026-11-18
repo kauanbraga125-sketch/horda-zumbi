@@ -87,7 +87,7 @@ func object(g,s,e: Dictionary) -> void:
 	var c = g.paint_target
 	var surface: Vector2 = s.object_surface(e)
 	match e.kind:
-		"coin": g.scenery.sprite(c,g.art.items[1],s.coin_position(e),HordeBalance.COIN_DIAMETER,Color.WHITE,0)
+		"coin": g.scenery.sprite(c,g.art.items[1],s.coin_position(e),g.run_coin_height(HordeBalance.COIN_DIAMETER),Color.WHITE,0)
 		"rescue":
 			var t = clampf(e.age/.55,0,1) if e.state=="capture" else 0.0
 			var target = rescue_target(s,e,surface,30.0)
@@ -156,7 +156,7 @@ func paint(g,s) -> void:
 			water_fx.contact(c,shore,158.0,s.age,0.9*(1.0-s.exit_clear()))
 		g.ground(r.world_px)
 	for e in s.objects:
-		if e.taken: continue
+		if e.taken and not e.get("barao_visible",false): continue
 		if e.kind == "pipe":
 			var pipe = Art.texture("pipe_mount")
 			var width = pipe.get_width() * 170.0 / pipe.get_height()

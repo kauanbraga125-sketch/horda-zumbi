@@ -418,7 +418,7 @@ func paint(g) -> void:
 		if battle.paint_object(g,self,e,object_alpha): continue
 		var point = Vector2(e.x,e.y);var t = float(e.age)
 		match e.kind:
-			"coin": g.scenery.sprite(c,g.art.items[1],point,31,object_tint,sin(t * 6) * 0.2)
+			"coin": g.scenery.sprite(c,g.art.items[1],point,g.run_coin_height(31),object_tint,sin(t * 6) * 0.2)
 			"energy": sprite(c,"props",2 + posmod(int(t * 4),2),point,62,sin(t * 3) * 0.08,object_tint)
 			"astronaut":
 				var frame = (4 if e.state == "capture" or e.get("panic",false) or e.x < ANCHOR + 260 else 0) + posmod(int(t * 8),4)

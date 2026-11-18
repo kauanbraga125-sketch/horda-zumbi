@@ -308,7 +308,16 @@ func consume_run_events() -> void :
 			"bird_fetch": sound.play("bird_fiapo",-22)
 			"bird_fetch_grab": sound.play("creeper_wing",-27)
 			"bird_warn": sound.play("bird_fiapo",-20)
-			"bird_attack": sound.play("bird_"+runner.bird.id,-19)
+			"barao_double":
+				sound.play("bird_barao",-17);sound.play("space_energy",-22)
+				show_toast("BARÃO GOELA • MOEDAS ×2",2.5)
+			"barao_trail":
+				sound.play("bird_barao",-17);show_toast("BARÃO GOELA • CHUVA DE MOEDAS",2.5)
+			"barao_bombs":
+				sound.play("bird_barao",-17);sound.play("space_energy",-27)
+				show_toast("BARÃO GOELA • BOMBAS EM MOEDAS",2.5)
+			"barao_gold_hit": sound.play("guard",-20)
+			"barao_drop": sound.play("creeper_wing",-25)
 			"ferrugem_charge": sound.play("space_energy",-23);sound.play("bird_ferrugem",-24)
 			"ferrugem_fire":
 				sound.play("space_dash",-18);effects.ring(point,MINT);effects.spark(point,MINT,8)
@@ -1058,7 +1067,7 @@ func draw_run() -> void :
 		if e.kind == "collapse": HordeTerrainArt.collapse(self, e)
 		if e.kind == "gap" and runner.tutorial_hints() and e.x > HordeRun.ANCHOR: text("SEGURE!" if e.get("long_jump", false) else "PULO!", Vector2(e.x + e.width * 0.5, floor_y - 28), 16, CORAL, true, true, 3)
 	for e in runner.entities:
-		if e.taken or e.x + float(e.width) * 0.5 < scenery.view_left - 100 or e.x - float(e.width) * 0.5 > scenery.view_right + 100: continue
+		if (e.taken and not e.get("barao_visible",false)) or e.x + float(e.width) * 0.5 < scenery.view_left - 100 or e.x - float(e.width) * 0.5 > scenery.view_right + 100: continue
 		if e.kind in ["civilian", "soldier", "police"] and e.state == "capture":
 			var id = int(e.capturer)
 			if not captured_by_id.has(id): captured_by_id[id] = []
@@ -1074,7 +1083,7 @@ func draw_run() -> void :
 			"sewer_key":
 				preload("res://scripts/bird_art.gd").prop(paint_target,"jetski",Vector2(e.x,e.y+bob),58,sin(ui_time*2)*.04)
 				text("ESGOTO",Vector2(e.x,e.y-60),15,MINT,true,true,2)
-			"coin": floating_item(1, Vector2(e.x, e.y + bob), HordeBalance.COIN_DIAMETER)
+			"coin": floating_item(1, Vector2(e.x, e.y + bob), run_coin_height(HordeBalance.COIN_DIAMETER))
 			"hump":
 				var points = PackedVector2Array([Vector2(e.x - 60, HordeRun.FLOOR), Vector2(e.x - 44, HordeRun.FLOOR - 21), Vector2(e.x - 15, HordeRun.FLOOR - 61), Vector2(e.x + 20, HordeRun.FLOOR - 66), Vector2(e.x + 46, HordeRun.FLOOR - 28), Vector2(e.x + 60, HordeRun.FLOOR)])
 				paint_target.draw_colored_polygon(points, Color("58465c"));paint_target.draw_polyline(points, Color("a9a38c"), 5, true)
@@ -1562,6 +1571,9 @@ func update_run_visuals(dt: float) -> void :
 			effects.ghost(runner.perk_kind if runner.perk_left > 0 else int(m.kind), foot, float(m.run_phase), animation_state(m), m.land_left)
 			for i in range(2):
 				effects.add("speed", foot + Vector2(-22, randf_range(-75, -15)), Vector2(-100, 0), MINT, randf_range(20, 43), 0.22)
+
+func run_coin_height(height: float) -> float:
+	return height*runner.bird.coin_scale()
 
 func floating_item(index: int, centre: Vector2, height: float, modulate: Color = Color.WHITE, lantern: bool = false) -> void :
 	var texture = art.items[index]

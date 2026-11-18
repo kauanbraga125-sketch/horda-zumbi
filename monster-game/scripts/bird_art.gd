@@ -1,5 +1,6 @@
 extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
+const Barao = preload("res://scripts/barao_art.gd")
 static var textures: Dictionary = {}
 static var laser_eyes: Array = []
 
@@ -112,15 +113,17 @@ static func frame(index: int,time: float,emotion: String = "") -> int:
 static func paint(c,id: String,point: Vector2,height: float,time: float,emotion: String = "",tint: Color = Color.WHITE) -> void:
 	var index = Catalog.tier(id)
 	if index<0: return
+	if id=="barao":
+		Barao.paint_idle(c,point,height,time,emotion,tint)
+		return
 	if id in ["ferrugem","agourinho"]:
 		# Match the old body/eye placement while leaving room for complete wings.
 		point += Vector2(.04,.055)*height;height *= 1.14
 	var f = frame(index,time,emotion)
 	var source = Rect2((f%3)*384,int(f/3)*384,384,384)
-	var bob = sin(time*(3.3 if index==4 else 4.7)+index)*height*.024
+	var bob = sin(time*4.7+index)*height*.024
 	var angle = sin(time*2.1+index)*.035
 	var stretch = Vector2.ONE
-	if index==4: stretch = Vector2(1+sin(time*5)*.014,1-sin(time*5)*.014)
 	if emotion=="ability": stretch *= 1+sin(clampf(time,0,1)*PI)*.06
 	c.draw_set_transform(point+Vector2(0,bob),angle,stretch)
 	if id=="agourinho" and emotion.is_empty() and f!=3:
