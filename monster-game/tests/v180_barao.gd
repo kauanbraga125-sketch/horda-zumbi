@@ -23,15 +23,22 @@ func step(r: HordeRun,seconds: float) -> void:
 	for i in range(roundi(seconds*60)):r.advance(1.0/60)
 
 func check_atlas() -> void:
-	var image = Image.new()
-	var error = image.load_webp_from_buffer(FileAccess.get_file_as_bytes(Art.ATLAS))
-	check(error==OK and image.get_size()==Vector2i(512,256),"Barão's rig has body and wing cells")
-	if error!=OK:
-		return
-	for x in [0,256]:
-		var used = image.get_region(Rect2i(x,0,256,256)).get_used_rect()
-		check(used.size.x>100 and used.size.y>100 and Rect2i(8,8,240,240).encloses(used),
-			"Each sprite piece has transparent padding on every edge")
+	for atlas in [
+		{"path":Art.IDLE_ATLAS,"columns":3,"rows":2},
+		{"path":Art.ACTION_ATLAS,"columns":4,"rows":4},
+		{"path":Art.MAGIC_ATLAS,"columns":4,"rows":2}
+	]:
+		var image = Image.new()
+		var error = image.load_webp_from_buffer(FileAccess.get_file_as_bytes(atlas.path))
+		check(error==OK and image.get_size()==Vector2i(atlas.columns*384,atlas.rows*384),
+			"The sprite sheet has its expected complete frames: "+str(atlas.path))
+		if error!=OK:
+			continue
+		for y in range(atlas.rows):
+			for x in range(atlas.columns):
+				var used = image.get_region(Rect2i(x*384,y*384,384,384)).get_used_rect()
+				check(used.size.x>8 and used.size.y>8 and Rect2i(8,8,368,368).encloses(used),
+					"Every frame has transparent padding: %s at %d,%d" % [atlas.path,x,y])
 
 func run() -> void:
 	var r = model()
@@ -42,7 +49,7 @@ func run() -> void:
 	check(r.bird.coin_multiplier()==1 and power.next_power==Barao.Power.DOUBLE,"Perfects cannot trigger an early cast")
 	step(r,.2)
 	check(r.bird.coin_multiplier()==2,"First cast doubles collectible coins")
-	check(r.bird.coin_scale()>1 and r.bird.coin_scale()<1.6,"Coin art grows smoothly at the start of the cast")
+	check(is_equal_approx(r.bird.coin_scale(),1.0),"The complete anticipation pose precedes the visual coin growth")
 	var coin = r.add_entity("coin",r.ANCHOR+32,r.FLOOR-48)
 	step(r,.1)
 	check(coin.taken and r.coins==2,"Street pickup has twice its normal value")

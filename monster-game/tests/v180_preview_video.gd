@@ -57,13 +57,13 @@ func run() -> void:
 
 	power.until_power = .85
 	for i in range(10):r.add_entity("coin",r.ANCHOR+170+i*102,r.FLOOR-54)
-	mark("1 · MOEDAS EM DOBRO","O Barão abre as asas e solta dois selos dourados. As moedas crescem e valem o dobro por 8 s.")
+	mark("MOEDAS EM DOBRO","Novas poses completas do Barão e magia dourada nas moedas.")
 	await hold(9.15)
 	if r.coins<=10 or r.bird.coin_multiplier()!=1:fail("Preview did not show a full Double cast");return
 
 	var previous: int = r.coins
 	power.until_power = .65
-	mark("2 · CAGAR MOEDAS","O Barão voa à frente, bate as asas e solta uma trilha de seis moedas coletáveis.")
+	mark("TRILHA DE MOEDAS","O voo original e a nova animação de soltar as moedas.")
 	await hold(5.45)
 	if r.coins!=previous+6:fail("Preview did not collect the six trail coins");return
 
@@ -71,7 +71,7 @@ func run() -> void:
 	r.add_entity("bomb",r.ANCHOR+625)
 	r.add_entity("air_bomb",r.ANCHOR+730,r.FLOOR-173)
 	power.until_power = .95
-	mark("3 · BOMBAS EM MOEDAS","O raio dourado carrega, percorre o caminho e transforma cada bomba no impacto.")
+	mark("BOMBAS EM MOEDAS","O feitiço atinge as bombas, que viram moedas em um clarão dourado.")
 	await hold(5.3)
 	if r.losses!=0 or r.coins!=previous+2:fail("Preview did not collect both converted bombs");return
 

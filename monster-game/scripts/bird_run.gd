@@ -36,7 +36,7 @@ func configure(data: Dictionary) -> void:
 	if id=="pipoco":Art.spit_texture()
 	if id=="ferrugem":Art.laser_texture()
 	if id=="agourinho":Art.texture("agourinho");Art.ritual_texture();Art.portal_texture()
-	if id=="barao":BaraoArt.texture()
+	if id=="barao":BaraoArt.warm()
 	chirp_at = 8.0
 	clock = 0;emotion_left = 0;rescued = false;attacks = 0
 

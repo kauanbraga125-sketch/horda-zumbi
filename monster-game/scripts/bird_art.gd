@@ -114,7 +114,7 @@ static func paint(c,id: String,point: Vector2,height: float,time: float,emotion:
 	var index = Catalog.tier(id)
 	if index<0: return
 	if id=="barao":
-		Barao.paint(c,point,height,time,0,.28 if emotion=="ability" else 0,0,tint)
+		Barao.paint_idle(c,point,height,time,emotion,tint)
 		return
 	if id in ["ferrugem","agourinho"]:
 		# Match the old body/eye placement while leaving room for complete wings.

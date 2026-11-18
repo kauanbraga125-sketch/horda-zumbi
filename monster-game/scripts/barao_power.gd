@@ -4,8 +4,8 @@ const Art = preload("res://scripts/barao_art.gd")
 const INTERVAL = 25.0
 const DOUBLE_TIME = 8.0
 const DROP_TIME = 2.35
-const GOLD_TIME = 1.25
-const CHARGE_TIME = .16
+const GOLD_TIME = 1.45
+const CHARGE_TIME = .28
 const BOLT_TIME = .26
 const RELEASES = [.64,.78,.92,1.06,1.20,1.34]
 const GOLD = Color("ffd16c")
@@ -80,8 +80,8 @@ func doubles_coins() -> bool:
 func coin_scale() -> float:
 	if not doubles_coins():
 		return 1.0
-	var swell = smoothstep(0,.34,power_age)
-	var settle = smoothstep(.28,.59,power_age)
+	var swell = smoothstep(.30,.58,power_age)
+	var settle = smoothstep(.54,.80,power_age)
 	var fade = 1-smoothstep(DOUBLE_TIME-.16,DOUBLE_TIME,power_age)
 	return 1+(swell*.68-settle*.08)*fade
 
@@ -164,65 +164,74 @@ func paint(g,bird) -> void:
 			var kick = 0.0
 			for release in RELEASES:
 				kick += sin(clampf((power_age-release)/.15,0,1)*PI)
-			Art.paint(c,p+Vector2(kick*6,-kick*4),HEIGHT,bird.clock*1.35,-.08+kick*.20,-kick*.15,-kick*.06)
+			if power_age>=.28 and power_age<1.62:
+				var frame = 8 if power_age<.50 else 10 if kick>.40 else 9 if power_age<1.34 else 11
+				Art.paint_action(c,p+Vector2(0,-kick*3),HEIGHT,frame)
+			else:
+				Art.paint_idle(c,p,HEIGHT,bird.clock)
 			for release in RELEASES:
 				var t = (power_age-release)/.28
 				if t>=0 and t<1:
 					var tail = drop_pose(bird,r,release)+Vector2(-25-35*t,25+11*t)
-					paint_sparks(c,tail,t,16,4,.52)
+					Art.paint_magic(c,tail,34,t,Color(1,1,1,.70))
 		Power.BOMBS:
-			var gather = smoothstep(0,.18,power_age)*(1-smoothstep(.44,.94,power_age))
-			var lean = .15*gather
-			var chest = p+Art.medallion(HEIGHT).rotated(lean)
+			var gather = smoothstep(0,.28,power_age)*(1-smoothstep(.55,1.0,power_age))
+			var chest = p+Art.medallion(HEIGHT)
 			for item in converted:
 				paint_conversion(g,chest,item)
-			Art.paint(c,p,HEIGHT,bird.clock,lean,.42*gather,.08*gather)
+			if power_age<1.04:
+				var frame = 12 if power_age<.14 else 13 if power_age<.28 else 14 if power_age<.66 else 15
+				Art.paint_action(c,p,HEIGHT,frame)
+			else:
+				Art.paint_idle(c,p,HEIGHT,bird.clock)
 			if gather>.01:
-				paint_glow(c,chest,14+gather*9,gather*.74)
-				paint_star(c,chest,5+gather*5,1.0,gather)
+				Art.paint_magic(c,chest,38,clampf(power_age/.8,0,.80),Color(1,1,1,gather))
 		_:
-			var startled = smoothstep(.55,.90,bird.emotion_left)
-			Art.paint(c,p,HEIGHT,bird.clock,-.11*startled,.28*startled,.06*startled)
+			Art.paint_idle(c,p,HEIGHT,bird.clock,"hurt" if bird.emotion_left>.65 else "")
 	paint_coins(g)
 
 func paint_double(g,point: Vector2,clock: float) -> void:
 	var c = g.paint_target
-	var windup = smoothstep(0,.21,power_age)*(1-smoothstep(.20,.43,power_age))
-	var flourish = smoothstep(.20,.45,power_age)*(1-smoothstep(.6,1.32,power_age))
-	var roll = windup*.12-flourish*.16
-	var body = point+Vector2(-8*windup+9*flourish,14*windup-29*flourish)
-	var chest = body+Art.medallion(82).rotated(roll)
-	if windup>.01:
-		paint_glow(c,chest,11+windup*12,windup*.54)
-		for i in range(7):
-			var angle = i*TAU/7+power_age*3.4
-			paint_star(c,chest+Vector2.from_angle(angle)*(41-28*windup),4*windup,angle,windup*.83)
-	var sweep = clampf((power_age-.29)/.79,0,1)
-	if sweep>0 and sweep<1:
-		var alpha = sin(sweep*PI)
-		var ring = 33+56*sweep
-		c.draw_arc(body,ring,-PI+.32+sweep*.62,-.46+sweep*.62,32,Color(GOLD,.78*alpha),2,true)
-		c.draw_arc(body,ring-5,.14+sweep*.62,1.15+sweep*.62,18,Color(GOLD,.40*alpha),1.6,true)
-	Art.paint(c,body,82,clock,roll,flourish*.88-windup*.46,flourish*.14-windup*.14)
-	if sweep>0 and sweep<1:
-		var alpha = smoothstep(0,.22,sweep)*(1-smoothstep(.73,1,sweep))
+	var flourish = smoothstep(.26,.45,power_age)*(1-smoothstep(.74,1.13,power_age))
+	var body = point+Vector2(0,-10*flourish)
+	var chest = body+Art.medallion(82)
+	if power_age<1.12:
+		var frame = clampi(int(power_age/1.12*8),0,7)
+		Art.paint_action(c,body,82,frame)
+	else:
+		Art.paint_idle(c,point,82,clock)
+	Art.paint_magic(c,chest,64,(power_age-.26)/.70)
+	var split = (power_age-.37)/.84
+	if split>0 and split<1:
+		var alpha = smoothstep(0,.13,split)*(1-smoothstep(.68,1,split))
 		for i in range(2):
 			var side = -1 if i==0 else 1
-			var coin_pos = body+Vector2(side*(48+sweep*24),-sin(sweep*PI)*44+12*sweep)
-			var width = 24+8*sin(sweep*PI)
-			var turn = maxf(.28,absf(cos(sweep*TAU+i*.55)))
-			paint_glow(c,coin_pos,width*.73,alpha*.56)
-			c.draw_set_transform(coin_pos,side*(sweep-.35)*.59,Vector2(turn,1))
+			var coin_pos = chest+Vector2(side*31*smoothstep(0,.62,split),-38*sin(split*PI*.78))
+			var width = 22+7*sin(split*PI)
+			var turn = .76+.24*cos(split*TAU+i*.35)
+			c.draw_set_transform(coin_pos,side*.10,Vector2(turn,1))
 			c.draw_texture_rect(g.art.items[1],Rect2(Vector2.ONE*-width*.5,Vector2.ONE*width),false,Color(1,1,1,alpha))
 			c.draw_set_transform(Vector2.ZERO)
-			paint_star(c,coin_pos+Vector2(side*16,-11),5,side*sweep*2,alpha)
-	var mark_alpha = smoothstep(.40,.64,power_age)*(1-smoothstep(DOUBLE_TIME-.30,DOUBLE_TIME,power_age))
+			Art.paint_magic(c,coin_pos,40,split,Color(1,1,1,alpha*.50))
+	paint_coin_wave(g)
+	var mark_alpha = smoothstep(.84,1.12,power_age)*(1-smoothstep(DOUBLE_TIME-.30,DOUBLE_TIME,power_age))
 	if mark_alpha>.01:
-		var mark = body-Vector2(0,56+9*flourish)
-		var radius = 16+4*flourish
-		c.draw_circle(mark,radius,Color(.16,.08,.20,.91*mark_alpha),true,-1,true)
-		c.draw_arc(mark,radius,0,TAU,24,Color(GOLD,.81*mark_alpha),1.5,true)
-		g.text("×2",mark+Vector2(0,6),19,Color(BRIGHT,mark_alpha),true,true,2)
+		g.text("×2",point+Vector2(0,-51),20,Color(BRIGHT,mark_alpha),true,true,3)
+
+func paint_coin_wave(g) -> void:
+	if power_age<.35 or power_age>1.7:
+		return
+	var r = g.runner
+	var objects = r.sewer.objects if mode=="sewer" else r.space.objects if mode=="space" else r.entities
+	var painted = 0
+	for coin in objects:
+		if coin.kind!="coin" or coin.taken or coin.x<r.view_left or coin.x>r.view_right:
+			continue
+		var age = power_age-.35-clampf((coin.x-lead_x(r))/1300,0,.6)
+		var at = r.sewer.coin_position(coin) if mode=="sewer" else Vector2(coin.x,coin.y)
+		Art.paint_magic(g.paint_target,at,57,age/.51,Color(1,1,1,.8))
+		painted += 1
+		if painted>=12:break
 
 func paint_conversion(g,source: Vector2,item: Dictionary) -> void:
 	var c = g.paint_target
@@ -235,7 +244,7 @@ func paint_conversion(g,source: Vector2,item: Dictionary) -> void:
 		var tip = quadratic(source,point,head)
 		var fade = 1-smoothstep(0,.14,elapsed)
 		if head>.005 and fade>.005:
-			var taper = maxf(0,head-.58)
+			var taper = maxf(0,head-.73)
 			var trail = PackedVector2Array()
 			var core = PackedVector2Array()
 			for i in range(17):
@@ -243,11 +252,15 @@ func paint_conversion(g,source: Vector2,item: Dictionary) -> void:
 				var curve = quadratic(source,point,u)
 				trail.append(curve+Vector2(0,sin(u*29-power_age*38)*5.0*sin(u*PI)))
 				core.append(curve)
-			c.draw_polyline(trail,Color(.79,.28,.69,.23*fade),13,true)
-			c.draw_polyline(core,Color(GOLD,.47*fade),8,true)
-			c.draw_polyline(core,Color(BRIGHT,.96*fade),2.6,true)
-			paint_glow(c,tip,14,fade)
-			paint_star(c,tip,7,power_age*6,fade)
+			c.draw_polyline(trail,Color(.93,.50,.13,.21*fade),14,true)
+			c.draw_polyline(core,Color(GOLD,.65*fade),7,true)
+			c.draw_polyline(core,Color(BRIGHT,.98*fade),2,true)
+			Art.paint_magic(c,tip,34,.12+head*.18,Color(1,1,1,fade))
+			for i in range(5):
+				var u = head-float(i+1)*.11
+				if u>taper:
+					var sparkle = quadratic(source,point,u)+Vector2(0,sin(u*27-power_age*25)*8)
+					paint_star(c,sparkle,2.5+float(i%2),u*5,fade*.65)
 	if not item.hit:
 		return
 	var t = clampf(elapsed/.50,0,1)
@@ -258,27 +271,11 @@ func paint_conversion(g,source: Vector2,item: Dictionary) -> void:
 		var height = 85.8 if aerial else HordeTuning.BOMB_HEIGHT
 		g.scenery.sprite(c,tex,point,height*(.49+.51*dissolve),Color(1,.88,.51,dissolve),-t*.64)
 	if t<1:
-		paint_glow(c,point,19+24*t,(1-t)*.94)
-		paint_sparks(c,point,t,53,9,1.0)
-		var ring = 12+43*t
-		c.draw_arc(point,ring,1.1+t,6.8+t,28,Color(GOLD,.84*(1-t)),2.1,true)
+		Art.paint_magic(c,point,117,t)
 
 func quadratic(source: Vector2,dest: Vector2,t: float) -> Vector2:
 	var bend = (source+dest)*.5+Vector2(0,-48)
 	return source.lerp(bend,t).lerp(bend.lerp(dest,t),t)
-
-func paint_glow(c,point: Vector2,radius: float,opacity: float) -> void:
-	c.draw_circle(point,radius,Color(1,.58,.15,.13*opacity),true,-1,true)
-	c.draw_circle(point,radius*.68,Color(1,.72,.28,.18*opacity),true,-1,true)
-	c.draw_circle(point,radius*.34,Color(BRIGHT,.32*opacity),true,-1,true)
-
-func paint_sparks(c,point: Vector2,t: float,span: float,count: int,alpha: float) -> void:
-	var opacity = (1-t)*alpha
-	var radius = 5+span*(1-pow(1-t,2.4))
-	for i in range(count):
-		var angle = i*TAU/count+t*.35
-		var p = point+Vector2.from_angle(angle)*radius*(.62+float(i%3)*.16)
-		paint_star(c,p,(4+float(i%3)*1.6)*(1-t),angle,opacity)
 
 func paint_star(c,point: Vector2,radius: float,angle: float,opacity: float) -> void:
 	if radius<=0.15 or opacity<=.01:

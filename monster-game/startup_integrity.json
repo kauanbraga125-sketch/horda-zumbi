@@ -49,18 +49,18 @@
     },
     {
       "path": "res://scripts/barao_art.gd",
-      "bytes": 1793,
-      "sha256": "d8769bfe5590ce37bc938a5d4ae0391798dcac4ed3ab078957100b364aa3f150"
+      "bytes": 2097,
+      "sha256": "fc1479062aebac5e75028e65f39e8c2b139247132145d95bafd4922f7ae954ae"
     },
     {
       "path": "res://scripts/barao_power.gd",
-      "bytes": 11340,
-      "sha256": "bcebb5739f75ef02042cc0af115f8258c2001cf4d794543d2e47084ce7808cbb"
+      "bytes": 10773,
+      "sha256": "8773316ea52ae9ddd443ddd40a514eadfbaa53bba516d446d004a6af121aa5c5"
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 7466,
-      "sha256": "5ab82edc9cf658150e23f627433b0ce507925607103a4221a10c1fdefdb87029"
+      "bytes": 7442,
+      "sha256": "0a53d4462e23ec97f3c9824579d91452009015abb1e3b2c08b1b30fbb1c629e3"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
@@ -74,8 +74,8 @@
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 4161,
-      "sha256": "02a671d99d19d4f4654e17584e4582bc4a90d0e2278e4eb3dc96ea4834355736"
+      "bytes": 4158,
+      "sha256": "8386c5200f4fdd9e5c02bd69f5e6b2714b27a6db3e5129e525c251cc9f484944"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -2493,9 +2493,19 @@
       "sha256": "f0133e98688a1616d707d9595bf5baaee8b128ebd3010bdff7108fe0de885ed5"
     },
     {
-      "path": "res://assets/art/v180/barao_rig.webp",
-      "bytes": 29884,
-      "sha256": "c9db9b4ef4e39ef1579f0fa34c555db016ef7450bb5bccdd846dd8eb52f31c1d"
+      "path": "res://assets/art/v180/barao_gold_burst.webp",
+      "bytes": 193086,
+      "sha256": "f90a9b0e1cfb902b901c2f307f96704c83ada8e264fe64810818c415579a598b"
+    },
+    {
+      "path": "res://assets/art/v180/barao_idle.webp",
+      "bytes": 174838,
+      "sha256": "5717ba4b2b503534fea1ccd75eb51f216b583508bc2c61c9abdaa3e9a55a0e72"
+    },
+    {
+      "path": "res://assets/art/v180/barao_spells.webp",
+      "bytes": 451966,
+      "sha256": "ec8e457a6732f67a1985e7f6b07df4f93bde53e1a3a78c942e5075db05a28d98"
     }
   ]
 }
