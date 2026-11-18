@@ -4,4 +4,4 @@ O Barão Goela equipado alterna três poderes a cada 25 segundos de corrida ativ
 
 O dobro vale para moedas coletadas na rua, no esgoto e no espaço. Na rua, o Barão converte bombas terrestres e aéreas. No esgoto, converte barris explosivos e bombas giratórias. As moedas bônus entram na carteira quando são coletadas.
 
-O atlas de 20 quadros do Barão usa a arte criada para sua ativação. Os efeitos de voo, emissão de moedas e conversão são animados durante a partida. A gravação em `tests/v180_preview_video.gd` encurta as esperas entre os poderes.
+O corpo e as asas do Barão são animados em peças separadas. Para ativar o dobro ele recolhe as asas, sobe e libera dois selos dourados enquanto as moedas crescem. O raio avança até cada bomba, que vira uma moeda no impacto. A gravação em `tests/v180_preview_video.gd` encurta as esperas entre os poderes.

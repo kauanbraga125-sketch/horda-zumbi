@@ -156,7 +156,7 @@ func paint(g,s) -> void:
 			water_fx.contact(c,shore,158.0,s.age,0.9*(1.0-s.exit_clear()))
 		g.ground(r.world_px)
 	for e in s.objects:
-		if e.taken: continue
+		if e.taken and not e.get("barao_visible",false): continue
 		if e.kind == "pipe":
 			var pipe = Art.texture("pipe_mount")
 			var width = pipe.get_width() * 170.0 / pipe.get_height()

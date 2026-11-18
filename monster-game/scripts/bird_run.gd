@@ -1,6 +1,7 @@
 extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
 const Art = preload("res://scripts/bird_art.gd")
+const BaraoArt = preload("res://scripts/barao_art.gd")
 var pipoco = preload("res://scripts/pipoco_power.gd").new()
 var fiapo = preload("res://scripts/fiapo_power.gd").new()
 var ferrugem = preload("res://scripts/ferrugem_power.gd").new()
@@ -35,7 +36,7 @@ func configure(data: Dictionary) -> void:
 	if id=="pipoco":Art.spit_texture()
 	if id=="ferrugem":Art.laser_texture()
 	if id=="agourinho":Art.texture("agourinho");Art.ritual_texture();Art.portal_texture()
-	if id=="barao":Art.texture("barao");Art.barao_texture()
+	if id=="barao":BaraoArt.texture()
 	chirp_at = 8.0
 	clock = 0;emotion_left = 0;rescued = false;attacks = 0
 
@@ -63,6 +64,10 @@ func advance(r,dt: float) -> void:
 func coin_multiplier() -> int:
 	if id=="barao" and barao.doubles_coins():return 2
 	return companion.coin_multiplier() if companion!=null else 1
+
+func coin_scale() -> float:
+	if id=="barao":return barao.coin_scale()
+	return companion.coin_scale() if companion!=null else 1.0
 
 func on_perfect(r) -> void:
 	if companion!=null: companion.on_perfect(r)

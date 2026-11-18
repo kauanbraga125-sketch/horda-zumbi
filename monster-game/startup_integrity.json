@@ -48,14 +48,19 @@
       "sha256": "e3c032961f3ff72591ed1269f9c7c5eee5d6d789e48ca4c212900eab7603d4c4"
     },
     {
+      "path": "res://scripts/barao_art.gd",
+      "bytes": 1793,
+      "sha256": "d8769bfe5590ce37bc938a5d4ae0391798dcac4ed3ab078957100b364aa3f150"
+    },
+    {
       "path": "res://scripts/barao_power.gd",
-      "bytes": 6687,
-      "sha256": "c13472b4dec9abf3eb34486429702a6a4fd0a241dd10111ed01d67a37f805f0b"
+      "bytes": 11340,
+      "sha256": "bcebb5739f75ef02042cc0af115f8258c2001cf4d794543d2e47084ce7808cbb"
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 7884,
-      "sha256": "ee9c2053154ac3f743c6be93b1fa25e8fc200d479e4ddae4a4391e7cd979ead4"
+      "bytes": 7466,
+      "sha256": "5ab82edc9cf658150e23f627433b0ce507925607103a4221a10c1fdefdb87029"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
@@ -69,8 +74,8 @@
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 3998,
-      "sha256": "89c2be8d125196f9b8d6d88934428125a059ea02d15952cbb1ae3bebbd459362"
+      "bytes": 4161,
+      "sha256": "02a671d99d19d4f4654e17584e4582bc4a90d0e2278e4eb3dc96ea4834355736"
     },
     {
       "path": "res://scripts/birds_ui.gd",
@@ -244,8 +249,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 134877,
-      "sha256": "81f510f0e72cfdb3b4ae236d7aab66b1932709e8995c0ebe4d80e6e3ff04dc26"
+      "bytes": 134941,
+      "sha256": "510764e94747cac6a6c48af85c166d0d47c2cbb4a983322d16ba4eed2f57e139"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -429,8 +434,8 @@
     },
     {
       "path": "res://scripts/sewer_presentation.gd",
-      "bytes": 12338,
-      "sha256": "e3cb5c101edeb7bc9df7e6ece6c6460e849b8fe9bb046d6d54e1f50ef74492e3"
+      "bytes": 12375,
+      "sha256": "7250f1860eab3e6b39b5391f6476536d852fe8a5342c3884701bec660636b957"
     },
     {
       "path": "res://scripts/sewer_riders.gd",
@@ -2488,9 +2493,9 @@
       "sha256": "f0133e98688a1616d707d9595bf5baaee8b128ebd3010bdff7108fe0de885ed5"
     },
     {
-      "path": "res://assets/art/v180/barao_goela.webp",
-      "bytes": 157898,
-      "sha256": "a53e5dc11d9e269c0d3ba507ec73dde558917b8fd2e3df7c828052466f55b05f"
+      "path": "res://assets/art/v180/barao_rig.webp",
+      "bytes": 29884,
+      "sha256": "c9db9b4ef4e39ef1579f0fa34c555db016ef7450bb5bccdd846dd8eb52f31c1d"
     }
   ]
 }

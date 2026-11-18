@@ -1,7 +1,7 @@
 extends SceneTree
 
 const Barao = preload("res://scripts/barao_power.gd")
-const Art = preload("res://scripts/bird_art.gd")
+const Art = preload("res://scripts/barao_art.gd")
 var failures: Array[String] = []
 
 func _initialize() -> void:call_deferred("run")
@@ -22,15 +22,27 @@ func model(second: bool = false) -> HordeRun:
 func step(r: HordeRun,seconds: float) -> void:
 	for i in range(roundi(seconds*60)):r.advance(1.0/60)
 
+func check_atlas() -> void:
+	var image = Image.new()
+	var error = image.load_webp_from_buffer(FileAccess.get_file_as_bytes(Art.ATLAS))
+	check(error==OK and image.get_size()==Vector2i(512,256),"Barão's rig has body and wing cells")
+	if error!=OK:
+		return
+	for x in [0,256]:
+		var used = image.get_region(Rect2i(x,0,256,256)).get_used_rect()
+		check(used.size.x>100 and used.size.y>100 and Rect2i(8,8,240,240).encloses(used),
+			"Each sprite piece has transparent padding on every edge")
+
 func run() -> void:
 	var r = model()
 	var power = r.bird.barao
-	check(Art.barao_texture().get_size()==Vector2(960,640),"Action atlas has all 20 frames")
+	check_atlas()
 	for i in range(12):r.bird.on_perfect(r)
 	step(r,24.9)
 	check(r.bird.coin_multiplier()==1 and power.next_power==Barao.Power.DOUBLE,"Perfects cannot trigger an early cast")
 	step(r,.2)
 	check(r.bird.coin_multiplier()==2,"First cast doubles collectible coins")
+	check(r.bird.coin_scale()>1 and r.bird.coin_scale()<1.6,"Coin art grows smoothly at the start of the cast")
 	var coin = r.add_entity("coin",r.ANCHOR+32,r.FLOOR-48)
 	step(r,.1)
 	check(coin.taken and r.coins==2,"Street pickup has twice its normal value")
@@ -50,8 +62,15 @@ func run() -> void:
 	step(r,.2)
 	check(not crate.taken and not bomb.taken and power.bombs_ready,"Neither offscreen hazards nor crates consume the charge")
 	crate.taken = true
-	step(r,1.0)
-	check(bomb.taken and not power.bombs_ready and r.coins==9,"Visible bomb is removed before paying a coin")
+	var wait_steps = 0
+	while not bomb.taken and wait_steps<120:
+		r.advance(1.0/60)
+		wait_steps += 1
+	check(bomb.taken and bomb.get("barao_visible",false) and power.coins.is_empty() and r.coins==9,
+		"Reserved bomb remains visible and has no coin while the ray travels")
+	step(r,.65)
+	check(not bomb.get("barao_visible",false) and power.coins.size()==1 and r.coins==9,
+		"The bomb becomes a physical coin on impact")
 	step(r,3.5)
 	check(r.coins==10 and int(r.mission_stats.bombs_broken)==1,"Transmuted bomb yields a single collectible")
 	check(r.losses==0,"Converted bomb causes no damage")

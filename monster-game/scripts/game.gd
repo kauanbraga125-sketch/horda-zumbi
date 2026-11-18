@@ -314,8 +314,9 @@ func consume_run_events() -> void :
 			"barao_trail":
 				sound.play("bird_barao",-17);show_toast("BARÃO GOELA • CHUVA DE MOEDAS",2.5)
 			"barao_bombs":
-				sound.play("bird_barao",-17);sound.play("guard",-20)
+				sound.play("bird_barao",-17);sound.play("space_energy",-27)
 				show_toast("BARÃO GOELA • BOMBAS EM MOEDAS",2.5)
+			"barao_gold_hit": sound.play("guard",-20)
 			"barao_drop": sound.play("creeper_wing",-25)
 			"ferrugem_charge": sound.play("space_energy",-23);sound.play("bird_ferrugem",-24)
 			"ferrugem_fire":
@@ -1066,7 +1067,7 @@ func draw_run() -> void :
 		if e.kind == "collapse": HordeTerrainArt.collapse(self, e)
 		if e.kind == "gap" and runner.tutorial_hints() and e.x > HordeRun.ANCHOR: text("SEGURE!" if e.get("long_jump", false) else "PULO!", Vector2(e.x + e.width * 0.5, floor_y - 28), 16, CORAL, true, true, 3)
 	for e in runner.entities:
-		if e.taken or e.x + float(e.width) * 0.5 < scenery.view_left - 100 or e.x - float(e.width) * 0.5 > scenery.view_right + 100: continue
+		if (e.taken and not e.get("barao_visible",false)) or e.x + float(e.width) * 0.5 < scenery.view_left - 100 or e.x - float(e.width) * 0.5 > scenery.view_right + 100: continue
 		if e.kind in ["civilian", "soldier", "police"] and e.state == "capture":
 			var id = int(e.capturer)
 			if not captured_by_id.has(id): captured_by_id[id] = []
@@ -1572,7 +1573,7 @@ func update_run_visuals(dt: float) -> void :
 				effects.add("speed", foot + Vector2(-22, randf_range(-75, -15)), Vector2(-100, 0), MINT, randf_range(20, 43), 0.22)
 
 func run_coin_height(height: float) -> float:
-	return height*1.6 if runner.bird.coin_multiplier()==2 else height
+	return height*runner.bird.coin_scale()
 
 func floating_item(index: int, centre: Vector2, height: float, modulate: Color = Color.WHITE, lantern: bool = false) -> void :
 	var texture = art.items[index]
