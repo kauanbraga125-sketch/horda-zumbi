@@ -39,8 +39,8 @@
     },
     {
       "path": "res://scripts/aviary_art.gd",
-      "bytes": 5343,
-      "sha256": "998cee877276b15cd690e3a236efb82e81aab2ce2faa4a376d7dd5647fed988d"
+      "bytes": 5494,
+      "sha256": "4060918b4444fb50e596e794984af396d5bd48828b3c231a8e98a331e66b40b4"
     },
     {
       "path": "res://scripts/balance.gd",
@@ -59,13 +59,13 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 7556,
-      "sha256": "596239ab6506261a23e50ff7b3670ed265faac79002e7493208fe79ba6b9a201"
+      "bytes": 7664,
+      "sha256": "4af84479aae2c233bad8ac9c648f3cb43d1460950e50b1337a80705c500ef015"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 10379,
-      "sha256": "7646bcfa70c11f5d3eeaa1a514233d30736ffc6e527aee28a5362146835a987e"
+      "bytes": 10785,
+      "sha256": "003efd82a2022e968a478f551dd0466c9fe8e5681ce86b5dd01fd775ef882e74"
     },
     {
       "path": "res://scripts/bird_coin_flight.gd",
@@ -74,13 +74,13 @@
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 4440,
-      "sha256": "d0d331acecd8ee9eb6c8e802d9a201da5d523f0097e952502c093829b10d6a20"
+      "bytes": 4806,
+      "sha256": "c0d8c30e094a4f34deed4cc7b1bfd2f77a53d33719cca7ec8a021e282b508795"
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 19423,
-      "sha256": "ac1d5b8e7c6d77f7a555dcc9fe091c8764932c42a8837790b54f7b4240215fff"
+      "bytes": 19424,
+      "sha256": "5b3cec73596e7c258cf0320d2dcd5c7d47a1defa9a70e63422ee719fc52eb62f"
     },
     {
       "path": "res://scripts/bonus_director.gd",
@@ -179,8 +179,8 @@
     },
     {
       "path": "res://scripts/effects.gd",
-      "bytes": 16245,
-      "sha256": "ba5f7f79f7ac07836eef6b94b75061c92688245726426a32d54e2a60bd1cb91b"
+      "bytes": 17394,
+      "sha256": "f7213c9d7df5531c657a5897c9cde26c92e4c071b9631546f6a00686e4d0a87d"
     },
     {
       "path": "res://scripts/experiment.gdshader",
@@ -248,9 +248,19 @@
       "sha256": "687004a96120d34279a8bce60bc753a15ed70d72b1ba713940bb12ba2e26e3bc"
     },
     {
+      "path": "res://scripts/fuba_art.gd",
+      "bytes": 3703,
+      "sha256": "f12005f7419f97637b6123beae45dd851db49a37d575cf6738d54539985e7736"
+    },
+    {
+      "path": "res://scripts/fuba_power.gd",
+      "bytes": 6196,
+      "sha256": "a8f3b0b38938f1e2d954001206e3ef30c36cc939a4b8860c86ed73124ad2b1ff"
+    },
+    {
       "path": "res://scripts/game.gd",
-      "bytes": 135444,
-      "sha256": "9ade717c30fe2ad0e90aa4823b463e5fcf7935460d99ce56d1a2c0d0334355d6"
+      "bytes": 135763,
+      "sha256": "0f6107fa2820b44b149a44d646543351bf2891eb06e85088a34a9e64f9026b18"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -394,8 +404,8 @@
     },
     {
       "path": "res://scripts/runner.gd",
-      "bytes": 72455,
-      "sha256": "011f4582d8f59314f356655658b62681b977f310141bd31298563e28b4360206"
+      "bytes": 72777,
+      "sha256": "92d79b9d75629476df17173ebcaf54dcc038fdea8dd038b1f7446e7cd37e07a7"
     },
     {
       "path": "res://scripts/scene.gd",
@@ -2531,6 +2541,26 @@
       "path": "res://assets/art/toc_toc/reaction.webp",
       "bytes": 260238,
       "sha256": "83deb432f1f8258cec52301ac33cf7d0ea7087c17f983f834a513f9cb4cf587f"
+    },
+    {
+      "path": "res://assets/art/fuba/flight.webp",
+      "bytes": 98380,
+      "sha256": "765b5820bb7eeb7a43c1043a45c26d0406b630bb04128b41c8c9269f93f5358b"
+    },
+    {
+      "path": "res://assets/art/fuba/flight_motion.json",
+      "bytes": 7693,
+      "sha256": "b68365b10b4a39015ad7fb8d6fd8073e971bcae0a11484a0eb97be93bea12a42"
+    },
+    {
+      "path": "res://assets/art/fuba/power.webp",
+      "bytes": 90556,
+      "sha256": "0f4d5bbe81d2fb3d33f3fc178fed5c5359a6181e41acb81e03543b4cbb6398e0"
+    },
+    {
+      "path": "res://assets/art/fuba/shell.webp",
+      "bytes": 6084,
+      "sha256": "167318b40d1f69cbf1c9f30f213918813dc94f39059b08714ad68fb45aa85cc3"
     }
   ]
 }
