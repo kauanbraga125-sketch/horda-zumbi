@@ -3,7 +3,7 @@ const Catalog = preload("res://scripts/bird_catalog.gd")
 const BirdArt = preload("res://scripts/bird_art.gd")
 const CRATE_TIME = 1.15
 const FUSION_TIME = 1.65
-const SHORT = ["Moedas extras nos Perfects","Avisa quando há perigo","Sabota ameaças no caminho","Última chance para a horda","Três poderes de moedas","Bicada • 20% bomba · 2% veículo"]
+const SHORT = ["Moedas extras nos Perfects","Avisa quando há perigo","Sabota ameaças no caminho","Última chance para a horda","Três poderes de moedas","Bicada • 20% bomba · 2% veículo","Pulo no Susto • Salva 1 monstro"]
 var art = preload("res://scripts/aviary_art.gd").new()
 var selected = 0
 var page = "collection"
@@ -146,13 +146,13 @@ func paint(g) -> void:
 	art.frame(c,"panel",d.collection)
 	label(g,"COLEÇÃO" if page=="collection" else "ESCOLHA DUAS ESPÉCIES",Vector2(d.collection.get_center().x,d.collection.position.y+35*s),roundi(23*s),g.CREAM,true,d.collection.size.x*.65)
 	var y = d.collection.position.y+57*s;var eligible = 0
-	for id in ["pipoco","toc_toc","fiapo","ferrugem","agourinho","barao"]:
+	for id in Catalog.COLLECTION_ORDER:
 		var i = Catalog.IDS.find(id);var rarity = Catalog.tier(id)
 		var count = Catalog.copies(g.data,id);var known = Catalog.discovered(g.data,id)
 		if page=="fusion" and not Catalog.fusion_eligible(g.data,id):continue
 		eligible += 1
 		var chosen = id in fusion_inputs if page=="fusion" else selected==i
-		var h = (88 if chosen else 53)*s
+		var h = (84 if chosen else 46)*s
 		var row = Rect2(d.collection.position.x+14*s,y,d.collection.size.x-28*s,h)
 		art.frame(c,"selected" if chosen else "row",row)
 		var portrait = Rect2(row.position+Vector2(6*s,4*s),Vector2(94*s,h-8*s))
@@ -161,7 +161,7 @@ func paint(g) -> void:
 		var name = Catalog.NAMES[i] if known else "AVE DESCONHECIDA"
 		if page=="fusion" and id in fusion_inputs:name = str(fusion_inputs.find(id)+1)+" · "+name
 		label(g,name,row.position+Vector2(106*s,(34 if chosen else 23)*s),roundi((23 if known else 19)*s),Catalog.COLORS[rarity],false,row.size.x-120*s)
-		var badge = Rect2(row.position+Vector2(105*s,(41 if chosen else 29)*s),Vector2(115*s,19*s))
+		var badge = Rect2(row.position+Vector2(105*s,(41 if chosen else 26)*s),Vector2(115*s,17*s))
 		art.draw(c,"badge",badge,Catalog.COLORS[rarity],0,true);label(g,Catalog.RARITIES[rarity],badge.get_center()+Vector2(0,5*s),roundi(12*s),g.CREAM,true,badge.size.x-10*s)
 		if chosen:
 			label(g,SHORT[i] if known else "Abra uma caixa para revelar esta ave.",row.position+Vector2(107*s,73*s),roundi(14*s),g.CREAM,false,maxf(140*s,row.size.x-290*s))
@@ -171,7 +171,7 @@ func paint(g) -> void:
 				if known and count>copy*3:art.portrait(c,id,Rect2(pos,Vector2(51,40)*s),g.ui_time)
 				bars(g,pos+Vector2(4,43)*s,clampi(count-copy*3,0,3),s)
 		else:bars(g,Vector2(row.end.x-69*s,row.position.y+32*s),mini(count,3),s)
-		register(g,row,"bird_select_"+str(i));y += h+5*s
+		register(g,row,"bird_select_"+str(i));y += h+4*s
 	if page=="fusion":
 		if eligible<2:
 			label(g,"DUAS ESPÉCIES DIFERENTES",d.collection.get_center()+Vector2(0,28*s),roundi(23*s),g.GOLD,true,d.collection.size.x-60*s)

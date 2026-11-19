@@ -28,6 +28,14 @@ func spark(pos: Vector2, color: Color, count: int = 12) -> void :
 func ring(pos: Vector2, color: Color) -> void :
 	add("ring", pos, Vector2.ZERO, color, 22, 0.55)
 
+func fuba_gust(pos: Vector2) -> void:
+	for i in range(3):
+		add("fuba_wind",pos+Vector2((i-1)*9,16+i*7),Vector2(i*18-18,-110-i*26),
+			Color("fff1c0") if i==1 else Color("b0efda"),25+i*10,.27+i*.05,0,false)
+	for i in range(8):
+		add("fuba_feather",pos+Vector2(randf_range(-15,15),15),Vector2(randf_range(-120,120),randf_range(-190,-65)),
+			Color("ffe397") if i%2==0 else Color("f9edcb"),randf_range(5,9),randf_range(.28,.5),210)
+
 func peck_wake(pos: Vector2, forward: Vector2) -> void:
 	var side = forward.orthogonal()
 	for i in range(3):
@@ -170,6 +178,17 @@ func paint(canvas: Node2D, art: HordeArt, actor: HordeActor = null) -> void :
 			"speed":
 				canvas.draw_set_transform(p.pos)
 				canvas.draw_line(Vector2.ZERO, Vector2( - p.size, 0), color, 2, true)
+			"fuba_wind":
+				canvas.draw_set_transform(p.pos,-.19,Vector2(1,.43))
+				var radius = p.size*(.62+progress*.75)
+				canvas.draw_arc(Vector2.ZERO,radius,2.2,6.0,24,Color(color,color.a*.3),7,true)
+				canvas.draw_arc(Vector2.ZERO,radius,2.45,5.92,24,Color(color,color.a*.91),2.4,true)
+				canvas.draw_arc(Vector2.ZERO,radius*.78,3.28,5.77,18,Color("fff9e9",color.a*.85),1.3,true)
+			"fuba_feather":
+				canvas.draw_set_transform(p.pos,p.rotation,Vector2(p.size,p.size))
+				canvas.draw_colored_polygon(PackedVector2Array([Vector2(-.78,.49),Vector2(-.38,-.36),Vector2(.7,-.55),
+					Vector2(.43,.13),Vector2(.03,.39)]),color)
+				canvas.draw_line(Vector2(-.87,.63),Vector2(.45,-.38),Color("fff5da",color.a),.11,true)
 			"peck_streak":
 				canvas.draw_set_transform(p.pos,p.angle)
 				var length = p.size*(.65+progress*.8)

@@ -116,6 +116,9 @@ static func paint(c,id: String,point: Vector2,height: float,time: float,emotion:
 	if id=="toc_toc":
 		preload("res://scripts/toc_toc_art.gd").paint_flight(c,point,height*1.25,time,tint)
 		return
+	if id=="fuba":
+		preload("res://scripts/fuba_art.gd").paint_flight(c,point,height*1.17,time,tint)
+		return
 	if id=="barao":
 		Barao.paint_idle(c,point,height,time,emotion,tint)
 		return

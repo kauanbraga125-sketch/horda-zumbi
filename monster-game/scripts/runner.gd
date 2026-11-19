@@ -720,6 +720,7 @@ func advance(dt: float, jump_held: bool = false) -> void :
 		if not entity.taken and MonsterCatalog.VEHICLES.has(entity.kind): blockers.append(entity)
 	var launcher_contact: Dictionary = {}
 	var sewer_contact = false
+	var fuba_bird = bird.fuba_slot()
 	for i in range(members.size() - 1, -1, -1):
 		var m = members[i]
 		var previous_x = float(m.x)
@@ -780,9 +781,13 @@ func advance(dt: float, jump_held: bool = false) -> void :
 			var recorded = float(wave_durations.get(wave, HordeBalance.MAX_HOLD if bool(wave_holds.get(wave, false)) else HordeTuning.MIN_TAP_HOLD))
 			var hold_for = maxf(HordeTuning.MIN_TAP_HOLD, recorded)
 			var held = not m.falling and bool(m.get("hold_open", false)) and float(m.air_time) < hold_for
-			var hold_step = minf(dt, maxf(0, hold_for - float(m.air_time))) if held else 0.0
+			# The gust suspends vertical motion only. Road scroll and collisions still advance.
+			var pause = clampf(float(m.get("fuba_until",0))-(elapsed-dt),0,dt)
+			var motion_dt = dt-pause
+			var hold_step = minf(motion_dt, maxf(0, hold_for - float(m.air_time))) if held else 0.0
 			if hold_step > 0: HordeBalance.integrate(m, hold_step, true)
-			if dt - hold_step > 1e-06: HordeBalance.integrate(m, dt - hold_step, false)
+			if motion_dt - hold_step > 1e-06: HordeBalance.integrate(m, motion_dt - hold_step, false)
+			if fuba_bird!=null:fuba_bird.fuba.observe(fuba_bird,self,m,floor_here,floor_y)
 			if sky.pending and sky.contact(self, m, Vector2(previous_x, previous_y), step): launcher_contact = m
 			if not m.falling and m.glide_left > 0 and not floor_here and m.y > FLOOR - 60:
 				m.y = FLOOR - 60;m.vy = 0.0

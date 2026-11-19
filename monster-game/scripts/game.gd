@@ -309,6 +309,15 @@ func consume_run_events() -> void :
 			"bird_fetch_grab": sound.play("creeper_wing",-27)
 			"bird_warn": sound.play("bird_fiapo",-20)
 			"toc_toc_dash": sound.play("creeper_wing",-21)
+			"fuba_ready":
+				sound.play("guard",-20)
+				effects.spark(point,Color("ffe397"),7)
+				show_toast("FUBÁ • PULO NO SUSTO PRONTO",2.0)
+			"fuba_dive": sound.play("space_dash",-24)
+			"fuba_rescue":
+				sound.play("creeper_wing",-16)
+				effects.fuba_gust(point)
+				show_toast("FUBÁ • RAJADA DE RESGATE",1.55)
 			"toc_toc_wake": effects.peck_wake(point,e.direction)
 			"toc_toc_peck":
 				effects.peck_impact(point,e.result)
