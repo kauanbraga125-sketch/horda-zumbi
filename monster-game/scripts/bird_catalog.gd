@@ -1,12 +1,12 @@
 extends RefCounted
 ## Collection rules are independent of animation, rendering and the run RNG.
-const IDS = ["pipoco","fiapo","ferrugem","agourinho","barao"]
+const IDS = ["pipoco","fiapo","ferrugem","agourinho","barao","toc_toc"]
 const RARITIES = ["CLÁSSICA","SUPER","HIPER","ULTRA","LENDÁRIA"]
 const COLORS = [Color("9ce4aa"),Color("71ded5"),Color("79b8ff"),Color("c994ff"),Color("ffce73")]
 const WEIGHTS = [60.0,25.0,10.0,4.0,1.0]
-const NAMES = ["PIPOCO","FIAPO","FERRUGEM","AGOURINHO","BARÃO GOELA"]
-const PERSONALITIES = ["Uma barriga enorme. Uma fome maior ainda.","Magrelo, medroso e sempre vendo perigo.","Metade corvo. Metade sucata. Inteiro mau humor.","Três olhos. Um segredo. Nenhum pio normal.","Sua excelência exige espaço para a barriga."]
-const HINTS = ["Enche as bochechas antes de cuspir um pequeno tesouro.","Perninhas finas, garras firmes. Volta sempre com companhia.","Está sempre procurando algo para desmontar.","Não gosta de despedidas definitivas.","Sua excelência enxerga moedas até nas bombas."]
+const NAMES = ["PIPOCO","FIAPO","FERRUGEM","AGOURINHO","BARÃO GOELA","TOC-TOC"]
+const PERSONALITIES = ["Uma barriga enorme. Uma fome maior ainda.","Magrelo, medroso e sempre vendo perigo.","Metade corvo. Metade sucata. Inteiro mau humor.","Três olhos. Um segredo. Nenhum pio normal.","Sua excelência exige espaço para a barriga.","Curioso demais para deixar o pavio em paz."]
+const HINTS = ["Enche as bochechas antes de cuspir um pequeno tesouro.","Perninhas finas, garras firmes. Volta sempre com companhia.","Está sempre procurando algo para desmontar.","Não gosta de despedidas definitivas.","Sua excelência enxerga moedas até nas bombas.","Uma bicada certeira pode mudar o rumo da corrida."]
 const PRICE = 30
 const FUSION_PRICE = 0
 const ESSENCE_NEEDED = 6
@@ -15,7 +15,7 @@ const BARS_PER_BIRD = 3
 static func defaults() -> Dictionary:
 	return {"bird_copies":{},"bird_essence":{},"bird_discovered":{},"bird_equipped":"","bird_equipped_slots":["",""],"bird_draws":0,"bird_rare_pity":0,"bird_legend_pity":0,"bird_pending":{},"bird_serial":0}
 
-static func tier(id: String) -> int: return IDS.find(id)
+static func tier(id: String) -> int: return 0 if id=="toc_toc" else IDS.find(id)
 
 static func copies(data: Dictionary,id: String) -> int:
 	return clampi(int(data.get("bird_copies",{}).get(id,0)),0,100000)
@@ -43,10 +43,10 @@ static func equipped_slots(data: Dictionary) -> Array:
 	return result
 
 static func fusion_eligible(data: Dictionary,id: String) -> bool:
-	return tier(id)>=0 and tier(id)<IDS.size()-1 and available(data,id) and copies(data,id)>=BARS_PER_BIRD
+	return tier(id)>=0 and tier(id)<RARITIES.size()-1 and available(data,id) and copies(data,id)>=BARS_PER_BIRD
 
 static func fusion_result(first: String,second: String) -> String:
-	if first==second or tier(first)<0 or tier(second)<0 or tier(first)>=IDS.size()-1 or tier(second)>=IDS.size()-1:return ""
+	if first==second or tier(first)<0 or tier(second)<0 or tier(first)>=RARITIES.size()-1 or tier(second)>=RARITIES.size()-1:return ""
 	return IDS[maxi(tier(first),tier(second))+1]
 
 static func can_fuse(data: Dictionary,first: String,second: String) -> bool:
@@ -142,13 +142,14 @@ static func roll(data: Dictionary,random: RandomNumberGenerator) -> Dictionary:
 		result = 2 if n<10 else 3 if n<14 else 4
 	else:
 		var n = random.randf()*100.0
-		for i in range(5):
+		for i in range(WEIGHTS.size()):
 			n -= WEIGHTS[i]
 			if n<0: result = i;break
 	data.eyes = int(data.eyes)-price;data.bird_draws = int(data.bird_draws)+1
 	data.bird_rare_pity = 0 if result>=2 else int(data.bird_rare_pity)+1
 	data.bird_legend_pity = 0 if result==4 else int(data.bird_legend_pity)+1
-	return add_copy(data,IDS[result],"draw")
+	var id = "toc_toc" if result==0 and random.randf()<.5 else IDS[result]
+	return add_copy(data,id,"draw")
 
 static func fuse(data: Dictionary,first: String,second: String = "") -> Dictionary:
 	if not can_fuse(data,first,second):return {}
@@ -183,4 +184,5 @@ static func description(index: int,lv: int) -> String:
 		2: return "Carrega um laser que destrói 1 veículo ou obstáculo. Recarga: %d s, inclusive no primeiro tiro." % [60-(n-1)*10]
 		3: return "Após a horda morrer, invoca uma criatura de volta. Uma vez por partida. Proteção: %.1f s." % [1.0+(n-1)*.5]
 		4: return "A cada 25 s alterna: moedas grandes que valem o dobro por 8 s, uma trilha de 6 moedas e bombas que viram moedas."
+		5: return "Uma bicada por alvo. 20% de chance de explodir bombas e 2% de virar veículos."
 	return ""

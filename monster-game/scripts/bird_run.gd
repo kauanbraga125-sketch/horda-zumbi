@@ -2,11 +2,13 @@ extends RefCounted
 const Catalog = preload("res://scripts/bird_catalog.gd")
 const Art = preload("res://scripts/bird_art.gd")
 const BaraoArt = preload("res://scripts/barao_art.gd")
+const TocTocArt = preload("res://scripts/toc_toc_art.gd")
 var pipoco = preload("res://scripts/pipoco_power.gd").new()
 var fiapo = preload("res://scripts/fiapo_power.gd").new()
 var ferrugem = preload("res://scripts/ferrugem_power.gd").new()
 var agourinho = preload("res://scripts/agourinho_power.gd").new()
 var barao = preload("res://scripts/barao_power.gd").new()
+var toc_toc = preload("res://scripts/toc_toc_power.gd").new()
 var companion
 var slot_index = 0
 var id = ""
@@ -32,11 +34,13 @@ func configure(data: Dictionary) -> void:
 	ferrugem.reset(level)
 	agourinho.reset()
 	barao.reset()
+	toc_toc.reset()
 	# Load action textures before the first cast.
 	if id=="pipoco":Art.spit_texture()
 	if id=="ferrugem":Art.laser_texture()
 	if id=="agourinho":Art.texture("agourinho");Art.ritual_texture();Art.portal_texture()
 	if id=="barao":BaraoArt.warm()
+	if id=="toc_toc":TocTocArt.warm()
 	chirp_at = 8.0
 	clock = 0;emotion_left = 0;rescued = false;attacks = 0
 
@@ -54,11 +58,12 @@ func advance(r,dt: float) -> void:
 	if id=="fiapo":fiapo.advance(self,r,dt)
 	if id=="ferrugem":ferrugem.advance(self,r,dt)
 	if id=="agourinho":agourinho.advance(r,dt)
+	if id=="toc_toc":toc_toc.advance(self,r,dt)
 	if id=="barao":
 		barao.advance(self,r,dt)
 		if companion!=null:companion.advance(r,dt)
 	if r.sky.active or (r.space.active and r.space.phase!="flight") or (r.sewer.active and r.sewer.phase!="ride"): return
-	if clock>=chirp_at:
+	if id!="toc_toc" and clock>=chirp_at:
 		chirp_at = clock+10+Catalog.tier(id)*1.3;r.events.append({"type":"bird_chirp","bird":id})
 
 func coin_multiplier() -> int:
@@ -103,4 +108,5 @@ func paint(g) -> void:
 	if id=="fiapo":fiapo.paint(g,self);return
 	if id=="ferrugem":ferrugem.paint(g,self);return
 	if id=="agourinho":agourinho.paint(g,self);return
+	if id=="toc_toc":toc_toc.paint(g,self);return
 	if id=="barao":barao.paint(g,self)

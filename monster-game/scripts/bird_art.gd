@@ -113,6 +113,9 @@ static func frame(index: int,time: float,emotion: String = "") -> int:
 static func paint(c,id: String,point: Vector2,height: float,time: float,emotion: String = "",tint: Color = Color.WHITE) -> void:
 	var index = Catalog.tier(id)
 	if index<0: return
+	if id=="toc_toc":
+		preload("res://scripts/toc_toc_art.gd").paint_flight(c,point,height*1.25,time,tint)
+		return
 	if id=="barao":
 		Barao.paint_idle(c,point,height,time,emotion,tint)
 		return
