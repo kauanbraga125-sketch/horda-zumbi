@@ -308,6 +308,15 @@ func consume_run_events() -> void :
 			"bird_fetch": sound.play("bird_fiapo",-22)
 			"bird_fetch_grab": sound.play("creeper_wing",-27)
 			"bird_warn": sound.play("bird_fiapo",-20)
+			"toc_toc_dash": sound.play("creeper_wing",-21)
+			"toc_toc_wake": effects.peck_wake(point,e.direction)
+			"toc_toc_peck":
+				effects.peck_impact(point,e.result)
+				sound.play("hit" if e.result=="miss" else "guard",-19)
+				if e.result=="bomb":
+					effects.explosion(e.center)
+					sound.play("explosion",-16)
+					shake = maxf(shake,4)
 			"barao_double":
 				sound.play("bird_barao",-17);sound.play("space_energy",-22)
 				show_toast("BARÃO GOELA • MOEDAS ×2",2.5)
@@ -1105,7 +1114,8 @@ func draw_run() -> void :
 			"bomb", "air_bomb":
 				var aerial = e.kind == "air_bomb"
 				var point = Vector2(e.x, e.y if aerial else e.y - HordeTuning.BOMB_HEIGHT * 0.5)
-				scenery.sprite(paint_target, art.ritual[3] if aerial else art.props[0], point, 85.8 if aerial else HordeTuning.BOMB_HEIGHT, Color.WHITE, sin(ui_time * 7 + e.bob) * 0.07)
+				var flinch = preload("res://scripts/toc_toc_art.gd").flinch(e,runner.elapsed)
+				scenery.sprite(paint_target, art.ritual[3] if aerial else art.props[0], point, 85.8 if aerial else HordeTuning.BOMB_HEIGHT, Color.WHITE, sin(ui_time * 7 + e.bob) * 0.07+flinch)
 				draw_fuse(point + Vector2(9, -34 if aerial else -32), ui_time + e.bob)
 				if runner.tutorial_hints() and aerial and e.get("cluster_first", true): text("PULE" if e.y > HordeRun.FLOOR - 130 else "POR BAIXO", point + Vector2(0, -52), 15, CORAL, true, true, 2)
 			"soldier": runner.soldier.paint(paint_target, e)
@@ -1639,7 +1649,7 @@ func motion_preview() -> void :
 func draw_vehicle(entity: Dictionary) -> void :
 	var spec = MonsterCatalog.VEHICLES[entity.kind]
 	var height = float(entity.height); var width = float(entity.width)
-	var angle = float(entity.tilt) + sin(ui_time * 3 + entity.bob) * 0.006
+	var angle = float(entity.tilt) + sin(ui_time * 3 + entity.bob) * 0.006 + preload("res://scripts/toc_toc_art.gd").flinch(entity,runner.elapsed)
 	var point = Vector2(entity.x, entity.y - height * 0.5 - sin(angle) * height * 0.15)
 	paint_target.draw_set_transform(point, angle, Vector2(-1 if spec.reverse else 1, 1))
 	paint_target.draw_texture_rect(art.vehicle(entity.kind), Rect2( - width * 0.5, - height * 0.5, width, height), false)

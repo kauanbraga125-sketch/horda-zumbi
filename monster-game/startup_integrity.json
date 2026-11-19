@@ -39,8 +39,8 @@
     },
     {
       "path": "res://scripts/aviary_art.gd",
-      "bytes": 5194,
-      "sha256": "40fa8264a51cbfa27b91ec03beb6143ce9c292da22f06bdf915462e1f52723ae"
+      "bytes": 5343,
+      "sha256": "998cee877276b15cd690e3a236efb82e81aab2ce2faa4a376d7dd5647fed988d"
     },
     {
       "path": "res://scripts/balance.gd",
@@ -59,13 +59,13 @@
     },
     {
       "path": "res://scripts/bird_art.gd",
-      "bytes": 7442,
-      "sha256": "0a53d4462e23ec97f3c9824579d91452009015abb1e3b2c08b1b30fbb1c629e3"
+      "bytes": 7556,
+      "sha256": "596239ab6506261a23e50ff7b3670ed265faac79002e7493208fe79ba6b9a201"
     },
     {
       "path": "res://scripts/bird_catalog.gd",
-      "bytes": 10054,
-      "sha256": "53a04d3bdb81292e68cb9e1188e633d3630ac1b0e6e3e5f4182474a65ee06c40"
+      "bytes": 10379,
+      "sha256": "7646bcfa70c11f5d3eeaa1a514233d30736ffc6e527aee28a5362146835a987e"
     },
     {
       "path": "res://scripts/bird_coin_flight.gd",
@@ -74,13 +74,13 @@
     },
     {
       "path": "res://scripts/bird_run.gd",
-      "bytes": 4158,
-      "sha256": "8386c5200f4fdd9e5c02bd69f5e6b2714b27a6db3e5129e525c251cc9f484944"
+      "bytes": 4440,
+      "sha256": "d0d331acecd8ee9eb6c8e802d9a201da5d523f0097e952502c093829b10d6a20"
     },
     {
       "path": "res://scripts/birds_ui.gd",
-      "bytes": 19247,
-      "sha256": "cabd75729cf5bfd0d9a9cce633e2dacdd247eeb70b9de451837452f8b937d3dc"
+      "bytes": 19423,
+      "sha256": "ac1d5b8e7c6d77f7a555dcc9fe091c8764932c42a8837790b54f7b4240215fff"
     },
     {
       "path": "res://scripts/bonus_director.gd",
@@ -179,8 +179,8 @@
     },
     {
       "path": "res://scripts/effects.gd",
-      "bytes": 14334,
-      "sha256": "67d2d4fad3139b1acaf055d169e1eb29c8a509c1a49e59ac52e66f605788d96e"
+      "bytes": 16245,
+      "sha256": "ba5f7f79f7ac07836eef6b94b75061c92688245726426a32d54e2a60bd1cb91b"
     },
     {
       "path": "res://scripts/experiment.gdshader",
@@ -249,8 +249,8 @@
     },
     {
       "path": "res://scripts/game.gd",
-      "bytes": 134941,
-      "sha256": "510764e94747cac6a6c48af85c166d0d47c2cbb4a983322d16ba4eed2f57e139"
+      "bytes": 135444,
+      "sha256": "9ade717c30fe2ad0e90aa4823b463e5fcf7935460d99ce56d1a2c0d0334355d6"
     },
     {
       "path": "res://scripts/gameplay_ui.gd",
@@ -606,6 +606,16 @@
       "path": "res://scripts/terrain_art.gd",
       "bytes": 6157,
       "sha256": "9183fbee125d71e260ce2ee6578eeb2a899cc651b3856a10c6bd7f9f9a2fa432"
+    },
+    {
+      "path": "res://scripts/toc_toc_art.gd",
+      "bytes": 2159,
+      "sha256": "10b0057aee36e39c49a6b0d5d3606a86b17ca77fd31fd9baacd76e9731684dc8"
+    },
+    {
+      "path": "res://scripts/toc_toc_power.gd",
+      "bytes": 6543,
+      "sha256": "86174cec87a9ac823a096769e00ad05fb13657d99388c213c811d2a861ea536e"
     },
     {
       "path": "res://scripts/traffic.gd",
@@ -2506,6 +2516,21 @@
       "path": "res://assets/art/v180/barao_spells.webp",
       "bytes": 451966,
       "sha256": "ec8e457a6732f67a1985e7f6b07df4f93bde53e1a3a78c942e5075db05a28d98"
+    },
+    {
+      "path": "res://assets/art/toc_toc/flight.webp",
+      "bytes": 223692,
+      "sha256": "ebed32ca578ff3b8c6ff80929faf74d4635989a38f3fb2c39a19f4a1707dd578"
+    },
+    {
+      "path": "res://assets/art/toc_toc/peck.webp",
+      "bytes": 227638,
+      "sha256": "4befcfa90a3b2288fdc8ef332503e31b895858f3a6d3ba4bf6bfb77325d2b896"
+    },
+    {
+      "path": "res://assets/art/toc_toc/reaction.webp",
+      "bytes": 260238,
+      "sha256": "83deb432f1f8258cec52301ac33cf7d0ea7087c17f983f834a513f9cb4cf587f"
     }
   ]
 }

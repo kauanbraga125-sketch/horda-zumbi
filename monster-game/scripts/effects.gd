@@ -28,6 +28,24 @@ func spark(pos: Vector2, color: Color, count: int = 12) -> void :
 func ring(pos: Vector2, color: Color) -> void :
 	add("ring", pos, Vector2.ZERO, color, 22, 0.55)
 
+func peck_wake(pos: Vector2, forward: Vector2) -> void:
+	var side = forward.orthogonal()
+	for i in range(3):
+		var offset = side*(i-1)*13
+		var color = Color("fff4ca") if i==1 else Color("77def5")
+		var p = add("peck_streak",pos+offset,-forward*(65+i*18),color,40+i*12,.20+i*.022)
+		p.angle = forward.angle()
+
+func peck_impact(pos: Vector2, result: String) -> void:
+	var color = Color("ffad53") if result=="bomb" else Color("86f8ed") if result=="vehicle" else Color("f59ce2")
+	var success = result!="miss"
+	add("peck_burst",pos,Vector2.ZERO,color,37 if success else 26,.23 if success else .17)
+	for i in range(8 if success else 4):
+		var forward = Vector2.from_angle(i*2.39996)
+		var p = add("peck_streak",pos+forward*9,forward*randf_range(108,230),color,randf_range(12,26),.21,54)
+		p.angle = forward.angle()
+	spark(pos,color,7 if success else 3)
+
 func pickup(pos: Vector2, icon: int, target: Vector2) -> void :
 	var p = add("pickup", pos, Vector2.ZERO, Color.WHITE, 26, 0.48, 0, false)
 	p.origin = pos;p.target = target;p.icon = icon
@@ -152,6 +170,25 @@ func paint(canvas: Node2D, art: HordeArt, actor: HordeActor = null) -> void :
 			"speed":
 				canvas.draw_set_transform(p.pos)
 				canvas.draw_line(Vector2.ZERO, Vector2( - p.size, 0), color, 2, true)
+			"peck_streak":
+				canvas.draw_set_transform(p.pos,p.angle)
+				var length = p.size*(.65+progress*.8)
+				canvas.draw_colored_polygon(PackedVector2Array([Vector2(4,0),Vector2(-10,-2.5),Vector2(-length,0),Vector2(-10,2.5)]),Color(color,color.a*.78))
+				canvas.draw_line(Vector2(-length*.56,0),Vector2(-2,0),Color("fff4d4",color.a*.86),1.2,true)
+			"peck_burst":
+				canvas.draw_set_transform(p.pos,0,Vector2(1,.74))
+				var outer = PackedVector2Array()
+				for i in range(12):
+					var radius = (p.size if i%2==0 else p.size*.31)*(1-.38*progress)
+					outer.append(Vector2.from_angle(i*TAU/12-.4)*radius)
+				if progress<.68:
+					var core = PackedVector2Array()
+					for point in outer:core.append(point*.64)
+					canvas.draw_colored_polygon(outer,Color(color,color.a*(1-progress)))
+					canvas.draw_colored_polygon(core,Color("fff6d9",color.a*(1-progress)))
+				var radius = p.size*(.64+1.15*progress)
+				canvas.draw_arc(Vector2.ZERO,radius,-1.1,1.0,12,color,2.2,true)
+				canvas.draw_arc(Vector2.ZERO,radius,2.05,3.8,10,Color(color,color.a*.69),1.7,true)
 			"dust":
 				canvas.draw_set_transform(p.pos, 0, Vector2(1.3, 0.7))
 				color.a *= 0.35

@@ -43,6 +43,9 @@ func frame(c: Node2D,key: String,rect: Rect2,tint: Color = Color.WHITE) -> void:
 	c.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 func portrait(c: Node2D,id: String,rect: Rect2,time: float = 0,active: bool = false,tint: Color = Color.WHITE) -> void:
+	if id=="toc_toc":
+		preload("res://scripts/toc_toc_art.gd").paint_flight(c,rect.get_center(),minf(rect.size.x,rect.size.y)*1.05,time,tint)
+		return
 	var bob = sin(time*3+float(id.hash()%17))*(2 if active else .55)
 	draw(c,"portrait/"+id,Rect2(rect.position+Vector2(0,bob),rect.size),tint)
 
