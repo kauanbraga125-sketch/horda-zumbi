@@ -9,7 +9,7 @@ const FLIGHT_FRAMES = 12
 const BLINK = [0,1,2,3,12,13,14,15,8,9,10,11]
 const MISS = [0,1,2,3,4,3,4,3,5,6,7]
 const TIP_AT_CONTACT = Vector2(478,232.33)
-const SIZE = 134.0
+const SIZE = 74.0
 static var textures: Dictionary = {}
 
 static func texture(path: String) -> Texture2D:

@@ -609,8 +609,8 @@
     },
     {
       "path": "res://scripts/toc_toc_art.gd",
-      "bytes": 2159,
-      "sha256": "10b0057aee36e39c49a6b0d5d3606a86b17ca77fd31fd9baacd76e9731684dc8"
+      "bytes": 2158,
+      "sha256": "0bf46be51c9c11d85f3a4f81291c1442d61ff0ccde22c66cf801eecef33fb250"
     },
     {
       "path": "res://scripts/toc_toc_power.gd",
